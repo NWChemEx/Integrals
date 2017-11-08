@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.1)
+project(IntegralsEx-Test VERSION 0.0.0 LANGUAGES CXX)
+include(TargetMacros)
+
+add_cxx_unit_test(TestOverlap IntegralsEx)
+add_cxx_unit_test(TestKinetic IntegralsEx)
+add_cxx_unit_test(TestMetric IntegralsEx)
+add_cxx_unit_test(TestNuclearElectron IntegralsEx)
+add_cxx_unit_test(TestDF IntegralsEx)
+add_cxx_unit_test(TestERI IntegralsEx)
