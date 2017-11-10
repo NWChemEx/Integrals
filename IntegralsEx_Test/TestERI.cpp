@@ -1,8 +1,7 @@
 #include <IntegralsEx/nwx_libint/LibInt4C.hpp>
-#include "../TestCommon.hpp"
 #define CATCH_CONFIG_MAIN
-#include "catch/catch.hpp"
-#include "../H2O_STO3G_ERI.hpp"
+#include "TestCommon.hpp"
+#include "H2O_STO3G_ERI.hpp"
 
 
 //Computes the ERI integrals for water in STO-3G
@@ -30,9 +29,7 @@ TEST_CASE("Testing the 4C ERI class"){
                     const double* buffer=eri->calculate(si,sj,sk,sl);
                     if(buffer==nullptr)continue;
                     ptr_wrapper wrapped_buffer={buffer,ni*nj*nk*nl};
-                    REQUIRE(std::equal(corr[counter].begin(),corr[counter].end(),
-                               wrapped_buffer.begin(),wrapped_buffer.end(),
-                               [](double x, double y)->bool {return x==Approx(y);}));
+                    compare_integrals(wrapped_buffer, corr[counter]);
                     ++counter;
                 }
             }

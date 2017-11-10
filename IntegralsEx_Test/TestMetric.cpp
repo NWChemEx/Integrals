@@ -1,7 +1,6 @@
 #include <IntegralsEx/nwx_libint/LibInt2C.hpp>
-#include "../TestCommon.hpp"
 #define CATCH_CONFIG_MAIN
-#include "catch/catch.hpp"
+#include "TestCommon.hpp"
 
 //Computes the density fitting metric integrals for water in STO-3G
 //Note: the integrals actually use STO-3G and not a fitting basis, but I fail
@@ -59,10 +58,7 @@ TEST_CASE("Testing the Metric class"){
             const double* buffer=Ints->calculate(si,sj);
             if(buffer==nullptr)continue;
             ptr_wrapper wrapped_buffer={buffer,ni*nj};
-    
-            REQUIRE(std::equal(corr[counter].begin(),corr[counter].end(),
-                               wrapped_buffer.begin(),wrapped_buffer.end(),
-                               [](double x, double y)->bool {return x==Approx(y);}));
+            compare_integrals(wrapped_buffer, corr[counter]);    
             ++counter;
         }
     }

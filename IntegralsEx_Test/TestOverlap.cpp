@@ -1,9 +1,8 @@
 #include <IntegralsEx/nwx_libint/LibInt2C.hpp> 
-#include "../TestCommon.hpp"
 #define CATCH_CONFIG_MAIN
-#include "catch/catch.hpp"
+#include "TestCommon.hpp"
 
-//Computes the overalap integrals for water in STO-3G
+//Computes the overlap integrals for water in STO-3G
 std::vector<std::vector<double>> corr={
     {//(  0 |  0 )
     1.0000000000000004,},
@@ -56,10 +55,7 @@ TEST_CASE("Testing Overlap class"){
             const double* buffer=Ints->calculate(si,sj);
             if(buffer==nullptr)continue;
             ptr_wrapper wrapped_buffer={buffer,ni*nj};
-
-            REQUIRE(std::equal(corr[counter].begin(),corr[counter].end(),
-                               wrapped_buffer.begin(),wrapped_buffer.end(),
-                               [](double x, double y)->bool {return x==Approx(y);}));
+            compare_integrals(wrapped_buffer, corr[counter]);
             ++counter;
         }
     }

@@ -1,8 +1,7 @@
 #include <IntegralsEx/nwx_libint/LibInt3C.hpp>
-#include "../TestCommon.hpp"
 #define CATCH_CONFIG_MAIN
-#include "catch/catch.hpp"
-#include "../H2O_STO3G_DF.hpp"
+#include "TestCommon.hpp"
+#include "H2O_STO3G_DF.hpp"
 
 //Computes the three-center, two-electron integrals for water in sto-3g
 //Note: as with the metric tensor using sto-3g instead of a proper fitting basis
@@ -31,9 +30,7 @@ TEST_CASE("Testing DF3C2E"){
                     const double* buffer=df3c->calculate(si,sj,sk);
                     if(buffer==nullptr)continue;
                     ptr_wrapper wrapped_buffer={buffer,ni*nj*nk};
-                    REQUIRE(std::equal(corr[counter].begin(),corr[counter].end(),
-                               wrapped_buffer.begin(),wrapped_buffer.end(),
-                               [](double x, double y)->bool {return x==Approx(y);}));
+                    compare_integrals(wrapped_buffer, corr[counter]);
                     ++counter;
             }
         }

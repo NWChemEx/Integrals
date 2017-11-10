@@ -1,6 +1,6 @@
 #pragma once
 #include <LibChemist/SetOfAtomsParser.hpp>
-#include <LibChemist/BasisSetParser.hpp>
+#include <catch/catch.hpp>
 
 using namespace LibChemist;
 
@@ -10,6 +10,18 @@ struct ptr_wrapper{
     const double* begin()const{return ptr_;}
     const double* end()const{return ptr_+n_;}
 };
+
+inline void compare_integrals(const ptr_wrapper& calc, 
+                              const std::vector<double>& corr)
+{
+    const double eps = 1000000000*std::numeric_limits<double>::epsilon();
+    const double marg = 10*std::numeric_limits<double>::epsilon();
+    size_t i = 0;
+    for (const double& x : calc) {
+        INFO("epsilon = " << eps); 
+        REQUIRE(x == Approx(corr[i++]).epsilon(eps).margin(marg));
+    }
+}
 
 inline SetOfAtoms make_atoms()
 {
