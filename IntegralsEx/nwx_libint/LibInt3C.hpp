@@ -8,6 +8,10 @@
 
 namespace nwx_libint {
 
+/** @brief Class with implementation of libint three-center integrals.
+ *
+ *  @tparam Op The libint2 operator to be used in the integral calculation.
+ */
 template<libint2::Operator Op>
 class LibInt3C : public IntegralsEx::ThreeCenterIntegral {
 protected:

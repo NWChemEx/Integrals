@@ -13,6 +13,10 @@ inline size_t get_max(size_t v1,size_t v2, size_t v3, size_t v4){
     return std::max(std::max(std::max(v1,v2),v3),v4);
 }
 
+/** @brief Class with implementation of libint four-center integrals.
+ *
+ *  @tparam Op The libint2 operator to be used in the integral calculation.
+ */
 template<libint2::Operator Op>
 class LibInt4C : public IntegralsEx::FourCenterIntegral {
 private:

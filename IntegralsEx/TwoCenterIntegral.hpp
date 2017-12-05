@@ -36,7 +36,7 @@ public:
          *
          * @param [in] shell1 Shell index on the first center
          * @param [in] shell2 Shell index on the second center
-         * @return A pointer to the beginning of the integral buffer
+         * @returns A pointer to the beginning of the integral buffer
          */
         const double* calculate(uint64_t shell1, uint64_t shell2)
         {
@@ -47,7 +47,7 @@ public:
          *
          * @param [in] shells1 Shell indices on the first center
          * @param [in] shells2 Shell indices on the second center
-         * @return A pointer to the beginning of the integral buffer
+         * @returns A pointer to the beginning of the integral buffer
          */
         const double* calculate_multi(const std::vector<uint64_t> & shells1,
                                  const std::vector<uint64_t> & shells2)
@@ -73,25 +73,6 @@ public:
         virtual const double* calculate_multi_(const std::vector<uint64_t> & /*shells1*/,
                                           const std::vector<uint64_t> & /*shells2*/)
         {
-//            //////////////////////////////////////////////////////////
-//            // default implementation - just loop over and do them all
-//            //////////////////////////////////////////////////////////
-
-//            uint64_t ntotal = 0;
-
-//            for(uint64_t s1 : shells1)
-//            for(uint64_t s2 : shells2)
-//            for(uint64_t s3 : shells3)
-//            for(uint64_t s4 : shells4)
-//            {
-//                uint64_t nbatch = calculate_(s1, s2, s3, s4);
-//                ntotal += nbatch;
-//                outbuffer += nbatch;
-
-//                // be safe with unsigned types
-//                bufsize = ( (nbatch >= bufsize) ? 0 : (bufsize - nbatch) );
-//            }
-
             return nullptr;
         }
 };

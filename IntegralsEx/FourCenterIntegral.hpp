@@ -47,7 +47,7 @@ public:
          * @param [in] shell4 Shell index on the fourth center
          * @param [in] outbuffer Where to place the completed integrals
          * @param [in] bufsize Size of \p outbuffer (as the number of doubles)
-         * @return A pointer to the beginning of the integral buffer
+         * @returns A pointer to the beginning of the integral buffer
          */
         const double* calculate(uint64_t shell1, uint64_t shell2,
                            uint64_t shell3, uint64_t shell4)
@@ -63,7 +63,7 @@ public:
          * @param [in] shells4 Shell indicies on the fourth center
          * @param [in] outbuffer Where to place the completed integrals
          * @param [in] bufsize Size of \p outbuffer (as the number of doubles)
-         * @return Number of integrals calculated
+         * @returns Number of integrals calculated
          */
         const double* calculate_multi(const std::vector<uint64_t> & shells1,
                                  const std::vector<uint64_t> & shells2,

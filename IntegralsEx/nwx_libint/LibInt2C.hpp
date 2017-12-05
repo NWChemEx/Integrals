@@ -7,7 +7,10 @@
 
 
 namespace nwx_libint {
-
+/** @brief Class with implementation of libint two-center integrals.
+ *
+ *  @tparam Op The libint2 operator to be used in the integral calculation.
+ */
 template<libint2::Operator Op>
 class LibInt2C : public IntegralsEx::TwoCenterIntegral {
 protected:
