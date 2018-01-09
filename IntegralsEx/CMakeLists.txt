@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION ${CMAKE_VERSION})
 project(IntegralsEx-SRC VERSION 0.0.0 LANGUAGES CXX)
 include(TargetMacros)
-set(IntegralsEx_SRCS     OverlapTensorBuilder.cpp
+set(IntegralsEx_SRCS     TwoCTensorBuilder.cpp
                          nwx_libint/nwx_libint.cpp
 )
 set(IntegralsEx_INCLUDES TwoCenterIntegral.hpp
                          ThreeCenterIntegral.hpp
                          FourCenterIntegral.hpp
-                         OverlapTensorBuilder.hpp
+                         TwoCTensorBuilder.hpp
                          IntegralTensorBuilder.hpp
                          nwx_libint/nwx_libint.hpp
                          nwx_libint/LibInt2C.hpp

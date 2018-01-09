@@ -1,6 +1,6 @@
-#include "TestCommon.hpp"
+#include <IntegralsEx/TwoCTensorBuilder.hpp>
 #define CATCH_CONFIG_MAIN
-#include <IntegralsEx/OverlapTensorBuilder.hpp>
+#include "TestCommon.hpp"
 
 std::vector<std::vector<double>> corr={
     {//(  0 |  0 )
@@ -41,10 +41,15 @@ TEST_CASE("Testing OverlapTensorBuilder"){
     
     auto atoms=make_atoms();
     auto bs=get_basis("PRIMARY",atoms);
-    
-    IntegralsEx::OverlapTensorBuilder overbuild;
-    auto overtensor overbuild.compute(atoms,bs,bs);
+
+    std::vector<LibChemist::BasisSet> basissets({bs,bs});    
+
+    IntegralsEx::TwoCTensorBuilder<nwx_libint::Overlap> overbuild;
+    auto overtensor = overbuild.compute(atoms,basissets);
 
     REQUIRE(overtensor[0](0,0) == Approx(corr[0][0]));
     REQUIRE(overtensor[0](1,0) == Approx(corr[1][0]));
+    
+    std::vector<LibChemist::BasisSet> badsets({bs,bs,bs});  
+    REQUIRE_THROWS_AS(overbuild.compute(atoms,badsets), std::length_error);  
 }
