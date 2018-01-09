@@ -4,10 +4,11 @@
 
 namespace IntegralsEx{
 
+template<size_t order>
 class IntegralTensorBuilder
 {
 public:
-     using TensorType = Eigen::Tensor<double,2>;
+     using TensorType = Eigen::Tensor<double,order>;
 
      IntegralTensorBuilder() = default;
      virtual ~IntegralTensorBuilder() {}

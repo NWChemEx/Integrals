@@ -4,14 +4,14 @@
 namespace IntegralsEx {
 
 template<typename libint_type> 
-std::vector<typename IntegralTensorBuilder::TensorType> kernel(const LibChemist::SetOfAtoms &atoms,
+std::vector<typename IntegralTensorBuilder<2>::TensorType> kernel(const LibChemist::SetOfAtoms &atoms,
              const std::vector<LibChemist::BasisSet> &basissets) {
     if (basissets.size() != 2)
         throw std::length_error("Wrong number of basis sets");
 
     libint_type libints(0,atoms,basissets[0],basissets[1]);
     IntegralsEx::TwoCenterIntegral *Ints = &libints;
-    IntegralTensorBuilder::TensorType rv(std::array<long int,2>{basissets[0].size(),basissets[1].size()});
+    IntegralTensorBuilder<2>::TensorType rv(std::array<long int,2>{basissets[0].size(),basissets[1].size()});
     rv.setZero();
 
     std::size_t off_i = 0;
@@ -35,7 +35,7 @@ std::vector<typename IntegralTensorBuilder::TensorType> kernel(const LibChemist:
 }
 
 template<typename libint_type>
-std::vector<typename IntegralTensorBuilder::TensorType> TwoCTensorBuilder<libint_type>::compute(const LibChemist::SetOfAtoms &atoms,
+std::vector<typename IntegralTensorBuilder<2>::TensorType> TwoCTensorBuilder<libint_type>::compute(const LibChemist::SetOfAtoms &atoms,
              const std::vector<LibChemist::BasisSet> &basissets) const {
     return kernel<libint_type>(atoms, basissets);
 }

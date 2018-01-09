@@ -1,17 +1,17 @@
 #include <stdexcept>
-#include <IntegralsEx/TwoCTensorBuilder.hpp>
+#include <IntegralsEx/ThreeCTensorBuilder.hpp>
 
 namespace IntegralsEx {
 
 template<typename libint_type> 
-std::vector<typename IntegralTensorBuilder::TensorType> kernel(const LibChemist::SetOfAtoms &atoms,
+std::vector<typename IntegralTensorBuilder<3>::TensorType> kernel(const LibChemist::SetOfAtoms &atoms,
              const std::vector<LibChemist::BasisSet> &basissets) {
-    if (basissets.size() != 2)
+    if (basissets.size() != 3)
         throw std::length_error("Wrong number of basis sets");
 
-    libint_type libints(0,atoms,basissets[0],basissets[1]);
-    IntegralsEx::TwoCenterIntegral *Ints = &libints;
-    IntegralTensorBuilder::TensorType rv(std::array<long int,2>{basissets[0].size(),basissets[1].size()});
+    libint_type libints(0,atoms,basissets[0],basissets[1],basissets[2]);
+    IntegralsEx::ThreeCenterIntegral *Ints = &libints;
+    IntegralTensorBuilder<3>::TensorType rv(std::array<long int,3>{basissets[0].size(),basissets[1].size(),basissets[2].size()});
     rv.setZero();
 
     std::size_t off_i = 0;
@@ -20,12 +20,19 @@ std::vector<typename IntegralTensorBuilder::TensorType> kernel(const LibChemist:
         std::size_t off_j = 0;
         for(std::size_t j = 0; j < basissets[1].ngens.size(); j++) {
             const std::size_t nj = basissets[1].shellsize(j);
-            const double* buffer=Ints->calculate(i,j);
-            if(buffer==nullptr)continue;
-            for (std::size_t si = 0; si < ni; si++) {
-                for (std::size_t sj = 0; sj < nj; sj++) {
-                    rv(off_i + si, off_j + sj) = *buffer++;
+            std::size_t off_k = 0;
+            for(std::size_t k = 0; k < basissets[2].ngens.size(); k++) {
+                const std::size_t nk = basissets[2].shellsize(k);
+                const double* buffer=Ints->calculate(i,j,k);
+                if(buffer==nullptr)continue;
+                for (std::size_t si = 0; si < ni; si++) {
+                    for (std::size_t sj = 0; sj < nj; sj++) {
+                        for (std::size_t sk = 0; sk < nk; sk++) {
+                            rv(off_i + si, off_j + sj, off_k + sk) = *buffer++;
+                        }
+                    }
                 }
+                off_k += nk;
             }
             off_j += nj;
         }
@@ -35,14 +42,11 @@ std::vector<typename IntegralTensorBuilder::TensorType> kernel(const LibChemist:
 }
 
 template<typename libint_type>
-std::vector<typename IntegralTensorBuilder::TensorType> TwoCTensorBuilder<libint_type>::compute(const LibChemist::SetOfAtoms &atoms,
+std::vector<typename IntegralTensorBuilder<3>::TensorType> ThreeCTensorBuilder<libint_type>::compute(const LibChemist::SetOfAtoms &atoms,
              const std::vector<LibChemist::BasisSet> &basissets) const {
     return kernel<libint_type>(atoms, basissets);
 }
 
-template class TwoCTensorBuilder<nwx_libint::Overlap>;
-template class TwoCTensorBuilder<nwx_libint::Kinetic>;
-template class TwoCTensorBuilder<nwx_libint::NuclearElectron>;
-template class TwoCTensorBuilder<nwx_libint::Metric>;
+template class ThreeCTensorBuilder<nwx_libint::DF3C2E>;
 
 }

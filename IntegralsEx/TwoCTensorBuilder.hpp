@@ -5,9 +5,9 @@
 namespace IntegralsEx {
 
 template<typename integral_type>
-class TwoCTensorBuilder : public IntegralTensorBuilder {
+class TwoCTensorBuilder : public IntegralTensorBuilder<2> {
 public:
-    using TensorType = IntegralTensorBuilder::TensorType;
+    using TensorType = IntegralTensorBuilder<2>::TensorType;
 
     TwoCTensorBuilder() = default;
     ~TwoCTensorBuilder() = default;

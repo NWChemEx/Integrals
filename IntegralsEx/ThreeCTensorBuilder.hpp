@@ -5,9 +5,9 @@
 namespace IntegralsEx {
 
 template<typename integral_type>
-class ThreeCTensorBuilder : public IntegralTensorBuilder {
+class ThreeCTensorBuilder : public IntegralTensorBuilder<3> {
 public:
-    using TensorType = IntegralTensorBuilder::TensorType;
+    using TensorType = IntegralTensorBuilder<3>::TensorType;
 
     ThreeCTensorBuilder() = default;
     ~ThreeCTensorBuilder() = default;
