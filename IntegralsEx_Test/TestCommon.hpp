@@ -11,11 +11,12 @@ struct ptr_wrapper{
     const double* end()const{return ptr_+n_;}
 };
 
+    const double eps = 1000*std::numeric_limits<double>::epsilon();
+    const double marg = 10*std::numeric_limits<double>::epsilon();
+
 inline void compare_integrals(const ptr_wrapper& calc, 
                               const std::vector<double>& corr)
 {
-    const double eps = 1000000000*std::numeric_limits<double>::epsilon();
-    const double marg = 10*std::numeric_limits<double>::epsilon();
     size_t i = 0;
     for (const double& x : calc) {
         INFO("epsilon = " << eps); 
