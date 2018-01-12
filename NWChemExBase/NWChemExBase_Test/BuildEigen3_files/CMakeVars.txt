@@ -1,1 +1,0 @@
-set(NWX_DEPENDENCIES "Eigen3" CACHE STRING "")
