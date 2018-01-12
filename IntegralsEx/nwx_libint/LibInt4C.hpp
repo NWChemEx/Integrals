@@ -66,5 +66,6 @@ public:
 };
 
 using ERI=LibInt4C<libint2::Operator::coulomb>;
+using ERI=LibInt4C<libint2::Operator::delta>;
 
 }//End namespace
