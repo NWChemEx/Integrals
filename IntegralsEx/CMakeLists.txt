@@ -17,7 +17,9 @@ set(IntegralsEx_INCLUDES TwoCenterIntegral.hpp
                          nwx_libint/LibInt4C.hpp
 )
 set(IntegralsEx_DEFINITIONS "")
+set(IntegralsEx_LINKFLAGS "")
 nwchemex_add_library(IntegralsEx IntegralsEx_SRCS
                                  IntegralsEx_INCLUDES
                                  IntegralsEx_DEFINTIONS
+                                 IntegralsEx_LINKFLAGS
 )

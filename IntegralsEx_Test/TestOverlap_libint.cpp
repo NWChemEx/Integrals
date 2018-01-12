@@ -1,5 +1,5 @@
 #include <IntegralsEx/nwx_libint/LibInt2C.hpp> 
-#define CATCH_CONFIG_MAIN
+
 #include "TestCommon.hpp"
 
 //Computes the overlap integrals for water in STO-3G

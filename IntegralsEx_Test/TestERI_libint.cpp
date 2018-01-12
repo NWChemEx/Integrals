@@ -1,5 +1,5 @@
 #include <IntegralsEx/nwx_libint/LibInt4C.hpp>
-#define CATCH_CONFIG_MAIN
+
 #include "TestCommon.hpp"
 #include "H2O_STO3G_ERI.hpp"
 

@@ -1,5 +1,5 @@
 #include <IntegralsEx/TwoCTensorBuilder.hpp>
-#define CATCH_CONFIG_MAIN
+
 #include "TestCommon.hpp"
 
 std::vector<double> corr={
