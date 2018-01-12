@@ -3,6 +3,7 @@ project(IntegralsEx-SRC VERSION 0.0.0 LANGUAGES CXX)
 include(TargetMacros)
 set(IntegralsEx_SRCS     TwoCTensorBuilder.cpp
                          ThreeCTensorBuilder.cpp
+                         FourCTensorBuilder.cpp
                          nwx_libint/nwx_libint.cpp
 )
 set(IntegralsEx_INCLUDES TwoCenterIntegral.hpp
@@ -10,6 +11,7 @@ set(IntegralsEx_INCLUDES TwoCenterIntegral.hpp
                          FourCenterIntegral.hpp
                          TwoCTensorBuilder.hpp
                          ThreeCTensorBuilder.hpp
+                         FourCTensorBuilder.hpp
                          IntegralTensorBuilder.hpp
                          nwx_libint/nwx_libint.hpp
                          nwx_libint/LibInt2C.hpp
