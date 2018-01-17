@@ -60,7 +60,7 @@ struct NuclearElectron: public LibInt2C<libint2::Operator::nuclear> {
     {
         std::vector<std::pair<double,std::array<double,3>>> qs;
         for(const auto& ai: atoms)
-            qs.push_back({ai.charge==0? ai.Z: ai.charge ,{ai.coord[0],ai.coord[1],ai.coord[2]}});
+		qs.push_back({ai.property(LibChemist::AtomProperty::charge)==0? ai.property(LibChemist::AtomProperty::Z): ai.property(LibChemist::AtomProperty::charge) ,{ai.coord[0],ai.coord[1],ai.coord[2]}});
         engine_.set_params(qs);
 
     }
