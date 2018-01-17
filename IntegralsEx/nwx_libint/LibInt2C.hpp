@@ -33,7 +33,7 @@ public:
        engine_=libint2::Engine(Op,max_prims,max_l,deriv);
      }
 
-     const double* calculate_(uint64_t shell1, uint64_t shell2)
+     const double* calculate(ShellIndex shell1, ShellIndex shell2) override
      {
          const auto& buf_vec=engine_.results();
          engine_.compute(bs_[0][shell1],bs_[1][shell2]);
@@ -60,7 +60,7 @@ struct NuclearElectron: public LibInt2C<libint2::Operator::nuclear> {
     {
         std::vector<std::pair<double,std::array<double,3>>> qs;
         for(const auto& ai: atoms)
-            qs.push_back({ai.charge==0? ai.Z: ai.charge ,{ai.coord[0],ai.coord[1],ai.coord[2]}});
+		qs.push_back({ai.property(LibChemist::AtomProperty::charge)==0? ai.property(LibChemist::AtomProperty::Z): ai.property(LibChemist::AtomProperty::charge) ,{ai.coord[0],ai.coord[1],ai.coord[2]}});
         engine_.set_params(qs);
 
     }
