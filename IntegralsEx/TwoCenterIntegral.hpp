@@ -7,8 +7,8 @@ namespace IntegralsEx{
  */
 class TwoCenterIntegral
 {
-typedef uint64_t ShellIndex;
 public:
+        typedef uint64_t ShellIndex;
 
         /*! @brief initialize the integral computation
          *
@@ -28,10 +28,7 @@ public:
          *
          * For example, something that calculates x,y,z component would return 3
          */
-        unsigned int n_components(void) const
-        {
-            return n_components_();
-        }
+        virtual unsigned int n_components(void) const {return 1;}
 
         /*! @brief calculate an integral
          *
@@ -39,10 +36,7 @@ public:
          * @param [in] shell2 Shell index on the second center
          * @returns A pointer to the beginning of the integral buffer
          */
-        const double* calculate(ShellIndex shell1, ShellIndex shell2)
-        {
-            return calculate_(shell1,shell2);
-        }
+        virtual const double* calculate(ShellIndex shell1, ShellIndex shell2) = 0;
 
         /*! @brief calculate multiple integrals
          *
@@ -50,29 +44,8 @@ public:
          * @param [in] shells2 Shell indices on the second center
          * @returns A pointer to the beginning of the integral buffer
          */
-        const double* calculate_multi(const std::vector<ShellIndex> & shells1,
+        virtual const double* calculate_multi(const std::vector<ShellIndex> & shells1,
                                  const std::vector<ShellIndex> & shells2)
-        {
-            return calculate_multi_(shells1, shells2);
-        }
-
-
-        /////////////////////////////////////////
-        // To be implemented by derived classes
-        /////////////////////////////////////////
-
-        //! @copydoc n_components
-        virtual unsigned int n_components_(void) const
-        {
-            return 1;
-        }
-
-        //! @copydoc calculate
-        virtual const double* calculate_(ShellIndex shell1, ShellIndex shell2) = 0;
-
-        //! @copydoc calculate_multi
-        virtual const double* calculate_multi_(const std::vector<ShellIndex> & /*shells1*/,
-                                          const std::vector<ShellIndex> & /*shells2*/)
         {
             return nullptr;
         }

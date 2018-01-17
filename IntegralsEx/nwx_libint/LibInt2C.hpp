@@ -33,7 +33,7 @@ public:
        engine_=libint2::Engine(Op,max_prims,max_l,deriv);
      }
 
-     const double* calculate_(ShellIndex shell1, ShellIndex shell2)
+     const double* calculate(ShellIndex shell1, ShellIndex shell2) override
      {
          const auto& buf_vec=engine_.results();
          engine_.compute(bs_[0][shell1],bs_[1][shell2]);

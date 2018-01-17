@@ -9,8 +9,8 @@ namespace IntegralsEx{
 class FourCenterIntegral
 {
 
-typedef uint64_t ShellIndex;
 public:
+        typedef uint64_t ShellIndex;
 
         /*! @brief initialize the integral computation
          *
@@ -35,10 +35,7 @@ public:
          *
          * For example, something that calculates x,y,z component would return 3
          */
-        unsigned int n_components(void) const
-        {
-            return n_components_();
-        }
+        virtual unsigned int n_components(void) const {return 1;}
 
         /*! @brief calculate an integral
          *
@@ -50,11 +47,8 @@ public:
          * @param [in] bufsize Size of \p outbuffer (as the number of doubles)
          * @returns A pointer to the beginning of the integral buffer
          */
-        const double* calculate(ShellIndex shell1, ShellIndex shell2,
-                           ShellIndex shell3, ShellIndex shell4)
-        {
-            return calculate_(shell1,shell2,shell3,shell4);
-        }
+        virtual const double* calculate(ShellIndex shell1, ShellIndex shell2,
+                           ShellIndex shell3, ShellIndex shell4) = 0;
 
         /*! @brief calculate multiple integrals
          *
@@ -66,34 +60,10 @@ public:
          * @param [in] bufsize Size of \p outbuffer (as the number of doubles)
          * @returns Number of integrals calculated
          */
-        const double* calculate_multi(const std::vector<ShellIndex> & shells1,
+        virtual const double* calculate_multi(const std::vector<ShellIndex> & shells1,
                                  const std::vector<ShellIndex> & shells2,
                                  const std::vector<ShellIndex> & shells3,
                                  const std::vector<ShellIndex> & shells4)
-        {
-            return calculate_multi_(shells1, shells2, shells3, shells4);
-        }
-
-        /////////////////////////////////////////
-        // To be implemented by derived classes
-        /////////////////////////////////////////
-
-        //! @copydoc n_components
-        virtual unsigned int n_components_(void) const
-        {
-            return 1;
-        }
-
-
-        //! @copydoc calculate
-        virtual const double* calculate_(ShellIndex shell1, ShellIndex shell2,
-                                    ShellIndex shell3, ShellIndex shell4) = 0;
-
-        //! \copydoc calculate_multi
-        virtual const double* calculate_multi_(const std::vector<ShellIndex> & /*shells1*/,
-                                          const std::vector<ShellIndex> & /*shells2*/,
-                                          const std::vector<ShellIndex> & /*shells3*/,
-                                          const std::vector<ShellIndex> & /*shells4*/)
         {
             return nullptr;
         }
