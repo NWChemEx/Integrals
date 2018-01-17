@@ -9,6 +9,7 @@ namespace IntegralsEx{
 class FourCenterIntegral
 {
 
+typedef uint64_t ShellIndex;
 public:
 
         /*! @brief initialize the integral computation
@@ -49,8 +50,8 @@ public:
          * @param [in] bufsize Size of \p outbuffer (as the number of doubles)
          * @returns A pointer to the beginning of the integral buffer
          */
-        const double* calculate(uint64_t shell1, uint64_t shell2,
-                           uint64_t shell3, uint64_t shell4)
+        const double* calculate(ShellIndex shell1, ShellIndex shell2,
+                           ShellIndex shell3, ShellIndex shell4)
         {
             return calculate_(shell1,shell2,shell3,shell4);
         }
@@ -65,10 +66,10 @@ public:
          * @param [in] bufsize Size of \p outbuffer (as the number of doubles)
          * @returns Number of integrals calculated
          */
-        const double* calculate_multi(const std::vector<uint64_t> & shells1,
-                                 const std::vector<uint64_t> & shells2,
-                                 const std::vector<uint64_t> & shells3,
-                                 const std::vector<uint64_t> & shells4)
+        const double* calculate_multi(const std::vector<ShellIndex> & shells1,
+                                 const std::vector<ShellIndex> & shells2,
+                                 const std::vector<ShellIndex> & shells3,
+                                 const std::vector<ShellIndex> & shells4)
         {
             return calculate_multi_(shells1, shells2, shells3, shells4);
         }
@@ -85,14 +86,14 @@ public:
 
 
         //! @copydoc calculate
-        virtual const double* calculate_(uint64_t shell1, uint64_t shell2,
-                                    uint64_t shell3, uint64_t shell4) = 0;
+        virtual const double* calculate_(ShellIndex shell1, ShellIndex shell2,
+                                    ShellIndex shell3, ShellIndex shell4) = 0;
 
         //! \copydoc calculate_multi
-        virtual const double* calculate_multi_(const std::vector<uint64_t> & /*shells1*/,
-                                          const std::vector<uint64_t> & /*shells2*/,
-                                          const std::vector<uint64_t> & /*shells3*/,
-                                          const std::vector<uint64_t> & /*shells4*/)
+        virtual const double* calculate_multi_(const std::vector<ShellIndex> & /*shells1*/,
+                                          const std::vector<ShellIndex> & /*shells2*/,
+                                          const std::vector<ShellIndex> & /*shells3*/,
+                                          const std::vector<ShellIndex> & /*shells4*/)
         {
             return nullptr;
         }

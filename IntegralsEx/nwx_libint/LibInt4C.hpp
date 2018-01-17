@@ -54,8 +54,8 @@ public:
         libint2::finalize();
     }
 
-     const double* calculate_(uint64_t shell1, uint64_t shell2,
-                              uint64_t shell3, uint64_t shell4)
+     const double* calculate_(ShellIndex shell1, ShellIndex shell2,
+                              ShellIndex shell3, ShellIndex shell4)
      {
          const auto& buf_vec=engine_.results();
          engine_.compute(bs_[0][shell1],bs_[1][shell2],

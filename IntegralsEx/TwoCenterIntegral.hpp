@@ -7,6 +7,7 @@ namespace IntegralsEx{
  */
 class TwoCenterIntegral
 {
+typedef uint64_t ShellIndex;
 public:
 
         /*! @brief initialize the integral computation
@@ -38,7 +39,7 @@ public:
          * @param [in] shell2 Shell index on the second center
          * @returns A pointer to the beginning of the integral buffer
          */
-        const double* calculate(uint64_t shell1, uint64_t shell2)
+        const double* calculate(ShellIndex shell1, ShellIndex shell2)
         {
             return calculate_(shell1,shell2);
         }
@@ -49,8 +50,8 @@ public:
          * @param [in] shells2 Shell indices on the second center
          * @returns A pointer to the beginning of the integral buffer
          */
-        const double* calculate_multi(const std::vector<uint64_t> & shells1,
-                                 const std::vector<uint64_t> & shells2)
+        const double* calculate_multi(const std::vector<ShellIndex> & shells1,
+                                 const std::vector<ShellIndex> & shells2)
         {
             return calculate_multi_(shells1, shells2);
         }
@@ -67,11 +68,11 @@ public:
         }
 
         //! @copydoc calculate
-        virtual const double* calculate_(uint64_t shell1, uint64_t shell2) = 0;
+        virtual const double* calculate_(ShellIndex shell1, ShellIndex shell2) = 0;
 
         //! @copydoc calculate_multi
-        virtual const double* calculate_multi_(const std::vector<uint64_t> & /*shells1*/,
-                                          const std::vector<uint64_t> & /*shells2*/)
+        virtual const double* calculate_multi_(const std::vector<ShellIndex> & /*shells1*/,
+                                          const std::vector<ShellIndex> & /*shells2*/)
         {
             return nullptr;
         }
