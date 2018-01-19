@@ -1,6 +1,8 @@
 #include <IntegralsEx/nwx_libint/LibInt2C.hpp> 
 
 #include "TestCommon.hpp"
+#include <iomanip>
+#include <iostream>
 
 //Computes the overlap integrals for water in STO-3G
 std::vector<std::vector<double>> corr={
@@ -38,11 +40,11 @@ std::vector<std::vector<double>> corr={
     1.0000000000000002,},
 };
 
-TEST_CASE("Testing Overlap class"){
+TEST_CASE("Testing EDipole class"){
 
     auto atoms=make_atoms();
     auto bs=get_basis("PRIMARY",atoms);
-    nwx_libint::Overlap libints(0,atoms,bs,bs);
+    nwx_libint::EDipole libints(0,atoms,bs,bs);
     IntegralsEx::TwoCenterIntegral *Ints = &libints;
 
     size_t counter=0;
@@ -53,11 +55,22 @@ TEST_CASE("Testing Overlap class"){
         {
             const size_t nj = bs.shellsize(sj);
             std::vector<const double*> buf_vec=Ints->calculate(si,sj);
-            auto buffer = buf_vec[0];
-            if(buffer==nullptr)continue;
-            ptr_wrapper wrapped_buffer={buffer,ni*nj};
-            compare_integrals(wrapped_buffer, corr[counter]);
-            ++counter;
+            for (auto buffer : buf_vec) {
+                if(buffer==nullptr)continue;
+                size_t k = 0;
+                for(size_t i=0;i<ni;++i)
+                {
+                    for(size_t j=0;j<nj;++j)
+                        std::cout << std::fixed << std::setprecision(8) << buffer[k++] << ",";
+                    std::cout << std::endl;
+                }
+                std::cout << std::endl;
+                if (buffer == buf_vec[0]) {
+                    ptr_wrapper wrapped_buffer={buffer,ni*nj};
+                    compare_integrals(wrapped_buffer, corr[counter]);
+                    ++counter;
+                }
+            }
         }
     }
 }

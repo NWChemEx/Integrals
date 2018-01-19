@@ -36,7 +36,7 @@ public:
          * @param [in] shell2 Shell index on the second center
          * @returns A pointer to the beginning of the integral buffer
          */
-        virtual const double* calculate(ShellIndex shell1, ShellIndex shell2) = 0;
+        virtual std::vector<const double*> calculate(ShellIndex shell1, ShellIndex shell2) = 0;
 
         /*! @brief calculate multiple integrals
          *

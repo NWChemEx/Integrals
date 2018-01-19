@@ -33,11 +33,14 @@ public:
        engine_=libint2::Engine(Op,max_prims,max_l,deriv);
      }
 
-     const double* calculate(ShellIndex shell1, ShellIndex shell2) override
+     std::vector<const double*> calculate(ShellIndex shell1, ShellIndex shell2) override
      {
          const auto& buf_vec=engine_.results();
          engine_.compute(bs_[0][shell1],bs_[1][shell2]);
-         return buf_vec[0];
+         std::vector<const double*> rv;
+         for (size_t i=0; i<n_components(); i++)
+             rv.insert(rv.end(),{buf_vec[i]});
+         return rv;
      }
   
     ~LibInt2C()
@@ -53,7 +56,7 @@ using Overlap=LibInt2C<libint2::Operator::overlap>;
 struct NuclearElectron: public LibInt2C<libint2::Operator::nuclear> {
 	using base_type=LibInt2C<libint2::Operator::nuclear>;
 
-	NuclearElectron(unsigned int deriv,
+    NuclearElectron(unsigned int deriv,
                     const LibChemist::SetOfAtoms &atoms,
                     const LibChemist::BasisSet &bs1,
                     const LibChemist::BasisSet &bs2) : base_type(deriv, atoms, bs1, bs2)
@@ -74,8 +77,41 @@ struct Metric: public LibInt2C<libint2::Operator::coulomb> {
            const LibChemist::BasisSet &bs1,
            const LibChemist::BasisSet &bs2) : base_type(deriv, atoms, bs1, bs2)
     {
-         engine_.set_braket(libint2::BraKet::xs_xs);
+        engine_.set_braket(libint2::BraKet::xs_xs);
     }
+};
+
+struct EDipole: public LibInt2C<libint2::Operator::emultipole1> {
+	using base_type=LibInt2C<libint2::Operator::emultipole1>;
+
+    EDipole(unsigned int deriv,
+           const LibChemist::SetOfAtoms &atoms,
+           const LibChemist::BasisSet &bs1,
+           const LibChemist::BasisSet &bs2) : base_type(deriv, atoms, bs1, bs2){}    
+
+    unsigned int n_components(void) const override {return 4;}
+};
+
+struct EQuadrupole: public LibInt2C<libint2::Operator::emultipole2> {
+	using base_type=LibInt2C<libint2::Operator::emultipole2>;
+
+    EQuadrupole(unsigned int deriv,
+           const LibChemist::SetOfAtoms &atoms,
+           const LibChemist::BasisSet &bs1,
+           const LibChemist::BasisSet &bs2) : base_type(deriv, atoms, bs1, bs2){}    
+   
+    unsigned int n_components(void) const override {return 10;}
+};
+
+struct EOctopole: public LibInt2C<libint2::Operator::emultipole3> {
+	using base_type=LibInt2C<libint2::Operator::emultipole3>;
+
+    EOctopole(unsigned int deriv,
+           const LibChemist::SetOfAtoms &atoms,
+           const LibChemist::BasisSet &bs1,
+           const LibChemist::BasisSet &bs2) : base_type(deriv, atoms, bs1, bs2){}    
+   
+    unsigned int n_components(void) const override {return 20;}
 };
 
 }//End namespace

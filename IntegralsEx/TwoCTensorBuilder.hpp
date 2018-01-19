@@ -20,5 +20,8 @@ extern template class TwoCTensorBuilder<nwx_libint::Overlap>;
 extern template class TwoCTensorBuilder<nwx_libint::Kinetic>;
 extern template class TwoCTensorBuilder<nwx_libint::NuclearElectron>;
 extern template class TwoCTensorBuilder<nwx_libint::Metric>;
+extern template class TwoCTensorBuilder<nwx_libint::EDipole>;
+extern template class TwoCTensorBuilder<nwx_libint::EQuadrupole>;
+extern template class TwoCTensorBuilder<nwx_libint::EOctopole>;
 
 }
