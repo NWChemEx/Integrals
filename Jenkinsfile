@@ -13,7 +13,7 @@ pipeline {
 		    module load cmake
 		    mkdir root
 		    cd LibChemist
-		    cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=../root
+		    cmake -DCMAKE_INSTALL_PREFIX=../root -H. -Bbuild
 		    cd build
 		    make && make install
 		    '''
