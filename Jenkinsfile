@@ -29,8 +29,8 @@ pipeline {
 	        module load cmake
 	        cd build
 	        ctest
-	        '''*/
+	        '''
             }
-        }
+        }*/
     }
 }
