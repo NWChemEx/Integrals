@@ -18,6 +18,9 @@ pipeline {
 		    echo 'DESTDIR is:'
 		    echo $DESTDIR		    		    
 		    cd LibChemist
+		    echo $PWD
+		    find .
+		    echo 'fe'
 		    cmake -H. -Bbuild
 		    cd build
 		    make && make install
