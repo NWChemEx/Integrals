@@ -16,8 +16,12 @@ pipeline {
 		    echo 'PWD is:'
 		    echo $PWD
 		    echo 'DESTDIR is:'
-		    echo $DESTDIR		    		    
+		    echo $DESTDIR
+		    echo 'fs'
+		    find .
+		    echo 'fe'
 		    cd LibChemist
+		    echo 'fs'
 		    echo $PWD
 		    find .
 		    echo 'fe'
