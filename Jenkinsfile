@@ -13,6 +13,10 @@ pipeline {
 		    module load cmake
 		    mkdir -p root
 		    export DESTDIR=$PWD/root
+		    echo 'PWD is:'
+		    echo $PWD
+		    echo 'DESTDIR is:'
+		    echo $DESTDIR		    		    
 		    cd LibChemist
 		    cmake -H. -Bbuild
 		    cd build
