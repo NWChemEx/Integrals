@@ -11,7 +11,7 @@ pipeline {
 		    source /etc/profile
 		    module load gcc/7.1.0
 		    module load cmake
-		    mkdir root
+		    mkdir -p root
 		    cd LibChemist
 		    cmake -DCMAKE_INSTALL_PREFIX=../root -H. -Bbuild
 		    cd build
