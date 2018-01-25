@@ -12,8 +12,9 @@ pipeline {
 		    module load gcc/7.1.0
 		    module load cmake
 		    mkdir -p root
+		    export DESTDIR=$PWD/root
 		    cd LibChemist
-		    cmake -DCMAKE_INSTALL_PREFIX="../root" -H. -Bbuild
+		    cmake -H. -Bbuild
 		    cd build
 		    make && make install
 		    '''
@@ -23,7 +24,10 @@ pipeline {
 		    steps{
 		    echo 'Building...'
 		    sh '''
-		    echo $pwd
+		    echo 'PWD is:'
+		    echo $PWD
+		    echo 'DESTDIR is:'
+		    echo $DESTDIR
 		    ls
 		    '''
 		    }
