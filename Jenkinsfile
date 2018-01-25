@@ -6,7 +6,7 @@ pipeline {
 	    	    steps{
 		    echo 'Cloning Subrepo Dependencies'
 		    dir('LibChemist'){
-		    git credentialsId: 'c2b379ef-2e89-4f24-bc4f-2f4d1f85f6d1', url: 'https://github.com/NWChemEx-Project/LibChemist.git', branch: 'master'
+		    git credentialsId: '422b0eed-700d-444d-961c-1e58cc75cda2', url: 'https://github.com/NWChemEx-Project/LibChemist.git', branch: 'master'
 		    }
 		    
 		    sh '''
