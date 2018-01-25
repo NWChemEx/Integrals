@@ -16,9 +16,10 @@ pipeline {
 		    module load cmake
 
 		    echo 'Building LibChemist'
-		    mkdir -p root		    
+		    mkdir -p root	
+		    export DESTDIR=${PWD}/root
 		    cd LibChemist
-		    cmake -DCMAKE_INSTALL_PREFIX=../root -H. -Bbuild
+		    cmake -H. -Bbuild
 		    cd build
 		    make && make install
 		    cd ../../
