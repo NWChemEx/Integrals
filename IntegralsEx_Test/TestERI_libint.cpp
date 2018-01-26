@@ -26,7 +26,7 @@ TEST_CASE("Testing the 4C ERI class"){
                 for(size_t sl=0;sl<=(si==sk?sj:sk);++sl)
                 {
                     const size_t nl=bs.shellsize(sl);
-                    const double* buffer=eri->calculate(si,sj,sk,sl);
+                    const double* buffer=(eri->calculate(si,sj,sk,sl))[0];
                     if(buffer==nullptr)continue;
                     ptr_wrapper wrapped_buffer={buffer,ni*nj*nk*nl};
                     compare_integrals(wrapped_buffer, corr[counter]);
