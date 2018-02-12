@@ -1,5 +1,5 @@
 def repo_name="IntegralsEx"
-def depends = ['NWChemExBase','LibInt','LibChemist','Eigen3']
+def depends = ['NWChemExBase','LibChemist']
 
 def compile_repo(depend_name, install_root, do_install) {
     sh """
