@@ -22,6 +22,10 @@ def compile_repo(depend_name, install_root, do_install) {
 
 node {
     def install_root="${WORKSPACE}/install"
+    stage('Set-Up Workspace') {
+        deleteDir()
+        checkout scm
+    }
     stage('Build Dependencies') {
         for(int i=0; i<depends.size(); i++) {
             dir("${depends[i]}"){
@@ -33,7 +37,6 @@ node {
         }
     }
     stage('Build Repo') {
-        checkout scm
         compile_repo("${repo_name}", "${install_root}", "False")
     }
     stage('Test Repo') {
