@@ -3,11 +3,11 @@
 #include "H2O_STO3G_Multipole.hpp"
 #include <iostream>
 
-TEST_CASE("Testing EDipole class"){
+TEST_CASE("Testing EQuadrupole class"){
 
     auto atoms=make_atoms();
     auto bs=get_basis("PRIMARY",atoms);
-    nwx_libint::EDipole libints(0,atoms,bs,bs);
+    nwx_libint::EQuadrupole libints(0,atoms,bs,bs);
     IntegralsEx::TwoCenterIntegral *Ints = &libints;
 
     size_t off_i = 0;

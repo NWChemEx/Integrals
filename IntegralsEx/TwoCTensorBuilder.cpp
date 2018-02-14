@@ -31,7 +31,7 @@ std::vector<typename IntegralTensorBuilder<2>::TensorType> kernel(const LibChemi
                         rv[counter](off_i + si, off_j + sj) = *buffer++;
                     }
                 }
-            counter++;
+                counter++;
             }
             off_j += nj;
         }
