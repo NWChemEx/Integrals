@@ -1,7 +1,6 @@
 #include <IntegralsEx/nwx_libint/LibInt2C.hpp> 
 #include "TestCommon.hpp"
 #include "H2O_STO3G_Multipole.hpp"
-#include <iostream>
 
 TEST_CASE("Testing EOctopole class"){
 

@@ -37,11 +37,10 @@ public:
      {
          const auto& buf_vec=engine_.results();
          engine_.compute(bs_[0][shell1],bs_[1][shell2]);
-         std::vector<const double*> rv;
-         for (size_t i=0; i<n_components(); i++)
-             rv.insert(rv.end(),{buf_vec[i]});
+
+         std::vector<const double*> rv(buf_vec.begin(),buf_vec.end());
          return rv;
-     }
+    }
   
     ~LibInt2C()
      {
