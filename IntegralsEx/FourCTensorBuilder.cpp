@@ -11,8 +11,11 @@ std::vector<typename IntegralTensorBuilder<4>::TensorType> kernel(const LibChemi
 
     libint_type libints(0,atoms,basissets[0],basissets[1],basissets[2],basissets[3]);
     IntegralsEx::FourCenterIntegral *Ints = &libints;
-    IntegralTensorBuilder<4>::TensorType rv(std::array<long int,4>{basissets[0].size(),basissets[1].size(),basissets[2].size(),basissets[3].size()});
-    rv.setZero();
+    IntegralTensorBuilder<4>::TensorType init_tensor(std::array<long int,4>
+                                                     {basissets[0].size(),basissets[1].size(),
+                                                      basissets[2].size(),basissets[3].size()});
+    init_tensor.setZero();
+    std::vector<IntegralTensorBuilder<4>::TensorType> rv(Ints->n_components(),init_tensor);
 
     std::size_t off_i = 0;
     for(std::size_t i = 0; i < basissets[0].ngens.size(); i++) {
@@ -26,15 +29,20 @@ std::vector<typename IntegralTensorBuilder<4>::TensorType> kernel(const LibChemi
                 std::size_t off_l = 0;
                 for(std::size_t l = 0; l < basissets[3].ngens.size(); l++) {
                     const std::size_t nl = basissets[3].shellsize(l);
-                    const double* buffer=Ints->calculate(i,j,k,l);
-                    if(buffer==nullptr)continue;
-                    for (std::size_t si = 0; si < ni; si++) {
-                        for (std::size_t sj = 0; sj < nj; sj++) {
-                            for (std::size_t sk = 0; sk < nk; sk++) {
-                                for (std::size_t sl = 0; sl < nl; sl++) 
-                                    rv(off_i + si, off_j + sj, off_k + sk, off_l +sl) = *buffer++;
-                            }   
+                    std::vector<const double*> buf_vec=Ints->calculate(i,j,k,l);
+                    size_t counter = 0;
+                    for (auto buffer : buf_vec) {
+                        if(buffer==nullptr)continue;
+                        for (std::size_t si = 0; si < ni; si++) {
+                            for (std::size_t sj = 0; sj < nj; sj++) {
+                                for (std::size_t sk = 0; sk < nk; sk++) {
+                                    for (std::size_t sl = 0; sl < nl; sl++) 
+                                        rv[counter](off_i + si, off_j + sj, 
+                                                    off_k + sk, off_l +sl) = *buffer++;
+                                }   
+                            }
                         }
+                    counter++;
                     }
                     off_l += nl;
                 }

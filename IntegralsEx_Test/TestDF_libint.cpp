@@ -27,7 +27,7 @@ TEST_CASE("Testing DF3C2E"){
             for(size_t sk=0;sk<nshells;++sk)
             {
                     const size_t nk=bs.shellsize(sk);
-                    const double* buffer=df3c->calculate(si,sj,sk);
+                    const double* buffer=(df3c->calculate(si,sj,sk))[0];
                     if(buffer==nullptr)continue;
                     ptr_wrapper wrapped_buffer={buffer,ni*nj*nk};
                     compare_integrals(wrapped_buffer, corr[counter]);

@@ -47,7 +47,7 @@ public:
          * @param [in] bufsize Size of \p outbuffer (as the number of doubles)
          * @returns A pointer to the beginning of the integral buffer
          */
-        virtual const double* calculate(ShellIndex shell1, ShellIndex shell2,
+        virtual std::vector<const double*> calculate(ShellIndex shell1, ShellIndex shell2,
                            ShellIndex shell3, ShellIndex shell4) = 0;
 
         /*! @brief calculate multiple integrals

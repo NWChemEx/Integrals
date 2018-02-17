@@ -41,7 +41,7 @@ class ThreeCenterIntegral
          * @param [in] shell3 Shell index on the third center
          * @returns A pointer to the beginning of the integral buffer
          */
-        virtual const double* calculate(ShellIndex shell1, ShellIndex shell2,
+        virtual std::vector<const double*> calculate(ShellIndex shell1, ShellIndex shell2,
                            ShellIndex shell3) = 0;
 
         /*! @brief calculate multiple integrals

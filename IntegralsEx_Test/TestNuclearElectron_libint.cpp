@@ -52,7 +52,8 @@ TEST_CASE("Testing NuclearElectron class"){
         for(size_t sj=0;sj<=si;++sj)
         {
             const size_t nj = bs.shellsize(sj);
-            const double* buffer=Ints->calculate(si,sj);
+            std::vector<const double*> buf_vec=Ints->calculate(si,sj);
+            auto buffer = buf_vec[0];
             if(buffer==nullptr)continue;
             ptr_wrapper wrapped_buffer={buffer,ni*nj};
             compare_integrals(wrapped_buffer, corr[counter]);
