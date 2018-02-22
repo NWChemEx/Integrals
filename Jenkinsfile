@@ -7,6 +7,7 @@ def compile_repo(depend_name, install_root, do_install) {
         source /etc/profile
         module load gcc/7.1.0
         module load cmake
+        module load libint/2.4.2
         build_tests="True"
         make_command=""
         if [ ${do_install} == "True" ];then
