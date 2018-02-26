@@ -46,6 +46,8 @@ node {
         set +x
         source /etc/profile
         module load cmake
+	module load libint
+	module load eigen
         cd build && ctest -VV
         """
     }
