@@ -46,7 +46,7 @@ node {
         set +x
         source /etc/profile
         module load cmake
-        cd build && ctest
+        cd build && ctest -VV
         """
     }
 }
