@@ -7,7 +7,6 @@ def compile_repo(depend_name, install_root, do_install) {
         source /etc/profile
         module load gcc/7.1.0
         module load cmake
-	ls -ltrh /tmp
 	module load eigen/3.3.3
         module load libint/2.4.2
         build_tests="True"
