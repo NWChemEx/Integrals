@@ -7,6 +7,8 @@ def compile_repo(depend_name, install_root, do_install) {
         source /etc/profile
         module load gcc/7.1.0
         module load cmake
+	module load eigen/3.3.3
+        module load libint/2.4.2
         build_tests="True"
         make_command=""
         if [ ${do_install} == "True" ];then
@@ -44,7 +46,9 @@ node {
         set +x
         source /etc/profile
         module load cmake
-        cd build && ctest
+	module load libint
+	module load eigen
+        cd build && ctest -VV
         """
     }
 }
