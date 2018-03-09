@@ -1,5 +1,5 @@
-def repo_name="IntegralsEx"
-def depends = ['NWChemExBase','LibChemist']
+def repo_name="Integrals"
+def depends = ['CMakeBuild','LibChemist']
 
 def compile_repo(depend_name, install_root, do_install) {
     sh """

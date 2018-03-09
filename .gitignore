@@ -1,9 +1,9 @@
 #These are configuration files for QtCreator
-IntegralsEx.config
-IntegralsEx.creator
-IntegralsEx.creator.user
-IntegralsEx.files
-IntegralsEx.includes
+Integrals.config
+Integrals.creator
+Integrals.creator.user
+Integrals.files
+Integrals.includes
 *.autosave
 
 #These are configuration files for CLion
