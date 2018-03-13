@@ -1,5 +1,5 @@
 def repo_name="Integrals"
-def depends = ['CMakeBuild','LibChemist','Utilities','SDE']
+def depends = ['CMakeBuild','Utilities','LibChemist','SDE']
 
 def compile_repo(depend_name, install_root, do_install) {
     sh """
