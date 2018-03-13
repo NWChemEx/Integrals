@@ -56,13 +56,13 @@ std::vector<double> corr={
 
 TEST_CASE("Testing MetricTensorBuilder"){
     
-    auto atoms=make_atoms();
-    auto bs=get_basis("PRIMARY",atoms);
+    auto molecule=make_molecule();
+    auto bs=molecule.get_basis("sto-3g");
 
     std::vector<LibChemist::BasisSet> basissets({bs,bs});    
 
     Integrals::TwoCTensorBuilder<nwx_libint::Metric> metric_build;
-    auto metric_tensor = metric_build.compute(atoms,basissets);
+    auto metric_tensor = metric_build.compute(molecule,basissets);
 
     size_t counter = 0;
     for (size_t i = 0; i < metric_tensor[0].dimension(0); i++)
@@ -72,5 +72,5 @@ TEST_CASE("Testing MetricTensorBuilder"){
         }
     
     std::vector<LibChemist::BasisSet> badsets({bs,bs,bs});  
-    REQUIRE_THROWS_AS(metric_build.compute(atoms,badsets), std::length_error);  
+    REQUIRE_THROWS_AS(metric_build.compute(molecule,badsets), std::length_error);  
 }

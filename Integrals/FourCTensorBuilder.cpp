@@ -4,12 +4,12 @@
 namespace Integrals {
 
 template<typename libint_type> 
-std::vector<typename IntegralTensorBuilder<4>::TensorType> kernel(const LibChemist::SetOfAtoms &atoms,
+std::vector<typename IntegralTensorBuilder<4>::TensorType> kernel(const LibChemist::Molecule &molecule,
              const std::vector<LibChemist::BasisSet> &basissets) {
     if (basissets.size() != 4)
         throw std::length_error("Wrong number of basis sets");
 
-    libint_type libints(0,atoms,basissets[0],basissets[1],basissets[2],basissets[3]);
+    libint_type libints(0,molecule,basissets[0],basissets[1],basissets[2],basissets[3]);
     Integrals::FourCenterIntegral *Ints = &libints;
     IntegralTensorBuilder<4>::TensorType init_tensor(std::array<long int,4>
                                                      {basissets[0].size(),basissets[1].size(),
@@ -56,9 +56,9 @@ std::vector<typename IntegralTensorBuilder<4>::TensorType> kernel(const LibChemi
 }
 
 template<typename libint_type>
-std::vector<typename IntegralTensorBuilder<4>::TensorType> FourCTensorBuilder<libint_type>::compute(const LibChemist::SetOfAtoms &atoms,
+std::vector<typename IntegralTensorBuilder<4>::TensorType> FourCTensorBuilder<libint_type>::compute(const LibChemist::Molecule &molecule,
              const std::vector<LibChemist::BasisSet> &basissets) const {
-    return kernel<libint_type>(atoms, basissets);
+    return kernel<libint_type>(molecule, basissets);
 }
 
 template class FourCTensorBuilder<nwx_libint::ERI>;

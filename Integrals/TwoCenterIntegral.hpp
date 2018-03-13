@@ -1,5 +1,5 @@
 #pragma once
-#include <LibChemist/SetOfAtoms.hpp>
+#include <LibChemist/Molecule.hpp>
 
 namespace Integrals{
 
@@ -13,12 +13,12 @@ public:
         /*! @brief initialize the integral computation
          *
          * @param [in] deriv Derivative to calculate
-         * @param [in] atoms SetofAtoms to use to calculate integrals
+         * @param [in] molecule SetofAtoms to use to calculate integrals
          * @param [in] bs1 BasisSet to use on the first center
          * @param [in] bs2 BasisSet to use on the second center
          */
         TwoCenterIntegral(unsigned int deriv,
-                          const LibChemist::SetOfAtoms &atoms,
+                          const LibChemist::Molecule &molecule,
                           const LibChemist::BasisSet &bs1,
                           const LibChemist::BasisSet &bs2){}
 

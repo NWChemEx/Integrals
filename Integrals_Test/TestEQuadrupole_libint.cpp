@@ -4,9 +4,9 @@
 
 TEST_CASE("Testing EQuadrupole class"){
 
-    auto atoms=make_atoms();
-    auto bs=get_basis("PRIMARY",atoms);
-    nwx_libint::EQuadrupole libints(0,atoms,bs,bs);
+    auto molecule=make_molecule();
+    auto bs=molecule.get_basis("sto-3g");
+    nwx_libint::EQuadrupole libints(0,molecule,bs,bs);
     Integrals::TwoCenterIntegral *Ints = &libints;
 
     size_t off_i = 0;

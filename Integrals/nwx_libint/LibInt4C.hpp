@@ -24,13 +24,13 @@ private:
     libint2::Engine engine_;
 public:
      LibInt4C(unsigned int deriv,
-              const LibChemist::SetOfAtoms &atoms,
+              const LibChemist::Molecule &molecule,
               const LibChemist::BasisSet &bs1,
               const LibChemist::BasisSet &bs2,
               const LibChemist::BasisSet &bs3,
               const LibChemist::BasisSet &bs4,
               double thresh = std::numeric_limits<double>::epsilon())
-              :FourCenterIntegral(deriv,atoms,bs1,bs2,bs3,bs4,thresh)
+              :FourCenterIntegral(deriv,molecule,bs1,bs2,bs3,bs4,thresh)
      {
          libint2::initialize();
 

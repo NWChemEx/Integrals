@@ -19,10 +19,10 @@ protected:
     libint2::Engine engine_;
 public:
      LibInt3C(unsigned int deriv,
-              const LibChemist::SetOfAtoms &atoms,
+              const LibChemist::Molecule &molecule,
               const LibChemist::BasisSet &bs1,
               const LibChemist::BasisSet &bs2,
-              const LibChemist::BasisSet &bs3):ThreeCenterIntegral(deriv,atoms,bs1,bs2,bs3)
+              const LibChemist::BasisSet &bs3):ThreeCenterIntegral(deriv,molecule,bs1,bs2,bs3)
      {
          libint2::initialize();
          bs_=std::array<libint2::BasisSet,3>({make_basis(bs1),
