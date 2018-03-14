@@ -42,7 +42,7 @@ std::vector<std::vector<double>> corr={
 TEST_CASE("Testing the Kinetic class"){
 
     auto molecule=make_molecule();
-    auto bs=molecule.get_basis("sto-3gfile");
+    auto bs=molecule.get_basis("sto-3g_cart");
     nwx_libint::Kinetic libints(0,molecule,bs,bs);
     Integrals::TwoCenterIntegral *Ints = &libints;
 

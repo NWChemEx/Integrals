@@ -5,7 +5,7 @@
 TEST_CASE("Testing EDipole class"){
 
     auto molecule=make_molecule();
-    auto bs=molecule.get_basis("sto-3gfile");
+    auto bs=molecule.get_basis("sto-3g_cart");
     nwx_libint::EDipole libints(0,molecule,bs,bs);
     Integrals::TwoCenterIntegral *Ints = &libints;
 

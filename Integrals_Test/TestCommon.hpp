@@ -1,9 +1,7 @@
 #pragma once
 #include <SDE/NWXDefaults.hpp>
-#include <SDE/BasisSetFileParser.hpp>
 #include <SDE/MoleculeFileParser.hpp>
 #include <catch/catch.hpp>
-#include <string>
 #include <fstream>
 
 using namespace LibChemist;
@@ -29,25 +27,33 @@ inline void compare_integrals(const ptr_wrapper& calc,
     }
 }
 
-Molecule apply_basis_file(const std::string& key, std::istream& is, 
-                                Molecule mol, ChemistryRuntime& crt) {
-    auto charge = LibChemist::Atom::Property::charge;
-    auto bs = parse_basis_set_file(is, G94(), crt);
-    for(auto& atomi : mol.atoms) {
-        const size_t Z = std::lround(atomi.properties.at(charge));
-        atomi.bases[key] = bs.at(Z);
-    }
-    return mol;
-}
-
 Molecule make_molecule()
 {
+    std::map<size_t,std::vector<BasisShell>> bs;
+    bs[1].push_back(
+	  BasisShell{ShellType::CartesianGaussian,0,1,
+	      {3.42525091,0.62391373,0.16885540},
+	      {0.15432897,0.53532814,0.44463454}});
+    bs[8].push_back(
+	  BasisShell{ShellType::CartesianGaussian,0,1,
+	      {130.7093200,23.8088610,6.4436083},
+	      {0.15432897,0.53532814,0.44463454}});
+    bs[8].push_back(
+	  BasisShell{ShellType::CartesianGaussian,-1,2,
+	      {5.0331513,1.1695961,0.3803890},
+	      {-0.09996723,0.39951283,0.70011547,
+	        0.15591627,0.60768372,0.39195739}});
+
     auto crt = default_runtime();
     auto xyzfile = std::ifstream("water.xyz");
     auto water = parse_molecule_file(xyzfile, XYZParser(), crt);
-    auto fs = std::ifstream("sto-3g.gbs");    
-    auto water_w_basis = apply_basis_file("sto-3gfile", fs, water, crt);
 
-    return water_w_basis;
+    auto charge = Atom::Property::charge;
+    for(auto& atomi : water.atoms) {
+	const size_t Z = std::lround(atomi.properties.at(charge));
+	atomi.bases["sto-3g_cart"] = bs.at(Z);
+    }
+
+    return water;
 }
 

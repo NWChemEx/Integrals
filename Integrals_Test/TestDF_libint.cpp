@@ -10,7 +10,7 @@
 TEST_CASE("Testing DF3C2E"){
 
     auto molecule=make_molecule();
-    auto bs=molecule.get_basis("sto-3gfile");
+    auto bs=molecule.get_basis("sto-3g_cart");
 
     nwx_libint::DF3C2E libints(0,molecule,bs,bs,bs);
     Integrals::ThreeCenterIntegral *df3c = &libints;
