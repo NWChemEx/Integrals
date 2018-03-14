@@ -5,7 +5,7 @@
 TEST_CASE("Testing EDipoleTensorBuilder"){
     
     auto molecule=make_molecule();
-    auto bs=molecule.get_basis("sto-3g");
+    auto bs=molecule.get_basis("sto-3gfile");
 
     std::vector<LibChemist::BasisSet> basissets({bs,bs});    
 

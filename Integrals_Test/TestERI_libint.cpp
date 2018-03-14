@@ -8,7 +8,7 @@
 TEST_CASE("Testing the 4C ERI class"){
 
     auto molecule=make_molecule();
-    auto bs=molecule.get_basis("sto-3g");
+    auto bs=molecule.get_basis("sto-3gfile");
    
     nwx_libint::ERI libints(0,molecule,bs,bs,bs,bs);
     Integrals::FourCenterIntegral *eri = &libints;

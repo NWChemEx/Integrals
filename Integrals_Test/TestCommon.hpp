@@ -1,6 +1,10 @@
 #pragma once
 #include <SDE/NWXDefaults.hpp>
+#include <SDE/BasisSetFileParser.hpp>
+#include <SDE/MoleculeFileParser.hpp>
 #include <catch/catch.hpp>
+#include <string>
+#include <fstream>
 
 using namespace LibChemist;
 using namespace SDE;
@@ -25,11 +29,25 @@ inline void compare_integrals(const ptr_wrapper& calc,
     }
 }
 
-inline Molecule make_molecule()
+Molecule apply_basis_file(const std::string& key, std::istream& is, 
+                                Molecule mol, ChemistryRuntime& crt) {
+    auto charge = LibChemist::Atom::Property::charge;
+    auto bs = parse_basis_set_file(is, G94(), crt);
+    for(auto& atomi : mol.atoms) {
+        const size_t Z = std::lround(atomi.properties.at(charge));
+        atomi.bases[key] = bs.at(Z);
+    }
+    return mol;
+}
+
+Molecule make_molecule()
 {
     auto crt = default_runtime();
-    auto water = crt.pubchem.at("water");
-    auto water_w_basis = crt.apply_basis("sto-3g", water);
+    auto xyzfile = std::ifstream("water.xyz");
+    auto water = parse_molecule_file(xyzfile, XYZParser(), crt);
+    auto fs = std::ifstream("sto-3g.gbs");    
+    auto water_w_basis = apply_basis_file("sto-3gfile", fs, water, crt);
 
     return water_w_basis;
 }
+

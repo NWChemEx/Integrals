@@ -41,7 +41,7 @@ std::vector<std::vector<double>> corr={
 TEST_CASE("Testing NuclearElectron class"){
 
     auto molecule=make_molecule();
-    auto bs=molecule.get_basis("sto-3g");
+    auto bs=molecule.get_basis("sto-3gfile");
     nwx_libint::NuclearElectron libints(0,molecule,bs,bs);
     Integrals::TwoCenterIntegral *Ints = &libints;
 
