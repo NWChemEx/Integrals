@@ -1,6 +1,6 @@
 #pragma once
 #include <libint2.hpp>
-#include <LibChemist/SetOfAtoms.hpp>
+#include <LibChemist/Molecule.hpp>
 
 
 namespace nwx_libint{

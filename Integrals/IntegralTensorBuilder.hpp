@@ -1,5 +1,5 @@
 #pragma once
-#include <LibChemist/SetOfAtoms.hpp>
+#include <LibChemist/Molecule.hpp>
 #include <unsupported/Eigen/CXX11/Tensor>
 
 namespace Integrals{
@@ -13,7 +13,7 @@ public:
      IntegralTensorBuilder() = default;
      virtual ~IntegralTensorBuilder() {}
 
-     virtual std::vector<TensorType> compute(const LibChemist::SetOfAtoms &atoms,
+     virtual std::vector<TensorType> compute(const LibChemist::Molecule &molecule,
              const std::vector<LibChemist::BasisSet> &basissets) const = 0;
 };
 

@@ -4,12 +4,12 @@
 namespace Integrals {
 
 template<typename libint_type> 
-std::vector<typename IntegralTensorBuilder<2>::TensorType> kernel(const LibChemist::SetOfAtoms &atoms,
+std::vector<typename IntegralTensorBuilder<2>::TensorType> kernel(const LibChemist::Molecule &molecule,
              const std::vector<LibChemist::BasisSet> &basissets) {
     if (basissets.size() != 2)
         throw std::length_error("Wrong number of basis sets");
 
-    libint_type libints(0,atoms,basissets[0],basissets[1]);
+    libint_type libints(0,molecule,basissets[0],basissets[1]);
     Integrals::TwoCenterIntegral *Ints = &libints;
     IntegralTensorBuilder<2>::TensorType init_tensor(std::array<long int,2>
                                                     {basissets[0].size(),basissets[1].size()});
@@ -41,9 +41,9 @@ std::vector<typename IntegralTensorBuilder<2>::TensorType> kernel(const LibChemi
 }
 
 template<typename libint_type>
-std::vector<typename IntegralTensorBuilder<2>::TensorType> TwoCTensorBuilder<libint_type>::compute(const LibChemist::SetOfAtoms &atoms,
+std::vector<typename IntegralTensorBuilder<2>::TensorType> TwoCTensorBuilder<libint_type>::compute(const LibChemist::Molecule &molecule,
              const std::vector<LibChemist::BasisSet> &basissets) const {
-    return kernel<libint_type>(atoms, basissets);
+    return kernel<libint_type>(molecule, basissets);
 }
 
 template class TwoCTensorBuilder<nwx_libint::Overlap>;

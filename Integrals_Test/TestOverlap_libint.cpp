@@ -1,5 +1,4 @@
 #include <Integrals/nwx_libint/LibInt2C.hpp> 
-
 #include "TestCommon.hpp"
 
 //Computes the overlap integrals for water in STO-3G
@@ -40,9 +39,9 @@ std::vector<std::vector<double>> corr={
 
 TEST_CASE("Testing Overlap class"){
 
-    auto atoms=make_atoms();
-    auto bs=get_basis("PRIMARY",atoms);
-    nwx_libint::Overlap libints(0,atoms,bs,bs);
+    auto molecule=make_molecule();
+    auto bs=molecule.get_basis("sto-3g_cart");
+    nwx_libint::Overlap libints(0,molecule,bs,bs);
     Integrals::TwoCenterIntegral *Ints = &libints;
 
     size_t counter=0;

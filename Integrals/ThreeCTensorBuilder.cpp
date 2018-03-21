@@ -4,12 +4,12 @@
 namespace Integrals {
 
 template<typename libint_type> 
-std::vector<typename IntegralTensorBuilder<3>::TensorType> kernel(const LibChemist::SetOfAtoms &atoms,
+std::vector<typename IntegralTensorBuilder<3>::TensorType> kernel(const LibChemist::Molecule &molecule,
              const std::vector<LibChemist::BasisSet> &basissets) {
     if (basissets.size() != 3)
         throw std::length_error("Wrong number of basis sets");
 
-    libint_type libints(0,atoms,basissets[0],basissets[1],basissets[2]);
+    libint_type libints(0,molecule,basissets[0],basissets[1],basissets[2]);
     Integrals::ThreeCenterIntegral *Ints = &libints;
     IntegralTensorBuilder<3>::TensorType init_tensor(std::array<long int,3>
                                                      {basissets[0].size(),basissets[1].size(),basissets[2].size()});
@@ -48,9 +48,9 @@ std::vector<typename IntegralTensorBuilder<3>::TensorType> kernel(const LibChemi
 }
 
 template<typename libint_type>
-std::vector<typename IntegralTensorBuilder<3>::TensorType> ThreeCTensorBuilder<libint_type>::compute(const LibChemist::SetOfAtoms &atoms,
+std::vector<typename IntegralTensorBuilder<3>::TensorType> ThreeCTensorBuilder<libint_type>::compute(const LibChemist::Molecule &molecule,
              const std::vector<LibChemist::BasisSet> &basissets) const {
-    return kernel<libint_type>(atoms, basissets);
+    return kernel<libint_type>(molecule, basissets);
 }
 
 template class ThreeCTensorBuilder<nwx_libint::DF3C2E>;

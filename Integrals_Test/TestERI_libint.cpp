@@ -7,10 +7,10 @@
 //Computes the ERI integrals for water in STO-3G
 TEST_CASE("Testing the 4C ERI class"){
 
-    auto atoms=make_atoms();
-    auto bs=get_basis("PRIMARY",atoms);
+    auto molecule=make_molecule();
+    auto bs=molecule.get_basis("sto-3g_cart");
    
-    nwx_libint::ERI libints(0,atoms,bs,bs,bs,bs);
+    nwx_libint::ERI libints(0,molecule,bs,bs,bs,bs);
     Integrals::FourCenterIntegral *eri = &libints;
 
     size_t counter=0;

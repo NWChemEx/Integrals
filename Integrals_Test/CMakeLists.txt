@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION ${CMAKE_VERSION})
 project(Integrals-Test VERSION 0.0.0 LANGUAGES CXX)
 include(TargetMacros)
+install(FILES water.xyz
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/tests)
 
 add_cxx_unit_test(TestOverlap_libint)
 add_cxx_unit_test(TestKinetic_libint)

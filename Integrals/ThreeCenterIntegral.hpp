@@ -1,5 +1,5 @@
 #pragma once
-#include <LibChemist/SetOfAtoms.hpp>
+#include <LibChemist/Molecule.hpp>
 
 
 namespace Integrals{
@@ -15,13 +15,13 @@ class ThreeCenterIntegral
         /*! @brief initialize the integral computation
          *
          * @param [in] deriv Derivative to calculate
-         * @param [in] atoms SetOfAtoms to use to calculate integrals
+         * @param [in] molecule Molecule to use to calculate integrals
          * @param [in] bs1 BasisSet to use for the first center
          * @param [in] bs2 BasisSet to use for the second center
          * @param [in] bs3 BasisSet to use for the third center
          */
         ThreeCenterIntegral(unsigned int deriv,
-                            const LibChemist::SetOfAtoms &atoms,
+                            const LibChemist::Molecule &molecule,
                             const LibChemist::BasisSet &bs1,
                             const LibChemist::BasisSet &bs2,
                             const LibChemist::BasisSet &bs3){}

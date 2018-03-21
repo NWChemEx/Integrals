@@ -12,7 +12,7 @@ public:
     TwoCTensorBuilder() = default;
     ~TwoCTensorBuilder() = default;
 
-    std::vector<TensorType> compute(const LibChemist::SetOfAtoms &atoms,
+    std::vector<TensorType> compute(const LibChemist::Molecule &molecule,
              const std::vector<LibChemist::BasisSet> &basissets) const override;
 };
 

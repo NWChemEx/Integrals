@@ -18,9 +18,9 @@ protected:
     libint2::Engine engine_;
 public:
      LibInt2C(unsigned int deriv,
-              const LibChemist::SetOfAtoms &atoms,
+              const LibChemist::Molecule &molecule,
               const LibChemist::BasisSet &bs1,
-              const LibChemist::BasisSet &bs2):TwoCenterIntegral(deriv,atoms,bs1,bs2)
+              const LibChemist::BasisSet &bs2):TwoCenterIntegral(deriv,molecule,bs1,bs2)
      {
        libint2::initialize();
 
@@ -56,13 +56,14 @@ struct NuclearElectron: public LibInt2C<libint2::Operator::nuclear> {
 	using base_type=LibInt2C<libint2::Operator::nuclear>;
 
     NuclearElectron(unsigned int deriv,
-                    const LibChemist::SetOfAtoms &atoms,
+                    const LibChemist::Molecule &molecule,
                     const LibChemist::BasisSet &bs1,
-                    const LibChemist::BasisSet &bs2) : base_type(deriv, atoms, bs1, bs2)
+                    const LibChemist::BasisSet &bs2) : base_type(deriv, molecule, bs1, bs2)
     {
         std::vector<std::pair<double,std::array<double,3>>> qs;
-        for(const auto& ai: atoms)
-		qs.push_back({ai.property(LibChemist::AtomProperty::charge)==0? ai.property(LibChemist::AtomProperty::Z): ai.property(LibChemist::AtomProperty::charge) ,{ai.coord[0],ai.coord[1],ai.coord[2]}});
+        for(const auto& ai: molecule.atoms)
+		qs.push_back({ai.properties.at(LibChemist::Atom::Property::charge),
+                             {ai.coords[0],ai.coords[1],ai.coords[2]}});
         engine_.set_params(qs);
 
     }
@@ -72,9 +73,9 @@ struct Metric: public LibInt2C<libint2::Operator::coulomb> {
 	using base_type=LibInt2C<libint2::Operator::coulomb>;
 
     Metric(unsigned int deriv,
-           const LibChemist::SetOfAtoms &atoms,
+           const LibChemist::Molecule &molecule,
            const LibChemist::BasisSet &bs1,
-           const LibChemist::BasisSet &bs2) : base_type(deriv, atoms, bs1, bs2)
+           const LibChemist::BasisSet &bs2) : base_type(deriv, molecule, bs1, bs2)
     {
         engine_.set_braket(libint2::BraKet::xs_xs);
     }
@@ -84,9 +85,9 @@ struct EDipole: public LibInt2C<libint2::Operator::emultipole1> {
 	using base_type=LibInt2C<libint2::Operator::emultipole1>;
 
     EDipole(unsigned int deriv,
-           const LibChemist::SetOfAtoms &atoms,
+           const LibChemist::Molecule &molecule,
            const LibChemist::BasisSet &bs1,
-           const LibChemist::BasisSet &bs2) : base_type(deriv, atoms, bs1, bs2){}    
+           const LibChemist::BasisSet &bs2) : base_type(deriv, molecule, bs1, bs2){}    
 
     unsigned int n_components(void) const override {return 4;}
 };
@@ -95,9 +96,9 @@ struct EQuadrupole: public LibInt2C<libint2::Operator::emultipole2> {
 	using base_type=LibInt2C<libint2::Operator::emultipole2>;
 
     EQuadrupole(unsigned int deriv,
-           const LibChemist::SetOfAtoms &atoms,
+           const LibChemist::Molecule &molecule,
            const LibChemist::BasisSet &bs1,
-           const LibChemist::BasisSet &bs2) : base_type(deriv, atoms, bs1, bs2){}    
+           const LibChemist::BasisSet &bs2) : base_type(deriv, molecule, bs1, bs2){}    
    
     unsigned int n_components(void) const override {return 10;}
 };
@@ -106,9 +107,9 @@ struct EOctopole: public LibInt2C<libint2::Operator::emultipole3> {
 	using base_type=LibInt2C<libint2::Operator::emultipole3>;
 
     EOctopole(unsigned int deriv,
-           const LibChemist::SetOfAtoms &atoms,
+           const LibChemist::Molecule &molecule,
            const LibChemist::BasisSet &bs1,
-           const LibChemist::BasisSet &bs2) : base_type(deriv, atoms, bs1, bs2){}    
+           const LibChemist::BasisSet &bs2) : base_type(deriv, molecule, bs1, bs2){}    
    
     unsigned int n_components(void) const override {return 20;}
 };
