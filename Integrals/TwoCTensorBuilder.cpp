@@ -12,7 +12,7 @@ std::vector<typename IntegralTensorBuilder<2>::TensorType> kernel(const LibChemi
     libint_type libints(0,molecule,basissets[0],basissets[1]);
     Integrals::TwoCenterIntegral *Ints = &libints;
     IntegralTensorBuilder<2>::TensorType init_tensor(std::array<long int,2>
-                                                    {basissets[0].size(),basissets[1].size()});
+                                                    {static_cast<long>(basissets[0].size()),static_cast<long>(basissets[1].size())});
     init_tensor.setZero();
     std::vector<IntegralTensorBuilder<2>::TensorType> rv(Ints->n_components(),init_tensor);
 

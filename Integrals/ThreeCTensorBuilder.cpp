@@ -12,7 +12,8 @@ std::vector<typename IntegralTensorBuilder<3>::TensorType> kernel(const LibChemi
     libint_type libints(0,molecule,basissets[0],basissets[1],basissets[2]);
     Integrals::ThreeCenterIntegral *Ints = &libints;
     IntegralTensorBuilder<3>::TensorType init_tensor(std::array<long int,3>
-                                                     {basissets[0].size(),basissets[1].size(),basissets[2].size()});
+                                                     {static_cast<long>(basissets[0].size()),static_cast<long>(basissets[1].size()),
+                                                      static_cast<long>(basissets[2].size())});
     init_tensor.setZero();
     std::vector<IntegralTensorBuilder<3>::TensorType> rv(Ints->n_components(),init_tensor);
 
