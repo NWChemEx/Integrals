@@ -1,9 +1,9 @@
 def repoName= "Integrals"
 def depends = ["CMakeBuild", "Utilities", "LibChemist", "SDE"] as String[]
-def commonModules = "cmake llvm eigen/3.3.3 libint/2.4.2"
+def commonModules = "cmake llvm gcc/7.1.0 eigen/3.3.3 libint/2.4.2 "
 def buildModuleMatrix = [
-    		   "GCC":(commonModules + "gcc/7.1.0"),
-		   "Intel":(commonModules + "gcc/7.1.0 intel-parallel-studio/cluster.2018.0-tpfbvga")
+    		   "GCC":(commonModules),
+		   "Intel":(commonModules + "intel-parallel-studio/cluster.2018.0-tpfbvga ")
 		  ]
 def cmakeCommandMatrix = [
     		   "GCC":"-DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++",
