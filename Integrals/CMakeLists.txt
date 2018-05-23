@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION ${CMAKE_VERSION})
 project(Integrals-SRC VERSION 0.0.0 LANGUAGES CXX)
 include(TargetMacros)
-set(Integrals_SRCS     TwoCTensorBuilder.cpp
-                         ThreeCTensorBuilder.cpp
-                         FourCTensorBuilder.cpp
-                         nwx_libint/nwx_libint.cpp
+set(Integrals_SRCS TwoCTensorBuilder.cpp
+                   ThreeCTensorBuilder.cpp
+                   FourCTensorBuilder.cpp
+                   nwx_libint/nwx_libint.cpp
 )
-set(Integrals_INCLUDES TwoCenterIntegral.hpp
+set(Integrals_INCLUDES LibintIntegral.hpp
+        TwoCenterIntegral.hpp
                          ThreeCenterIntegral.hpp
                          FourCenterIntegral.hpp
                          TwoCTensorBuilder.hpp

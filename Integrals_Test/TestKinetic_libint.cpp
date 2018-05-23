@@ -1,4 +1,4 @@
-#include <Integrals/nwx_libint/LibInt2C.hpp>
+#include <Integrals/LibIntIntegral.hpp>
 
 #include "TestCommon.hpp"
 
@@ -43,22 +43,25 @@ TEST_CASE("Testing the Kinetic class"){
 
     auto molecule=make_molecule();
     auto bs=molecule.get_basis("sto-3g_cart");
-    nwx_libint::Kinetic libints(0,molecule,bs,bs);
-    Integrals::TwoCenterIntegral *Ints = &libints;
+    LibIntKinetic<> mod;
 
-    size_t counter=0;
-    for(size_t si=0;si<5;++si)
-    {
-        const size_t ni = bs.shellsize(si);
-        for(size_t sj=0;sj<=si;++sj)
-        {
-            const size_t nj = bs.shellsize(sj);
-            std::vector<const double*> buf_vec=Ints->calculate(si,sj);
-            auto buffer = buf_vec[0];
-            if(buffer==nullptr)continue;
-            ptr_wrapper wrapped_buffer={buffer,ni*nj};
-            compare_integrals(wrapped_buffer, corr[counter]);
-            ++counter;
-        }
-    }
+    auto T = mod.run(molecule, {bs, bs});
+      //    nwx_libint::Kinetic libints(0,molecule,bs,bs);
+//    Integrals::TwoCenterIntegral *Ints = &libints;
+//
+//    size_t counter=0;
+//    for(size_t si=0;si<5;++si)
+//    {
+//        const size_t ni = bs.shellsize(si);
+//        for(size_t sj=0;sj<=si;++sj)
+//        {
+//            const size_t nj = bs.shellsize(sj);
+//            std::vector<const double*> buf_vec=Ints->calculate(si,sj);
+//            auto buffer = buf_vec[0];
+//            if(buffer==nullptr)continue;
+//            ptr_wrapper wrapped_buffer={buffer,ni*nj};
+//            compare_integrals(wrapped_buffer, corr[counter]);
+//            ++counter;
+//        }
+//    }
 }
