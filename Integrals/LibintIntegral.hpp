@@ -56,7 +56,7 @@ struct MakeEngine {
      *
      * @throws ??? If engine creation throws.  Strong throw guarantee.
      */
-    static auto engine(const LibChemist::molecule&, std::size_t max_prims,
+    static auto engine(const LibChemist::Molecule&, std::size_t max_prims,
                        std::size_t max_l, double thresh) {
         return libint2::Engine(op, max_prims, max_l, Deriv, thresh);
     }
@@ -69,7 +69,7 @@ struct MakeEngine<libint2::Operator::nuclear, 2, Deriv> {
     using charge_array = std::vector<std::pair<double,std::array<double,3>>>;
 
     ///@copydoc MakeEngine::engine
-    static auto engine(const LibChemist::molecule& molecule,
+    static auto engine(const LibChemist::Molecule& molecule,
                        std::size_t max_prims, std::size_t max_l,
                        double thresh) {
         charge_array qs;
@@ -87,7 +87,7 @@ struct MakeEngine<libint2::Operator::nuclear, 2, Deriv> {
 template<std::size_t Deriv>
 struct MakeEngine<libint2::Operator::coulomb, 2, Deriv> {
     ///@copydoc MakeEngine::engine
-    static auto engine(const LibChemist::molecule& molecule,
+    static auto engine(const LibChemist::Molecule& molecule,
                        std::size_t max_prims, std::size_t max_l,
                        double thresh) {
         libint2::Engine engine(libint2::Operator::nuclear, max_prims,
@@ -101,7 +101,7 @@ struct MakeEngine<libint2::Operator::coulomb, 2, Deriv> {
 template<std::size_t Deriv>
 struct MakeEngine<libint2::Operator::coulomb, 3, Deriv> {
     ///@copydoc MakeEngine::engine
-    static auto engine(const LibChemist::molecule& molecule,
+    static auto engine(const LibChemist::Molecule& molecule,
                        std::size_t max_prims, std::size_t max_l,
                        double thresh) {
         libint2::Engine engine(libint2::Operator::nuclear, max_prims,
@@ -213,6 +213,16 @@ private:
 template<libint2::Operator op, std::size_t NBases,
          std::size_t Deriv=0, typename element_type = double>
 struct LibIntIntegral : SDE::Integral<NBases, Deriv, element_type> {
+    /// Typedef of base class
+    using base_type = SDE::Integral<NBases, Deriv, element_type>;
+
+    /// Pull typdefs from baseclass into scope.
+    ///@{
+    using tensor_type = typename base_type::tensor_type;
+    using molecule_type = typename base_type::molecule_type;
+    using basis_array_type = typename base_type::basis_array_type;
+    ///@}
+
     /**
      * @brief Computes the tensor representation of an operator in the
      *        requested AO basis sets.
@@ -227,37 +237,45 @@ struct LibIntIntegral : SDE::Integral<NBases, Deriv, element_type> {
      * The content of both @p mol and @p bases will be accessed, if concurrent
      * modifications occur data races will ensue.
      */
-    tensor_type run(const molecule_type& mol, const basis_array& bases) override {
+    tensor_type run(const molecule_type& mol, const basis_array_type& bases)
+    override {
         const double thresh = 1.0E-16; // should come from parameters
         std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
         std::array<tamm::TiledIndexSpace, NBases> tAOs; //tiled version of AOs
         detail_::LibIntFunctor<NBases> fxn; // Call-back to give to TAMM
-        std::size_t max_prims = 0; // max primitives in any basis set
-        std::size_t max_l = 0; // max angular momentum in any basis set
+        size_t max_prims = 0; // max primitives in any basis set
+        int max_l = 0; // max angular momentum in any basis set
 
-        for(std::size_t basis_i = 0; i < NBases; ++basis_i) {
+        for(std::size_t basis_i = 0; basis_i < NBases; ++basis_i) {
             const auto& basis = bases[basis_i];
             const auto nshells = basis.types.size();
 
             // Make index spaces
-            AOs[basis_i] = tamm::IndexSpace{range(0, basis.size())};
-            std::vector<std::size_t> tiling(nshells);
+            AOs[basis_i] = tamm::IndexSpace{tamm::range(0, basis.size())};
+            std::vector<unsigned int> tiling(nshells);
             for(std::size_t shell_i = 0; shell_i < nshells; ++shell_i)
-                tiling[i] = basis.shellsize(i);
+                tiling[basis_i] = basis.shellsize(shell_i);
             tAOs[basis_i] = tamm::TiledIndexSpace{AOs[basis_i], tiling};
 
             // update functor's state
-            fxn.bs[basis_i] = make_basis(basis);
+            fxn.bs[basis_i] = nwx_libint::make_basis(basis);
             auto& LIbasis = fxn.bs[basis_i];
-            max_prims = std::max(max_prims, LIBasis.max_nprim(LIBasis));
-            max_l = std::max(max_l, LIBasis.max_l(LIbasis));
+            max_prims = std::max(max_prims, LIbasis.max_nprim(LIbasis));
+            max_l = std::max(max_l, LIbasis.max_l(LIbasis));
         }
 
         // Make engine and return (typedef so next line doesn't exceed 80 chars)
         using engine_maker = detail_::MakeEngine<op, NBases, Deriv>;
         fxn.engine = engine_maker::engine(mol, max_prims, max_l, thresh);
 
-        return tensor_type(tAOs, fxn);
+        return run_(std::move(AOs), std::move(fxn),
+                    std::make_index_sequence<NBases>());
+    }
+
+private:
+    template<typename AO_type, typename FunctorType, std::size_t...I>
+    auto run_(AO_type tAOs, FunctorType fxn, std::index_sequence<I...>) {
+        return tensor_type(std::move(tAOs[I])..., std::move(fxn));
     }
 };
 } // namespace detail_

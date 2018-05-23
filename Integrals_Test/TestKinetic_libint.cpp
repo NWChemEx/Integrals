@@ -1,4 +1,4 @@
-#include <Integrals/LibIntIntegral.hpp>
+#include <Integrals/LibintIntegral.hpp>
 
 #include "TestCommon.hpp"
 
@@ -43,7 +43,7 @@ TEST_CASE("Testing the Kinetic class"){
 
     auto molecule=make_molecule();
     auto bs=molecule.get_basis("sto-3g_cart");
-    LibIntKinetic<> mod;
+    Integrals::LibIntKinetic<> mod;
 
     auto T = mod.run(molecule, {bs, bs});
       //    nwx_libint::Kinetic libints(0,molecule,bs,bs);
