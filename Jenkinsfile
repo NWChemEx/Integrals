@@ -1,5 +1,6 @@
 def repoName= "Integrals"
-def depends = ["CMakeBuild", "Utilities", "LibChemist", "SDE"] as String[]
+def depends = ["CMakeBuild", "Utilities", "LibChemist", "SDE", "tamm"] as
+String[]
 def commonModules = "cmake llvm gcc/7.1.0 eigen/3.3.3 libint/2.4.2 python"
 def buildModuleMatrix = [
     		   "GCC":(commonModules),
