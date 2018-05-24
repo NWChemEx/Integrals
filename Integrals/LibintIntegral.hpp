@@ -212,9 +212,9 @@ private:
  */
 template<libint2::Operator op, std::size_t NBases,
          std::size_t Deriv=0, typename element_type = double>
-struct LibIntIntegral : SDE::Integral<NBases, Deriv, element_type> {
+struct LibIntIntegral : SDE::AOIntegral<NBases, Deriv, element_type> {
     /// Typedef of base class
-    using base_type = SDE::Integral<NBases, Deriv, element_type>;
+    using base_type = SDE::AOIntegral<NBases, Deriv, element_type>;
 
     /// Pull typdefs from baseclass into scope.
     ///@{
