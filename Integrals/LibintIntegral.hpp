@@ -39,9 +39,8 @@ namespace detail_ {
  *
  * @tparam op The libint enumeration for the operator
  * @tparam NBases The number of AO indices in the bra plus the number in the ket
- * @tparam Deriv What order derivative should we compute
  */
-template<libint2::Operator op, std::size_t, std::size_t Deriv>
+template<libint2::Operator op, std::size_t>
 struct MakeEngine {
     /**
      * @brief Function that actually makes the engine.
@@ -57,55 +56,55 @@ struct MakeEngine {
      * @throws ??? If engine creation throws.  Strong throw guarantee.
      */
     static auto engine(const LibChemist::Molecule&, std::size_t max_prims,
-                       std::size_t max_l, double thresh) {
-        return libint2::Engine(op, max_prims, max_l, Deriv, thresh);
+                       std::size_t max_l, double thresh, std::size_t deriv) {
+        return libint2::Engine(op, max_prims, max_l, deriv, thresh);
     }
 };
 
 /// MakeEngine specialization to the electron-nucleus attraction
-template<std::size_t Deriv>
-struct MakeEngine<libint2::Operator::nuclear, 2, Deriv> {
+template<>
+struct MakeEngine<libint2::Operator::nuclear, 2> {
     /// Format LibInt wants the nuclear charges in.
     using charge_array = std::vector<std::pair<double,std::array<double,3>>>;
 
     ///@copydoc MakeEngine::engine
     static auto engine(const LibChemist::Molecule& molecule,
                        std::size_t max_prims, std::size_t max_l,
-                       double thresh) {
+                       double thresh, std::size_t deriv) {
         charge_array qs;
         for(const auto& ai: molecule.atoms)
             qs.push_back({ai.properties.at(LibChemist::Atom::Property::charge),
                           {ai.coords[0],ai.coords[1],ai.coords[2]}});
         libint2::Engine engine(libint2::Operator::nuclear, max_prims,
-                               max_l, Deriv, thresh);
+                               max_l, deriv, thresh);
         engine.set_params(qs);
         return engine;
     }
 };
 
 /// MakeEngine specialization to the DF-metric integrals
-template<std::size_t Deriv>
-struct MakeEngine<libint2::Operator::coulomb, 2, Deriv> {
+template<>
+struct MakeEngine<libint2::Operator::coulomb, 2> {
     ///@copydoc MakeEngine::engine
     static auto engine(const LibChemist::Molecule& molecule,
                        std::size_t max_prims, std::size_t max_l,
-                       double thresh) {
+                       double thresh, std::size_t deriv) {
         libint2::Engine engine(libint2::Operator::nuclear, max_prims,
-                               max_l, Deriv, thresh);
+                               max_l, deriv, thresh);
         engine.set_braket(libint2::BraKet::xs_xs);
         return engine;
     }
 };
 
 /// MakeEngine specialization to the DF-Coulomb integrals
-template<std::size_t Deriv>
-struct MakeEngine<libint2::Operator::coulomb, 3, Deriv> {
+template<>
+struct MakeEngine<libint2::Operator::coulomb, 3> {
     ///@copydoc MakeEngine::engine
     static auto engine(const LibChemist::Molecule& molecule,
                        std::size_t max_prims, std::size_t max_l,
-                       double thresh) {
+                       double thresh, std::size_t deriv) {
         libint2::Engine engine(libint2::Operator::nuclear, max_prims,
-                               max_l, Deriv, thresh);
+                               max_l, deriv, thresh);
         engine.set_braket(libint2::BraKet::xs_xx);
         return engine;
     }
@@ -210,17 +209,17 @@ private:
  * @tparam Deriv The derivative order to compute
  * @tparam element_type The literal type of the elements in the tensor
  */
-template<libint2::Operator op, std::size_t NBases,
-         std::size_t Deriv=0, typename element_type = double>
-struct LibIntIntegral : SDE::AOIntegral<NBases, Deriv, element_type> {
+template<libint2::Operator op, std::size_t NBases,typename element_type = double>
+struct LibIntIntegral : SDE::AOIntegral<NBases, element_type> {
     /// Typedef of base class
-    using base_type = SDE::AOIntegral<NBases, Deriv, element_type>;
+    using base_type = SDE::AOIntegral<NBases, element_type>;
 
     /// Pull typdefs from baseclass into scope.
     ///@{
     using tensor_type = typename base_type::tensor_type;
     using molecule_type = typename base_type::molecule_type;
     using basis_array_type = typename base_type::basis_array_type;
+    using size_type        = typename base_type::size_type;
     ///@}
 
     /**
@@ -237,7 +236,9 @@ struct LibIntIntegral : SDE::AOIntegral<NBases, Deriv, element_type> {
      * The content of both @p mol and @p bases will be accessed, if concurrent
      * modifications occur data races will ensue.
      */
-    tensor_type run(const molecule_type& mol, const basis_array_type& bases)
+    tensor_type run(const molecule_type& mol,
+                    const basis_array_type& bases,
+                    size_type deriv=0)
     override {
         const double thresh = 1.0E-16; // should come from parameters
         std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
@@ -265,8 +266,8 @@ struct LibIntIntegral : SDE::AOIntegral<NBases, Deriv, element_type> {
         }
 
         // Make engine and return (typedef so next line doesn't exceed 80 chars)
-        using engine_maker = detail_::MakeEngine<op, NBases, Deriv>;
-        fxn.engine = engine_maker::engine(mol, max_prims, max_l, thresh);
+        using engine_maker = detail_::MakeEngine<op, NBases>;
+        fxn.engine = engine_maker::engine(mol, max_prims, max_l, thresh, deriv);
 
         return run_(std::move(AOs), std::move(fxn),
                     std::make_index_sequence<NBases>());
@@ -281,33 +282,33 @@ private:
 } // namespace detail_
 
 ///Typedef for AO overlap matrix
-template<std::size_t Deriv=0, typename element_type=double>
+template<typename element_type=double>
 using LibIntOverlap =
-  detail_::LibIntIntegral<libint2::Operator::overlap, 2, Deriv, element_type>;
+  detail_::LibIntIntegral<libint2::Operator::overlap, 2, element_type>;
 
 ///Typedef for kinetic energy of electrons
-template<std::size_t Deriv=0, typename element_type=double>
+template<typename element_type=double>
 using LibIntKinetic =
-  detail_::LibIntIntegral<libint2::Operator::kinetic, 2, Deriv, element_type>;
+  detail_::LibIntIntegral<libint2::Operator::kinetic, 2, element_type>;
 
 ///Typedef for the density-fitting metric
-template<std::size_t Deriv=0, typename element_type=double>
+template<typename element_type=double>
 using LibIntMetric =
-    detail_::LibIntIntegral<libint2::Operator::coulomb, 2, Deriv, element_type>;
+    detail_::LibIntIntegral<libint2::Operator::coulomb, 2, element_type>;
 
 /// Nucleus-electron attraction
-template<std::size_t Deriv=0, typename element_type=double>
+template<typename element_type=double>
 using LibIntNucleusElectronAttraction =
-    detail_::LibIntIntegral<libint2::Operator::nuclear, 2, Deriv, element_type>;
+    detail_::LibIntIntegral<libint2::Operator::nuclear, 2, element_type>;
 
 ///Typedef for the density-fitting metric
-template<std::size_t Deriv=0, typename element_type=double>
+template<typename element_type=double>
 using LibIntDF3C2E =
-    detail_::LibIntIntegral<libint2::Operator::coulomb, 3, Deriv, element_type>;
+    detail_::LibIntIntegral<libint2::Operator::coulomb, 3, element_type>;
 
 /// Standard 4 electron integral
-template<std::size_t Deriv=0, typename element_type=double>
+template<typename element_type=double>
 using LibIntERI =
-    detail_::LibIntIntegral<libint2::Operator::coulomb, 4, Deriv, element_type>;
+    detail_::LibIntIntegral<libint2::Operator::coulomb, 4, element_type>;
 
 } // namespace Integrals
