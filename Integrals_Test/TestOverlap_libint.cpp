@@ -1,5 +1,7 @@
-#include <Integrals/nwx_libint/LibInt2C.hpp> 
+#include <Integrals/LibintIntegral.hpp>
 #include "TestCommon.hpp"
+
+using namespace Integrals;
 
 //Computes the overlap integrals for water in STO-3G
 std::vector<std::vector<double>> corr={
@@ -37,27 +39,19 @@ std::vector<std::vector<double>> corr={
     1.0000000000000002,},
 };
 
-TEST_CASE("Testing Overlap class"){
-
-    auto molecule=make_molecule();
-    auto bs=molecule.get_basis("sto-3g_cart");
-    nwx_libint::Overlap libints(0,molecule,bs,bs);
-    Integrals::TwoCenterIntegral *Ints = &libints;
-
-    size_t counter=0;
-    for(size_t si=0;si<5;++si)
-    {
-        const size_t ni = bs.shellsize(si);
-        for(size_t sj=0;sj<=si;++sj)
-        {
-            const size_t nj = bs.shellsize(sj);
-            std::vector<const double*> buf_vec=Ints->calculate(si,sj);
-            auto buffer = buf_vec[0];
-            if(buffer==nullptr)continue;
-            ptr_wrapper wrapped_buffer={buffer,ni*nj};
-            compare_integrals(wrapped_buffer, corr[counter]);
-            ++counter;
-        }
-    }
+TEST_CASE("Testing LibIntOverlap class"){
+    auto [molecule, bs] = make_molecule();
+    LibIntOverlap SBuilder;
+    auto S = SBuilder.run(molecule, {bs, bs});
+//    for(auto i = 0; i < bs.nshells(); ++i) {
+//        for (auto j = 0; j <= i ; ++j) {
+//            std::vector<double> buffer(bs[i].size() * bs[j].size());
+//            S.get(tamm::IndexVector{i, j}, {buffer.data(), buffer.size()});
+//            std::cout<<"{//( " << i <<" | " << j << ")" << std::endl;
+//            for (auto &x : buffer) std::cout << x << ",";
+//            std::cout << "},"<< std::endl;
+//        }
+//    }
+    tamm::Tensor<double>::deallocate(S);
 }
 
