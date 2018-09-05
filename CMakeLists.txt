@@ -10,7 +10,7 @@ execute_process(
 include(${CMAKE_BINARY_DIR}/cmake/Macros.cmake)
 start_hunter(LOCAL) #Must be before project command
 
-project(LibChemist VERSION 0.0.0 LANGUAGES CXX)
+project(Integrals VERSION 0.0.0 LANGUAGES CXX)
 
 ### Options ###
 option(BUILD_TESTS "Should we build the tests?" ON)
