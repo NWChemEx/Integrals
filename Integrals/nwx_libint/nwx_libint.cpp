@@ -10,7 +10,8 @@ libint2::BasisSet make_basis(const LibChemist::AOBasisSet& bs)
         const auto nprims = shelli.nprims();
         std::vector<double> alphas(&shelli.alpha(0), &shelli.alpha(nprims));
         std::vector<double> coefs(&shelli.coef(0), &shelli.coef(nprims));
-        Contraction cont({shelli.l(), shelli.pure(), coefs});
+        int l = shelli.l();
+        Contraction cont({l, shelli.pure(), coefs});
         std::vector<Contraction> conts{cont};
         shells.push_back(libint2::Shell(alphas, conts, shelli.center()));
     }
