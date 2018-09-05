@@ -14,36 +14,51 @@
  *
  */
 namespace Integrals {
+///Namespace for classes needed to implement integrals using Libint
+namespace Libint {
+///Namespace for classes that are considered implementation details
 namespace detail_ {
 
-template<libint2::Operator op, std::size_t NBases,typename element_type = double>
-class LibintIntegralPIMPL;
+///Forward declaration of the implementation of the LibintIntegral class
+template<libint2::Operator op, std::size_t NBases,
+        typename element_type = double>
+class IntegralPIMPL;
 
 /**
  * @brief The class that actually serves as the module for computing integrals
  *        for NWChemEx.
  *
+ * All of the integrals needed by NWX are obtained from this class.  In order to
+ * store the definitions in the source file (and avoid template overhead) all
+ * explicit instantiations must be included in this header file (see right below
+ * this class for the actual instantiations).  This class is largely code
+ * factorization as the process of creating a set of integrals is basically
+ * identical regardless of what kind of integral is being formed.  Users of the
+ * integrals library should deal exclusively with the typedefs outside the
+ * detail_ namespace (*e.g.*, Overlap, and Kinetic).
  *
  * @tparam op The libint2 operator enumeration involved in the integral.
  * @tparam NBases The total number of AO bases in the bra and ket
- * @tparam Deriv The derivative order to compute
  * @tparam element_type The literal type of the elements in the tensor
  */
-template<libint2::Operator op, std::size_t NBases,typename element_type = double>
-struct LibintIntegral : LibChemist::AOIntegral<NBases, element_type> {
+template<libint2::Operator op, std::size_t NBases,
+         typename element_type = double>
+struct Integral : LibChemist::AOIntegral<NBases, element_type> {
     /// Typedef of base class
     using base_type = LibChemist::AOIntegral<NBases, element_type>;
 
     /// Pull typdefs from baseclass into scope.
     ///@{
-    using tensor_type = typename base_type::tensor_type;
-    using molecule_type = typename base_type::molecule_type;
+    using tensor_type      = typename base_type::tensor_type;
+    using molecule_type    = typename base_type::molecule_type;
     using basis_array_type = typename base_type::basis_array_type;
     using size_type        = typename base_type::size_type;
     ///@}
 
-    LibintIntegral();
-    ~LibintIntegral() noexcept;
+    ///Initializes the buffers libint will need
+    Integral();
+    ///Frees the buffers libint uses
+    ~Integral() noexcept;
 
 
     /**
@@ -53,6 +68,9 @@ struct LibintIntegral : LibChemist::AOIntegral<NBases, element_type> {
      * @param mol The molecular system associated with the basis sets.
      * @param bases An array of the basis sets in the integral from left to
      *        right across the braket.
+     * @param deriv What derivative of the integral should we compute?
+     *        Default is 0 (*i.e.* just the integral).
+     *
      * @return The tensor representation of the operator.
      * @throw ??? If engine construction throws.  Strong throw guarantee.
      *
@@ -65,41 +83,41 @@ struct LibintIntegral : LibChemist::AOIntegral<NBases, element_type> {
                     size_type deriv=0) override;
 
 private:
-    std::unique_ptr<LibintIntegralPIMPL<op, NBases, element_type>> pimpl_;
+    ///The object that actually implements this class
+    std::unique_ptr<IntegralPIMPL<op, NBases, element_type>> pimpl_;
 };
 
-extern template class LibintIntegral<libint2::Operator::overlap, 2, double>;
 
+// Explicit instantiations of the Integral class
+extern template class Integral<libint2::Operator::overlap, 2, double>;
+extern template class Integral<libint2::Operator::kinetic, 2, double>;
+extern template class Integral<libint2::Operator::nuclear, 2, double>;
+extern template class Integral<libint2::Operator::coulomb, 2, double>;
+extern template class Integral<libint2::Operator::coulomb, 3, double>;
+extern template class Integral<libint2::Operator::coulomb, 4, double>;
 
 } // namespace detail_
 
-///Typedef for AO overlap matrix
-using LibIntOverlap =
-  detail_::LibintIntegral<libint2::Operator::overlap, 2, double>;
+///@defgroup Libint Integral classes
+///@{
+///The matrix containing the overlap of the AO basis set
+using Overlap = detail_::Integral<libint2::Operator::overlap, 2, double>;
 
-/////Typedef for kinetic energy of electrons
-//template<typename element_type=double>
-//using LibIntKinetic =
-//  detail_::LibIntIntegral<libint2::Operator::kinetic, 2, element_type>;
-//
-/////Typedef for the density-fitting metric
-//template<typename element_type=double>
-//using LibIntMetric =
-//    detail_::LibIntIntegral<libint2::Operator::coulomb, 2, element_type>;
-//
-///// Nucleus-electron attraction
-//template<typename element_type=double>
-//using LibIntNucleusElectronAttraction =
-//    detail_::LibIntIntegral<libint2::Operator::nuclear, 2, element_type>;
-//
-/////Typedef for the density-fitting metric
-//template<typename element_type=double>
-//using LibIntDF3C2E =
-//    detail_::LibIntIntegral<libint2::Operator::coulomb, 3, element_type>;
-//
-///// Standard 4 electron integral
-//template<typename element_type=double>
-//using LibIntERI =
-//    detail_::LibIntIntegral<libint2::Operator::coulomb, 4, element_type>;
+///Kinetic energy of electrons
+using Kinetic = detail_::Integral<libint2::Operator::kinetic, 2, double>;
 
+/// Nucleus-electron attraction
+using Nuclear = detail_::Integral<libint2::Operator::nuclear, 2, double>;
+
+///Typedef for the density-fitting metric
+using Metric = detail_::Integral<libint2::Operator::coulomb, 2, double>;
+
+///Typedef for the density-fit ERI
+using DFERI = detail_::Integral<libint2::Operator::coulomb, 3, double>;
+
+///Typedef of the canonical ERI
+using ERI = detail_::Integral<libint2::Operator::coulomb, 4, double>;
+///@}
+
+} //namespace Libint
 } // namespace Integrals

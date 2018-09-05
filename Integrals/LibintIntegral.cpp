@@ -1,83 +1,18 @@
 #include "Integrals/LibintIntegral.hpp"
 
-namespace Integrals::detail_ {
+namespace Integrals::Libint::detail_ {
 
 using size_type = std::size_t;
 using molecule_type = LibChemist::Molecule;
 
-//Builds a LibInt engine, specialized when there's more to be done
-template<libint2::Operator op, size_type NBases>
-struct MakeEngine {
-    static auto engine(const molecule_type& molecule,
-                       size_type max_prims, size_type max_l, double thresh,
-                       size_type deriv) {
-        if constexpr (NBases==2 && op == libint2::Operator::nuclear){
-            /// Format LibInt wants the nuclear charges in.
-            using charge_array =
-                    std::vector<std::pair<double,std::array<double,3>>>;
-            charge_array qs;
-            for(const auto& ai: molecule)
-                qs.push_back({static_cast<const double&>(ai.Z()), ai.coords()});
-            libint2::Engine engine(libint2::Operator::nuclear, max_prims,
-                                   max_l, deriv, thresh);
-            engine.set_params(qs);
-            return engine;
-        }
-        else {
-            return libint2::Engine(op, max_prims, max_l, deriv, thresh);
-        }
-    }
-};
+static auto get_execution_context() {
+    tamm::ProcGroup pg{GA_MPI_Comm()};
+    auto *pMM = tamm::MemoryManagerLocal::create_coll(pg);
+    tamm::Distribution_NW dist;
+    return tamm::ExecutionContext(pg, &dist, pMM);
+}
 
-//// MakeEngine specialization to the electron-nucleus attraction
-//template<>
-//struct MakeEngine<libint2::Operator::nuclear, 2> {
-//    /// Format LibInt wants the nuclear charges in.
-//    using charge_array = std::vector<std::pair<double,std::array<double,3>>>;
-//
-//    ///@copydoc MakeEngine::engine
-//    static auto engine(const LibChemist::Molecule& molecule,
-//                       size_type max_prims, size_type max_l,
-//                       double thresh, size_type deriv) {
-//        charge_array qs;
-//        for(const auto& ai: molecule)
-//            qs.push_back({static_cast<const double&>(ai.Z()), ai.coords()});
-//        libint2::Engine engine(libint2::Operator::nuclear, max_prims,
-//                               max_l, deriv, thresh);
-//        engine.set_params(qs);
-//        return engine;
-//    }
-//};
-//
-//// MakeEngine specialization to the DF-metric integrals
-//template<>
-//struct MakeEngine<libint2::Operator::coulomb, 2> {
-//    ///@copydoc MakeEngine::engine
-//    static auto engine(const LibChemist::Molecule& molecule,
-//                       size_type max_prims, size_type max_l,
-//                       double thresh, size_type deriv) {
-//        libint2::Engine engine(libint2::Operator::nuclear, max_prims,
-//                               max_l, deriv, thresh);
-//        engine.set_braket(libint2::BraKet::xs_xs);
-//        return engine;
-//    }
-//};
-//
-//// MakeEngine specialization to the DF-Coulomb integrals
-//template<>
-//struct MakeEngine<libint2::Operator::coulomb, 3> {
-//    ///@copydoc MakeEngine::engine
-//    static auto engine(const LibChemist::Molecule& molecule,
-//                       size_type max_prims, size_type max_l,
-//                       double thresh, size_type deriv) {
-//        libint2::Engine engine(libint2::Operator::nuclear, max_prims,
-//                               max_l, deriv, thresh);
-//        engine.set_braket(libint2::BraKet::xs_xx);
-//        return engine;
-//    }
-//};
-
-//Functor that wraps the call to libint in a uniform API
+//Functor that wraps the call to libint in a uniform API, used by PIMPLs
 template<size_type NBases>
 struct LibIntFunctor {
     // The type of a shell block returned by this functor
@@ -133,21 +68,17 @@ private:
 
 }; // Class LibIntFunctor
 
-
-
 //Defines the API for the LibintIntegral PIMPL (move to header if needed)
 template<libint2::Operator op, size_type NBases,typename element_type>
-struct LibintIntegralPIMPL {
+struct IntegralPIMPL {
     // Typedef of the main class
-    using main_type = LibintIntegral<op, NBases, element_type>;
+    using main_type = Integral<op, NBases, element_type>;
     using tensor_type = typename main_type::tensor_type;
     using basis_array_type = typename main_type::basis_array_type;
     using tiled_AO = std::array<tamm::TiledIndexSpace, NBases>;
     using fxn_type = LibIntFunctor<NBases>;
 
-
-    LibintIntegralPIMPL() = default;
-
+    //Public API to PIMPL
     virtual tensor_type run_impl(const tiled_AO& tAOs,
                                  const basis_array_type& bases,
                                  fxn_type&& fxn) {
@@ -155,27 +86,32 @@ struct LibintIntegralPIMPL {
     }
 
 private:
+    //Implemented by derived class
     virtual tensor_type run_impl_(const tiled_AO& tAOs,
-                      const basis_array_type& bases,
-                      fxn_type&& fxn) = 0;
+                                  const basis_array_type& bases,
+                                  fxn_type&& fxn) = 0;
 };
+
+/*******************************************************************************
+ *   PIMPL Implementations.
+ *
+ *   These are the various ways that one can build a tensor filled with
+ *   integrals.
+ ******************************************************************************/
 
 ///Builder that assumes you can get the integrals in core memory
 template<libint2::Operator op, size_type NBases, typename element_type>
-struct CoreLibintInts : LibintIntegralPIMPL<op, NBases, element_type> {
+struct CoreIntegrals : IntegralPIMPL<op, NBases, element_type> {
 public:
-    using base_type = LibintIntegralPIMPL<op, NBases, element_type>;
+    using base_type = IntegralPIMPL<op, NBases, element_type>;
     using tiled_AO = typename base_type::tiled_AO;
     using tensor_type = typename base_type::tensor_type;
     using basis_array_type = typename base_type::basis_array_type;
     using fxn_type = typename base_type::fxn_type;
-
-    CoreLibintInts() = default;
 private:
     ///Wraps forwarding the tiled index space into the ctor
     template<size_type...Is>
-    tensor_type make_tensor(const tiled_AO& tAO,
-                            std::index_sequence<Is...>){
+    tensor_type make_tensor(const tiled_AO& tAO, std::index_sequence<Is...>){
         return tensor_type{tAO[Is]...};
     }
 
@@ -212,7 +148,7 @@ private:
         tensor_type A = std::move(make_tensor(tAO,
                 std::make_index_sequence<NBases>()));
         tamm::ProcGroup pg{GA_MPI_Comm()};
-        auto* pMM = tamm::MemoryManagerLocal::create_coll(pg);
+        auto *pMM = tamm::MemoryManagerLocal::create_coll(pg);
         tamm::Distribution_NW dist;
         tamm::ExecutionContext ec(pg, &dist, pMM);
         tamm::Tensor<double>::allocate(&ec, A);
@@ -221,12 +157,38 @@ private:
     }
 };
 
+
+/*******************************************************************************
+ *  Implementation and instantiations of the Integral class.
+ ******************************************************************************/
+
+//Factors out the building of a Libint2 engine.
+template<libint2::Operator op, size_type NBases>
+static auto make_engine(const molecule_type& molecule, size_type max_prims,
+                        size_type max_l, double thresh, size_type deriv) {
+    libint2::Engine engine(op, max_prims, max_l, deriv, thresh);
+    //Take care of any special set-up
+    if constexpr (NBases==2 && op == libint2::Operator::nuclear){
+        std::vector<std::pair<double,std::array<double,3>>> qs;
+        for(const auto& ai: molecule)
+            qs.push_back({static_cast<const double&>(ai.Z()), ai.coords()});
+        engine.set_params(qs);
+    }
+    else if constexpr (NBases == 2 && op ==libint2::Operator::coulomb) {
+        engine.set_braket(libint2::BraKet::xs_xs);
+    }
+    else if constexpr (NBases == 3 && op == libint2::Operator::coulomb) {
+        engine.set_braket(libint2::BraKet::xs_xx);
+    }
+    return engine;
+}
+
 template<libint2::Operator op, size_type NBases, typename element_type>
-typename LibintIntegral<op, NBases, element_type>::tensor_type
-LibintIntegral<op, NBases, element_type>::run(
-        const LibintIntegral<op, NBases, element_type>::molecule_type& mol,
-        const LibintIntegral<op, NBases, element_type>::basis_array_type & bases,
-        LibintIntegral<op, NBases, element_type>::size_type deriv) {
+typename Integral<op, NBases, element_type>::tensor_type
+Integral<op, NBases, element_type>::run(
+        const Integral<op, NBases, element_type>::molecule_type& mol,
+        const Integral<op, NBases, element_type>::basis_array_type & bases,
+        Integral<op, NBases, element_type>::size_type deriv) {
     const double thresh = 1.0E-16; // should come from parameters
     std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
     std::array<tamm::TiledIndexSpace, NBases> tAOs; //tiled version of AOs
@@ -250,20 +212,22 @@ LibintIntegral<op, NBases, element_type>::run(
         max_l = std::max(max_l, LIbasis.max_l(LIbasis));
     }
 
-    // Make engine and return (typedef so next line doesn't exceed 80 chars)
-    using engine_maker = detail_::MakeEngine<op, NBases>;
-    fxn.engine = engine_maker::engine(mol, max_prims, max_l, thresh, deriv);
-
+    fxn.engine = make_engine<op, NBases>(mol, max_prims, max_l, thresh, deriv);
     return pimpl_->run_impl(tAOs, bases, std::move(fxn));
 }
 
 template<libint2::Operator op, size_type NBases, typename element_type>
-LibintIntegral<op, NBases, element_type>::LibintIntegral() :
-pimpl_(std::make_unique<CoreLibintInts<op, NBases, element_type>>()) {}
+Integral<op, NBases, element_type>::Integral() :
+pimpl_(std::make_unique<CoreIntegrals<op, NBases, element_type>>()) {}
 
 template<libint2::Operator op, size_type NBases, typename element_type>
-LibintIntegral<op, NBases, element_type>::~LibintIntegral() noexcept = default;
+Integral<op, NBases, element_type>::~Integral() noexcept = default;
 
-template class LibintIntegral<libint2::Operator::overlap, 2, double>;
+template class Integral<libint2::Operator::overlap, 2, double>;
+template class Integral<libint2::Operator::kinetic, 2, double>;
+template class Integral<libint2::Operator::nuclear, 2, double>;
+template class Integral<libint2::Operator::coulomb, 2, double>;
+template class Integral<libint2::Operator::coulomb, 3, double>;
+template class Integral<libint2::Operator::coulomb, 4, double>;
 
 } //namespace Integrals::detail_
