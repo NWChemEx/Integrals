@@ -1,35 +1,42 @@
-#include <Integrals/nwx_libint/LibInt2C.hpp> 
+#include <Integrals/LibintIntegral.hpp>
 #include "TestCommon.hpp"
-#include "H2O_STO3G_Multipole.hpp"
 
-TEST_CASE("Testing EDipole class"){
+using namespace Integrals::Libint;
 
-    auto molecule=make_molecule();
-    auto bs=molecule.get_basis("sto-3g_cart");
-    nwx_libint::EDipole libints(0,molecule,bs,bs);
-    Integrals::TwoCenterIntegral *Ints = &libints;
+//Computes the dipole integrals for water in STO-3G
+static BlockTensor corr{
+    {{0 , 0}, {29.0031999455395848,}},
+    {{0 , 1}, {-0.1680109393164922,}},
+    {{0 , 2}, {0.0000000000000000,0.0000000000000000,0.0000000000000000,}},
+    {{0 , 3}, {-0.0084163851854474,}},
+    {{0 , 4}, {-0.0084163851854474,}},
+    {{1 , 0}, {-0.1680109393164923,}},
+    {{1 , 1}, {0.8081279549303477,}},
+    {{1 , 2}, {-0.0000000000000000,0.0000000000000000,0.0000000000000000,}},
+    {{1 , 3}, {0.0705173385189988,}},
+    {{1 , 4}, {0.0705173385189988,}},
+    {{2 , 0}, {0.0000000000000000,0.0000000000000000,0.0000000000000000,}},
+    {{2 , 1}, {-0.0000000000000000,0.0000000000000000,0.0000000000000000,}},
+    {{2 , 2}, {2.5287311981947651,0.0000000000000000,0.0000000000000000,
+               0.0000000000000000,2.5287311981947642,0.0000000000000000,
+               0.0000000000000000,0.0000000000000000,2.5287311981947651,}},
+    {{2 , 3}, {0.1149203802569082,0.0000000000000000,0.1470905524127557,}},
+    {{2 , 4}, {0.1149203802569082,0.0000000000000000,-0.1470905524127557,}},
+    {{3 , 0}, {-0.0084163851854474,}},
+    {{3 , 1}, {0.0705173385189988,}},
+    {{3 , 2}, {0.1149203802569082,0.0000000000000000,0.1470905524127557,}},
+    {{3 , 3}, {0.7600318835666090,}},
+    {{3 , 4}, {-0.0039797367270372,}},
+    {{4 , 0}, {-0.0084163851854474,}},
+    {{4 , 1}, {0.0705173385189988,}},
+    {{4 , 2}, {0.1149203802569082,0.0000000000000000,-0.1470905524127557,}},
+    {{4 , 3}, {-0.0039797367270372,}},
+    {{4 , 4}, {0.7600318835666090,}}};
 
-    size_t off_i = 0;
-    for(size_t i=0;i<5;++i)
-    {
-        const size_t ni = bs.shellsize(i);
-        size_t off_j = 0;
-        for(size_t j=0;j<5;++j)
-        {
-            const size_t nj = bs.shellsize(j);
-            std::vector<const double*> buf_vec=Ints->calculate(i,j);
-            size_t ncomp = 0;
-            for (auto buffer : buf_vec){
-                if(buf_vec[0]==nullptr)continue;
-                for (size_t si = 0; si < ni; si++) {
-                    for (size_t sj = 0; sj < nj; sj++) {
-                        REQUIRE(*buffer++ == Approx(corr[ncomp][7*(off_i+si)+(off_j+sj)]).epsilon(eps).margin(marg));
-                    }
-                }
-                ncomp++;
-            }
-            off_j += nj;
-        }
-        off_i += ni;
-    }
+TEST_CASE("Testing Libint's Electric Dipole Integrals class"){
+    auto [molecule, bs] = make_molecule();
+    EDipole TBuilder;
+    auto T = TBuilder.run(molecule, {bs, bs});
+    //compare_integrals(T, corr);
+    print_integrals(T);
 }

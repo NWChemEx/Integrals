@@ -71,11 +71,13 @@ private:
 //Defines the API for the LibintIntegral PIMPL (move to header if needed)
 template<libint2::Operator op, size_type NBases,typename element_type>
 struct IntegralPIMPL {
+    // For integrals with multiple components
+    const static size_type extra = (libint2::operator_traits<op>::nopers > 1) ? 1 : 0;
     // Typedef of the main class
     using main_type = Integral<op, NBases, element_type>;
     using tensor_type = typename main_type::tensor_type;
     using basis_array_type = typename main_type::basis_array_type;
-    using tiled_AO = std::array<tamm::TiledIndexSpace, NBases>;
+    using tiled_AO = std::array<tamm::TiledIndexSpace, NBases+extra>;
     using fxn_type = LibIntFunctor<NBases>;
 
     //Public API to PIMPL
@@ -109,6 +111,7 @@ public:
     using basis_array_type = typename base_type::basis_array_type;
     using fxn_type = typename base_type::fxn_type;
 private:
+    const size_type nopers = libint2::operator_traits<op>::nopers;
     ///Wraps forwarding the tiled index space into the ctor
     template<size_type...Is>
     tensor_type make_tensor(const tiled_AO& tAO, std::index_sequence<Is...>){
@@ -126,10 +129,14 @@ private:
             std::size_t nbfs = 1ul;
             for(std::size_t i=0; i<NBases; ++i)
                 nbfs *= bases[i][idx[i]].size();
-
-            std::vector<double> buffer2(buffer[0], buffer[0]+nbfs);
-            tamm::IndexVector temp(idx.begin(), idx.end());
-            A.put(temp, tamm::span<double>(buffer2.data(), buffer2.size()));
+            for (std::size_t i = 0; i < nopers; ++i) {
+                std::vector<double> buffer2(buffer[i], buffer[i]+nbfs);
+                tamm::IndexVector temp;
+                if (nopers > 1)
+                    temp.push_back(i);
+                temp.insert(temp.end(), idx.begin(), idx.end());     
+                A.put(temp, tamm::span<double>(buffer2.data(), buffer2.size()));
+            }
         }
         else {
             for(size_type i = 0; i< bases[depth].nshells(); ++i){
@@ -146,7 +153,7 @@ private:
                           const basis_array_type& bases,
                           fxn_type&& fxn) {
         tensor_type A = std::move(make_tensor(tAO,
-                std::make_index_sequence<NBases>()));
+                std::make_index_sequence<tAO.size()>()));
         tamm::ProcGroup pg{GA_MPI_Comm()};
         auto *pMM = tamm::MemoryManagerLocal::create_coll(pg);
         tamm::Distribution_NW dist;
@@ -191,10 +198,18 @@ Integral<op, NBases, element_type>::run(
         Integral<op, NBases, element_type>::size_type deriv) {
     const double thresh = 1.0E-16; // should come from parameters
     std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
-    std::array<tamm::TiledIndexSpace, NBases> tAOs; //tiled version of AOs
+    const size_type nopers = libint2::operator_traits<op>::nopers; // for integrals with multiple components
+    const size_type extra = (nopers > 1) ? 1 : 0; // increase size of tAOs if multiple components
+    std::array<tamm::TiledIndexSpace, NBases+extra> tAOs; //tiled version of AOs
     size_t max_prims = 0; // max primitives in any basis set
     int max_l = 0; // max angular momentum in any basis set
     LibIntFunctor<NBases> fxn;
+
+    if (nopers > 1) {
+        std::vector<unsigned int> tiling(nopers,1);
+        tAOs[0] = tamm::TiledIndexSpace{tamm::IndexSpace{tamm::range(0, nopers)}, tiling};
+    }
+
     for(size_type basis_i = 0; basis_i < NBases; ++basis_i) {
         const auto& basis = bases[basis_i];
         const auto nshells = basis.nshells();
@@ -203,7 +218,7 @@ Integral<op, NBases, element_type>::run(
         AOs[basis_i] = tamm::IndexSpace{tamm::range(0, basis.nbf())};
         std::vector<unsigned int> tiling;
         for(const auto& shelli : basis) tiling.push_back(shelli.size());
-        tAOs[basis_i] = tamm::TiledIndexSpace{AOs[basis_i], tiling};
+        tAOs[basis_i+extra] = tamm::TiledIndexSpace{AOs[basis_i], tiling};
 
         // update functor's state
         fxn.bs[basis_i] = nwx_libint::make_basis(basis);
@@ -211,6 +226,7 @@ Integral<op, NBases, element_type>::run(
         max_prims = std::max(max_prims, LIbasis.max_nprim(LIbasis));
         max_l = std::max(max_l, LIbasis.max_l(LIbasis));
     }
+
 
     fxn.engine = make_engine<op, NBases>(mol, max_prims, max_l, thresh, deriv);
     return pimpl_->run_impl(tAOs, bases, std::move(fxn));
@@ -229,5 +245,8 @@ template class Integral<libint2::Operator::nuclear, 2, double>;
 template class Integral<libint2::Operator::coulomb, 2, double>;
 template class Integral<libint2::Operator::coulomb, 3, double>;
 template class Integral<libint2::Operator::coulomb, 4, double>;
+template class Integral<libint2::Operator::emultipole1, 2, double>;
+template class Integral<libint2::Operator::emultipole2, 2, double>;
+template class Integral<libint2::Operator::emultipole3, 2, double>;
 
 } //namespace Integrals::detail_

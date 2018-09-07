@@ -49,6 +49,42 @@ inline void compare_integrals(const TensorType& calc,
     compare_impl(calc, corr, IndexType(calc.tiled_index_spaces().size()));
 }
 
+inline void print_impl(const TensorType& calc, IndexType idx, size_t depth=0) {
+
+    auto idx_spaces = calc.tiled_index_spaces();
+    const auto nmodes = idx_spaces.size();
+
+    if(depth == nmodes) { //End recursion
+        //Get buffer size
+        size_t block_size = 1;
+        for(size_t i=0; i< nmodes; ++i)
+            block_size *= idx_spaces[i].tile_size(idx[i]);
+
+        std::vector<double> buffer(block_size);
+        //Avoids warning for size_t to long int
+        long int dim = buffer.size();
+        calc.get(idx, {buffer.data(), dim});
+
+        for(auto x=0; x < block_size; ++x)
+            std::cout << buffer[x] << std::endl;
+    }
+    else { //Adjust the depth-th mode's index
+        const auto ntiles = idx_spaces[depth].num_tiles();
+        for(size_t blocki = 0; blocki < ntiles; ++blocki) {
+            idx[depth] = blocki;
+            //Reset indices after depth
+            for(size_t dimi = depth + 1; dimi < nmodes; ++ dimi) idx[dimi] = 0;
+            print_impl(calc, idx, depth+1);
+        }
+    }
+}
+
+inline void print_integrals(const TensorType& calc)
+{
+    print_impl(calc, IndexType(calc.tiled_index_spaces().size()));
+}
+
+
 inline auto make_molecule() {
    using LibChemist::Atom;
    using c_t = typename Atom::coord_type;
