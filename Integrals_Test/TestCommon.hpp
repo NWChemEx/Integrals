@@ -11,8 +11,8 @@ using TensorType = tamm::Tensor<double>;
 
 inline void compare_impl(const TensorType& calc, const BlockTensor& corr,
                          IndexType idx, size_t depth=0) {
-    const double eps = 1000*std::numeric_limits<double>::epsilon();
-    const double marg = 10*std::numeric_limits<double>::epsilon();
+    const double eps = 10000*std::numeric_limits<double>::epsilon();
+    const double marg = 100*std::numeric_limits<double>::epsilon();
 
     auto idx_spaces = calc.tiled_index_spaces();
     const auto nmodes = idx_spaces.size();
