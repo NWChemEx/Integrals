@@ -1,23 +1,16 @@
-cmake_minimum_required(VERSION ${CMAKE_VERSION})
-project(Integrals-Test VERSION 0.0.0 LANGUAGES CXX)
-include(TargetMacros)
-install(FILES water.xyz
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/tests)
+set(
+    INTEGRALS_TESTS test_main.cpp
+                    TestCommon.hpp
+                    TestDF_libint.cpp
+                    TestERI_libint.cpp
+                    TestKinetic_libint.cpp
+                    TestMetric_libint.cpp
+                    TestNuclearElectron_libint.cpp
+                    TestOverlap_libint.cpp
+)
 
-add_cxx_unit_test(TestOverlap_libint)
-add_cxx_unit_test(TestKinetic_libint)
-add_cxx_unit_test(TestMetric_libint)
-add_cxx_unit_test(TestNuclearElectron_libint)
-add_cxx_unit_test(TestEDipole_libint)
-add_cxx_unit_test(TestEQuadrupole_libint)
-add_cxx_unit_test(TestEOctopole_libint)
-add_cxx_unit_test(TestDF_libint)
-add_cxx_unit_test(TestERI_libint)
-add_cxx_unit_test(TestOverlapBuilder)
-add_cxx_unit_test(TestElecKineticBuilder)
-add_cxx_unit_test(TestNuclearElecBuilder)
-add_cxx_unit_test(TestMetricBuilder)
-add_cxx_unit_test(TestDFBuilder)
-add_cxx_unit_test(TestEDipoleBuilder)
-add_cxx_unit_test(TestEQuadrupoleBuilder)
-add_cxx_unit_test(TestEOctopoleBuilder)
+add_catch_cxx_tests(
+        NAME test_integrals
+        SOURCES ${INTEGRALS_TESTS}
+        DEPENDS Integrals
+)

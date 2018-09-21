@@ -1,5 +1,35 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.8)
+file(
+        DOWNLOAD
+        https://github.com/NWChemEx-Project/DeveloperTools/raw/master/cmake.tar.gz
+        ${CMAKE_BINARY_DIR}/cmake.tar.gz)
+execute_process(
+        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_BINARY_DIR}/cmake.tar.gz
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+include(${CMAKE_BINARY_DIR}/cmake/Macros.cmake)
+start_hunter(LOCAL) #Must be before project command
+
 project(Integrals VERSION 0.0.0 LANGUAGES CXX)
-set(Integrals_DEPENDENCIES LibInt LibChemist Eigen3 SDE)
-find_package(CMakeBuild)
-build_nwchemex_module(${CMAKE_CURRENT_LIST_DIR})
+
+### Options ###
+option(BUILD_TESTS "Should we build the tests?" ON)
+### Dependencies ####
+foreach(depend Utilities bphash cereal pybind11 SDE LibChemist)
+    hunter_add_package(${depend})
+    find_package(${depend} CONFIG REQUIRED)
+endforeach()
+
+#Skip Hunter on TAMM and LibInt for now
+find_package(tamm CONFIG REQUIRED)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+find_package(LibInt REQUIRED)
+
+### Target ###
+add_subdirectory(Integrals)
+
+### Testing ###
+if(${BUILD_TESTS})
+    enable_testing()
+    add_subdirectory(Integrals_Test)
+endif()
