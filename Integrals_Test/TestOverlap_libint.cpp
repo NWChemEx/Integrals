@@ -1,5 +1,6 @@
 #include <Integrals/LibintIntegral.hpp>
 #include "TestCommon.hpp"
+#include "tamm/eigen_utils.hpp"
 
 using namespace Integrals::Libint;
 
@@ -38,5 +39,8 @@ TEST_CASE("Testing LibIntOverlap class"){
     auto [molecule, bs] = make_molecule();
     Overlap SBuilder;
     auto S = SBuilder.run(molecule, {bs, bs});
+    Eigen::Tensor<double, 2, Eigen::RowMajor> tS({bs.nbf(), bs.nbf()});
+    tamm_to_eigen_tensor<double, 2>(S, tS);
+    std::cout << tS <<std::endl;
     compare_integrals(S, corr);
 }

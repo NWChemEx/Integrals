@@ -27,15 +27,7 @@ nwx_depend(
 nwx_depend(
         NAME LibChemist
         VERSION 0.0.0
-        URL "https://api.github.com/repos/ryanmrichard/LibChemist/tarball/PropTypes?access_token=${token}"
+        URL "${gh_url}/LibChemist/tarball/master?access_token=${token}"
         SKIP_SHA1
         CMAKE_ARGS "BUILD_TESTS=OFF"
-)
-
-nwx_depend(
-        NAME TAMM
-        VERSION 0.0.0
-        URL "${gh_url}/TAMM/tarball/alloc?access_token=${token}"
-        SKIP_SHA1
-        CMAKE_ARGS "CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}"
 )
