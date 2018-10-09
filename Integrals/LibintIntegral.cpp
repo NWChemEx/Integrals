@@ -72,7 +72,7 @@ private:
 template<libint2::Operator op, size_type NBases,typename element_type>
 struct IntegralPIMPL {
     // For integrals with multiple components
-    const static size_type extra = (libint2::operator_traits<op>::nopers > 1) ? 1 : 0;
+    constexpr static size_type extra = (libint2::operator_traits<op>::nopers > 1) ? 1 : 0;
     // Typedef of the main class
     using main_type = Integral<op, NBases, element_type>;
     using tensor_type = typename main_type::tensor_type;
