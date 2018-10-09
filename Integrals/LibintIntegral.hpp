@@ -95,6 +95,9 @@ extern template class Integral<libint2::Operator::nuclear, 2, double>;
 extern template class Integral<libint2::Operator::coulomb, 2, double>;
 extern template class Integral<libint2::Operator::coulomb, 3, double>;
 extern template class Integral<libint2::Operator::coulomb, 4, double>;
+extern template class Integral<libint2::Operator::emultipole1, 2, double>;
+extern template class Integral<libint2::Operator::emultipole2, 2, double>;
+extern template class Integral<libint2::Operator::emultipole3, 2, double>;
 
 } // namespace detail_
 
@@ -117,6 +120,16 @@ using DFERI = detail_::Integral<libint2::Operator::coulomb, 3, double>;
 
 ///Typedef of the canonical ERI
 using ERI = detail_::Integral<libint2::Operator::coulomb, 4, double>;
+
+///Electric dipole
+using EDipole = detail_::Integral<libint2::Operator::emultipole1, 2, double>;
+
+///Electric quadrupole
+using EQuadrupole = detail_::Integral<libint2::Operator::emultipole2, 2, double>;
+
+///Electric octopole
+using EOctopole = detail_::Integral<libint2::Operator::emultipole3, 2, double>;
+
 ///@}
 
 } //namespace Libint
