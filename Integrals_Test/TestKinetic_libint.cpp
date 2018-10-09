@@ -37,5 +37,6 @@ TEST_CASE("Testing Libint's Kinetic Energy Integrals class"){
     auto [molecule, bs] = make_molecule();
     Kinetic TBuilder;
     auto T = TBuilder.run(molecule, {bs, bs});
+    print_integrals(T);
     compare_integrals(T, corr);
 }
