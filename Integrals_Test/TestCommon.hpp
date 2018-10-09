@@ -49,6 +49,7 @@ inline void compare_integrals(const TensorType& calc,
     compare_impl(calc, corr, IndexType(calc.tiled_index_spaces().size()));
 }
 
+// prints the integrals in the format used for correctness checks
 inline void print_impl(const TensorType& calc, IndexType idx, size_t depth=0) {
 
     auto idx_spaces = calc.tiled_index_spaces();
@@ -65,8 +66,15 @@ inline void print_impl(const TensorType& calc, IndexType idx, size_t depth=0) {
         long int dim = buffer.size();
         calc.get(idx, {buffer.data(), dim});
 
-        for(auto x=0; x < block_size; ++x)
-            std::cout << buffer[x] << std::endl;
+        std::cout << "{{";
+        for (auto i : idx)
+            std::cout << i << ", ";
+        std::cout << "}, {";
+        for(auto x=0; x < block_size; ++x) {
+            std::cout << std::fixed << std::setprecision(16);
+            std::cout << buffer[x] << ",";
+        }
+        std::cout << "}}," << std::endl;
     }
     else { //Adjust the depth-th mode's index
         const auto ntiles = idx_spaces[depth].num_tiles();

@@ -8,6 +8,8 @@ set(
                     TestNuclearElectron_libint.cpp
                     TestOverlap_libint.cpp
                     TestEDipole_libint.cpp
+                    TestEQuadrupole_libint.cpp
+                    TestEOctopole_libint.cpp
 )
 
 add_catch_cxx_tests(
