@@ -130,7 +130,12 @@ private:
             for(std::size_t i=0; i<NBases; ++i)
                 nbfs *= bases[i][idx[i]].size();
             for (std::size_t i = 0; i < nopers; ++i) {
-                std::vector<double> buffer2(buffer[i], buffer[i]+nbfs);
+                std::vector<double> buffer2;
+                if (buffer[i] == nullptr) {
+                    buffer2 = std::vector<double>(nbfs, 0.0);
+                } else {
+                    buffer2 = std::vector<double>(buffer[i], buffer[i] + nbfs);
+                }
                 tamm::IndexVector temp;
                 if (nopers > 1)
                     temp.push_back(i);
@@ -182,10 +187,10 @@ static auto make_engine(const molecule_type& molecule, size_type max_prims,
         engine.set_params(qs);
     }
     else if constexpr (NBases == 2 && op ==libint2::Operator::coulomb) {
-        engine.set_braket(libint2::BraKet::xs_xs);
+        engine.set(libint2::BraKet::xs_xs);
     }
     else if constexpr (NBases == 3 && op == libint2::Operator::coulomb) {
-        engine.set_braket(libint2::BraKet::xs_xx);
+        engine.set(libint2::BraKet::xs_xx);
     }
     return engine;
 }
