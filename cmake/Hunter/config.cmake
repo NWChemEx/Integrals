@@ -21,7 +21,7 @@ nwx_depend(
     VERSION 0.0.0
     URL "${gh_url}/SDE/tarball/master?access_token=${token}"
     SKIP_SHA1
-    CMAKE_ARGS "BUILD_TESTS=off;BUILD_PYBINDINGS=FALSE"
+    CMAKE_ARGS "BUILD_TESTS=OFF"
 )
 
 nwx_depend(

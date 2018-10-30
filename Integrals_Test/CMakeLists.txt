@@ -12,8 +12,10 @@ set(
                     TestEOctopole_libint.cpp
 )
 
-add_catch_cxx_tests(
-        NAME test_integrals
-        SOURCES ${INTEGRALS_TESTS}
-        DEPENDS Integrals
+cpp_add_executable(
+    test_integrals
+    SOURCES ${INTEGRALS_TESTS}
+    DEPENDS integrals Catch2::Catch2
 )
+
+add_test(NAME test_integrals COMMAND test_integrals)
