@@ -6,15 +6,15 @@ set(
     INTEGRALS_INCLUDES LibintIntegral.hpp
                        nwx_libint/nwx_libint.hpp
 )
-add_nwx_library(
-        NAME Integrals
-        SOURCES ${INTEGRALS_SRCS}
-        DEPENDS Utilities::utilities LibChemist::chemist ${TAMM_LIBRARIES}
-        ${LIBINT_LIBRARY}
+find_package(tamm REQUIRED)
+add_library(tamm INTERFACE IMPORTED)
+target_link_libraries(tamm INTERFACE ${TAMM_LIBRARIES})
+target_include_directories(tamm INTERFACE ${TAMM_INCLUDE_DIRS})
+cpp_add_library(
+    integrals
+    SOURCES ${INTEGRALS_SRCS}
+    INCLUDES ${INTEGRALS_INCLUDES}
+    DEPENDS libchemist::chemist tamm
 )
-target_include_directories(Integrals PUBLIC ${TAMM_INCLUDE_DIRS}
-                           ${LIBINT_INCLUDE_DIRS})
-install_targets(
-        TARGETS Integrals
-        INCLUDES ${INTEGRALS_INCLUDES}
-)
+
+cpp_install(TARGETS integrals)
