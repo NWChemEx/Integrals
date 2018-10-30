@@ -6,7 +6,8 @@ cpp_option(BUILD_TESTS ON)
 cpp_find_or_build_dependency(NAME Catch2 URL github.com/catchorg/Catch2)
 cpp_find_or_build_dependency(
         NAME libchemist
-        SOURCE_DIR /home/ryan/NWChemEx-Project/LibChemist
+        URL github.com/NWChemEx-Project/LibChemist
+        PRIVATE
         CMAKE_ARGS BUILD_TESTS=OFF
 )
 cpp_find_dependency(NAME tamm REQUIRED)
