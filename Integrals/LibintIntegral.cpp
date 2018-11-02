@@ -111,7 +111,7 @@ public:
     using basis_array_type = typename base_type::basis_array_type;
     using fxn_type = typename base_type::fxn_type;
 private:
-    const size_type nopers = libint2::operator_traits<op>::nopers;
+    constexpr size_type nopers = libint2::operator_traits<op>::nopers;
     ///Wraps forwarding the tiled index space into the ctor
     template<size_type...Is>
     tensor_type make_tensor(const tiled_AO& tAO, std::index_sequence<Is...>){
@@ -169,6 +169,12 @@ private:
     }
 };
 
+///Builder that constructs a tensor using a lambda function for direct integrals
+template<libint2::Operator op, size_type NBases, typename element_type>
+struct DirectIntegrals : IntegralPIMPL<op, NBases, element_type> {
+
+};
+
 
 /*******************************************************************************
  *  Implementation and instantiations of the Integral class.
@@ -203,8 +209,8 @@ Integral<op, NBases, element_type>::run(
         Integral<op, NBases, element_type>::size_type deriv) {
     const double thresh = 1.0E-16; // should come from parameters
     std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
-    const size_type nopers = libint2::operator_traits<op>::nopers; // for integrals with multiple components
-    const size_type extra = (nopers > 1) ? 1 : 0; // increase size of tAOs if multiple components
+    constexpr size_type nopers = libint2::operator_traits<op>::nopers; // for integrals with multiple components
+    constexpr size_type extra = (nopers > 1) ? 1 : 0; // increase size of tAOs if multiple components
     std::array<tamm::TiledIndexSpace, NBases+extra> tAOs; //tiled version of AOs
     size_t max_prims = 0; // max primitives in any basis set
     int max_l = 0; // max angular momentum in any basis set
