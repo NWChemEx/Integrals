@@ -207,11 +207,6 @@ private:
         };
 
         tensor_type A{tAO, lambda};
-        tamm::ProcGroup pg{GA_MPI_Comm()};
-        auto *pMM = tamm::MemoryManagerLocal::create_coll(pg);
-        tamm::Distribution_NW dist;
-        tamm::ExecutionContext ec(pg, &dist, pMM);
-        tamm::Tensor<double>::allocate(&ec, A);
         return A;
     }
 };
