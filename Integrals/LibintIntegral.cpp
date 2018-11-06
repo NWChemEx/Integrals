@@ -273,9 +273,16 @@ Integral<op, NBases, element_type>::run(
 }
 
 template<libint2::Operator op, size_type NBases, typename element_type>
-Integral<op, NBases, element_type>::Integral() :
-pimpl_(std::make_unique<DirectIntegrals<op, NBases, element_type>>()) {}
-//pimpl_(std::make_unique<CoreIntegrals<op, NBases, element_type>>()) {}
+Integral<op, NBases, element_type>::Integral(implementation_type impl) {
+    switch (impl) {
+        case implementation_type::direct:
+            pimpl_ = std::make_unique<DirectIntegrals<op, NBases, element_type>>();
+            break;
+        case implementation_type::core:
+            pimpl_ = std::make_unique<CoreIntegrals<op, NBases, element_type>>();
+            break;
+    }
+}
 
 template<libint2::Operator op, size_type NBases, typename element_type>
 Integral<op, NBases, element_type>::~Integral() noexcept = default;
