@@ -112,11 +112,6 @@ public:
     using fxn_type = typename base_type::fxn_type;
 private:
     constexpr static size_type nopers = libint2::operator_traits<op>::nopers;
-    ///Wraps forwarding the tiled index space into the ctor
-    template<size_type...Is>
-    tensor_type make_tensor(const tiled_AO& tAO, std::index_sequence<Is...>){
-        return tensor_type{tAO[Is]...};
-    }
 
     template<size_type depth>
     void fill(const basis_array_type& bases,
@@ -157,8 +152,6 @@ private:
     tensor_type run_impl_(const tiled_AO& tAO,
                           const basis_array_type& bases,
                           fxn_type&& fxn) {
-//        tensor_type A = std::move(make_tensor(tAO,
-//                std::make_index_sequence<tAO.size()>()));
         tensor_type A{tAO};
         tamm::ProcGroup pg{GA_MPI_Comm()};
         auto *pMM = tamm::MemoryManagerLocal::create_coll(pg);
