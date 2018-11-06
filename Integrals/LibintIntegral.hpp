@@ -24,6 +24,9 @@ template<libint2::Operator op, std::size_t NBases,
         typename element_type = double>
 class IntegralPIMPL;
 
+///Enum containing the possible implementations
+enum class implementation_type {direct, core};
+
 /**
  * @brief The class that actually serves as the module for computing integrals
  *        for NWChemEx.
@@ -56,9 +59,10 @@ struct Integral : LibChemist::AOIntegral<NBases, element_type> {
     ///@}
 
     ///Initializes the buffers libint will need
-    Integral();
+    Integral(implementation_type impl = implementation_type::direct);
     ///Frees the buffers libint uses
     ~Integral() noexcept;
+
 
 
     /**

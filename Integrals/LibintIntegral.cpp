@@ -77,7 +77,7 @@ struct IntegralPIMPL {
     using main_type = Integral<op, NBases, element_type>;
     using tensor_type = typename main_type::tensor_type;
     using basis_array_type = typename main_type::basis_array_type;
-    using tiled_AO = std::array<tamm::TiledIndexSpace, NBases+extra>;
+    using tiled_AO = std::vector<tamm::TiledIndexSpace>;
     using fxn_type = LibIntFunctor<NBases>;
 
     //Public API to PIMPL
@@ -111,12 +111,7 @@ public:
     using basis_array_type = typename base_type::basis_array_type;
     using fxn_type = typename base_type::fxn_type;
 private:
-    const size_type nopers = libint2::operator_traits<op>::nopers;
-    ///Wraps forwarding the tiled index space into the ctor
-    template<size_type...Is>
-    tensor_type make_tensor(const tiled_AO& tAO, std::index_sequence<Is...>){
-        return tensor_type{tAO[Is]...};
-    }
+    constexpr static size_type nopers = libint2::operator_traits<op>::nopers;
 
     template<size_type depth>
     void fill(const basis_array_type& bases,
@@ -157,14 +152,54 @@ private:
     tensor_type run_impl_(const tiled_AO& tAO,
                           const basis_array_type& bases,
                           fxn_type&& fxn) {
-        tensor_type A = std::move(make_tensor(tAO,
-                std::make_index_sequence<tAO.size()>()));
+        tensor_type A{tAO};
         tamm::ProcGroup pg{GA_MPI_Comm()};
         auto *pMM = tamm::MemoryManagerLocal::create_coll(pg);
         tamm::Distribution_NW dist;
         tamm::ExecutionContext ec(pg, &dist, pMM);
         tamm::Tensor<double>::allocate(&ec, A);
         fill<0>(bases, A, {}, std::move(fxn));
+        return A;
+    }
+};
+
+///Builder that constructs a tensor using a lambda function for direct integrals
+template<libint2::Operator op, size_type NBases, typename element_type>
+struct DirectIntegrals : IntegralPIMPL<op, NBases, element_type> {
+public:
+    using base_type = IntegralPIMPL<op, NBases, element_type>;
+    using tiled_AO = typename base_type::tiled_AO;
+    using tensor_type = typename base_type::tensor_type;
+    using basis_array_type = typename base_type::basis_array_type;
+    using fxn_type = typename base_type::fxn_type;
+private:
+    constexpr static size_type nopers = libint2::operator_traits<op>::nopers;
+
+    tensor_type run_impl_(const tiled_AO& tAO,
+                          const basis_array_type& bases,
+                          fxn_type&& fxn) {
+
+        auto lambda = [fxn{std::move(fxn)}](const tamm::IndexVector& blockid, tamm::span<element_type> buff) mutable {
+            std::array<size_type, NBases> idx;
+            const size_type off = (nopers > 1) ? 1 : 0;
+            for (size_type i = off; i < NBases + off; ++i) {
+                idx[i-off] = blockid[i];
+            }
+
+            auto buffer = fxn(idx);
+            const size_type index = (nopers > 1) ? blockid[0] : 0;
+            if (buffer[index] == nullptr) {
+                for (size_type i = 0; i < static_cast<size_type>(buff.size()); i++) {
+                    buff[i] = 0.0;
+                }
+            } else {
+                for (size_type i = 0; i < static_cast<size_type>(buff.size()); i++) {
+                    buff[i] = buffer[index][i];
+                }
+            }
+        };
+
+        tensor_type A{tAO, lambda};
         return A;
     }
 };
@@ -203,9 +238,9 @@ Integral<op, NBases, element_type>::run(
         Integral<op, NBases, element_type>::size_type deriv) {
     const double thresh = 1.0E-16; // should come from parameters
     std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
-    const size_type nopers = libint2::operator_traits<op>::nopers; // for integrals with multiple components
-    const size_type extra = (nopers > 1) ? 1 : 0; // increase size of tAOs if multiple components
-    std::array<tamm::TiledIndexSpace, NBases+extra> tAOs; //tiled version of AOs
+    constexpr static size_type nopers = libint2::operator_traits<op>::nopers; // for integrals with multiple components
+    constexpr size_type extra = (nopers > 1) ? 1 : 0; // increase size of tAOs if multiple components
+    std::vector<tamm::TiledIndexSpace> tAOs(NBases+extra); //tiled version of AOs
     size_t max_prims = 0; // max primitives in any basis set
     int max_l = 0; // max angular momentum in any basis set
     LibIntFunctor<NBases> fxn;
@@ -238,8 +273,16 @@ Integral<op, NBases, element_type>::run(
 }
 
 template<libint2::Operator op, size_type NBases, typename element_type>
-Integral<op, NBases, element_type>::Integral() :
-pimpl_(std::make_unique<CoreIntegrals<op, NBases, element_type>>()) {}
+Integral<op, NBases, element_type>::Integral(implementation_type impl) {
+    switch (impl) {
+        case implementation_type::direct:
+            pimpl_ = std::make_unique<DirectIntegrals<op, NBases, element_type>>();
+            break;
+        case implementation_type::core:
+            pimpl_ = std::make_unique<CoreIntegrals<op, NBases, element_type>>();
+            break;
+    }
+}
 
 template<libint2::Operator op, size_type NBases, typename element_type>
 Integral<op, NBases, element_type>::~Integral() noexcept = default;
