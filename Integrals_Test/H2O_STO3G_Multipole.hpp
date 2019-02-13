@@ -1,4 +1,5 @@
 #pragma once
+#include "TestCommon.hpp"
 
 //This file meant only for inclusion in multipole tests
 
