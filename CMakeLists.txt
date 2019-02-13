@@ -6,8 +6,8 @@ cpp_option(BUILD_TESTS ON)
 
 cpp_find_or_build_dependency(
     NAME libchemist
-    URL github.com/ryanmrichard/LibChemist
-    BRANCH new_tamm
+    URL github.com/NWChemEx-Project/LibChemist
+    BRANCH master
     PRIVATE
     CMAKE_ARGS BUILD_TESTS=OFF
 )
