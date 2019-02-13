@@ -4,10 +4,6 @@ set(CPP_NAMESPACE Integrals)
 find_package(cpp REQUIRED)
 cpp_option(BUILD_TESTS ON)
 
-cpp_find_dependency(
-    NAME libint
-    FIND_MODULE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Findlibint.cmake
-)
 cpp_find_or_build_dependency(
     NAME libchemist
     URL github.com/ryanmrichard/LibChemist
@@ -15,6 +11,12 @@ cpp_find_or_build_dependency(
     PRIVATE
     CMAKE_ARGS BUILD_TESTS=OFF
 )
+
+cpp_find_dependency(
+        NAME libint
+        FIND_MODULE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Findlibint.cmake
+)
+
 add_subdirectory(Integrals)
 
 ### Testing ###
