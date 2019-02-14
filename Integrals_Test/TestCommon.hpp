@@ -1,5 +1,6 @@
 #pragma once
 #include <LibChemist/LibChemist.hpp>
+#include <tamm/tamm.hpp>
 #include <catch/catch.hpp>
 #include <iostream>
 #include <iomanip>
