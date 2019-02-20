@@ -1,6 +1,7 @@
 #pragma once
 #include "Integrals/nwx_libint/nwx_libint.hpp"
 #include <LibChemist/Defaults/PropertyTypes.hpp>
+#include <SDE/ModuleBase.hpp>
 #include <memory>
 
 /** @file LibintIntegral.hpp
@@ -44,9 +45,8 @@ enum class implementation_type {direct, core};
  * @tparam NBases The total number of AO bases in the bra and ket
  * @tparam element_type The literal type of the elements in the tensor
  */
-template<libint2::Operator op, std::size_t NBases,
-         typename element_type = double>
-struct Integral : LibChemist::AOIntegral<NBases, element_type> {
+template<libint2::Operator op, std::size_t NBases, typename element_type = double>
+struct Integral : public SDE::ModuleBaseHelper<Integral<op, NBases, element_type>> {
     /// Typedef of base class
     using base_type = LibChemist::AOIntegral<NBases, element_type>;
 
@@ -62,8 +62,6 @@ struct Integral : LibChemist::AOIntegral<NBases, element_type> {
     Integral(implementation_type impl = implementation_type::direct);
     ///Frees the buffers libint uses
     ~Integral() noexcept;
-
-
 
     /**
      * @brief Computes the tensor representation of an operator in the
@@ -82,11 +80,12 @@ struct Integral : LibChemist::AOIntegral<NBases, element_type> {
      * The content of both @p mol and @p bases will be accessed, if concurrent
      * modifications occur data races will ensue.
      */
-    tensor_type run(const molecule_type& mol,
+    /*tensor_type run(const molecule_type& mol,
                     const basis_array_type& bases,
-                    size_type deriv=0) override;
+                    size_type deriv=0) override;*/
 
 private:
+    SDE::type::result_map run_(SDE::type::input_map inputs, SDE::type::submodule_map submods);
     ///The object that actually implements this class
     std::unique_ptr<IntegralPIMPL<op, NBases, element_type>> pimpl_;
 };

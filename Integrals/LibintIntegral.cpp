@@ -231,6 +231,51 @@ static auto make_engine(const molecule_type& molecule, size_type max_prims,
 }
 
 template<libint2::Operator op, size_type NBases, typename element_type>
+SDE::type::result_map run_(
+  SDE::type::input_map inputs,
+  SDE::type::submodule_map submods) {
+
+    const auto & [mol, bases, deriv] = Integral<op, NBases, element_type>::unwrap_inputs(inputs);
+
+    const double thresh = 1.0E-16; // should come from parameters
+    std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
+    constexpr static size_type nopers = libint2::operator_traits<op>::nopers; // for integrals with multiple components
+    constexpr size_type extra = (nopers > 1) ? 1 : 0; // increase size of tAOs if multiple components
+    std::vector<tamm::TiledIndexSpace> tAOs(NBases+extra); //tiled version of AOs
+    size_t max_prims = 0; // max primitives in any basis set
+    int max_l = 0; // max angular momentum in any basis set
+    LibIntFunctor<NBases> fxn;
+
+    if (nopers > 1) {
+        std::vector<unsigned int> tiling(nopers,1);
+        tAOs[0] = tamm::TiledIndexSpace{tamm::IndexSpace{tamm::range(0, nopers)}, tiling};
+    }
+
+    for(size_type basis_i = 0; basis_i < NBases; ++basis_i) {
+        const auto& basis = bases[basis_i];
+        const auto nshells = basis.nshells();
+
+        // Make index spaces
+        AOs[basis_i] = tamm::IndexSpace{tamm::range(0, basis.nbf())};
+        std::vector<unsigned int> tiling;
+        for(const auto& shelli : basis) tiling.push_back(shelli.size());
+        tAOs[basis_i+extra] = tamm::TiledIndexSpace{AOs[basis_i], tiling};
+
+        // update functor's state
+        fxn.bs[basis_i] = nwx_libint::make_basis(basis);
+        auto& LIbasis = fxn.bs[basis_i];
+        max_prims = std::max(max_prims, LIbasis.max_nprim(LIbasis));
+        max_l = std::max(max_l, LIbasis.max_l(LIbasis));
+    }
+
+
+    fxn.engine = make_engine<op, NBases>(mol, max_prims, max_l, thresh, deriv);
+    auto results = results();
+    return Integral<op, NBases, element_type>::wrap_results(results,  
+      Integral<op, NBases, element_type>::pimpl_->run_impl(tAOs, bases, std::move(fxn)));
+}
+
+/*template<libint2::Operator op, size_type NBases, typename element_type>
 typename Integral<op, NBases, element_type>::tensor_type
 Integral<op, NBases, element_type>::run(
         const Integral<op, NBases, element_type>::molecule_type& mol,
@@ -270,7 +315,7 @@ Integral<op, NBases, element_type>::run(
 
     fxn.engine = make_engine<op, NBases>(mol, max_prims, max_l, thresh, deriv);
     return pimpl_->run_impl(tAOs, bases, std::move(fxn));
-}
+}*/
 
 template<libint2::Operator op, size_type NBases, typename element_type>
 Integral<op, NBases, element_type>::Integral(implementation_type impl) {
