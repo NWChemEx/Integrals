@@ -1,54 +1,16 @@
-def repo_name="Integrals"
-def depends = ['CMakeBuild','Utilities','LibChemist','SDE']
-
-def compile_repo(depend_name, install_root, do_install) {
-    sh """
-        set +x
-        source /etc/profile
-        module load gcc/7.1.0
-        module load cmake
-	module load eigen/3.3.3
-        module load libint/2.4.2
-        build_tests="True"
-        make_command=""
-        if [ ${do_install} == "True" ];then
-            build_tests="False"
-            make_command="install"
-        fi
-        cmake -H. -Bbuild -DBUILD_TESTS=\${build_tests} \
-                          -DCMAKE_INSTALL_PREFIX=${install_root}\
-                          -DCMAKE_PREFIX_PATH=${install_root}
-        cd build && make \${make_command}
-    """
-}
-
-node {
-    def install_root="${WORKSPACE}/install"
-    stage('Set-Up Workspace') {
-        deleteDir()
-        checkout scm
-    }
-    stage('Build Dependencies') {
-        for(int i=0; i<depends.size(); i++) {
-            dir("${depends[i]}"){
-                git credentialsId:'422b0eed-700d-444d-961c-1e58cc75cda2',
-                    url:"https://github.com/NWChemEx-Project/${depends[i]}.git",
-                    branch: 'master'
-                compile_repo("${depends[i]}", "${install_root}", "True")
-            }
-        }
-    }
-    stage('Build Repo') {
-        compile_repo("${repo_name}", "${install_root}", "False")
-    }
-    stage('Test Repo') {
+def buildModuleMatrix = [
+    		   "GCC 7.3.0":("gcc/7.3.0-xyzezhj openmpi/3.1.2-qve4xat cmake python")
+		  ]
+node{
+    def nwxJenkins
+    stage('Import Jenkins Commands'){
         sh """
-        set +x
-        source /etc/profile
-        module load cmake
-	module load libint
-	module load eigen
-        cd build && ctest -VV
-        """
+           rm -rf ~/.cpp_cache
+           da_url=https://raw.githubusercontent.com/NWChemEx-Project/
+           da_url+=DeveloperTools/master/ci/Jenkins/nwxJenkins.groovy
+           wget \${da_url}
+           """
+    	nwxJenkins=load("nwxJenkins.groovy")
     }
+    nwxJenkins.commonSteps(buildModuleMatrix, "Integrals")
 }

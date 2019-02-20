@@ -1,6 +1,6 @@
 #pragma once
 #include <libint2.hpp>
-#include <LibChemist/Molecule.hpp>
+#include <LibChemist/AOBasisSet.hpp>
 
 
 namespace nwx_libint{
@@ -9,5 +9,5 @@ namespace nwx_libint{
  *  @param [in] bs The LibChemist BasisSet to be converted 
  *  @returns The basis set as a LibInt2 BasisSet object
  */
-libint2::BasisSet make_basis(const LibChemist::BasisSet& bs);
+libint2::BasisSet make_basis(const LibChemist::AOBasisSet& bs);
 }
