@@ -280,8 +280,8 @@ template<libint2::Operator op, size_type NBases, typename element_type>
 Integral<op, NBases, element_type>::Integral(implementation_type impl) {
 
     this->template satisfies_property_type<LibChemist::AOIntegral<NBases, element_type>>();
-    this->template description("Computes integrals of many-body operators with Libint");
-    this->template citation("Libint: A library for the evaluation of molecular integrals of "
+    this->description("Computes integrals of many-body operators with Libint");
+    this->citation("Libint: A library for the evaluation of molecular integrals of "
       "many-body operators over Gaussian functions, Version 2.4.2 Edward F. Valeev, "
       "http://libint.valeyev.net/");
 
