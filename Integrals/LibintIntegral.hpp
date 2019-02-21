@@ -85,7 +85,6 @@ struct Integral : public SDE::ModuleBaseHelper<Integral<op, NBases, element_type
                     size_type deriv=0) override;*/
 
 private:
-    SDE::type::result_map run_(SDE::type::input_map inputs, SDE::type::submodule_map submods);
     ///The object that actually implements this class
     std::unique_ptr<IntegralPIMPL<op, NBases, element_type>> pimpl_;
 };
