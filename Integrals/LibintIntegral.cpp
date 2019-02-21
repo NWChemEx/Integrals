@@ -237,8 +237,8 @@ SDE::type::result_map run_(
   SDE::type::submodule_map submods) {
 
     const auto & [mol, bases, deriv] = LibChemist::AOIntegral<NBases, element_type>::unwrap_inputs(inputs);
+    const auto thresh = inputs.at("Threshold").value<double>();
 
-    const double thresh = 1.0E-16; // should come from parameters
     std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
     constexpr static size_type nopers = libint2::operator_traits<op>::nopers; // for integrals with multiple components
     constexpr size_type extra = (nopers > 1) ? 1 : 0; // increase size of tAOs if multiple components
@@ -279,10 +279,15 @@ SDE::type::result_map run_(
 template<libint2::Operator op, size_type NBases, typename element_type>
 Integral<op, NBases, element_type>::Integral(implementation_type impl) {
 
-    SDE::ModuleBase::satisfies_property_type<LibChemist::AOIntegral<NBases, element_type>>();
-    SDE::ModuleBase::description("Computes integrals of many-body operators with Libint");
-    SDE::ModuleBase::citation("Libint: A library for the evaluation of molecular integrals of "
-      "many-body operators over Gaussian functions, Version 2.4.2 Edward F. Valeev, http://libint.valeyev.net/");
+    this->template satisfies_property_type<LibChemist::AOIntegral<NBases, element_type>>();
+    this->template description("Computes integrals of many-body operators with Libint");
+    this->template citation("Libint: A library for the evaluation of molecular integrals of "
+      "many-body operators over Gaussian functions, Version 2.4.2 Edward F. Valeev, "
+      "http://libint.valeyev.net/");
+
+    this->template add_input<double>("Threshold")
+      .set_description("Convergence threshold of integrals")
+      .set_default(1.0E-16);
 
     switch (impl) {
         case implementation_type::direct:
