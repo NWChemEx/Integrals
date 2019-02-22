@@ -46,7 +46,8 @@ enum class implementation_type {direct, core};
  * @tparam element_type The literal type of the elements in the tensor
  */
 template<libint2::Operator op, std::size_t NBases, typename element_type = double>
-struct Integral : SDE::ModuleBaseHelper<Integral<op, NBases, element_type>> {
+//struct Integral : public ModuleBase<Integral<op, NBases, element_type>> {
+struct Integral : public SDE::ModuleBase {
     /// Typedef of base class
     using base_type = LibChemist::AOIntegral<NBases, element_type>;
 
@@ -59,7 +60,7 @@ struct Integral : SDE::ModuleBaseHelper<Integral<op, NBases, element_type>> {
     ///@}
 
     ///Initializes the buffers libint will need
-    Integral(implementation_type impl = implementation_type::direct);
+    Integral(implementation_type impl = implementation_type::direct) ;
     ///Frees the buffers libint uses
     ~Integral() noexcept;
 

@@ -277,15 +277,15 @@ SDE::type::result_map run_(
 }
 
 template<libint2::Operator op, size_type NBases, typename element_type>
-Integral<op, NBases, element_type>::Integral(implementation_type impl) {
+Integral<op, NBases, element_type>::Integral(implementation_type impl) : SDE::ModuleBase(this) {
 
-    this->template satisfies_property_type<LibChemist::AOIntegral<NBases, element_type>>();
-    this->description("Computes integrals of many-body operators with Libint");
-    this->citation("Libint: A library for the evaluation of molecular integrals of "
+    satisfies_property_type<LibChemist::AOIntegral<NBases, element_type>>();
+    description("Computes integrals of many-body operators with Libint");
+    citation("Libint: A library for the evaluation of molecular integrals of "
       "many-body operators over Gaussian functions, Version 2.4.2 Edward F. Valeev, "
       "http://libint.valeyev.net/");
 
-    this->template add_input<double>("Threshold")
+    add_input<double>("Threshold")
       .set_description("Convergence threshold of integrals")
       .set_default(1.0E-16);
 
