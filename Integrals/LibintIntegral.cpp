@@ -236,7 +236,7 @@ SDE::type::result_map run_(
   SDE::type::input_map inputs,
   SDE::type::submodule_map submods) {
 
-    const auto & [mol, bases, deriv] = LibChemist::AOIntegral<NBases, element_type>::unwrap_inputs(inputs);
+    const auto [mol, bases, deriv] = LibChemist::AOIntegral<NBases, element_type>::unwrap_inputs(inputs);
     const auto thresh = inputs.at("Threshold").value<double>();
 
     std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
