@@ -16,8 +16,7 @@ TEST_CASE("Testing DF3C2E"){
     mm.add_module("Integral", std::make_shared<DFERI>());
     mm.set_default<LibChemist::AOIntegral>("Integral");
     auto [molecule, bs] = make_molecule();
-    std::array<LibChemist::AOBasisSet, 3> basis_array = {bs, bs, bs};
-    auto Ints = mm.at("Integral").run_as<LibChemist::AOIntegral>(molecule, basis_array);
+    auto Ints = mm.at("Integral").run_as<LibChemist::AOIntegral>(molecule, {bs, bs, bs});
 /*  DFERI IBuilder;
     auto Ints = IBuilder.run(molecule, {bs, bs, bs});*/
     compare_integrals(Ints, corr);
