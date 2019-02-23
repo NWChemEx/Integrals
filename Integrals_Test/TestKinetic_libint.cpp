@@ -1,4 +1,5 @@
 #include <Integrals/LibintIntegral.hpp>
+#include <SDE/ModuleManager.hpp>
 #include "TestCommon.hpp"
 
 using namespace Integrals::Libint;
@@ -34,8 +35,12 @@ static BlockTensor corr{
     {{4 , 4}, {0.7600318835666090,}}};
 
 TEST_CASE("Testing Libint's Kinetic Energy Integrals class"){
+    using integral_type = LibChemist::AOIntegral<2, double>;
+    SDE::ModuleManager mm;
+    mm.add_module("Integral", std::make_shared<Kinetic>());
+    mm.set_default<integral_type>("Integral");
     auto [molecule, bs] = make_molecule();
-    Kinetic TBuilder;
-    auto T = TBuilder.run(molecule, {bs, bs});
-    compare_integrals(T, corr);
+    std::array<LibChemist::AOBasisSet, 2> bases = {bs, bs};
+    auto [Ints] = mm.at("Integral").run_as<integral_type>(molecule, bases, std::size_t{0});
+    compare_integrals(Ints, corr);
 }

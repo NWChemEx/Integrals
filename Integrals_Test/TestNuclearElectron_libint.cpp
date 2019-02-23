@@ -1,5 +1,7 @@
 #include <Integrals/LibintIntegral.hpp>
+#include <SDE/ModuleManager.hpp>
 #include "TestCommon.hpp"
+
 using namespace Integrals::Libint;
 
 //Computes the nuclear-electron energy integrals for water in STO-3G
@@ -33,8 +35,12 @@ static BlockTensor corr {
     {{4 , 4}, {-5.3002032522950193,}}};
 
 TEST_CASE("Testing Libint Nuclear-Electron Attraction Integrals"){
+    using integral_type = LibChemist::AOIntegral<2, double>;
+    SDE::ModuleManager mm;
+    mm.add_module("Integral", std::make_shared<Nuclear>());
+    mm.set_default<integral_type>("Integral");
     auto [molecule, bs] = make_molecule();
-    Nuclear VBuilder;
-    auto V = VBuilder.run(molecule, {bs, bs});
-    compare_integrals(V, corr);
+    std::array<LibChemist::AOBasisSet, 2> bases = {bs, bs};
+    auto [Ints] = mm.at("Integral").run_as<integral_type>(molecule, bases, std::size_t{0});
+    compare_integrals(Ints, corr);
 }

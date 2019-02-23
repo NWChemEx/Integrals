@@ -1,5 +1,4 @@
 #include <Integrals/LibintIntegral.hpp>
-#include <LibChemist/Defaults/PropertyTypes.hpp>
 #include <SDE/ModuleManager.hpp>
 #include "TestCommon.hpp"
 #include "H2O_STO3G_DF.hpp"
@@ -17,8 +16,6 @@ TEST_CASE("Testing DF3C2E"){
     mm.set_default<integral_type>("Integral");
     auto [molecule, bs] = make_molecule();
     std::array<LibChemist::AOBasisSet, 3> bases = {bs, bs, bs};
-    auto [Ints] = mm.at("Integral").run_as<integral_type>(molecule, bases, 0);
-/*  DFERI IBuilder;
-    auto Ints = IBuilder.run(molecule, {bs, bs, bs});*/
+    auto [Ints] = mm.at("Integral").run_as<integral_type>(molecule, bases, std::size_t{0});
     compare_integrals(Ints, corr);
 }

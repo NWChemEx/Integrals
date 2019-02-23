@@ -1,4 +1,5 @@
 #include <Integrals/LibintIntegral.hpp>
+#include <SDE/ModuleManager.hpp>
 #include "TestCommon.hpp"
 
 using namespace Integrals::Libint;
@@ -36,8 +37,12 @@ static BlockTensor corr{
 {{4 , 4}, {39.9325707858561643,}}};
 
 TEST_CASE("Testing the Metric class"){
+    using integral_type = LibChemist::AOIntegral<2, double>;
+    SDE::ModuleManager mm;
+    mm.add_module("Integral", std::make_shared<Metric>());
+    mm.set_default<integral_type>("Integral");
     auto [molecule, bs] = make_molecule();
-    Metric MBuilder;
-    auto M = MBuilder.run(molecule, {bs, bs});
-    compare_integrals(M, corr);
+    std::array<LibChemist::AOBasisSet, 2> bases = {bs, bs};
+    auto [Ints] = mm.at("Integral").run_as<integral_type>(molecule, bases, std::size_t{0});
+    compare_integrals(Ints, corr);
 }
