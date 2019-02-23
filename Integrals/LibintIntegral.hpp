@@ -59,7 +59,7 @@ struct Integral : public SDE::ModuleBase {
     ///@}
 
     ///Initializes the buffers libint will need
-    Integral(implementation_type impl = implementation_type::direct) ;
+    Integral(implementation_type impl = implementation_type::direct);
     ///Frees the buffers libint uses
     ~Integral() noexcept;
 
@@ -80,9 +80,8 @@ struct Integral : public SDE::ModuleBase {
      * The content of both @p mol and @p bases will be accessed, if concurrent
      * modifications occur data races will ensue.
      */
-    /*tensor_type run(const molecule_type& mol,
-                    const basis_array_type& bases,
-                    size_type deriv=0) override;*/
+    SDE::type::result_map run_(SDE::type::input_map inputs,
+                               SDE::type::submodule_map submods) const override;
 
 private:
     ///The object that actually implements this class

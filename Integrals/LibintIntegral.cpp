@@ -232,9 +232,8 @@ static auto make_engine(const molecule_type& molecule, size_type max_prims,
 }
 
 template<libint2::Operator op, size_type NBases, typename element_type>
-SDE::type::result_map run_(
-  SDE::type::input_map inputs,
-  SDE::type::submodule_map submods) {
+SDE::type::result_map Integral<op, NBases, element_type>::run_(SDE::type::input_map inputs,
+                           SDE::type::submodule_map submods) const {
 
     const auto [mol, bases, deriv] = LibChemist::AOIntegral<NBases, element_type>::unwrap_inputs(inputs);
     const auto thresh = inputs.at("Threshold").value<double>();
@@ -271,9 +270,9 @@ SDE::type::result_map run_(
 
 
     fxn.engine = make_engine<op, NBases>(mol, max_prims, max_l, thresh, deriv);
-    auto results = results();
-    return LibChemist::AOIntegral<NBases, element_type>::wrap_results(results,  
-      LibChemist::AOIntegral<NBases, element_type>::pimpl_->run_impl(tAOs, bases, std::move(fxn)));
+    auto result = results();
+    return LibChemist::AOIntegral<NBases, element_type>::wrap_results(result,
+      pimpl_->run_impl(tAOs, bases, std::move(fxn)));
 }
 
 template<libint2::Operator op, size_type NBases, typename element_type>
