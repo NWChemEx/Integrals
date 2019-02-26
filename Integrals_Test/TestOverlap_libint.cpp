@@ -1,6 +1,6 @@
-#include <Integrals/LibintIntegral.hpp>
+#include <Integrals/IntegralsMM.hpp>
+#include <LibChemist/Defaults/PropertyTypes.hpp>
 #include "TestCommon.hpp"
-#include "tamm/eigen_utils.hpp"
 
 using namespace Integrals::Libint;
 
@@ -36,8 +36,11 @@ static BlockTensor corr{
 };
 
 TEST_CASE("Testing LibIntOverlap class"){
+    using integral_type = LibChemist::AOIntegral<2, double>;
+    SDE::ModuleManager mm;
+    load_modules(mm);
     auto [molecule, bs] = make_molecule();
-    Overlap SBuilder;
-    auto S = SBuilder.run(molecule, {bs, bs});
-    compare_integrals(S, corr);
+    std::array<LibChemist::AOBasisSet, 2> bases = {bs, bs};
+    auto [Ints] = mm.at("Overlap").run_as<integral_type>(molecule, bases, std::size_t{0});
+    compare_integrals(Ints, corr);
 }
