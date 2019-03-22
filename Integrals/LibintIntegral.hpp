@@ -88,7 +88,6 @@ private:
     std::unique_ptr<IntegralPIMPL<op, NBases, element_type>> pimpl_;
 };
 
-
 // Explicit instantiations of the Integral class
 extern template class Integral<libint2::Operator::overlap, 2, double>;
 extern template class Integral<libint2::Operator::kinetic, 2, double>;

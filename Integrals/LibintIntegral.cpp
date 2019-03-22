@@ -85,14 +85,16 @@ struct IntegralPIMPL {
 
     //Public API to PIMPL
     virtual tensor_type run_impl(const tiled_AO& tAOs,
+                                 const std::array<std::vector<size_type>, NBases>& atom_blocks,
                                  const basis_array_type& bases,
                                  fxn_type&& fxn) {
-        return run_impl_(tAOs, bases, std::move(fxn));
+        return run_impl_(tAOs, atom_blocks, bases, std::move(fxn));
     }
 
 private:
     //Implemented by derived class
     virtual tensor_type run_impl_(const tiled_AO& tAOs,
+                                  const std::array<std::vector<size_type>, NBases>& atom_blocks,
                                   const basis_array_type& bases,
                                   fxn_type&& fxn) = 0;
 };
@@ -153,6 +155,7 @@ private:
     }
 
     tensor_type run_impl_(const tiled_AO& tAO,
+                          const std::array<std::vector<size_type>, NBases>& atom_blocks,
                           const basis_array_type& bases,
                           fxn_type&& fxn) {
         tensor_type A{tAO};
@@ -179,6 +182,7 @@ private:
     constexpr static size_type nopers = libint2::operator_traits<op>::nopers;
 
     tensor_type run_impl_(const tiled_AO& tAO,
+                          const std::array<std::vector<size_type>, NBases>& atom_blocks,
                           const basis_array_type& bases,
                           fxn_type&& fxn) {
 
@@ -220,28 +224,74 @@ private:
     constexpr static size_type nopers = libint2::operator_traits<op>::nopers;
 
     tensor_type run_impl_(const tiled_AO& tAO,
-                          const std::vector<size_type> atom_blocks,
+                          const std::array<std::vector<size_type>, NBases>& atom_blocks,
                           const basis_array_type& bases,
                           fxn_type&& fxn) {
 
-        auto lambda = [fxn{std::move(fxn)}](const tamm::IndexVector& blockid, tamm::span<element_type> buff) mutable {
+        auto lambda = [tAO, atom_blocks{std::move(atom_blocks)}, bases,
+                       fxn{std::move(fxn)}](const tamm::IndexVector& blockid, tamm::span<element_type> buff) mutable {
             std::array<size_type, NBases> idx;
             const size_type off = (nopers > 1) ? 1 : 0;
             for (size_type i = off; i < NBases + off; ++i) {
                 idx[i-off] = blockid[i];
             }
-
-            auto buffer = fxn(idx);
             const size_type index = (nopers > 1) ? blockid[0] : 0;
-            if (buffer[index] == nullptr) {
-                for (size_type i = 0; i < static_cast<size_type>(buff.size()); i++) {
-                    buff[i] = 0.0;
+
+            typename fxn_type::shell_index shells;
+            using range_array = std::array<typename LibChemist::BasisSetMap::range,NBases>;
+            range_array ao_ranges;
+
+            std::function<void(typename fxn_type::shell_index&, range_array&, size_type)> lambda_impl;
+            lambda_impl = [&](typename fxn_type::shell_index& shells,
+                              range_array& ao_ranges,
+                              size_type depth) mutable -> void {
+
+                LibChemist::BasisSetMap map(bases[depth]);
+                auto first_shell = map.atom_to_shell((atom_blocks[depth])[(idx[depth])]).first;
+                auto second_shell = map.atom_to_shell(((atom_blocks[depth])[(idx[depth]) + 1]) - 1).second;
+
+                for (size_type si = first_shell; si < second_shell; ++si) {
+                    shells[depth] = si;
+                    ao_ranges[depth] = map.shell_to_ao(si);
+                    if (depth == NBases - 1) {
+                        std::size_t nbfs = 1ul;
+                        for(std::size_t i=0; i<NBases; ++i)
+                            nbfs *= bases[i][shells[i]].size();
+
+                        auto buffer = fxn(shells);
+
+                        std::vector<double> libint_buffer;
+                        if (buffer[index] == nullptr) {
+                            libint_buffer = std::vector<double>(nbfs, 0.0);
+                        } else {
+                            libint_buffer = std::vector<double>(buffer[index], buffer[index] + nbfs);
+                        }
+
+                        size_type x_libint = 0;
+                        std::function<void(size_type,size_type)> fill_recursive;
+                        fill_recursive = [&](size_type x_tamm, size_type depth) -> void {
+
+                            auto first_ao = ao_ranges[depth].first;
+                            auto second_ao = ao_ranges[depth].second;
+
+                            x_tamm = x_tamm*tAO[depth+off].tile_size(idx[depth]) + first_ao;
+
+                            for (size_type mui = first_ao; mui < second_ao; ++mui) {
+                                if (depth == NBases - 1) {
+                                    buff[x_tamm] = libint_buffer[x_libint++];
+                                } else {
+                                    fill_recursive(x_tamm,depth+1);
+                                }
+                                x_tamm++;
+                            }
+                        };
+                        fill_recursive(0,0);
+                    } else {
+                        lambda_impl(shells, ao_ranges, depth + 1);
+                    }
                 }
-            } else {
-                for (size_type i = 0; i < static_cast<size_type>(buff.size()); i++) {
-                    buff[i] = buffer[index][i];
-                }
-            }
+            };
+            lambda_impl(shells, ao_ranges, 0);
         };
 
         tensor_type A{tAO, lambda};
@@ -275,58 +325,58 @@ static auto make_engine(const molecule_type& molecule, size_type max_prims,
     return engine;
 }
 
+//template<libint2::Operator op, size_type NBases, typename element_type>
+//SDE::type::result_map Integral<op, NBases, element_type>::run_(SDE::type::input_map inputs,
+//                           SDE::type::submodule_map submods) const {
+//
+//    const auto [mol, bases, deriv] = LibChemist::AOIntegral<NBases, element_type>::unwrap_inputs(inputs);
+//    const auto thresh = inputs.at("Threshold").value<double>();
+//
+//    std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
+//    constexpr static size_type nopers = libint2::operator_traits<op>::nopers; // for integrals with multiple components
+//    constexpr size_type extra = (nopers > 1) ? 1 : 0; // increase size of tAOs if multiple components
+//    std::vector<tamm::TiledIndexSpace> tAOs(NBases+extra); //tiled version of AOs
+//    size_t max_prims = 0; // max primitives in any basis set
+//    int max_l = 0; // max angular momentum in any basis set
+//    LibIntFunctor<NBases> fxn;
+//
+//    if (nopers > 1) {
+//        std::vector<unsigned int> tiling(nopers,1);
+//        tAOs[0] = tamm::TiledIndexSpace{tamm::IndexSpace{tamm::range(0, nopers)}, tiling};
+//    }
+//
+//    for(size_type basis_i = 0; basis_i < NBases; ++basis_i) {
+//        const auto& basis = bases[basis_i];
+//
+//        // Make index spaces
+//        AOs[basis_i] = tamm::IndexSpace{tamm::range(0, basis.nbf())};
+//        std::vector<unsigned int> tiling;
+//        for(const auto& shelli : basis) tiling.push_back(shelli.size());
+//        tAOs[basis_i+extra] = tamm::TiledIndexSpace{AOs[basis_i], tiling};
+//
+//        // update functor's state
+//        fxn.bs[basis_i] = nwx_libint::make_basis(basis);
+//        auto& LIbasis = fxn.bs[basis_i];
+//        max_prims = std::max(max_prims, LIbasis.max_nprim(LIbasis));
+//        max_l = std::max(max_l, LIbasis.max_l(LIbasis));
+//    }
+//
+//
+//    fxn.engine = make_engine<op, NBases>(mol, max_prims, max_l, thresh, deriv);
+//    auto result = results();
+//    return LibChemist::AOIntegral<NBases, element_type>::wrap_results(result,
+//      pimpl_->run_impl(tAOs, bases, std::move(fxn)));
+//}
+
 template<libint2::Operator op, size_type NBases, typename element_type>
 SDE::type::result_map Integral<op, NBases, element_type>::run_(SDE::type::input_map inputs,
-                           SDE::type::submodule_map submods) const {
-
-    const auto [mol, bases, deriv] = LibChemist::AOIntegral<NBases, element_type>::unwrap_inputs(inputs);
-    const auto thresh = inputs.at("Threshold").value<double>();
-
-    std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
-    constexpr static size_type nopers = libint2::operator_traits<op>::nopers; // for integrals with multiple components
-    constexpr size_type extra = (nopers > 1) ? 1 : 0; // increase size of tAOs if multiple components
-    std::vector<tamm::TiledIndexSpace> tAOs(NBases+extra); //tiled version of AOs
-    size_t max_prims = 0; // max primitives in any basis set
-    int max_l = 0; // max angular momentum in any basis set
-    LibIntFunctor<NBases> fxn;
-
-    if (nopers > 1) {
-        std::vector<unsigned int> tiling(nopers,1);
-        tAOs[0] = tamm::TiledIndexSpace{tamm::IndexSpace{tamm::range(0, nopers)}, tiling};
-    }
-
-    for(size_type basis_i = 0; basis_i < NBases; ++basis_i) {
-        const auto& basis = bases[basis_i];
-        const auto nshells = basis.nshells();
-
-        // Make index spaces
-        AOs[basis_i] = tamm::IndexSpace{tamm::range(0, basis.nbf())};
-        std::vector<unsigned int> tiling;
-        for(const auto& shelli : basis) tiling.push_back(shelli.size());
-        tAOs[basis_i+extra] = tamm::TiledIndexSpace{AOs[basis_i], tiling};
-
-        // update functor's state
-        fxn.bs[basis_i] = nwx_libint::make_basis(basis);
-        auto& LIbasis = fxn.bs[basis_i];
-        max_prims = std::max(max_prims, LIbasis.max_nprim(LIbasis));
-        max_l = std::max(max_l, LIbasis.max_l(LIbasis));
-    }
-
-
-    fxn.engine = make_engine<op, NBases>(mol, max_prims, max_l, thresh, deriv);
-    auto result = results();
-    return LibChemist::AOIntegral<NBases, element_type>::wrap_results(result,
-      pimpl_->run_impl(tAOs, bases, std::move(fxn)));
-}
-
-template<libint2::Operator op, size_type NBases, typename element_type>
-SDE::type::result_map TiledIntegral<op, NBases, element_type>::run_(SDE::type::input_map inputs,
                                                            SDE::type::submodule_map submods) const {
 
     const auto [mol, bases, deriv] = LibChemist::AOIntegral<NBases, element_type>::unwrap_inputs(inputs);
     const auto thresh = inputs.at("Threshold").value<double>();
 
     std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
+    std::array<std::vector<size_type>, NBases> atom_blocks; //AO spaces per mode
     constexpr static size_type nopers = libint2::operator_traits<op>::nopers; // for integrals with multiple components
     constexpr size_type extra = (nopers > 1) ? 1 : 0; // increase size of tAOs if multiple components
     std::vector<tamm::TiledIndexSpace> tAOs(NBases+extra); //tiled version of AOs
@@ -342,32 +392,33 @@ SDE::type::result_map TiledIntegral<op, NBases, element_type>::run_(SDE::type::i
 
     for(size_type basis_i = 0; basis_i < NBases; ++basis_i) {
         const auto& basis = bases[basis_i];
-        const auto nshells = basis.nshells();
-        const LibChemist::BasisSetMap map(basis);
-        const size_type tile_size = basis.nbf() / 25;
+        LibChemist::BasisSetMap map(basis);
+        const size_type tile_size = 180;
 
         AOs[basis_i] = tamm::IndexSpace{tamm::range(0, basis.nbf())};
 
         std::vector<unsigned int> tiling;
-        std::vector<size_type> atom_blocks;
+        atom_blocks[basis_i].push_back(0);
         unsigned int count = 0;
         for (size_type ai = 0; ai < mol.size(); ++ai) {
             auto shell_range = map.atom_to_shell(ai);
             for (size_type si = shell_range.first; si < shell_range.second; ++si) {
                 count += basis[si].size();
             }
-            if (count > tile_size) {
+            if (count >= tile_size) {
                 tiling.push_back(count);
-                atom_blocks.push_back(ai);
+                atom_blocks[basis_i].push_back(ai+1);
                 count = 0;
             }
         }
-        if (count < (tile_size/5)) {
-            tiling.back() += count;
-            atom_blocks.back() = mol.size() - 1;
-        } else {
-            tiling.push_back(count);
-            atom_block.push_back(mol.size() - 1);
+        if (count != 0) {
+            if (count < (tile_size / 5) && !tiling.empty()) {
+                tiling.back() += count;
+                atom_blocks[basis_i].back() = mol.size();
+            } else {
+                tiling.push_back(count);
+                atom_blocks[basis_i].push_back(mol.size());
+            }
         }
 
         tAOs[basis_i+extra] = tamm::TiledIndexSpace{AOs[basis_i], tiling};
@@ -377,13 +428,14 @@ SDE::type::result_map TiledIntegral<op, NBases, element_type>::run_(SDE::type::i
         auto& LIbasis = fxn.bs[basis_i];
         max_prims = std::max(max_prims, LIbasis.max_nprim(LIbasis));
         max_l = std::max(max_l, LIbasis.max_l(LIbasis));
+
     }
 
 
     fxn.engine = make_engine<op, NBases>(mol, max_prims, max_l, thresh, deriv);
     auto result = results();
     return LibChemist::AOIntegral<NBases, element_type>::wrap_results(result,
-                                                                  pimpl_->run_impl(tAOs, bases, std::move(fxn)));
+                                                                  pimpl_->run_impl(tAOs, atom_blocks, bases, std::move(fxn)));
 }
 
 template<libint2::Operator op, size_type NBases, typename element_type>
@@ -399,14 +451,16 @@ Integral<op, NBases, element_type>::Integral(implementation_type impl) : SDE::Mo
       .set_description("Convergence threshold of integrals")
       .set_default(1.0E-16);
 
-    switch (impl) {
-        case implementation_type::direct:
-            pimpl_ = std::make_unique<DirectIntegrals<op, NBases, element_type>>();
-            break;
-        case implementation_type::core:
-            pimpl_ = std::make_unique<CoreIntegrals<op, NBases, element_type>>();
-            break;
-    }
+    pimpl_ = std::make_unique<TDirectIntegrals<op, NBases, element_type>>();
+
+//    switch (impl) {
+//        case implementation_type::direct:
+//            pimpl_ = std::make_unique<DirectIntegrals<op, NBases, element_type>>();
+//            break;
+//        case implementation_type::core:
+//            pimpl_ = std::make_unique<CoreIntegrals<op, NBases, element_type>>();
+//            break;
+//    }
 }
 
 template<libint2::Operator op, size_type NBases, typename element_type>
