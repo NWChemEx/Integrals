@@ -8,13 +8,6 @@ namespace Integrals::Libint::detail_ {
 using size_type = std::size_t;
 using molecule_type = LibChemist::Molecule;
 
-static auto get_execution_context() {
-    tamm::ProcGroup pg{GA_MPI_Comm()};
-    auto *pMM = tamm::MemoryManagerLocal::create_coll(pg);
-    tamm::Distribution_NW dist;
-    return tamm::ExecutionContext(pg, &dist, pMM);
-}
-
 //Functor that wraps the call to libint in a uniform API, used by PIMPLs
 template<size_type NBases>
 struct LibIntFunctor {
@@ -228,7 +221,9 @@ private:
                           const basis_array_type& bases,
                           fxn_type&& fxn) {
 
-        auto lambda = [tAO, atom_blocks{std::move(atom_blocks)}, bases,
+        auto lambda = [tAO{std::move(tAO)},
+                       atom_blocks{std::move(atom_blocks)},
+                       bases{std::move(bases)},
                        fxn{std::move(fxn)}](const tamm::IndexVector& blockid, tamm::span<element_type> buff) mutable {
             std::array<size_type, NBases> idx;
             const size_type off = (nopers > 1) ? 1 : 0;
@@ -374,6 +369,7 @@ SDE::type::result_map Integral<op, NBases, element_type>::run_(SDE::type::input_
 
     const auto [mol, bases, deriv] = LibChemist::AOIntegral<NBases, element_type>::unwrap_inputs(inputs);
     const auto thresh = inputs.at("Threshold").value<double>();
+    const auto tile_size = inputs.at("Tile Size").value<size_type>();
 
     std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
     std::array<std::vector<size_type>, NBases> atom_blocks; //AO spaces per mode
@@ -393,7 +389,6 @@ SDE::type::result_map Integral<op, NBases, element_type>::run_(SDE::type::input_
     for(size_type basis_i = 0; basis_i < NBases; ++basis_i) {
         const auto& basis = bases[basis_i];
         LibChemist::BasisSetMap map(basis);
-        const size_type tile_size = 180;
 
         AOs[basis_i] = tamm::IndexSpace{tamm::range(0, basis.nbf())};
 
@@ -448,8 +443,12 @@ Integral<op, NBases, element_type>::Integral(implementation_type impl) : SDE::Mo
       "http://libint.valeyev.net/");
 
     add_input<double>("Threshold")
-      .set_description("Convergence threshold of integrals")
-      .set_default(1.0E-16);
+        .set_description("Convergence threshold of integrals")
+        .set_default(1.0E-16);
+
+    add_input<size_type>("Tile Size")
+        .set_description("Size threshold for tiling tensors by atom blocks")
+        .set_default(size_type{180});
 
     pimpl_ = std::make_unique<TDirectIntegrals<op, NBases, element_type>>();
 
