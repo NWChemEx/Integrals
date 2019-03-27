@@ -39,6 +39,7 @@ TEST_CASE("Testing LibIntOverlap class"){
     using integral_type = LibChemist::AOIntegral<2, double>;
     SDE::ModuleManager mm;
     load_modules(mm);
+    mm.at("Overlap").change_input("Tile Size",size_t{1});
     auto [molecule, bs] = make_molecule();
     std::array<LibChemist::AOBasisSet, 2> bases = {bs, bs};
     auto [Ints] = mm.at("Overlap").run_as<integral_type>(molecule, bases, std::size_t{0});

@@ -226,9 +226,13 @@ private:
                        bases{std::move(bases)},
                        fxn{std::move(fxn)}](const tamm::IndexVector& blockid, tamm::span<element_type> buff) mutable {
             std::array<size_type, NBases> idx;
+            std::array<LibChemist::BasisSetMap, NBases> maps;
+            std::array<size_type, NBases> ao_off;
             const size_type off = (nopers > 1) ? 1 : 0;
             for (size_type i = off; i < NBases + off; ++i) {
                 idx[i-off] = blockid[i];
+                maps[i-off] = LibChemist::BasisSetMap{bases[i-off]};
+                ao_off[i-off] = maps[i-off].atom_to_ao(atom_blocks[i-off][(idx[i-off])]).first;
             }
             const size_type index = (nopers > 1) ? blockid[0] : 0;
 
@@ -241,13 +245,12 @@ private:
                               range_array& ao_ranges,
                               size_type depth) mutable -> void {
 
-                LibChemist::BasisSetMap map(bases[depth]);
-                auto first_shell = map.atom_to_shell((atom_blocks[depth])[(idx[depth])]).first;
-                auto second_shell = map.atom_to_shell(((atom_blocks[depth])[(idx[depth]) + 1]) - 1).second;
+                auto first_shell = maps[depth].atom_to_shell((atom_blocks[depth])[(idx[depth])]).first;
+                auto second_shell = maps[depth].atom_to_shell(((atom_blocks[depth])[(idx[depth]) + 1]) - 1).second;
 
                 for (size_type si = first_shell; si < second_shell; ++si) {
                     shells[depth] = si;
-                    ao_ranges[depth] = map.shell_to_ao(si);
+                    ao_ranges[depth] = maps[depth].shell_to_ao(si);
                     if (depth == NBases - 1) {
                         std::size_t nbfs = 1ul;
                         for(std::size_t i=0; i<NBases; ++i)
@@ -266,10 +269,11 @@ private:
                         std::function<void(size_type,size_type)> fill_recursive;
                         fill_recursive = [&](size_type x_tamm, size_type depth) -> void {
 
-                            auto first_ao = ao_ranges[depth].first;
-                            auto second_ao = ao_ranges[depth].second;
+                            const auto first_ao = ao_ranges[depth].first;
+                            const auto second_ao = ao_ranges[depth].second;
+                            const auto tsize = tAO[depth+off].tile_size(idx[depth]);
 
-                            x_tamm = x_tamm*tAO[depth+off].tile_size(idx[depth]) + first_ao;
+                            x_tamm = x_tamm*tsize + (first_ao - ao_off[depth]);
 
                             for (size_type mui = first_ao; mui < second_ao; ++mui) {
                                 if (depth == NBases - 1) {
