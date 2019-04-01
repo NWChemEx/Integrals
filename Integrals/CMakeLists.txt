@@ -1,6 +1,7 @@
 set(
     INTEGRALS_SRCS nwx_libint/nwx_libint.cpp
                    LibintIntegral.cpp
+                   TAMMIntFunctor.cpp
                    IntegralsMM.cpp
 )
 set(

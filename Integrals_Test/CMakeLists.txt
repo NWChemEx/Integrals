@@ -1,7 +1,7 @@
 set(
     INTEGRALS_TESTS test_main.cpp
 #                    TestDF_libint.cpp
-#                    TestERI_libint.cpp
+                    TestERI_libint.cpp
 #                    TestKinetic_libint.cpp
 #                    TestMetric_libint.cpp
 #                    TestNuclearElectron_libint.cpp
