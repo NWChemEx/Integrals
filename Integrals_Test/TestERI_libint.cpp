@@ -13,6 +13,5 @@ TEST_CASE("Testing Libint's ERI"){
     auto [molecule, bs] = make_molecule();
     std::array<LibChemist::AOBasisSet, 4> bases = {bs, bs, bs, bs};
     auto [Ints] = mm.at("ERI4").run_as<integral_type>(molecule, bases, std::size_t{0});
-//    compare_integrals(Ints, corr);
-    print_integrals(Ints);
+    compare_integrals(Ints, corr);
 }

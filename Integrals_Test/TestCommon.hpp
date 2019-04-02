@@ -72,6 +72,7 @@ inline void print_impl(const TensorType& calc, IndexType idx, size_t depth=0) {
             std::cout << i << ", ";
         std::cout << "}, {";
         for(auto x=0; x < block_size; ++x) {
+            if (x % 5 == 0) std::cout << std::endl;
             std::cout << std::fixed << std::setprecision(16);
             std::cout << buffer[x] << ",";
         }
