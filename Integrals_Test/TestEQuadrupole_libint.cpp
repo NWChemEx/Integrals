@@ -14,5 +14,5 @@ TEST_CASE("Testing Libint's Electric Quadrupole Integrals class"){
     auto [molecule, bs] = make_molecule();
     std::array<LibChemist::AOBasisSet, 2> bases = {bs, bs};
     auto [Ints] = mm.at("EQuadrupole").run_as<integral_type>(molecule, bases, std::size_t{0});
-    compare_integrals(Ints, corr);
+    compare_integrals(Ints,corr);
 }

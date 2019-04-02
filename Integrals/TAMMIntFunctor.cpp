@@ -75,17 +75,12 @@ TAMMIntFunctor<libint2::Operator::coulomb,4,double>::TAMMIntFunctor(const tiled_
 
 template<libint2::Operator op, std::size_t NBases, typename element_type>
 void TAMMIntFunctor<op,NBases,element_type>::fill(size_type x_tamm,
-                                                  size_type x_libint,
                                                   size_type depth,
-                                                  size_type off_nopers,
-                                                  std::array<size_type, NBases>& idx,
-                                                  range_array& ao_ranges,
-                                                  std::array<size_type, NBases>& ao_off,
-                                                  tamm::span<element_type> tamm_buf,
-                                                  std::vector<double>& libint_buf) {
+                                                  tamm::span<element_type> tamm_buf) {
 
     const auto first_ao = ao_ranges[depth].first;
     const auto second_ao = ao_ranges[depth].second;
+    const size_type off_nopers = (nopers > 1) ? 1 : 0;
     const auto tsize = tAO[depth+off_nopers].tile_size(idx[depth]);
 
     x_tamm = x_tamm*tsize + (first_ao - ao_off[depth]);
@@ -94,21 +89,14 @@ void TAMMIntFunctor<op,NBases,element_type>::fill(size_type x_tamm,
         if (depth == NBases - 1) {
             tamm_buf[x_tamm] = libint_buf[x_libint++];
         } else {
-            fill(x_tamm,x_libint,depth+1,off_nopers,idx,ao_ranges,ao_off,tamm_buf,libint_buf);
+            fill(x_tamm,depth+1,tamm_buf);
         }
         x_tamm++;
     }
 }
 
 template<libint2::Operator op, std::size_t NBases, typename element_type>
-void TAMMIntFunctor<op,NBases,element_type>::fxn_call(typename fxn_type::shell_index& shells,
-                                                      range_array& ao_ranges,
-                                                      size_type depth,
-                                                      std::array<LibChemist::BasisSetMap, NBases>& maps,
-                                                      std::array<size_type, NBases>& idx,
-                                                      size_type off_nopers,
-                                                      size_type iopers,
-                                                      std::array<size_type, NBases>& ao_off,
+void TAMMIntFunctor<op,NBases,element_type>::fxn_call(size_type depth,
                                                       tamm::span<element_type> tamm_buf) {
     auto first_shell = maps[depth].atom_to_shell((atom_blocks[depth])[(idx[depth])]).first;
     auto second_shell = maps[depth].atom_to_shell(((atom_blocks[depth])[(idx[depth]) + 1]) - 1).second;
@@ -120,8 +108,6 @@ void TAMMIntFunctor<op,NBases,element_type>::fxn_call(typename fxn_type::shell_i
             std::size_t nbfs = 1ul;
             for(std::size_t i=0; i<NBases; ++i)
                 nbfs *= bases[i][shells[i]].size();
-
-            std::vector<double> libint_buf;
 
             const element_type sch_thresh = 1.0E-8;
 
@@ -146,10 +132,10 @@ void TAMMIntFunctor<op,NBases,element_type>::fxn_call(typename fxn_type::shell_i
                 }
             }
 
-            size_type x_libint = 0;
-            fill(0,0,0,off_nopers,idx,ao_ranges,ao_off,tamm_buf,libint_buf);
+            x_libint = 0;
+            fill(0,0,tamm_buf);
         } else {
-            fxn_call(shells, ao_ranges, depth + 1, maps, idx, off_nopers, iopers, ao_off, tamm_buf);
+            fxn_call(depth + 1, tamm_buf);
         }
     }
 }
@@ -157,22 +143,16 @@ void TAMMIntFunctor<op,NBases,element_type>::fxn_call(typename fxn_type::shell_i
 template<libint2::Operator op, std::size_t NBases, typename element_type>
 void TAMMIntFunctor<op,NBases,element_type>::operator()(const tamm::IndexVector& blockid, tamm::span<element_type> tamm_buf) {
 
-    std::array<size_type, NBases> idx;
-    std::array<LibChemist::BasisSetMap, NBases> maps;
-    std::array<size_type, NBases> ao_off;
     const size_type off_nopers = (nopers > 1) ? 1 : 0;
+    iopers = (nopers > 1) ? blockid[0] : 0;
+
     for (size_type i = 0; i < NBases; ++i) {
         idx[i] = blockid[i+off_nopers];
         maps[i] = LibChemist::BasisSetMap{bases[i]};
         ao_off[i] = maps[i].atom_to_ao(atom_blocks[i][(idx[i])]).first;
     }
-    const size_type iopers = (nopers > 1) ? blockid[0] : 0;
 
-    typename fxn_type::shell_index shells;
-    using range_array = std::array<typename LibChemist::BasisSetMap::range,NBases>;
-    range_array ao_ranges;
-
-    fxn_call(shells, ao_ranges, 0, maps, idx, off_nopers, iopers, ao_off, tamm_buf);
+    fxn_call(0, tamm_buf);
 }
 
 template class TAMMIntFunctor<libint2::Operator::overlap, 2, double>;

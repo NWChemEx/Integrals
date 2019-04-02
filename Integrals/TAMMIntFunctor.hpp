@@ -20,12 +20,22 @@ struct TAMMIntFunctor {
 
     constexpr static size_type nopers = libint2::operator_traits<op>::nopers;
 
+    bool screen = false;
+    matrix Scr;
+
     const tiled_AO tAO;
     const std::array<std::vector<size_type>, NBases> atom_blocks;
     const basis_array_type bases;
     fxn_type fxn;
-    bool screen = false;
-    matrix Scr;
+
+    std::array<size_type, NBases> idx;
+    std::array<LibChemist::BasisSetMap, NBases> maps;
+    std::array<size_type, NBases> ao_off;
+    size_type iopers;
+    typename fxn_type::shell_index shells;
+    std::array<typename LibChemist::BasisSetMap::range,NBases> ao_ranges;
+    size_type x_libint;
+    std::vector<double> libint_buf;
 
     TAMMIntFunctor(const tiled_AO &tAO,
                    const std::array<std::vector<size_type>, NBases> &atom_blocks,
@@ -34,25 +44,12 @@ struct TAMMIntFunctor {
 
     void operator()(const tamm::IndexVector& blockid, tamm::span<element_type> buff);
 
-    void fxn_call(typename fxn_type::shell_index& shells,
-                  range_array& ao_ranges,
-                  size_type depth,
-                  std::array<LibChemist::BasisSetMap, NBases>& maps,
-                  std::array<size_type, NBases>& idx,
-                  size_type off_nopers,
-                  size_type iopers,
-                  std::array<size_type, NBases>& ao_off,
+    void fxn_call(size_type depth,
                   tamm::span<element_type> tamm_buf);
 
     void fill(size_type x_tamm,
-              size_type x_libint,
               size_type depth,
-              size_type off,
-              std::array<size_type, NBases>& idx,
-              range_array& ao_ranges,
-              std::array<size_type, NBases>& ao_off,
-              tamm::span<element_type> tamm_buf,
-              std::vector<double>& libint_buf);
+              tamm::span<element_type> tamm_buf);
 };
 
 extern template class TAMMIntFunctor<libint2::Operator::overlap, 2, double>;
