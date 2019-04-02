@@ -1,4 +1,5 @@
 #include "Integrals/LibintIntegral.hpp"
+#include "IntegralPIMPL.hpp"
 #include "Integrals/TAMMIntFunctor.hpp"
 #include <SDE/ModuleBase.hpp>
 #include <LibChemist/BasisSetMap.hpp>

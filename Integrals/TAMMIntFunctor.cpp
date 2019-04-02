@@ -9,6 +9,38 @@ TAMMIntFunctor<op,NBases,element_type>::TAMMIntFunctor(const tiled_AO &tAO,
                fxn_type &&fxn) : tAO{std::move(tAO)}, atom_blocks{std::move(atom_blocks)},
                                   bases{std::move(bases)}, fxn{std::move(fxn)} {};
 
+//template<>
+//TAMMIntFunctor<libint2::Operator::coulomb,3,double>::TAMMIntFunctor(const tiled_AO& tAO,
+//                                                                    const std::array<std::vector<size_type>, 3>& atom_blocks,
+//                                                                    const basis_array_type& bases,
+//                                                                    fxn_type&& fxn) : tAO{std::move(tAO)}, atom_blocks{std::move(atom_blocks)},
+//                                                                                      bases{std::move(bases)}, fxn{std::move(fxn)} {
+//
+//    screen = true;
+//    const auto nsh1 = bases[1].nshells();
+//    const auto nsh2 = bases[2].nshells();
+//    const bool bs1_equiv_bs2 = (bases[1] == bases[2]);
+//    Scr = matrix::Zero(nsh1,nsh2);
+//    fxn.engine.set_precision(0);
+//
+//    for (size_type s1 = 0, s12 = 0; s1 != nsh1; ++s1) {
+//        size_type n1 = bases[1][s1].size();  // number of basis functions in this shell
+//
+//        size_type s2_max = bs1_equiv_bs2 ? s1 : nsh2 - 1;
+//        for (size_type s2 = 0; s2 <= s2_max; ++s2, ++s12) {
+//            size_type n2 = bases[2][s2].size();
+//            size_type n12 = n1 * n2;
+//            std::array<size_type,4> shells{s1,s2,s1,s2};
+//            auto buf = fxn(shells);
+//
+//            Eigen::Map<const matrix> buf_mat(buf[0], n12, n12);
+//            auto norm2 = buf_mat.lpNorm<Eigen::Infinity>();
+//            Scr(s1, s2) = std::sqrt(norm2);
+//            if (bs1_equiv_bs2) Scr(s2, s1) = Scr(s1, s2);
+//        }
+//    }
+//}
+
 template<>
 TAMMIntFunctor<libint2::Operator::coulomb,4,double>::TAMMIntFunctor(const tiled_AO& tAO,
                                                                     const std::array<std::vector<size_type>, 4>& atom_blocks,
@@ -18,8 +50,8 @@ TAMMIntFunctor<libint2::Operator::coulomb,4,double>::TAMMIntFunctor(const tiled_
 
     screen = true;
     const auto nsh1 = bases[0].nshells();
-    const auto nsh2 = bases[2].nshells();
-    const bool bs1_equiv_bs2 = (bases[0] == bases[2]);
+    const auto nsh2 = bases[1].nshells();
+    const bool bs1_equiv_bs2 = (bases[0] == bases[1]);
     Scr = matrix::Zero(nsh1,nsh2);
     fxn.engine.set_precision(0);
 
@@ -28,7 +60,7 @@ TAMMIntFunctor<libint2::Operator::coulomb,4,double>::TAMMIntFunctor(const tiled_
 
         size_type s2_max = bs1_equiv_bs2 ? s1 : nsh2 - 1;
         for (size_type s2 = 0; s2 <= s2_max; ++s2, ++s12) {
-            size_type n2 = bases[2][s2].size();
+            size_type n2 = bases[1][s2].size();
             size_type n12 = n1 * n2;
             std::array<size_type,4> shells{s1,s2,s1,s2};
             auto buf = fxn(shells);
@@ -91,7 +123,7 @@ void TAMMIntFunctor<op,NBases,element_type>::fxn_call(typename fxn_type::shell_i
 
             std::vector<double> libint_buf;
 
-            const element_type sch_thresh = 1.0E-5;
+            const element_type sch_thresh = 1.0E-8;
 
             if (screen) {
                 auto estimate = Scr(shells[0],shells[1])*Scr(shells[2],shells[3]);

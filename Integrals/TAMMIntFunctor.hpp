@@ -59,7 +59,7 @@ extern template class TAMMIntFunctor<libint2::Operator::overlap, 2, double>;
 extern template class TAMMIntFunctor<libint2::Operator::kinetic, 2, double>;
 extern template class TAMMIntFunctor<libint2::Operator::nuclear, 2, double>;
 extern template class TAMMIntFunctor<libint2::Operator::coulomb, 2, double>;
-extern template class TAMMIntFunctor<libint2::Operator::coulomb, 3, double>;
+//extern template class TAMMIntFunctor<libint2::Operator::coulomb, 3, double>;
 //extern template class TAMMIntFunctor<libint2::Operator::coulomb, 4, double>;
 extern template class TAMMIntFunctor<libint2::Operator::emultipole1, 2, double>;
 extern template class TAMMIntFunctor<libint2::Operator::emultipole2, 2, double>;
