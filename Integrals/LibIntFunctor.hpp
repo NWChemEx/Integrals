@@ -1,4 +1,6 @@
 #pragma once
+#include <LibChemist/Molecule.hpp>
+#include <libint2.hpp>
 
 namespace Integrals::Libint::detail_ {
 
@@ -58,5 +60,29 @@ private:
     }
 
 }; // Class LibIntFunctor
+
+//Factors out the building of a Libint2 engine.
+template<libint2::Operator op, std::size_t NBases>
+static auto make_engine(const LibChemist::Molecule& molecule,
+                        const typename LibIntFunctor<NBases>::size_type max_prims,
+                        const typename LibIntFunctor<NBases>::size_type max_l,
+                        const double thresh,
+                        const typename LibIntFunctor<NBases>::size_type deriv) {
+    libint2::Engine engine(op, max_prims, max_l, deriv, thresh);
+    //Take care of any special set-up
+    if constexpr (NBases==2 && op == libint2::Operator::nuclear){
+        std::vector<std::pair<double,std::array<double,3>>> qs;
+        for(const auto& ai: molecule)
+            qs.push_back({static_cast<const double&>(ai.Z()), ai.coords()});
+        engine.set_params(qs);
+    }
+    else if constexpr (NBases == 2 && op ==libint2::Operator::coulomb) {
+        engine.set(libint2::BraKet::xs_xs);
+    }
+    else if constexpr (NBases == 3 && op == libint2::Operator::coulomb) {
+        engine.set(libint2::BraKet::xs_xx);
+    }
+    return engine;
+}
 
 }

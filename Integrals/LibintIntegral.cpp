@@ -1,5 +1,5 @@
 #include "Integrals/LibintIntegral.hpp"
-#include "IntegralPIMPL.hpp"
+#include "Integrals/IntegralPIMPL.hpp"
 #include "Integrals/TAMMIntFunctor.hpp"
 #include <SDE/ModuleBase.hpp>
 #include <LibChemist/BasisSetMap.hpp>
@@ -76,27 +76,6 @@ private:
 /*******************************************************************************
  *  Implementation and instantiations of the Integral class.
  ******************************************************************************/
-
-//Factors out the building of a Libint2 engine.
-template<libint2::Operator op, size_type NBases>
-static auto make_engine(const molecule_type& molecule, size_type max_prims,
-                        size_type max_l, double thresh, size_type deriv) {
-    libint2::Engine engine(op, max_prims, max_l, deriv, thresh);
-    //Take care of any special set-up
-    if constexpr (NBases==2 && op == libint2::Operator::nuclear){
-        std::vector<std::pair<double,std::array<double,3>>> qs;
-        for(const auto& ai: molecule)
-            qs.push_back({static_cast<const double&>(ai.Z()), ai.coords()});
-        engine.set_params(qs);
-    }
-    else if constexpr (NBases == 2 && op ==libint2::Operator::coulomb) {
-        engine.set(libint2::BraKet::xs_xs);
-    }
-    else if constexpr (NBases == 3 && op == libint2::Operator::coulomb) {
-        engine.set(libint2::BraKet::xs_xx);
-    }
-    return engine;
-}
 
 template<libint2::Operator op, size_type NBases, typename element_type>
 SDE::type::result_map Integral<op, NBases, element_type>::run_(SDE::type::input_map inputs,
