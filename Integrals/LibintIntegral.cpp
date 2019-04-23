@@ -83,6 +83,7 @@ SDE::type::result_map Integral<op, NBases, element_type>::run_(SDE::type::input_
 
     const auto [mol, bases, deriv] = LibChemist::AOIntegral<NBases, element_type>::unwrap_inputs(inputs);
     const auto thresh = inputs.at("Threshold").value<double>();
+    const auto schwarz_thresh = inputs.at("Screening Threshold").value<double>();
     const auto tile_size = inputs.at("Tile Size").value<size_type>();
 
     std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
@@ -158,6 +159,10 @@ Integral<op, NBases, element_type>::Integral(implementation_type impl) : SDE::Mo
     add_input<double>("Threshold")
         .set_description("Convergence threshold of integrals")
         .set_default(1.0E-16);
+
+    add_input<double>("Screening Threshold")
+            .set_description("Threshold for Cauchy-Schwarz screening")
+            .set_default(1.0E-10);
 
     add_input<size_type>("Tile Size")
         .set_description("Size threshold for tiling tensors by atom blocks")

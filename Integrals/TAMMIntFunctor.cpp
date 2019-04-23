@@ -44,29 +44,29 @@ matrix schwarz_screening(const LibChemist::AOBasisSet& bs1,
 }
 
 template<libint2::Operator op, size_type NBases, typename element_type>
-TAMMIntFunctor<op,NBases,element_type>::TAMMIntFunctor(const tiled_AO &tAO,
-               const std::array<std::vector<size_type>, NBases> &atom_blocks,
-               const basis_array_type &bases,
-               fxn_type &&fxn) : tAO{std::move(tAO)}, atom_blocks{std::move(atom_blocks)},
-                                  bases{std::move(bases)}, fxn{std::move(fxn)} {};
+TAMMIntFunctor<op,NBases,element_type>::TAMMIntFunctor(const tiled_AO& _tAO,
+               const std::array<std::vector<size_type>, NBases>& _atom_blocks,
+               const basis_array_type& _bases,
+               fxn_type&& _fxn) : tAO{std::move(_tAO)}, atom_blocks{std::move(_atom_blocks)},
+                                  bases{std::move(_bases)}, fxn{std::move(_fxn)} {};
 
 template<>
-TAMMIntFunctor<libint2::Operator::coulomb,3,double>::TAMMIntFunctor(const tiled_AO& tAO,
-                                                                    const std::array<std::vector<size_type>, 3>& atom_blocks,
-                                                                    const basis_array_type& bases,
-                                                                    fxn_type&& fxn) : tAO{std::move(tAO)}, atom_blocks{std::move(atom_blocks)},
-                                                                                      bases{std::move(bases)}, fxn{std::move(fxn)} {
+TAMMIntFunctor<libint2::Operator::coulomb,3,double>::TAMMIntFunctor(const tiled_AO& _tAO,
+                                                                    const std::array<std::vector<size_type>, 3>& _atom_blocks,
+                                                                    const basis_array_type& _bases,
+                                                                    fxn_type&& _fxn) : tAO{std::move(_tAO)}, atom_blocks{std::move(_atom_blocks)},
+                                                                                      bases{std::move(_bases)}, fxn{std::move(_fxn)} {
     screen = true;
     Scr = schwarz_screening<libint2::Operator::coulomb>(bases[1],bases[2]);
     libint2::initialize();
 }
 
 template<>
-TAMMIntFunctor<libint2::Operator::coulomb,4,double>::TAMMIntFunctor(const tiled_AO& tAO,
-                                                                    const std::array<std::vector<size_type>, 4>& atom_blocks,
-                                                                    const basis_array_type& bases,
-                                                                    fxn_type&& fxn) : tAO{std::move(tAO)}, atom_blocks{std::move(atom_blocks)},
-                                                                                      bases{std::move(bases)}, fxn{std::move(fxn)} {
+TAMMIntFunctor<libint2::Operator::coulomb,4,double>::TAMMIntFunctor(const tiled_AO& _tAO,
+                                                                    const std::array<std::vector<size_type>, 4>& _atom_blocks,
+                                                                    const basis_array_type& _bases,
+                                                                    fxn_type&& _fxn) : tAO{std::move(_tAO)}, atom_blocks{std::move(_atom_blocks)},
+                                                                                      bases{std::move(_bases)}, fxn{std::move(_fxn)} {
     screen = true;
     Scr = schwarz_screening<libint2::Operator::coulomb>(bases[0],bases[1]);
     libint2::initialize();
@@ -106,7 +106,7 @@ void TAMMIntFunctor<op,NBases,element_type>::fxn_call(size_type depth) {
             for(size_type i=0; i<NBases; ++i)
                 nbfs *= bases[i][shells[i]].size();
 
-            const element_type sch_thresh = 1.0E-8;
+            const element_type sch_thresh = 1.0E-10;
 
             if (screen) {
                 element_type estimate;
