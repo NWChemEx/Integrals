@@ -33,14 +33,15 @@ private:
     tensor_type run_impl_(const tiled_AO& tAO,
                           const std::array<std::vector<size_type>, NBases>& atom_blocks,
                           const basis_array_type& bases,
-                          fxn_type&& fxn) {
+                          fxn_type&& fxn,
+                          const element_type schwarz_thresh) {
 
         tamm::ProcGroup pg{GA_MPI_Comm()};
         auto *pMM = tamm::MemoryManagerGA::create_coll(pg);
         tamm::Distribution_NW dist;
         tamm::ExecutionContext ec(pg, &dist, pMM);
 
-        TAMMIntFunctor<op,NBases,element_type> lambda{tAO,atom_blocks,bases,std::move(fxn)};
+        TAMMIntFunctor<op,NBases,element_type> lambda{tAO,atom_blocks,bases,std::move(fxn),schwarz_thresh};
 
         tensor_type A{tAO};
         tamm::Tensor<element_type>::allocate(&ec, A);
@@ -64,9 +65,10 @@ private:
     tensor_type run_impl_(const tiled_AO& tAO,
                           const std::array<std::vector<size_type>, NBases>& atom_blocks,
                           const basis_array_type& bases,
-                          fxn_type&& fxn) {
+                          fxn_type&& fxn,
+                          const element_type schwarz_thresh) {
 
-        TAMMIntFunctor<op,NBases,element_type> lambda{tAO,atom_blocks,bases,std::move(fxn)};
+        TAMMIntFunctor<op,NBases,element_type> lambda{tAO,atom_blocks,bases,std::move(fxn),schwarz_thresh};
         tensor_type A{tAO,lambda};
         return A;
     }
@@ -82,8 +84,8 @@ SDE::type::result_map Integral<op, NBases, element_type>::run_(SDE::type::input_
                                                            SDE::type::submodule_map submods) const {
 
     const auto [mol, bases, deriv] = LibChemist::AOIntegral<NBases, element_type>::unwrap_inputs(inputs);
-    const auto thresh = inputs.at("Threshold").value<double>();
-    const auto schwarz_thresh = inputs.at("Screening Threshold").value<double>();
+    const auto thresh = inputs.at("Threshold").value<element_type>();
+    const auto schwarz_thresh = inputs.at("Screening Threshold").value<element_type>();
     const auto tile_size = inputs.at("Tile Size").value<size_type>();
 
     std::array<tamm::IndexSpace, NBases> AOs; //AO spaces per mode
@@ -144,7 +146,8 @@ SDE::type::result_map Integral<op, NBases, element_type>::run_(SDE::type::input_
     fxn.engine = make_engine<op, NBases>(mol, max_prims, max_l, thresh, deriv);
     auto result = results();
     return LibChemist::AOIntegral<NBases, element_type>::wrap_results(result,
-                                                                  pimpl_->run_impl(tAOs, atom_blocks, bases, std::move(fxn)));
+                                                                  pimpl_->run_impl(tAOs, atom_blocks, bases,
+                                                                                   std::move(fxn), schwarz_thresh));
 }
 
 template<libint2::Operator op, size_type NBases, typename element_type>
@@ -156,13 +159,13 @@ Integral<op, NBases, element_type>::Integral(implementation_type impl) : SDE::Mo
       "many-body operators over Gaussian functions, Version 2.4.2 Edward F. Valeev, "
       "http://libint.valeyev.net/");
 
-    add_input<double>("Threshold")
+    add_input<element_type>("Threshold")
         .set_description("Convergence threshold of integrals")
         .set_default(1.0E-16);
 
-    add_input<double>("Screening Threshold")
+    add_input<element_type>("Screening Threshold")
             .set_description("Threshold for Cauchy-Schwarz screening")
-            .set_default(1.0E-10);
+            .set_default(0.0);
 
     add_input<size_type>("Tile Size")
         .set_description("Size threshold for tiling tensors by atom blocks")

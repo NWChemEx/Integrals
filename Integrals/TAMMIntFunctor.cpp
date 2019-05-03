@@ -3,16 +3,16 @@
 namespace Integrals::Libint::detail_ {
 
 using size_type = std::size_t;
-using matrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+using matrix_type = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
 template<libint2::Operator op>
-matrix schwarz_screening(const LibChemist::AOBasisSet& bs1,
-                         const LibChemist::AOBasisSet& bs2) {
+matrix_type schwarz_screening(const LibChemist::AOBasisSet& bs1,
+                              const LibChemist::AOBasisSet& bs2) {
 
     const auto nsh1 = bs1.nshells();
     const auto nsh2 = bs2.nshells();
     const bool bs1_equiv_bs2 = (bs1 == bs2);
-    matrix rv = matrix::Zero(nsh1,nsh2);
+    matrix_type rv = matrix_type::Zero(nsh1,nsh2);
     LibIntFunctor<4> fxn;
 
     fxn.bs[0] = nwx_libint::make_basis(bs1);
@@ -34,7 +34,7 @@ matrix schwarz_screening(const LibChemist::AOBasisSet& bs1,
             std::array<size_type,4> shells{s1,s2,s1,s2};
             auto buf = fxn(shells);
 
-            Eigen::Map<const matrix> buf_mat(buf[0], n12, n12);
+            Eigen::Map<const matrix_type> buf_mat(buf[0], n12, n12);
             auto norm2 = buf_mat.lpNorm<Eigen::Infinity>();
             rv(s1, s2) = std::sqrt(norm2);
             if (bs1_equiv_bs2) rv(s2, s1) = rv(s1, s2);
@@ -43,33 +43,50 @@ matrix schwarz_screening(const LibChemist::AOBasisSet& bs1,
     return rv;
 }
 
+template<size_type NBases, typename element_type>
+bool schwarz_estimate(const matrix_type& mat,
+                              const std::array<size_type, NBases>& shells,
+                              const element_type threshold) {
+    if constexpr (NBases == 3) {
+        return threshold > mat(shells[1],shells[2]);
+    } else if constexpr (NBases == 4) {
+        return threshold > mat(shells[0],shells[1])*mat(shells[2],shells[3]);
+    }
+}
+
+
 template<libint2::Operator op, size_type NBases, typename element_type>
 TAMMIntFunctor<op,NBases,element_type>::TAMMIntFunctor(const tiled_AO& _tAO,
                const std::array<std::vector<size_type>, NBases>& _atom_blocks,
                const basis_array_type& _bases,
-               fxn_type&& _fxn) : tAO{std::move(_tAO)}, atom_blocks{std::move(_atom_blocks)},
-                                  bases{std::move(_bases)}, fxn{std::move(_fxn)} {};
+               fxn_type&& _fxn,
+               const element_type _schwarz_thresh) : tAO{std::move(_tAO)}, atom_blocks{std::move(_atom_blocks)},
+                                  bases{std::move(_bases)}, fxn{std::move(_fxn)}, schwarz_thresh{_schwarz_thresh} {};
 
 template<>
 TAMMIntFunctor<libint2::Operator::coulomb,3,double>::TAMMIntFunctor(const tiled_AO& _tAO,
                                                                     const std::array<std::vector<size_type>, 3>& _atom_blocks,
                                                                     const basis_array_type& _bases,
-                                                                    fxn_type&& _fxn) : tAO{std::move(_tAO)}, atom_blocks{std::move(_atom_blocks)},
-                                                                                      bases{std::move(_bases)}, fxn{std::move(_fxn)} {
-    screen = true;
-    Scr = schwarz_screening<libint2::Operator::coulomb>(bases[1],bases[2]);
-    libint2::initialize();
+                                                                    fxn_type&& _fxn,
+                                                                    const double _schwarz_thresh) : tAO{std::move(_tAO)}, atom_blocks{std::move(_atom_blocks)},
+                                                                                                          bases{std::move(_bases)}, fxn{std::move(_fxn)}, schwarz_thresh{_schwarz_thresh} {
+    if (schwarz_thresh > 0.0) {
+        Scr = schwarz_screening<libint2::Operator::coulomb>(bases[1], bases[2]);
+        libint2::initialize();
+    }
 }
 
 template<>
 TAMMIntFunctor<libint2::Operator::coulomb,4,double>::TAMMIntFunctor(const tiled_AO& _tAO,
                                                                     const std::array<std::vector<size_type>, 4>& _atom_blocks,
                                                                     const basis_array_type& _bases,
-                                                                    fxn_type&& _fxn) : tAO{std::move(_tAO)}, atom_blocks{std::move(_atom_blocks)},
-                                                                                      bases{std::move(_bases)}, fxn{std::move(_fxn)} {
-    screen = true;
-    Scr = schwarz_screening<libint2::Operator::coulomb>(bases[0],bases[1]);
-    libint2::initialize();
+                                                                    fxn_type&& _fxn,
+                                                                    const double _schwarz_thresh) : tAO{std::move(_tAO)}, atom_blocks{std::move(_atom_blocks)},
+                                                                                                          bases{std::move(_bases)}, fxn{std::move(_fxn)}, schwarz_thresh{_schwarz_thresh} {
+    if (schwarz_thresh > 0.0) {
+        Scr = schwarz_screening<libint2::Operator::coulomb>(bases[0], bases[1]);
+        libint2::initialize();
+    }
 }
 
 template<libint2::Operator op, size_type NBases, typename element_type>
@@ -106,13 +123,8 @@ void TAMMIntFunctor<op,NBases,element_type>::fxn_call(size_type depth) {
             for(size_type i=0; i<NBases; ++i)
                 nbfs *= bases[i][shells[i]].size();
 
-            const element_type sch_thresh = 1.0E-10;
-
-            if (screen) {
-                element_type estimate;
-                if (NBases == 3) estimate = Scr(shells[1],shells[2]);
-                if (NBases == 4) estimate = Scr(shells[0],shells[1])*Scr(shells[2],shells[3]);
-                if (estimate < sch_thresh) {
+            if (schwarz_thresh > 0) {
+                if (schwarz_estimate<NBases, element_type>(Scr,shells,schwarz_thresh)) {
                     libint_buf = std::vector<double>(nbfs, 0.0);
                 } else {
                     auto buffer = fxn(shells);

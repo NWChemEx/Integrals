@@ -20,7 +20,8 @@ struct TAMMIntFunctor {
 
     constexpr static size_type nopers = libint2::operator_traits<op>::nopers;
 
-    bool screen = false;
+    const element_type schwarz_thresh;
+    // Scr(i,j) = <ij|op|ij>
     matrix Scr;
 
     //tensor level information
@@ -43,7 +44,8 @@ struct TAMMIntFunctor {
     TAMMIntFunctor(const tiled_AO& tAO,
                    const std::array<std::vector<size_type>, NBases>& atom_blocks,
                    const basis_array_type& bases,
-                   fxn_type&& libint_fxn);
+                   fxn_type&& libint_fxn,
+                   const element_type schwarz_thresh);
 
     void operator()(const tamm::IndexVector& blockid, tamm::span<element_type> buff);
 

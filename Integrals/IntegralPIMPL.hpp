@@ -20,8 +20,9 @@ struct IntegralPIMPL {
     virtual tensor_type run_impl(const tiled_AO& tAOs,
                                  const std::array<std::vector<size_type>, NBases>& atom_blocks,
                                  const basis_array_type& bases,
-                                 fxn_type&& fxn) {
-        return run_impl_(tAOs, atom_blocks, bases, std::move(fxn));
+                                 fxn_type&& fxn,
+                                 const element_type schwarz_thresh) {
+        return run_impl_(tAOs, atom_blocks, bases, std::move(fxn), schwarz_thresh);
     }
 
 private:
@@ -29,7 +30,8 @@ private:
     virtual tensor_type run_impl_(const tiled_AO& tAOs,
                                   const std::array<std::vector<size_type>, NBases>& atom_blocks,
                                   const basis_array_type& bases,
-                                  fxn_type&& fxn) = 0;
+                                  fxn_type&& fxn,
+                                  const element_type schwarz_thresh) = 0;
 };
 
 }
