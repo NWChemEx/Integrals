@@ -1,10 +1,10 @@
 #include "integrals/integralsmm.hpp"
 #include "integrals/libint_integral.hpp"
 
-namespace Integrals {
-namespace Libint {
+namespace integrals {
+namespace libint {
 
-void load_modules(SDE::ModuleManager& mm) {
+void load_modules(sde::ModuleManager& mm) {
     mm.add_module("Overlap", std::make_shared<Overlap>());
     mm.add_module("Kinetic", std::make_shared<Kinetic>());
     mm.add_module("Nuclear", std::make_shared<Nuclear>());
@@ -16,6 +16,5 @@ void load_modules(SDE::ModuleManager& mm) {
     mm.add_module("EOctopole", std::make_shared<EOctopole>());
 }
 
-} // namespace Libint
-} // namespace Integrals
-
+} // namespace libint
+} // namespace integrals

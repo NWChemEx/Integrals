@@ -1,10 +1,10 @@
 #pragma once
-#include <SDE/ModuleManager.hpp>
+#include <sde/module_manager.hpp>
 
-namespace Integrals {
-namespace Libint {
+namespace integrals {
+namespace libint {
 
-void load_modules(SDE::ModuleManager& mm);
+void load_modules(sde::ModuleManager& mm);
 
-} // end namespace Libint
-} // end namespace Integrals
+} // end namespace libint
+} // end namespace integrals

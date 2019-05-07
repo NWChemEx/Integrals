@@ -1,9 +1,9 @@
 #pragma once
 #include "integrals/nwx_libint/nwx_libint.hpp"
 #include "types.hpp"
-#include <property_types/aointegral.hpp>
-#include <SDE/ModuleBase.hpp>
 #include <memory>
+#include <property_types/aointegral.hpp>
+#include <sde/module_base.hpp>
 
 /** @file LibintIntegral.hpp
  *
@@ -15,19 +15,19 @@
  *  long as we forward declare all necessary instantiations.
  *
  */
-namespace Integrals {
-///Namespace for classes needed to implement integrals using Libint
-namespace Libint {
-///Namespace for classes that are considered implementation details
+namespace integrals {
+/// Namespace for classes needed to implement integrals using Libint
+namespace libint {
+/// Namespace for classes that are considered implementation details
 namespace detail_ {
 
-///Forward declaration of the implementation of the LibintIntegral class
+/// Forward declaration of the implementation of the LibintIntegral class
 template<libint2::Operator op, std::size_t NBases,
-        typename element_type = double>
+         typename element_type = double>
 class IntegralPIMPL;
 
-///Enum containing the possible implementations
-enum class implementation_type {direct, core};
+/// Enum containing the possible implementations
+enum class implementation_type { direct, core };
 
 /**
  * @brief The class that actually serves as the module for computing integrals
@@ -46,8 +46,9 @@ enum class implementation_type {direct, core};
  * @tparam NBases The total number of AO bases in the bra and ket
  * @tparam element_type The literal type of the elements in the tensor
  */
-template<libint2::Operator op, std::size_t NBases, typename element_type = double>
-struct Integral : public SDE::ModuleBase {
+template<libint2::Operator op, std::size_t NBases,
+         typename element_type = double>
+struct Integral : public sde::ModuleBase {
     /// Typedef of base class
     using base_type = property_types::AOIntegral<NBases, element_type>;
 
@@ -57,9 +58,9 @@ struct Integral : public SDE::ModuleBase {
     using basis_array_type = typename base_type::basis_array_type;
     ///@}
 
-    ///Initializes the buffers libint will need
+    /// Initializes the buffers libint will need
     Integral(implementation_type impl = implementation_type::direct);
-    ///Frees the buffers libint uses
+    /// Frees the buffers libint uses
     ~Integral() noexcept;
 
     /**
@@ -79,11 +80,11 @@ struct Integral : public SDE::ModuleBase {
      * The content of both @p mol and @p bases will be accessed, if concurrent
      * modifications occur data races will ensue.
      */
-    SDE::type::result_map run_(SDE::type::input_map inputs,
-                               SDE::type::submodule_map submods) const override;
+    sde::type::result_map run_(sde::type::input_map inputs,
+                               sde::type::submodule_map submods) const override;
 
 private:
-    ///The object that actually implements this class
+    /// The object that actually implements this class
     std::unique_ptr<IntegralPIMPL<op, NBases, element_type>> pimpl_;
 };
 
@@ -102,34 +103,35 @@ extern template class Integral<libint2::Operator::emultipole3, 2, double>;
 
 ///@defgroup Libint Integral classes
 ///@{
-///The matrix containing the overlap of the AO basis set
+/// The matrix containing the overlap of the AO basis set
 using Overlap = detail_::Integral<libint2::Operator::overlap, 2, double>;
 
-///Kinetic energy of electrons
+/// Kinetic energy of electrons
 using Kinetic = detail_::Integral<libint2::Operator::kinetic, 2, double>;
 
 /// Nucleus-electron attraction
 using Nuclear = detail_::Integral<libint2::Operator::nuclear, 2, double>;
 
-///Typedef for the density-fitting metric
+/// Typedef for the density-fitting metric
 using Metric = detail_::Integral<libint2::Operator::coulomb, 2, double>;
 
-///Typedef for the density-fit ERI
+/// Typedef for the density-fit ERI
 using DFERI = detail_::Integral<libint2::Operator::coulomb, 3, double>;
 
-///Typedef of the canonical ERI
+/// Typedef of the canonical ERI
 using ERI = detail_::Integral<libint2::Operator::coulomb, 4, double>;
 
-///Electric dipole
+/// Electric dipole
 using EDipole = detail_::Integral<libint2::Operator::emultipole1, 2, double>;
 
-///Electric quadrupole
-using EQuadrupole = detail_::Integral<libint2::Operator::emultipole2, 2, double>;
+/// Electric quadrupole
+using EQuadrupole =
+  detail_::Integral<libint2::Operator::emultipole2, 2, double>;
 
-///Electric octopole
+/// Electric octopole
 using EOctopole = detail_::Integral<libint2::Operator::emultipole3, 2, double>;
 
 ///@}
 
-} //namespace Libint
-} // namespace Integrals
+} // namespace libint
+} // namespace integrals
