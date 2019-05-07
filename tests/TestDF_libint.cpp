@@ -1,5 +1,5 @@
-#include <Integrals/IntegralsMM.hpp>
-#include <LibChemist/Defaults/PropertyTypes.hpp>
+#include <integrals/integralsmm.hpp>
+#include <property_types/aointegral.hpp>
 #include "TestCommon.hpp"
 #include "H2O_STO3G_DF.hpp"
 
@@ -10,7 +10,7 @@ using namespace Integrals::Libint;
 //should be fine for testing purposes.
 
 TEST_CASE("Testing DF3C2E"){
-    using integral_type = LibChemist::AOIntegral<3, double>;
+    using integral_type = property_types::AOIntegral<3, double>;
     SDE::ModuleManager mm;
     load_modules(mm);
     auto [molecule, bs] = make_molecule();

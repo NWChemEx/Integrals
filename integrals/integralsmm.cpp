@@ -1,5 +1,5 @@
-#include "Integrals/IntegralsMM.hpp"
-#include "Integrals/LibintIntegral.hpp"
+#include "integrals/integralsmm.hpp"
+#include "integrals/libint_integral.hpp"
 
 namespace Integrals {
 namespace Libint {

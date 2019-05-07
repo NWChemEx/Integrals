@@ -1,6 +1,7 @@
 #pragma once
-#include "Integrals/nwx_libint/nwx_libint.hpp"
-#include <LibChemist/Defaults/PropertyTypes.hpp>
+#include "integrals/nwx_libint/nwx_libint.hpp"
+#include "types.hpp"
+#include <property_types/aointegral.hpp>
 #include <SDE/ModuleBase.hpp>
 #include <memory>
 
@@ -48,14 +49,12 @@ enum class implementation_type {direct, core};
 template<libint2::Operator op, std::size_t NBases, typename element_type = double>
 struct Integral : public SDE::ModuleBase {
     /// Typedef of base class
-    using base_type = LibChemist::AOIntegral<NBases, element_type>;
+    using base_type = property_types::AOIntegral<NBases, element_type>;
 
     /// Pull typdefs from baseclass into scope.
     ///@{
     using tensor_type      = typename base_type::tensor_type;
-    using molecule_type    = typename base_type::molecule_type;
     using basis_array_type = typename base_type::basis_array_type;
-    using size_type        = typename base_type::size_type;
     ///@}
 
     ///Initializes the buffers libint will need

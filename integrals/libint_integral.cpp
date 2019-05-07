@@ -1,6 +1,6 @@
-#include "Integrals/LibintIntegral.hpp"
-#include "Integrals/IntegralPIMPL.hpp"
-#include "Integrals/TAMMIntFunctor.hpp"
+#include "integrals/libint_functor.hpp"
+#include "integrals/integralpimpl.hpp"
+#include "integrals/tamm_int_functor.hpp"
 #include <SDE/ModuleBase.hpp>
 #include <LibChemist/BasisSetMap.hpp>
 #include <Utilities/IterTools.hpp>
@@ -83,7 +83,7 @@ template<libint2::Operator op, size_type NBases, typename element_type>
 SDE::type::result_map Integral<op, NBases, element_type>::run_(SDE::type::input_map inputs,
                                                            SDE::type::submodule_map submods) const {
 
-    const auto [mol, bases, deriv] = LibChemist::AOIntegral<NBases, element_type>::unwrap_inputs(inputs);
+    const auto [mol, bases, deriv] = property_types::AOIntegral<NBases, element_type>::unwrap_inputs(inputs);
     const auto thresh = inputs.at("Threshold").value<element_type>();
     const auto schwarz_thresh = inputs.at("Screening Threshold").value<element_type>();
     const auto tile_size = inputs.at("Tile Size").value<size_type>();
@@ -95,7 +95,7 @@ SDE::type::result_map Integral<op, NBases, element_type>::run_(SDE::type::input_
     std::vector<tamm::TiledIndexSpace> tAOs(NBases+extra); //tiled version of AOs
     size_t max_prims = 0; // max primitives in any basis set
     int max_l = 0; // max angular momentum in any basis set
-    LibIntFunctor<NBases> fxn;
+    LibintFunctor<NBases> fxn;
 
 
     if (nopers > 1) {
@@ -145,7 +145,7 @@ SDE::type::result_map Integral<op, NBases, element_type>::run_(SDE::type::input_
 
     fxn.engine = make_engine<op, NBases>(mol, max_prims, max_l, thresh, deriv);
     auto result = results();
-    return LibChemist::AOIntegral<NBases, element_type>::wrap_results(result,
+    return property_types::AOIntegral<NBases, element_type>::wrap_results(result,
                                                                   pimpl_->run_impl(tAOs, atom_blocks, bases,
                                                                                    std::move(fxn), schwarz_thresh));
 }
@@ -153,7 +153,7 @@ SDE::type::result_map Integral<op, NBases, element_type>::run_(SDE::type::input_
 template<libint2::Operator op, size_type NBases, typename element_type>
 Integral<op, NBases, element_type>::Integral(implementation_type impl) : SDE::ModuleBase(this) {
 
-    satisfies_property_type<LibChemist::AOIntegral<NBases, element_type>>();
+    satisfies_property_type<property_types::AOIntegral<NBases, element_type>>();
     description("Computes integrals of many-body operators with Libint");
     citation("Libint: A library for the evaluation of molecular integrals of "
       "many-body operators over Gaussian functions, Version 2.4.2 Edward F. Valeev, "

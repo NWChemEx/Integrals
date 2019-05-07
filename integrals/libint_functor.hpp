@@ -6,7 +6,7 @@ namespace Integrals::Libint::detail_ {
 
 //Functor that wraps the call to libint in a uniform API, used by PIMPLs
 template<std::size_t NBases>
-struct LibIntFunctor {
+struct LibintFunctor {
     using size_type = std::size_t;
     // The type of a shell block returned by this functor
     using shell_block_type = std::vector<const double*>;
@@ -21,9 +21,9 @@ struct LibIntFunctor {
     std::array<libint2::BasisSet, NBases> bs;
 
     //initializes libint
-    LibIntFunctor(){libint2::initialize();}
+    LibintFunctor(){libint2::initialize();}
     //finalizes libint
-    ~LibIntFunctor(){libint2::finalize();}
+    ~LibintFunctor(){libint2::finalize();}
 
     //Takes a set of shell indices returns the shell block
     shell_block_type operator()(shell_index shells)  {
@@ -64,10 +64,10 @@ private:
 //Factors out the building of a Libint2 engine.
 template<libint2::Operator op, std::size_t NBases>
 static auto make_engine(const LibChemist::Molecule& molecule,
-                        const typename LibIntFunctor<NBases>::size_type max_prims,
-                        const typename LibIntFunctor<NBases>::size_type max_l,
+                        const typename LibintFunctor<NBases>::size_type max_prims,
+                        const typename LibintFunctor<NBases>::size_type max_l,
                         const double thresh,
-                        const typename LibIntFunctor<NBases>::size_type deriv) {
+                        const typename LibintFunctor<NBases>::size_type deriv) {
     libint2::Engine engine(op, max_prims, max_l, deriv, thresh);
     //Take care of any special set-up
     if constexpr (NBases==2 && op == libint2::Operator::nuclear){

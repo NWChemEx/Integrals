@@ -1,6 +1,6 @@
-#include <Integrals/IntegralsMM.hpp>
-#include <Integrals/LibintIntegral.hpp>
-#include <LibChemist/Defaults/PropertyTypes.hpp>
+#include <integrals/integralsmm.hpp>
+#include <integrals/libint_integral.hpp>
+#include <property_types/aointegral.hpp>
 #include "TestCommon.hpp"
 
 using namespace Integrals::Libint;
@@ -22,7 +22,7 @@ static BlockTensor corr{
 TEST_CASE("Testing Libint's Kinetic Energy Integrals class"){
     auto[molecule, bs] = make_molecule();
     std::array<LibChemist::AOBasisSet, 2> bases = {bs, bs};
-    using integral_type = LibChemist::AOIntegral<2, double>;
+    using integral_type = property_types::AOIntegral<2, double>;
     SDE::ModuleManager mm;
     SECTION("Direct implementation") {
         load_modules(mm);

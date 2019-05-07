@@ -1,5 +1,5 @@
-#include <Integrals/IntegralsMM.hpp>
-#include <LibChemist/Defaults/PropertyTypes.hpp>
+#include <integrals/integralsmm.hpp>
+#include <property_types/aointegral.hpp>
 #include "TestCommon.hpp"
 
 using namespace Integrals::Libint;
@@ -31,7 +31,7 @@ static BlockTensor corr{
 };
 
 TEST_CASE("Testing LibIntOverlap class"){
-    using integral_type = LibChemist::AOIntegral<2, double>;
+    using integral_type = property_types::AOIntegral<2, double>;
     SDE::ModuleManager mm;
     load_modules(mm);
     mm.at("Overlap").change_input("Tile Size",size_t{1});

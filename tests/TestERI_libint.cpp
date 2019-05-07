@@ -1,5 +1,5 @@
-#include <Integrals/IntegralsMM.hpp>
-#include <LibChemist/Defaults/PropertyTypes.hpp>
+#include <integrals/integralsmm.hpp>
+#include <property_types/aointegral.hpp>
 #include "TestCommon.hpp"
 #include "H2O_STO3G_ERI.hpp"
 
@@ -7,7 +7,7 @@ using namespace Integrals::Libint;
 
 //Computes the ERI integrals for water in STO-3G
 TEST_CASE("Testing Libint's ERI"){
-    using integral_type = LibChemist::AOIntegral<4, double>;
+    using integral_type = property_types::AOIntegral<4, double>;
     SDE::ModuleManager mm;
     load_modules(mm);
     auto [molecule, bs] = make_molecule();

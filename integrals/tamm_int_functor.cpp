@@ -1,4 +1,4 @@
-#include "Integrals/TAMMIntFunctor.hpp"
+#include "integrals/tamm_int_functor.hpp"
 
 namespace Integrals::Libint::detail_ {
 
@@ -13,7 +13,7 @@ matrix_type schwarz_screening(const LibChemist::AOBasisSet& bs1,
     const auto nsh2 = bs2.nshells();
     const bool bs1_equiv_bs2 = (bs1 == bs2);
     matrix_type rv = matrix_type::Zero(nsh1,nsh2);
-    LibIntFunctor<4> fxn;
+    LibintFunctor<4> fxn;
 
     fxn.bs[0] = nwx_libint::make_basis(bs1);
     fxn.bs[1] = nwx_libint::make_basis(bs2);

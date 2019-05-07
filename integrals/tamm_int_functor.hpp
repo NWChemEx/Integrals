@@ -1,6 +1,6 @@
 #pragma once
-#include "Integrals/LibintIntegral.hpp"
-#include "Integrals/IntegralPIMPL.hpp"
+#include "integrals/libint_integral.hpp"
+#include "integrals/integralpimpl.hpp"
 #include <LibChemist/BasisSetMap.hpp>
 
 namespace Integrals::Libint::detail_ {

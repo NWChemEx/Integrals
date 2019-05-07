@@ -1,6 +1,6 @@
 #pragma once
-#include "Integrals/LibintIntegral.hpp"
-#include "Integrals/LibIntFunctor.hpp"
+#include "integrals/libint_integral.hpp"
+#include "integrals/libint_functor.hpp"
 
 namespace Integrals::Libint::detail_ {
 //Defines the API for the LibintIntegral PIMPL (move to header if needed)
@@ -14,7 +14,7 @@ struct IntegralPIMPL {
     using tensor_type = typename main_type::tensor_type;
     using basis_array_type = typename main_type::basis_array_type;
     using tiled_AO = std::vector<tamm::TiledIndexSpace>;
-    using fxn_type = LibIntFunctor<NBases>;
+    using fxn_type = LibintFunctor<NBases>;
 
     //Public API to PIMPL
     virtual tensor_type run_impl(const tiled_AO& tAOs,
