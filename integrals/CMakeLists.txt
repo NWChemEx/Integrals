@@ -5,7 +5,8 @@ set(INTEGRALS_SRCS nwx_libint/nwx_libint.cpp
 )
 set(INTEGRALS_INCLUDES libint_integral.hpp
                        nwx_libint/nwx_libint.hpp
-        integralsmm.hpp
+                       integralsmm.hpp
+                       types.hpp
 )
 cpp_add_library(
     integrals
