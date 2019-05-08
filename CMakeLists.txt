@@ -1,13 +1,11 @@
 cmake_minimum_required(VERSION 3.8)
 project(integrals VERSION 1.0.0)
-set(CPP_NAMESPACE Integrals)
 find_package(cpp REQUIRED)
 cpp_option(BUILD_TESTS ON)
 
 cpp_find_or_build_dependency(
     NAME property_types
-    URL github.com/ryanmrichard/PropertyTypes
-    BRANCH prop_types
+    URL github.com/NWChemEx-Project/PropertyTypes
     PRIVATE
     CMAKE_ARGS BUILD_TESTS=OFF
 )
