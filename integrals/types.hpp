@@ -1,10 +1,8 @@
 #pragma once
 #include <property_types/types.hpp>
 
-namespace integrals {
-namespace type {
+namespace integrals::type {
 
-using property_types::type::molecule;
-using property_types::type::size;
-} // namespace type
-} // namespace integrals
+using namespace property_types::type;
+
+} // namespace integrals::type

@@ -1,6 +1,6 @@
 #pragma once
 #include "integrals/nwx_libint/nwx_libint.hpp"
-#include "types.hpp"
+#include "integrals/types.hpp"
 #include <memory>
 #include <property_types/aointegral.hpp>
 #include <sde/module_base.hpp>
