@@ -9,6 +9,7 @@ set(
                     metric.cpp
                     nuclear_electron.cpp
                     overlap.cpp
+                    schwarz_screening.cpp
 )
 
 cpp_add_executable(

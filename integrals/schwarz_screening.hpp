@@ -1,4 +1,6 @@
+#pragma once
 #include "integrals/libint_functor.hpp"
+#include "integrals/nwx_libint/nwx_libint.hpp"
 
 namespace integrals::libint::detail_ {
 
@@ -48,7 +50,7 @@ auto schwarz_screening(const libchemist::AOBasisSet& bs1,
     return rv;
 }
 
-template<std::size_t NBases, typename element_type>
+template<std::size_t NBases, typename element_type = double>
 bool schwarz_estimate(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& mat,
                       const std::array<std::size_t, NBases>& shells,
                       const element_type threshold) {
