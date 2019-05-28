@@ -9,6 +9,7 @@ set(
                     TestEDipole_libint.cpp
                     TestEQuadrupole_libint.cpp
                     TestEOctopole_libint.cpp
+        test_libint.cpp
 )
 
 cpp_add_executable(

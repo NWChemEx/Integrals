@@ -8,8 +8,6 @@ namespace integrals::libint::detail_ {
 template<std::size_t NBases>
 struct LibintFunctor {
     using size_type = std::size_t;
-    // The type of a shell block returned by this functor
-    using shell_block_type = std::vector<const double*>;
 
     // The type of the index to a shell block
     using shell_index = std::array<size_type, NBases>;
@@ -26,8 +24,8 @@ struct LibintFunctor {
     ~LibintFunctor() { libint2::finalize(); }
 
     // Takes a set of shell indices returns the shell block
-    shell_block_type operator()(shell_index shells) {
-        return call_libint_(shells, std::make_index_sequence<NBases>());
+    void operator()(shell_index shells) {
+        call_libint_(shells, std::make_index_sequence<NBases>());
     }
 
 private:
@@ -51,12 +49,9 @@ private:
      * if multiple threads call this function concurrently.
      */
     template<size_type... Is>
-    shell_block_type call_libint_(shell_index shells,
+    void call_libint_(shell_index shells,
                                   std::index_sequence<Is...>) {
-        const auto& buf_vec = engine.results();
         engine.compute((bs[Is][shells[Is]])...);
-        std::vector<const double*> rv(buf_vec.begin(), buf_vec.end());
-        return rv;
     }
 
 }; // Class LibIntFunctor
