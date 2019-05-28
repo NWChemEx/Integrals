@@ -1,15 +1,14 @@
 set(
     INTEGRALS_TESTS test_main.cpp
-                    TestDF_libint.cpp
-                    TestERI_libint.cpp
-                    TestKinetic_libint.cpp
-                    TestMetric_libint.cpp
-                    TestNuclearElectron_libint.cpp
-                    TestOverlap_libint.cpp
-                    TestEDipole_libint.cpp
-                    TestEQuadrupole_libint.cpp
-                    TestEOctopole_libint.cpp
-        test_libint.cpp
+                    edipole.cpp
+                    eoctopole.cpp
+                    equadrupole.cpp
+                    eri3.cpp
+                    eri4.cpp
+                    kinetic.cpp
+                    metric.cpp
+                    nuclear_electron.cpp
+                    overlap.cpp
 )
 
 cpp_add_executable(

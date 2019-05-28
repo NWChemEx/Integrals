@@ -1,5 +1,5 @@
 #pragma once
-#include "TestCommon.hpp"
+#include "test_common.hpp"
 //This header is meant only for inclusion in TestDF_libint.cpp
 
 static BlockTensor corr{

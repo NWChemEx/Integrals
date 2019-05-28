@@ -1,5 +1,5 @@
 #include "H2O_STO3G_ERI.hpp"
-#include "TestCommon.hpp"
+#include "test_common.hpp"
 #include <integrals/integralsmm.hpp>
 #include <property_types/aointegral.hpp>
 

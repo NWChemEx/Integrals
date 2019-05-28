@@ -1,5 +1,5 @@
 #pragma once
-#include "TestCommon.hpp"
+#include "test_common.hpp"
 
 //This file meant only for inclusion in TestERI_libint.cpp
 

@@ -1,4 +1,4 @@
-#include "TestCommon.hpp"
+#include "test_common.hpp"
 #include <integrals/integralsmm.hpp>
 #include <integrals/libint_integral.hpp>
 #include <property_types/aointegral.hpp>
