@@ -1,12 +1,13 @@
+#include "integrals/libint_functor.hpp"
+
 namespace integrals::libint::detail_ {
 
-using size_type = std::size_t;
-using matrix_type =
-Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-
 template<libint2::Operator op>
-matrix_type schwarz_screening(const libchemist::AOBasisSet& bs1,
-                              const libchemist::AOBasisSet& bs2) {
+auto schwarz_screening(const libchemist::AOBasisSet& bs1,
+                       const libchemist::AOBasisSet& bs2) {
+    using matrix_type =
+    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+
     const auto nsh1          = bs1.nshells();
     const auto nsh2          = bs2.nshells();
     const bool bs1_equiv_bs2 = (bs1 == bs2);
@@ -27,15 +28,15 @@ matrix_type schwarz_screening(const libchemist::AOBasisSet& bs1,
 
     const auto& buf = fxn.engine.results();
 
-    for(size_type s1 = 0, s12 = 0; s1 != nsh1; ++s1) {
-        size_type n1 =
+    for(std::size_t s1 = 0, s12 = 0; s1 != nsh1; ++s1) {
+        std::size_t n1 =
                 bs1[s1].size(); // number of basis functions in this shell
 
-        size_type s2_max = bs1_equiv_bs2 ? s1 : nsh2 - 1;
-        for(size_type s2 = 0; s2 <= s2_max; ++s2, ++s12) {
-            size_type n2  = bs2[s2].size();
-            size_type n12 = n1 * n2;
-            std::array<size_type, 4> shells{s1, s2, s1, s2};
+        std::size_t s2_max = bs1_equiv_bs2 ? s1 : nsh2 - 1;
+        for(std::size_t s2 = 0; s2 <= s2_max; ++s2, ++s12) {
+            std::size_t n2  = bs2[s2].size();
+            std::size_t n12 = n1 * n2;
+            std::array<std::size_t, 4> shells{s1, s2, s1, s2};
             fxn(shells);
 
             Eigen::Map<const matrix_type> buf_mat(buf[0], n12, n12);
@@ -47,9 +48,9 @@ matrix_type schwarz_screening(const libchemist::AOBasisSet& bs1,
     return rv;
 }
 
-template<size_type NBases, typename element_type>
-bool schwarz_estimate(const matrix_type& mat,
-                      const std::array<size_type, NBases>& shells,
+template<std::size_t NBases, typename element_type>
+bool schwarz_estimate(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>& mat,
+                      const std::array<std::size_t, NBases>& shells,
                       const element_type threshold) {
     if constexpr(NBases == 3) {
         return threshold > mat(shells[1], shells[2]);
@@ -60,3 +61,5 @@ bool schwarz_estimate(const matrix_type& mat,
         return false;
     }
 }
+
+} // end namespace
