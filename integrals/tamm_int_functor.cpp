@@ -56,6 +56,8 @@ bool schwarz_estimate(const matrix_type& mat,
     } else if constexpr(NBases == 4) {
         return threshold >
                mat(shells[0], shells[1]) * mat(shells[2], shells[3]);
+    } else {
+        return false;
     }
 }
 
