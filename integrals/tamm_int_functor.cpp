@@ -7,49 +7,24 @@ using size_type = std::size_t;
 
 template<libint2::Operator op, size_type NBases, typename element_type>
 TAMMIntFunctor<op, NBases, element_type>::TAMMIntFunctor(
-  const tiled_AO& _tAO,
-  const std::array<std::vector<size_type>, NBases>& _atom_blocks,
-  const basis_array_type& _bases, fxn_type&& _fxn,
-  const element_type _schwarz_thresh) :
-  tAO{std::move(_tAO)},
-  atom_blocks{std::move(_atom_blocks)},
-  bases{std::move(_bases)},
-  fxn{std::move(_fxn)},
-  schwarz_thresh{_schwarz_thresh} {};
+    const tiled_AO& _tAO,
+    const std::array<std::vector<size_type>, NBases>& _atom_blocks,
+    const basis_array_type& _bases, fxn_type&& _fxn,
+    const element_type _schwarz_thresh) :
+    tAO{std::move(_tAO)},
+    atom_blocks{std::move(_atom_blocks)},
+    bases{std::move(_bases)},
+    fxn{std::move(_fxn)},
+    schwarz_thresh{_schwarz_thresh} {
+  if(schwarz_thresh > 0.0) {
+    if constexpr (NBases == 3)
+      Scr = schwarz_screening<op>(bases[1], bases[2]);
+    else if constexpr (NBases == 4)
+      Scr = schwarz_screening<op>(bases[0], bases[1]);
+    libint2::initialize();
+  }
+};
 
-template<>
-TAMMIntFunctor<libint2::Operator::coulomb, 3, double>::TAMMIntFunctor(
-  const tiled_AO& _tAO,
-  const std::array<std::vector<size_type>, 3>& _atom_blocks,
-  const basis_array_type& _bases, fxn_type&& _fxn,
-  const double _schwarz_thresh) :
-  tAO{std::move(_tAO)},
-  atom_blocks{std::move(_atom_blocks)},
-  bases{std::move(_bases)},
-  fxn{std::move(_fxn)},
-  schwarz_thresh{_schwarz_thresh} {
-    if(schwarz_thresh > 0.0) {
-        Scr = schwarz_screening<libint2::Operator::coulomb>(bases[1], bases[2]);
-        libint2::initialize();
-    }
-}
-
-template<>
-TAMMIntFunctor<libint2::Operator::coulomb, 4, double>::TAMMIntFunctor(
-  const tiled_AO& _tAO,
-  const std::array<std::vector<size_type>, 4>& _atom_blocks,
-  const basis_array_type& _bases, fxn_type&& _fxn,
-  const double _schwarz_thresh) :
-  tAO{std::move(_tAO)},
-  atom_blocks{std::move(_atom_blocks)},
-  bases{std::move(_bases)},
-  fxn{std::move(_fxn)},
-  schwarz_thresh{_schwarz_thresh} {
-    if(schwarz_thresh > 0.0) {
-        Scr = schwarz_screening<libint2::Operator::coulomb>(bases[0], bases[1]);
-        libint2::initialize();
-    }
-}
 
 template<libint2::Operator op, size_type NBases, typename element_type>
 void TAMMIntFunctor<op, NBases, element_type>::operator()(
@@ -138,6 +113,12 @@ template class TAMMIntFunctor<libint2::Operator::nuclear, 2, double>;
 template class TAMMIntFunctor<libint2::Operator::coulomb, 2, double>;
 template class TAMMIntFunctor<libint2::Operator::coulomb, 3, double>;
 template class TAMMIntFunctor<libint2::Operator::coulomb, 4, double>;
+template class TAMMIntFunctor<libint2::Operator::stg, 2, double>;
+template class TAMMIntFunctor<libint2::Operator::stg, 3, double>;
+template class TAMMIntFunctor<libint2::Operator::stg, 4, double>;
+template class TAMMIntFunctor<libint2::Operator::yukawa, 2, double>;
+template class TAMMIntFunctor<libint2::Operator::yukawa, 3, double>;
+template class TAMMIntFunctor<libint2::Operator::yukawa, 4, double>;
 template class TAMMIntFunctor<libint2::Operator::emultipole1, 2, double>;
 template class TAMMIntFunctor<libint2::Operator::emultipole2, 2, double>;
 template class TAMMIntFunctor<libint2::Operator::emultipole3, 2, double>;

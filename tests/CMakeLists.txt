@@ -10,6 +10,7 @@ set(
                     nuclear_electron.cpp
                     overlap.cpp
                     schwarz_screening.cpp
+                    slater.cpp
 )
 
 cpp_add_executable(
