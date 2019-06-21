@@ -32,6 +32,7 @@ void load_modules(sde::ModuleManager& mm,
 
     mm.add_module("STG2", std::make_shared<STG2>(impl));
     mm.at("STG2").change_input("Tile Size",tile_size);
+    mm.at("STG2").change_input("Operator Parameters",stg_exponent);
 
     mm.add_module("STG3", std::make_shared<STG3>(impl));
     mm.at("STG3").change_input("Tile Size",tile_size);
@@ -45,6 +46,7 @@ void load_modules(sde::ModuleManager& mm,
 
     mm.add_module("Yukawa2", std::make_shared<Yukawa2>(impl));
     mm.at("Yukawa2").change_input("Tile Size",tile_size);
+    mm.at("Yukawa2").change_input("Operator Parameters",stg_exponent);
 
     mm.add_module("Yukawa3", std::make_shared<Yukawa3>(impl));
     mm.at("Yukawa3").change_input("Tile Size",tile_size);

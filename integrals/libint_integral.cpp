@@ -91,7 +91,7 @@ sde::type::result_map Integral<op, NBases, element_type>::run_(
     const auto schwarz_thresh =
       inputs.at("Screening Threshold").value<element_type>();
     const auto tile_size = inputs.at("Tile Size").value<size_type>();
-    const auto op_params = inputs.at("Operator Parameters").value<sde::type::any>();
+    const auto op_params = inputs.at("Operator Parameters").value<double>();
 
     std::array<tamm::IndexSpace, NBases> AOs; // AO spaces per mode
     std::array<std::vector<size_type>, NBases> atom_blocks; // AO spaces per
@@ -153,7 +153,7 @@ sde::type::result_map Integral<op, NBases, element_type>::run_(
         max_l           = std::max(max_l, LIbasis.max_l(LIbasis));
     }
 
-    fxn.engine  = make_engine<op, NBases>(mol, max_prims, max_l, thresh, deriv, op_params);
+    fxn.engine  = make_engine<op, NBases>(mol, max_prims, max_l, thresh, deriv, sde::type::any{op_params});
     auto result = results();
     return property_types::AOIntegral<NBases, element_type>::wrap_results(
       result, pimpl_->run_impl(tAOs, atom_blocks, bases, std::move(fxn),
@@ -182,9 +182,10 @@ Integral<op, NBases, element_type>::Integral(implementation_type impl) :
       .set_description("Size threshold for tiling tensors by atom blocks")
       .set_default(size_type{180});
 
-    add_input<sde::type::any>("Operator Parameters")
-      .set_description("(optional) Operator parameters")
-      .set_default(sde::type::any{});
+    // really should be sde::type::any but not
+    add_input<double>("Operator Parameters")
+      .set_description("Operator parameters (only required for some operators)")
+      .set_default(std::numeric_limits<double>::quiet_NaN());
 
   switch(impl) {
         case implementation_type::direct:

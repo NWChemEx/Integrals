@@ -80,7 +80,10 @@ static auto make_engine(
         qs.push_back({static_cast<const double&>(ai.Z()), ai.coords()});
       engine.set_params(qs);
     } else if constexpr (op == libint2::Operator::stg || op == libint2::Operator::yukawa) {
-      const auto stg_exponent = op_params.has_value() ? sde::detail_::SDEAnyCast<double>(op_params) : 1.0;
+      auto stg_exponent = op_params.has_value() ? sde::detail_::SDEAnyCast<double>(op_params) : 1.0;
+      if (std::isnan(stg_exponent)) {
+        stg_exponent = 1.0;
+      }
       engine.set_params(stg_exponent);
     }
     return engine;
