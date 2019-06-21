@@ -5,7 +5,7 @@
 using namespace integrals::libint;
 
 // Computes the ERI integrals for water in STO-3G
-TEST_CASE("Testing Libint's ERI") {
+TEST_CASE("Testing Libint's integrals over Slater-type geminals") {
     using integral_type = property_types::AOIntegral<4, double>;
     sde::ModuleManager mm;
     load_modules(mm);
