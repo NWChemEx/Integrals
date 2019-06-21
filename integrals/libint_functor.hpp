@@ -58,16 +58,6 @@ private:
 
 }; // Class LibIntFunctor
 
-inline constexpr int op_rank(libint2::Operator oper) {
-  using libint2::Operator;
-  return (oper >= Operator::first_1body_oper &&
-      oper <= Operator::last_1body_oper)
-         ? 1 :
-         ((oper >= Operator::first_2body_oper &&
-             oper <= Operator::last_2body_oper)
-          ? 2 : 0);
-}
-
 // Factors out the building of a Libint2 engine.
 template<libint2::Operator op, std::size_t NBases>
 static auto make_engine(
@@ -77,12 +67,11 @@ static auto make_engine(
   const typename LibintFunctor<NBases>::size_type deriv,
   const sde::type::any& op_params = sde::type::any{}) {
     libint2::Engine engine(op, max_prims, max_l, deriv, thresh);
-    const auto rank = op_rank(op);
     // Take care of any special set-up
-    if constexpr(rank == 2 && NBases == 2) {
+    if constexpr(libint2::rank(op) == 2 && NBases == 2) {
         engine.set(libint2::BraKet::xs_xs);
     }
-    if constexpr(rank == 2 && NBases == 3) {
+    if constexpr(libint2::rank(op) == 2 && NBases == 3) {
         engine.set(libint2::BraKet::xs_xx);
     }
     if constexpr(op == libint2::Operator::nuclear) {
