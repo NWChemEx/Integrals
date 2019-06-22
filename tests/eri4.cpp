@@ -6,7 +6,7 @@
 using namespace integrals::libint;
 
 // Computes the STG and Yukawa integrals for water in STO-3G
-TEST_CASE("Testing Libint's Slater-type ints") {
+TEST_CASE("Testing ERI4") {
     using integral_type = property_types::AOIntegral<4, double>;
     sde::ModuleManager mm;
     load_modules(mm);
