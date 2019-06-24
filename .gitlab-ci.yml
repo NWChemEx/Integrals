@@ -1,0 +1,35 @@
+
+stages:
+  - build
+
+before_script:
+  - export CMAKE_BUILD_PARALLEL_LEVEL=24
+  - export REPO_NAME=Integrals
+  - export CI_PATH=~/git/gitlabCI/$REPO_NAME
+  - if [ -d "$CI_PATH" ]; then rm -rf $CI_PATH; fi
+  - mkdir -p $CI_PATH/install
+  #- git clone git@gitlab.com:NWChemEx-Project/$REPO_NAME.git $CI_PATH/$REPO_NAME
+  - git clone https://github.com/CMakePP/CMakePackagingProject.git $CI_PATH/CMakePP
+
+variables:
+  NWX_INSTALL_PATH: "~/git/gitlabCI/Integrals/install"
+  CMAKE_OPTIONS: "-DCMAKE_PREFIX_PATH=$NWX_INSTALL_PATH -DCMAKE_INSTALL_PREFIX=$NWX_INSTALL_PATH -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++"
+  NUM_CORES: "24"
+
+default_build:
+  # only:
+  #   - master
+  tags:
+    - linux,kamban
+  stage: build
+  script:
+    - module load gcc-9.1.0-gcc-7.4.0-jjv2tsg cmake-3.14.2-gcc-9.1.0-jzu7ays
+    - cd $CI_PATH/CMakePP
+    - cmake $CMAKE_OPTIONS -DBUILD_TESTS=ON -H. -Bbuild
+    - cd build
+    - make install
+    - cd $CI_PROJECT_DIR
+    - cmake $CMAKE_OPTIONS -DBUILD_TESTS=ON -H. -Bbuild
+    - cd build
+    - make -j$NUM_CORES
+    - ctest -VV
