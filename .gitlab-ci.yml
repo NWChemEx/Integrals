@@ -8,6 +8,7 @@ before_script:
   - export CI_PATH=~/git/gitlabCI/$REPO_NAME
   - if [ -d "$CI_PATH" ]; then rm -rf $CI_PATH; fi
   - mkdir -p $CI_PATH/install
+  - git clone git@gitlab.com:NWChemEx-Project/CMakeBuild.git $CI_PATH/CMakeBuild
   - git clone git@gitlab.com:NWChemEx-Project/TAMM.git $CI_PATH/TAMM
   - git clone https://github.com/CMakePP/CMakePackagingProject.git $CI_PATH/CMakePP
 
@@ -24,6 +25,10 @@ default_build:
   stage: build
   script:
     - module load gcc-9.1.0-gcc-7.4.0-jjv2tsg mpich-3.3-gcc-9.1.0-ennj3ix cmake-3.14.2-gcc-9.1.0-jzu7ays
+    - cd $CI_PATH/CMakeBuild
+    - cmake $CMAKE_OPTIONS -DBUILD_TESTS=OFF -H. -Bbuild
+    - cd build
+    - make install
     - cd $CI_PATH/TAMM
     - cmake $CMAKE_OPTIONS -DBUILD_TESTS=OFF -H. -Bbuild
     - cd build
