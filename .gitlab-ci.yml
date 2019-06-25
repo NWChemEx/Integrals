@@ -8,7 +8,7 @@ before_script:
   - export CI_PATH=~/git/gitlabCI/$REPO_NAME
   - if [ -d "$CI_PATH" ]; then rm -rf $CI_PATH; fi
   - mkdir -p $CI_PATH/install
-  - git clone git@gitlab.com:NWChemEx-Project/TAMM.git $CI_PATH/$TAMM
+  - git clone git@gitlab.com:NWChemEx-Project/TAMM.git $CI_PATH/TAMM
   - git clone https://github.com/CMakePP/CMakePackagingProject.git $CI_PATH/CMakePP
 
 variables:
