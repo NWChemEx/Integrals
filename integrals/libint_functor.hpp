@@ -1,6 +1,8 @@
 #pragma once
 #include <libchemist/molecule.hpp>
 #include <libint2.hpp>
+#include <sde/types.hpp>
+#include <sde/detail_/sde_any.hpp>
 
 namespace integrals::libint::detail_ {
 
@@ -50,7 +52,7 @@ private:
      */
     template<size_type... Is>
     void call_libint_(shell_index shells,
-                                  std::index_sequence<Is...>) {
+                      std::index_sequence<Is...>) {
         engine.compute((bs[Is][shells[Is]])...);
     }
 
@@ -62,18 +64,27 @@ static auto make_engine(
   const libchemist::Molecule& molecule,
   const typename LibintFunctor<NBases>::size_type max_prims,
   const typename LibintFunctor<NBases>::size_type max_l, const double thresh,
-  const typename LibintFunctor<NBases>::size_type deriv) {
+  const typename LibintFunctor<NBases>::size_type deriv,
+  const sde::type::any& op_params = sde::type::any{}) {
     libint2::Engine engine(op, max_prims, max_l, deriv, thresh);
     // Take care of any special set-up
-    if constexpr(NBases == 2 && op == libint2::Operator::nuclear) {
-        std::vector<std::pair<double, std::array<double, 3>>> qs;
-        for(const auto& ai : molecule)
-            qs.push_back({static_cast<const double&>(ai.Z()), ai.coords()});
-        engine.set_params(qs);
-    } else if constexpr(NBases == 2 && op == libint2::Operator::coulomb) {
+    if constexpr(libint2::rank(op) == 2 && NBases == 2) {
         engine.set(libint2::BraKet::xs_xs);
-    } else if constexpr(NBases == 3 && op == libint2::Operator::coulomb) {
+    }
+    if constexpr(libint2::rank(op) == 2 && NBases == 3) {
         engine.set(libint2::BraKet::xs_xx);
+    }
+    if constexpr(op == libint2::Operator::nuclear) {
+      std::vector<std::pair<double, std::array<double, 3>>> qs;
+      for(const auto& ai : molecule)
+        qs.push_back({static_cast<const double&>(ai.Z()), ai.coords()});
+      engine.set_params(qs);
+    } else if constexpr (op == libint2::Operator::stg || op == libint2::Operator::yukawa) {
+      auto stg_exponent = op_params.has_value() ? sde::detail_::SDEAnyCast<double>(op_params) : 1.0;
+      if (std::isnan(stg_exponent)) {
+        stg_exponent = 1.0;
+      }
+      engine.set_params(stg_exponent);
     }
     return engine;
 }

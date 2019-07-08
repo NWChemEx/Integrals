@@ -95,6 +95,12 @@ extern template class Integral<libint2::Operator::nuclear, 2, double>;
 extern template class Integral<libint2::Operator::coulomb, 2, double>;
 extern template class Integral<libint2::Operator::coulomb, 3, double>;
 extern template class Integral<libint2::Operator::coulomb, 4, double>;
+extern template class Integral<libint2::Operator::stg, 2, double>;
+extern template class Integral<libint2::Operator::stg, 3, double>;
+extern template class Integral<libint2::Operator::stg, 4, double>;
+extern template class Integral<libint2::Operator::yukawa, 2, double>;
+extern template class Integral<libint2::Operator::yukawa, 3, double>;
+extern template class Integral<libint2::Operator::yukawa, 4, double>;
 extern template class Integral<libint2::Operator::emultipole1, 2, double>;
 extern template class Integral<libint2::Operator::emultipole2, 2, double>;
 extern template class Integral<libint2::Operator::emultipole3, 2, double>;
@@ -112,14 +118,33 @@ using Kinetic = detail_::Integral<libint2::Operator::kinetic, 2, double>;
 /// Nucleus-electron attraction
 using Nuclear = detail_::Integral<libint2::Operator::nuclear, 2, double>;
 
-/// Typedef for the density-fitting metric
+/// Simple typedef for the 2-body Coulomb 4-center integral
+using ERI = detail_::Integral<libint2::Operator::coulomb, 4, double>;
+/// DF-specific typedef for the 2-body Coulomb 2-center integral
 using Metric = detail_::Integral<libint2::Operator::coulomb, 2, double>;
-
-/// Typedef for the density-fit ERI
+/// DF-specific typedef for the 2-body Coulomb 3-center integral
 using DFERI = detail_::Integral<libint2::Operator::coulomb, 3, double>;
 
-/// Typedef of the canonical ERI
-using ERI = detail_::Integral<libint2::Operator::coulomb, 4, double>;
+/// Canonical typedef for the 2-body Coulomb 2-center integral
+using ERI2 = detail_::Integral<libint2::Operator::coulomb, 2, double>;
+/// Canonical typedef for the 2-body Coulomb 3-center integral
+using ERI3 = detail_::Integral<libint2::Operator::coulomb, 3, double>;
+/// Canonical typedef for the 2-body Coulomb 4-center integral
+using ERI4 = detail_::Integral<libint2::Operator::coulomb, 4, double>;
+
+/// Canonical typedef for the 2-center integral of the Slater-type geminal
+using STG2 = detail_::Integral<libint2::Operator::stg, 2, double>;
+/// Canonical typedef for the 3-center integral of the Slater-type geminal
+using STG3 = detail_::Integral<libint2::Operator::stg, 3, double>;
+/// Canonical typedef for the 3-center integral of the Slater-type geminal
+using STG4 = detail_::Integral<libint2::Operator::stg, 4, double>;
+
+/// Canonical typedef for the 2-center integral of the Yukawa interaction
+using Yukawa2 = detail_::Integral<libint2::Operator::yukawa, 2, double>;
+/// Canonical typedef for the 3-center integral of the Yukawa interaction
+using Yukawa3 = detail_::Integral<libint2::Operator::yukawa, 3, double>;
+/// Canonical typedef for the 4-center integral of the Yukawa interaction
+using Yukawa4 = detail_::Integral<libint2::Operator::yukawa, 4, double>;
 
 /// Electric dipole
 using EDipole = detail_::Integral<libint2::Operator::emultipole1, 2, double>;
