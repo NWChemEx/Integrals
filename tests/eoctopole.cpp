@@ -1,6 +1,6 @@
 #include "H2O_STO3G_Multipole.hpp" // holds the correct values
 #include "test_common.hpp"
-#include <integrals/integralsmm.hpp>
+#include <integrals/integrals_mm.hpp>
 #include <property_types/aointegral.hpp>
 
 using namespace integrals::libint;

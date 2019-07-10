@@ -95,6 +95,7 @@ extern template class Integral<libint2::Operator::nuclear, 2, double>;
 extern template class Integral<libint2::Operator::coulomb, 2, double>;
 extern template class Integral<libint2::Operator::coulomb, 3, double>;
 extern template class Integral<libint2::Operator::coulomb, 4, double>;
+extern template class Integral<libint2::Operator::delta, 4, double>;
 extern template class Integral<libint2::Operator::stg, 2, double>;
 extern template class Integral<libint2::Operator::stg, 3, double>;
 extern template class Integral<libint2::Operator::stg, 4, double>;
@@ -117,6 +118,9 @@ using Kinetic = detail_::Integral<libint2::Operator::kinetic, 2, double>;
 
 /// Nucleus-electron attraction
 using Nuclear = detail_::Integral<libint2::Operator::nuclear, 2, double>;
+
+/// Differential Overlap Integral
+using DOI = detail_::Integral<libint2::Operator::delta, 4, double>;
 
 /// Simple typedef for the 2-body Coulomb 4-center integral
 using ERI = detail_::Integral<libint2::Operator::coulomb, 4, double>;

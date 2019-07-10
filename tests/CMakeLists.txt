@@ -1,5 +1,6 @@
 set(
     INTEGRALS_TESTS test_main.cpp
+                    doi.cpp
                     edipole.cpp
                     eoctopole.cpp
                     equadrupole.cpp

@@ -1,5 +1,5 @@
 #pragma once
-#include "TestCommon.hpp"
+#include "test_common.hpp"
 
 static BlockTensor corr{
   {{

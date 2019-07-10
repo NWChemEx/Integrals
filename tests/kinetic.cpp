@@ -1,5 +1,5 @@
 #include "test_common.hpp"
-#include <integrals/integralsmm.hpp>
+#include <integrals/integrals_mm.hpp>
 #include <integrals/libint_integral.hpp>
 #include <property_types/aointegral.hpp>
 
