@@ -11,8 +11,8 @@ cpp_find_or_build_dependency(
 )
 
 cpp_find_dependency(
-    NAME libint
-    FIND_MODULE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Findlibint.cmake
+    NAME libint2
+#    FIND_MODULE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Findlibint.cmake
 )
 
 add_subdirectory(integrals)
