@@ -59,7 +59,7 @@ inline void compare_impl(const TensorType& calc, const BlockTensor& corr,
 inline void compare_integrals(const TensorType& values, const BlockTensor& ref_values,
                               const double epsilon  = 10000 * std::numeric_limits<double>::epsilon(),
                               const double margin = 100 * std::numeric_limits<double>::epsilon()) {
-    compare_impl(calc, corr, IndexType(calc.tiled_index_spaces().size()), epsilon, margin);
+    compare_impl(values, ref_values, IndexType(values.tiled_index_spaces().size()), epsilon, margin);
 }
 
 // prints the integrals in the format used for correctness checks
