@@ -12,7 +12,7 @@ cpp_add_library(
     integrals
     SOURCES ${INTEGRALS_SRCS}
     INCLUDES ${INTEGRALS_INCLUDES}
-    DEPENDS property_types::property_types libint
+    DEPENDS property_types::property_types libint2
 )
 
 cpp_install(TARGETS integrals)
