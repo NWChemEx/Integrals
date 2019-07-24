@@ -11,10 +11,10 @@ using BlockTensor = std::map<IndexType, std::vector<double>>;
 using TensorType  = tamm::Tensor<double>;
 
 inline void compare_impl(const TensorType& calc, const BlockTensor& corr,
-                         IndexType idx, size_t depth = 0) {
-    const double eps  = 10000 * std::numeric_limits<double>::epsilon();
-    const double marg = 100 * std::numeric_limits<double>::epsilon();
-
+                         IndexType idx,
+                         const double eps,
+                         const double marg,
+                         size_t depth = 0) {
     auto idx_spaces   = calc.tiled_index_spaces();
     const auto nmodes = idx_spaces.size();
 
@@ -29,22 +29,37 @@ inline void compare_impl(const TensorType& calc, const BlockTensor& corr,
         long int dim = buffer.size();
         calc.get(idx, {buffer.data(), dim});
 
-        for(auto x = 0; x < block_size; ++x)
+        for(auto x = 0; x < block_size; ++x) {
+            const auto abs_error = std::abs(buffer[x] - corr.at(idx)[x]);
+            if (abs_error > marg && abs_error/std::abs(buffer[x]) > eps) {
+              std::cerr << std::setprecision(20) << std::scientific << "value=" << buffer[x] << " ref_value=" << corr.at(idx)[x] << " abs_error=" << abs_error << " rel_error=" << (abs_error/std::abs(buffer[x])) << std::endl;
+            }
             REQUIRE(buffer[x] ==
                     Approx(corr.at(idx)[x]).epsilon(eps).margin(marg));
+        }
     } else { // Adjust the depth-th mode's index
         const auto ntiles = idx_spaces[depth].num_tiles();
         for(size_t blocki = 0; blocki < ntiles; ++blocki) {
             idx[depth] = blocki;
             // Reset indices after depth
             for(size_t dimi = depth + 1; dimi < nmodes; ++dimi) idx[dimi] = 0;
-            compare_impl(calc, corr, idx, depth + 1);
+            compare_impl(calc, corr, idx, eps, marg, depth + 1);
         }
     }
 }
 
-inline void compare_integrals(const TensorType& calc, const BlockTensor& corr) {
-    compare_impl(calc, corr, IndexType(calc.tiled_index_spaces().size()));
+/// compares @c values to @c ref_values
+/// @param[in] values the values to be checked
+/// @param[in] ref_values the reference values against which @c values will be tested
+/// @param[in] epsilon the relative error margin
+/// @param[in] margin the absolute error margin
+/// @note two values are deemed equal if either they differ by less than @c margin or
+///       their relative difference is less than @c epsilon. To check absolute errors only
+///       set @c epsilon to zero. To check relative errors only set @c margin to zero.
+inline void compare_integrals(const TensorType& values, const BlockTensor& ref_values,
+                              const double epsilon  = 10000 * std::numeric_limits<double>::epsilon(),
+                              const double margin = 100 * std::numeric_limits<double>::epsilon()) {
+    compare_impl(calc, corr, IndexType(calc.tiled_index_spaces().size()), epsilon, margin);
 }
 
 // prints the integrals in the format used for correctness checks
