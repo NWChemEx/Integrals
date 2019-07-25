@@ -47,7 +47,7 @@ private:
 
         tensor_type A{tAO};
         tamm::Tensor<element_type>::allocate(&ec, A);
-        tamm::fill_tensor<element_type>(ec, A, lambda);
+        tamm::fill_tensor<element_type>(A, lambda);
         return A;
     }
 };
