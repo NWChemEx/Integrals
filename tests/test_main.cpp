@@ -188,12 +188,6 @@ int main(int argc, char* argv[]) {
                                             LIBasis_sets[3][s4]);
                         auto ints_shellset = tile_engine.results()[0];
 
-                        // Default case of all zeros
-//                        if (ints_shellset == nullptr) {
-//                            std::fill(tile.begin(), tile.end(), 0.0);
-//                            continue;
-//                        }
-
                         // Loop over basis functions in current shells
                         for(auto f1 = 0ul; f1 != n1; ++f1) {
                             for (auto f2 = 0ul; f2 != n2; ++f2) {
@@ -204,7 +198,11 @@ int main(int argc, char* argv[]) {
                                                                          basis3_offset + f3, basis4_offset + f4};
 
                                         // Assign integral value
-                                        tile[indexer] = ints_shellset[(f1 * n2) + (f2 * n3) + (f3 * n4) + f4];
+                                        if (ints_shellset == nullptr) {
+                                            tile[indexer] = 0; // Default case of all zeroes
+                                        } else {
+                                            tile[indexer] = ints_shellset[(f1 * n2) + (f2 * n3) + (f3 * n4) + f4];
+                                        }
                                     }
                                 }
                             }
