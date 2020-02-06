@@ -1,47 +1,10 @@
 #pragma once
 #include <catch2/catch.hpp>
-#include "integrals/nwx_libint/nwx_libint.hpp"
 #include <tiledarray.h>
 #include <libint2.hpp>
-#include <fstream>
+#include <libchemist/libchemist.hpp>
 
 extern TA::World* pworld;
-
-// Sample Basis Set
-template<typename T = double>
-libchemist::AOBasisSet<T> water_basis() {
-    libchemist::AOBasisSet<T> bs;
-
-    // Atomic basis set for the oxygen atom
-    libchemist::Center<T> O(0.0, -0.1432223429807816, 0.0);
-    O.add_shell(libchemist::ShellType::pure, 0,
-                std::vector<T>{0.154329, 0.535328, 0.444635},
-                std::vector<T>{130.709320, 23.808861, 6.443608});
-    O.add_shell(libchemist::ShellType::pure, 0,
-                std::vector<T>{-0.099967, 0.399513, 0.700115},
-                std::vector<T>{5.033151, 1.169596, 0.380389});
-    O.add_shell(libchemist::ShellType::pure, 1,
-                std::vector<T>{0.155916, 0.607684, 0.391957},
-                std::vector<T>{5.033151, 1.169596, 0.380389});
-
-    // Atomic basis set for the first hydrogen atom
-    libchemist::Center<T> H1(1.6380335020342418, 1.1365568803584036, 0.0);
-    H1.add_shell(libchemist::ShellType::pure, 0,
-                 std::vector<T>{0.15432897, 0.53532814, 0.44463454},
-                 std::vector<T>{3.42525091, 0.62391373, 0.16885540});
-
-    // Atomic basis set for the second hydrogen atom
-    libchemist::Center<T> H2(-1.6380335020342418, 1.1365568803584036, 0.0);
-    H2.add_shell(libchemist::ShellType::pure, 0,
-                 std::vector<T>{0.15432897, 0.53532814, 0.44463454},
-                 std::vector<T>{3.42525091, 0.62391373, 0.16885540});
-
-    bs.add_center(O);
-    bs.add_center(H1);
-    bs.add_center(H2);
-
-    return bs;
-}
 
 // Make tile range based on BS
 template<typename T = double>
@@ -74,4 +37,14 @@ std::vector<std::size_t> aos2shells(libint2::BasisSet basis_set, std::size_t low
     }
 
     return return_vec;
+}
+
+inline auto make_molecule() {
+    using libchemist::Atom;
+    using c_t = typename Atom::coord_type;
+    Atom O{8ul, c_t{0.000000000000000, -0.143222342980786, 0.000000000000000}};
+    Atom H1{1ul, c_t{1.638033502034240, 1.136556880358410, 0.000000000000000}};
+    Atom H2{1ul, c_t{-1.638033502034240, 1.136556880358410, 0.000000000000000}};
+    libchemist::Molecule water(O, H1, H2);
+    return std::make_tuple(water, libchemist::apply_basis("sto-3g", water));
 }
