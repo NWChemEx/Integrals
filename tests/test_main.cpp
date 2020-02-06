@@ -4,6 +4,7 @@
 #include "integrals/nwx_libint/nwx_libint.hpp"
 #include "integrals/nwx_libint/nwx_libint_factory.hpp"
 #include "integrals/nwx_TA/fill_4D_functor.hpp"
+#include "integrals/nwx_TA//nwx_TA_utils.hpp"
 
 // Pointer for world so it can be accessed by other test
 TA::World* pworld;
@@ -31,7 +32,7 @@ int main(int argc, char* argv[]) {
 
     for (auto i = 0; i < basis_sets.size(); ++i) {
         // Add tiled range based on each basis set
-        ranges.push_back(make_tiled_range(basis_sets[i], tile_size));
+        ranges.push_back(nwx_TA::make_tiled_range(basis_sets[i], tile_size));
 
         // Make Libint basis set from LibChemist one
         LIBasis_sets.push_back(nwx_libint::make_basis(basis_sets[i]));

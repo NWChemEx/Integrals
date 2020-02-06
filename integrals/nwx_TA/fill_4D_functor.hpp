@@ -1,15 +1,19 @@
 #pragma once
-#include "integrals/nwx_libint/nwx_libint_factory.hpp"
+#include <libint2.hpp>
 #include <tiledarray.h>
+#include "integrals/nwx_libint/nwx_libint_factory.hpp"
+#include "integrals/nwx_TA/nwx_TA_utils.hpp"
 
 namespace nwx_TA {
 
     template<typename val_type, libint2::Operator op>
     struct Fill4DFunctor {
-        std::vector<libint2::BasisSet> LIBasis_sets;
+        using basis = libint2::BasisSet;
+
+        std::vector<basis> LIBasis_sets;
         nwx_libint::LibintFactory<4, op> factory;
 
-        Fill4DFunctor(std::vector<libint2::BasisSet> LIBasis_sets, nwx_libint::LibintFactory<4, op> factory) :
+        Fill4DFunctor(std::vector<basis> LIBasis_sets, nwx_libint::LibintFactory<4, op> factory) :
                                   LIBasis_sets{std::move(LIBasis_sets)}, factory{std::move(factory)} {}
 
         float operator()(val_type& tile, const TiledArray::Range& range) {
@@ -18,7 +22,7 @@ namespace nwx_TA {
 
     private:
         float _fill(val_type& tile, const TiledArray::Range& range) {
-            tile = TiledArray::TSpArrayD::value_type(range);
+            tile = val_type(range);
 
             // Make libint engine
             auto tile_engine = factory();

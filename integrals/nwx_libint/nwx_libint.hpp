@@ -1,7 +1,6 @@
 #pragma once
 #include "integrals/types.hpp"
 #include <libint2.hpp>
-#include <array>
 
 namespace nwx_libint {
 /** @brief Converts a libchemist::AOBasisSet object @p bs to a LibInt2 BasisSet
