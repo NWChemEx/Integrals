@@ -3,8 +3,10 @@
 #include "test_common_TA.hpp"
 #include "integrals/nwx_libint/nwx_libint.hpp"
 #include "integrals/nwx_libint/nwx_libint_factory.hpp"
+#include "integrals/nwx_TA/fill_2D_functor.hpp"
+#include "integrals/nwx_TA/fill_3D_functor.hpp"
 #include "integrals/nwx_TA/fill_4D_functor.hpp"
-#include "integrals/nwx_TA//nwx_TA_utils.hpp"
+#include "integrals/nwx_TA/nwx_TA_utils.hpp"
 
 // Pointer for world so it can be accessed by other test
 TA::World* pworld;
