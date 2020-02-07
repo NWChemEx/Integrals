@@ -18,6 +18,7 @@ namespace nwx_libint {
 
         // parameters for specific integral types
         double stg_exponent = 1.0;
+        std::array<double, 3> origin{0, 0, 0};
         mol_type mol;
 
         LibintFactory(size_type max_nprims, size_type max_l, double thresh, size_type deriv) :
@@ -44,8 +45,13 @@ namespace nwx_libint {
 
                 engine.set_params(qs);
 
-            } else if constexpr (op == libint2::Operator::stg || op == libint2::Operator::yukawa) {
+            } else if constexpr (op == libint2::Operator::stg ||
+                                 op == libint2::Operator::yukawa) {
                 engine.set_params(stg_exponent);
+            } else if constexpr (op == libint2::Operator::emultipole1 ||
+                                 op == libint2::Operator::emultipole2 ||
+                                 op == libint2::Operator::emultipole3 ) {
+                engine.set_params(origin);
             }
 
             return engine;
