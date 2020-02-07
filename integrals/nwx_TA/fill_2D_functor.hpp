@@ -60,7 +60,8 @@ namespace nwx_TA {
                             if (ints_shellset == nullptr) {
                                 tile[indexer] = 0; // Default case of all zeroes
                             } else {
-                                tile[indexer] = ints_shellset[(f1 * n2) + f2];
+                                tile[indexer] = *(ints_shellset);
+                                ints_shellset++;
                             }
                         }
                     }

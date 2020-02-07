@@ -103,6 +103,41 @@ namespace nwx_TA {
         return TA::TiledRange1(bounds.begin(), bounds.end());
     }
 
+    TA::TiledRange1 make_tiled_range(size upper, size tile_size) {
+        std::vector<size> bounds{};
+
+        for (auto bound = 0; bound < upper; bound+=tile_size) {
+            bounds.push_back(bound);
+        }
+        if (bounds.back() != upper) bounds.push_back(upper);
+
+        return TA::TiledRange1(bounds.begin(), bounds.end());
+    }
+
+    TA::TiledRange1 make_tiled_range(size upper, std::vector<size> tile_sizes) {
+        if (tile_sizes.size() == 1) {
+            return make_tiled_range(upper, tile_sizes[0]);
+        }
+
+        std::vector<size> bounds{};
+        auto sizes_index = 0;
+        auto bound = 0;
+
+        while (bound < upper) {
+            bounds.push_back(bound);
+
+            bound += tile_sizes[sizes_index];
+
+            sizes_index++;
+            if (sizes_index >= tile_sizes.size()) {
+                sizes_index = 0;
+            }
+        }
+        if (bounds.back() != upper) bounds.push_back(upper);
+
+        return TA::TiledRange1(bounds.begin(), bounds.end());
+    }
+
     std::vector<size> aos2shells(libint2::BasisSet basis_set, size lower, size upper) {
         std::vector<size> return_vec;
 

@@ -14,7 +14,7 @@ namespace nwx_TA {
         nwx_libint::LibintFactory<4, op> factory;
 
         Fill4DFunctor(std::vector<basis> LIBasis_sets, nwx_libint::LibintFactory<4, op> factory) :
-                                  LIBasis_sets{std::move(LIBasis_sets)}, factory{std::move(factory)} {}
+                LIBasis_sets{std::move(LIBasis_sets)}, factory{std::move(factory)} {}
 
         float operator()(val_type& tile, const TiledArray::Range& range) {
             return _fill(tile, range);
@@ -79,7 +79,8 @@ namespace nwx_TA {
                                             if (ints_shellset == nullptr) {
                                                 tile[indexer] = 0; // Default case of all zeroes
                                             } else {
-                                                tile[indexer] = ints_shellset[(f1 * n2) + (f2 * n3) + (f3 * n4) + f4];
+                                                tile[indexer] = *(ints_shellset);
+                                                ints_shellset++;
                                             }
                                         }
                                     }
