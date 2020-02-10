@@ -9,6 +9,7 @@
 #include "integrals/nwx_TA/fill_2D_functor.hpp"
 #include "integrals/nwx_TA/fill_3D_functor.hpp"
 #include "integrals/nwx_TA/fill_4D_functor.hpp"
+#include "integrals/nwx_TA/fill_multipole_functor.hpp"
 
 extern TA::World* pworld;
 

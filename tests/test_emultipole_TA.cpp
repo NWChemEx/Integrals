@@ -1,22 +1,27 @@
 #include "test_common_TA.hpp"
 
-TEST_CASE("ERI3") {
+TEST_CASE("MULTIPOLE") {
     auto& world = *pworld;
     libint2::initialize();
-    std::cout << "ERI3" << std::endl;
+    std::cout << "MULTIPOLE" << std::endl;
 
     // Mock Params
     auto [molecule, bs] = make_molecule();
     auto tile_size = std::vector<std::size_t>{1};
     auto deriv = 0;
     auto thresh = 1.0E-16;
+    auto origin = std::array<double, 3>{0,0,0};
 
     // Collect all basis sets
-    std::vector<libchemist::AOBasisSet<double>> basis_sets{3, bs};
+    std::vector<libchemist::AOBasisSet<double>> basis_sets{2, bs};
+
+    // Details about multipole operator
+    auto nopers = libint2::operator_traits<libint2::Operator::emultipole3>::nopers;
+    auto component_range = nwx_TA::make_tiled_range(nopers, nopers);
 
     // Make TA ranges, Libint basis sets, and Libint params based on basis sets
     std::vector<libint2::BasisSet> LIBasis_sets{};
-    std::vector<TA::TiledRange1>   ranges{};
+    std::vector<TA::TiledRange1>   ranges{component_range};
     std::size_t max_nprim = 0;
     int max_l = 0;
 
@@ -38,12 +43,12 @@ TEST_CASE("ERI3") {
     TA::TiledRange trange(ranges.begin(), ranges.end());
 
     // Make engine factory
-    nwx_libint::LibintFactory<3, libint2::Operator::coulomb> factory(max_nprim, max_l, thresh, deriv);
+    nwx_libint::LibintFactory<2, libint2::Operator::emultipole3> factory(max_nprim, max_l, thresh, deriv);
     factory.mol = molecule;
 
     // Make TA fill functor
-    nwx_TA::Fill3DFunctor<TA::TArrayD::value_type, libint2::Operator::coulomb> fill_a(LIBasis_sets, factory);
-    nwx_TA::Fill3DFunctor<TiledArray::TSpArrayD::value_type, libint2::Operator::coulomb> fill_b(LIBasis_sets, factory);
+    nwx_TA::FillMultipoleFunctor<TA::TArrayD::value_type, libint2::Operator::emultipole3> fill_a(LIBasis_sets, factory);
+    nwx_TA::FillMultipoleFunctor<TiledArray::TSpArrayD::value_type, libint2::Operator::emultipole3> fill_b(LIBasis_sets, factory);
 
     // Fill in the array, non-distributed
     double a_time_start = madness::wall_time();

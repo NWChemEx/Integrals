@@ -2,6 +2,7 @@
 
 TEST_CASE("Overlap") {
     auto& world = *pworld;
+    libint2::initialize();
     std::cout << "Overlap" << std::endl;
 
     // Mock Params
@@ -53,15 +54,16 @@ TEST_CASE("Overlap") {
         *it = tile;
     }
     double a_time_stop = madness::wall_time();
-    std::cout << a << std::endl;
 
     // Fill in the array, distributed
     double b_time_start = madness::wall_time();
     auto b = TiledArray::make_array<TiledArray::TSpArrayD>(world, trange, fill_b);
     double b_time_stop = madness::wall_time();
-    std::cout << b << std::endl;
 
+    std::cout << a << std::endl;
+    std::cout << b << std::endl;
     std::cout << a_time_stop - a_time_start << std::endl;
     std::cout << b_time_stop - b_time_start << std::endl;
     std::cout << std::endl;
+    libint2::finalize();
 }
