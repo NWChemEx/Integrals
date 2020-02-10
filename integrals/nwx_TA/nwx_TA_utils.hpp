@@ -10,7 +10,7 @@ namespace nwx_TA {
 
     // Make tile range based on basis set
     template<typename T = double>
-    TA::TiledRange1 make_tiled_range(libchemist::AOBasisSet<T> basis_set, std::size_t tile_size) {
+    static TA::TiledRange1 make_tiled_range(libchemist::AOBasisSet<T> basis_set, std::size_t tile_size) {
         std::vector<std::size_t> bounds{0};
 
         auto span = 0;
@@ -29,7 +29,7 @@ namespace nwx_TA {
     }
 
     template<typename T = double>
-    TA::TiledRange1 make_tiled_range(libchemist::AOBasisSet<T> basis_set, std::vector<size> tile_sizes) {
+    static TA::TiledRange1 make_tiled_range(libchemist::AOBasisSet<T> basis_set, std::vector<size> tile_sizes) {
         if (tile_sizes.size() == 1) {
             return make_tiled_range(basis_set, tile_sizes[0]);
         }
@@ -57,7 +57,7 @@ namespace nwx_TA {
         return TA::TiledRange1(bounds.begin(), bounds.end());
     }
 
-    TA::TiledRange1 make_tiled_range(libint2::BasisSet basis_set, size tile_size) {
+    static TA::TiledRange1 make_tiled_range(libint2::BasisSet basis_set, size tile_size) {
         std::vector<size> bounds{0};
 
         auto span = 0;
@@ -75,7 +75,7 @@ namespace nwx_TA {
         return TA::TiledRange1(bounds.begin(), bounds.end());
     }
 
-    TA::TiledRange1 make_tiled_range(libint2::BasisSet basis_set, std::vector<size> tile_sizes) {
+    static TA::TiledRange1 make_tiled_range(libint2::BasisSet basis_set, std::vector<size> tile_sizes) {
         if (tile_sizes.size() == 1) {
             return make_tiled_range(basis_set, tile_sizes[0]);
         }
@@ -103,7 +103,7 @@ namespace nwx_TA {
         return TA::TiledRange1(bounds.begin(), bounds.end());
     }
 
-    TA::TiledRange1 make_tiled_range(size upper, size tile_size) {
+    static TA::TiledRange1 make_tiled_range(size upper, size tile_size) {
         std::vector<size> bounds{};
 
         for (auto bound = 0; bound < upper; bound+=tile_size) {
@@ -114,7 +114,7 @@ namespace nwx_TA {
         return TA::TiledRange1(bounds.begin(), bounds.end());
     }
 
-    TA::TiledRange1 make_tiled_range(size upper, std::vector<size> tile_sizes) {
+    static TA::TiledRange1 make_tiled_range(size upper, std::vector<size> tile_sizes) {
         if (tile_sizes.size() == 1) {
             return make_tiled_range(upper, tile_sizes[0]);
         }
@@ -138,7 +138,7 @@ namespace nwx_TA {
         return TA::TiledRange1(bounds.begin(), bounds.end());
     }
 
-    std::vector<size> aos2shells(libint2::BasisSet basis_set, size lower, size upper) {
+    static std::vector<size> aos2shells(libint2::BasisSet basis_set, size lower, size upper) {
         std::vector<size> return_vec;
 
         for (auto ishell = 0, offset = 0; ishell < basis_set.size(); ++ishell) {

@@ -3,6 +3,12 @@
 #include <tiledarray.h>
 #include <libint2.hpp>
 #include <libchemist/libchemist.hpp>
+#include "integrals/nwx_libint/nwx_libint.hpp"
+#include "integrals/nwx_libint/nwx_libint_factory.hpp"
+#include "integrals/nwx_TA/nwx_TA_utils.hpp"
+#include "integrals/nwx_TA/fill_2D_functor.hpp"
+#include "integrals/nwx_TA/fill_3D_functor.hpp"
+#include "integrals/nwx_TA/fill_4D_functor.hpp"
 
 extern TA::World* pworld;
 
