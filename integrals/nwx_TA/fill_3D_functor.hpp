@@ -6,14 +6,14 @@
 
 namespace nwx_TA {
 
-    template<typename val_type, libint2::Operator op, integrals::type::size NBases = 3>
+    template<typename val_type, libint2::Operator op>
     struct Fill3DFunctor {
         using basis = libint2::BasisSet;
 
         std::vector<basis> LIBasis_sets;
-        nwx_libint::LibintFactory<NBases, op> factory;
+        nwx_libint::LibintFactory<3, op> factory;
 
-        Fill3DFunctor(std::vector<basis> LIBasis_sets, nwx_libint::LibintFactory<NBases, op> factory) :
+        Fill3DFunctor(std::vector<basis> LIBasis_sets, nwx_libint::LibintFactory<3, op> factory) :
                 LIBasis_sets{std::move(LIBasis_sets)}, factory{std::move(factory)} {}
 
         float operator()(val_type& tile, const TiledArray::Range& range) {
@@ -57,7 +57,7 @@ namespace nwx_TA {
                         tile_engine.compute(LIBasis_sets[0][s0],
                                             LIBasis_sets[1][s1],
                                             LIBasis_sets[2][s2]);
-                        auto ints_shellset = buf_vec.results()[0];
+                        auto ints_shellset = buf_vec[0];
 
                         // Loop over basis functions in current shells
                         for(auto f0 = 0ul; f0 != n0; ++f0) {

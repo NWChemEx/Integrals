@@ -13,14 +13,6 @@ TEST_CASE("ERI3") {
 
     // Collect all basis sets
     std::vector<libchemist::AOBasisSet<double>> basis_sets{3, bs};
-    
-    // Details about multipole operator
-//    auto nopers = libint2::operator_traits<libint2::Operator::emultipole3>::nopers;
-//    libint2::BasisSet fake_basis{};
-//    for (int i = 0; i < nopers; ++i) {
-//        fake_basis.push_back(libint2::Shell::unit());
-//    }
-//    auto fake_range = nwx_TA::make_tiled_range(fake_basis, 1);
 
     // Make TA ranges, Libint basis sets, and Libint params based on basis sets
     std::vector<libint2::BasisSet> LIBasis_sets{};
