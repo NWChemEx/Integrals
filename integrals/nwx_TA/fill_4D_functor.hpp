@@ -68,7 +68,7 @@ namespace nwx_TA {
                             auto ints_shellset = buf_vec[0];
 
                             // Loop over basis functions in current shells
-                            for(auto f0 = 0ul; f0 != n0; ++f0) {
+                            for (auto f0 = 0ul; f0 != n0; ++f0) {
                                 for (auto f1 = 0ul; f1 != n1; ++f1) {
                                     for (auto f2 = 0ul; f2 != n2; ++f2) {
                                         for (auto f3 = 0ul; f3 != n3; ++f3) {
