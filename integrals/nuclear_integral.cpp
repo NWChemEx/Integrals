@@ -1,4 +1,4 @@
-#include "integrals/overlap_integral.hpp"
+#include "nuclear_integral.hpp"
 #include "nwx_libint/nwx_libint.hpp"
 #include "nwx_libint/nwx_libint_factory.hpp"
 #include "nwx_TA/nwx_TA_utils.hpp"
@@ -8,9 +8,9 @@
 namespace integrals {
 
     template<typename element_type>
-    OverlapInt<element_type>::OverlapInt() : sde::ModuleBase(this) {
-        description("Computes overlap integrals with Libint");
-        satisfies_property_type<overlap_type>();
+    NuclearInt<element_type>::NuclearInt() : sde::ModuleBase(this) {
+        description("Computes nuclear integrals with Libint");
+        satisfies_property_type<nuclear_type>();
 
         add_input<element_type>("Threshold")
                 .set_description("Convergence threshold of integrals")
@@ -22,9 +22,9 @@ namespace integrals {
     }
 
     template<typename element_type>
-    sde::type::result_map OverlapInt<element_type>::run_(sde::type::input_map inputs,
-                                                               sde::type::submodule_map submods) const {
-        auto [bra, ket, deriv] = overlap_type ::unwrap_inputs(inputs);
+    sde::type::result_map NuclearInt<element_type>::run_(sde::type::input_map inputs,
+                                                         sde::type::submodule_map submods) const {
+        auto [bra, ket, mol, deriv] = nuclear_type::unwrap_inputs(inputs);
         auto thresh = inputs.at("Threshold").value<element_type>();
         auto tile_size = inputs.at("Tile Size").value<size_type>();
         auto& world = *pworld; // cf. world.hpp
@@ -51,17 +51,18 @@ namespace integrals {
 
         libint2::initialize();
 
-        nwx_libint::LibintFactory<2, libint2::Operator::overlap> factory(max_nprim, max_l, thresh, deriv);
-        nwx_TA::Fill2DFunctor<typename tensor::value_type, libint2::Operator::overlap> fill(LIBasis_sets, factory);
+        nwx_libint::LibintFactory<2, libint2::Operator::nuclear> factory(max_nprim, max_l, thresh, deriv);
+        factory.mol = mol;
+        nwx_TA::Fill2DFunctor<typename tensor::value_type, libint2::Operator::nuclear> fill(LIBasis_sets, factory);
 
-        auto S = TiledArray::make_array<TiledArray::TSpArrayD>(world, trange, fill);
+        auto V = TiledArray::make_array<TiledArray::TSpArrayD>(world, trange, fill);
 
         libint2::finalize();
 
         auto rv = results();
-        return overlap_type::wrap_results(rv, S);
+        return nuclear_type::wrap_results(rv, V);
     }
 
-    template class OverlapInt<double>;
+    template class NuclearInt<double>;
 
 } // namespace integrals

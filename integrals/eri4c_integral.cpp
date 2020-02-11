@@ -1,16 +1,16 @@
-#include "integrals/overlap_integral.hpp"
+#include "integrals/eri4c_integral.hpp"
 #include "nwx_libint/nwx_libint.hpp"
 #include "nwx_libint/nwx_libint_factory.hpp"
 #include "nwx_TA/nwx_TA_utils.hpp"
-#include "nwx_TA/fill_2D_functor.hpp"
+#include "nwx_TA/fill_4D_functor.hpp"
 #include "integrals/world.hpp"
 
 namespace integrals {
 
     template<typename element_type>
-    OverlapInt<element_type>::OverlapInt() : sde::ModuleBase(this) {
-        description("Computes overlap integrals with Libint");
-        satisfies_property_type<overlap_type>();
+    ERI4CInt<element_type>::ERI4CInt() : sde::ModuleBase(this) {
+        description("Computes 4-center electron repulsion integrals with Libint");
+        satisfies_property_type<eri4c_type>();
 
         add_input<element_type>("Threshold")
                 .set_description("Convergence threshold of integrals")
@@ -22,14 +22,14 @@ namespace integrals {
     }
 
     template<typename element_type>
-    sde::type::result_map OverlapInt<element_type>::run_(sde::type::input_map inputs,
-                                                               sde::type::submodule_map submods) const {
-        auto [bra, ket, deriv] = overlap_type ::unwrap_inputs(inputs);
+    sde::type::result_map ERI4CInt<element_type>::run_(sde::type::input_map inputs,
+                                                       sde::type::submodule_map submods) const {
+        auto [bra1, bra2, ket1, ket2, deriv] = eri4c_type::unwrap_inputs(inputs);
         auto thresh = inputs.at("Threshold").value<element_type>();
         auto tile_size = inputs.at("Tile Size").value<size_type>();
         auto& world = *pworld; // cf. world.hpp
 
-        std::vector<basis_set> basis_sets{bra, ket};
+        std::vector<basis_set> basis_sets{bra1, bra2, ket1, ket2};
 
         std::vector<TA::TiledRange1> ranges{};
         std::vector<libint2::BasisSet> LIBasis_sets{};
@@ -51,17 +51,17 @@ namespace integrals {
 
         libint2::initialize();
 
-        nwx_libint::LibintFactory<2, libint2::Operator::overlap> factory(max_nprim, max_l, thresh, deriv);
-        nwx_TA::Fill2DFunctor<typename tensor::value_type, libint2::Operator::overlap> fill(LIBasis_sets, factory);
+        nwx_libint::LibintFactory<4, libint2::Operator::coulomb> factory(max_nprim, max_l, thresh, deriv);
+        nwx_TA::Fill4DFunctor<typename tensor::value_type, libint2::Operator::coulomb> fill(LIBasis_sets, factory);
 
-        auto S = TiledArray::make_array<TiledArray::TSpArrayD>(world, trange, fill);
+        auto I = TiledArray::make_array<TiledArray::TSpArrayD>(world, trange, fill);
 
         libint2::finalize();
 
         auto rv = results();
-        return overlap_type::wrap_results(rv, S);
+        return eri4c_type::wrap_results(rv, I);
     }
 
-    template class OverlapInt<double>;
+    template class ERI4CInt<double>;
 
 } // namespace integrals
