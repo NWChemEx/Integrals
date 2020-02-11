@@ -2,9 +2,7 @@
 #include "integrals/overlap_integral.hpp"
 #include "integrals/kinetic_integral.hpp"
 #include "integrals/nuclear_integral.hpp"
-#include "integrals/eri2c_integral.hpp"
-#include "integrals/eri3c_integral.hpp"
-#include "integrals/eri4c_integral.hpp"
+#include "integrals/eri_integral.hpp"
 
 namespace integrals {
 
