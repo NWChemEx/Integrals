@@ -1,4 +1,4 @@
-#include "integrals/eri_integral.hpp"
+#include "integrals/eri_integrals.hpp"
 #include "nwx_libint/nwx_libint.hpp"
 #include "nwx_libint/nwx_libint_factory.hpp"
 #include "nwx_TA/nwx_TA_utils.hpp"
