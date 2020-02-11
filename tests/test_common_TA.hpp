@@ -10,8 +10,8 @@
 #include "integrals/nwx_TA/fill_3D_functor.hpp"
 #include "integrals/nwx_TA/fill_4D_functor.hpp"
 #include "integrals/nwx_TA/fill_multipole_functor.hpp"
+#include "integrals/world.hpp"
 
-extern TA::World* pworld;
 
 inline auto make_molecule() {
     using libchemist::Atom;
