@@ -1,7 +1,5 @@
 #pragma once
-#include "test_common.hpp"
-
-//This file meant only for inclusion in TestERI_libint.cpp
+#include "test_common_TA.hpp"
 
 static BlockTensor corr{
 {{0, 0, 0, 0, }, {
