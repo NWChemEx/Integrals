@@ -54,7 +54,7 @@ namespace integrals {
         factory.stg_exponent = stg_exponent;
         nwx_TA::Fill3DFunctor<typename tensor::value_type, libint2::Operator::yukawa> fill(LIBasis_sets, factory);
 
-        auto I = TiledArray::make_array<TiledArray::TSpArrayD>(world, trange, fill);
+        auto I = TiledArray::make_array<tensor>(world, trange, fill);
 
         libint2::finalize();
 

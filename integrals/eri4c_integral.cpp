@@ -53,7 +53,7 @@ namespace integrals {
         nwx_libint::LibintFactory<4, libint2::Operator::coulomb> factory(max_nprim, max_l, thresh, deriv);
         nwx_TA::Fill4DFunctor<typename tensor::value_type, libint2::Operator::coulomb> fill(LIBasis_sets, factory);
 
-        auto I = TiledArray::make_array<TiledArray::TSpArrayD>(world, trange, fill);
+        auto I = TiledArray::make_array<tensor>(world, trange, fill);
 
         libint2::finalize();
 

@@ -56,7 +56,7 @@ namespace integrals {
         nwx_libint::LibintFactory<2, libint2::Operator::emultipole2> factory(max_nprim, max_l, thresh, deriv);
         nwx_TA::FillMultipoleFunctor<typename tensor::value_type, libint2::Operator::emultipole2> fill(LIBasis_sets, factory);
 
-        auto S = TiledArray::make_array<TiledArray::TSpArrayD>(world, trange, fill);
+        auto S = TiledArray::make_array<tensor>(world, trange, fill);
 
         libint2::finalize();
 

@@ -54,7 +54,7 @@ namespace integrals {
         factory.mol = mol;
         nwx_TA::Fill2DFunctor<typename tensor::value_type, libint2::Operator::nuclear> fill(LIBasis_sets, factory);
 
-        auto V = TiledArray::make_array<TiledArray::TSpArrayD>(world, trange, fill);
+        auto V = TiledArray::make_array<tensor>(world, trange, fill);
 
         libint2::finalize();
 
