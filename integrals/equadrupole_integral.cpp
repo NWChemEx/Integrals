@@ -1,4 +1,3 @@
-#include <integrals/nwx_TA/fill_multipole_functor.hpp>
 #include "integrals/emultipole_integrals.hpp"
 #include "nwx_libint/nwx_libint.hpp"
 #include "nwx_libint/nwx_libint_factory.hpp"
@@ -41,9 +40,8 @@ namespace integrals {
         int max_l = 0;
 
         for (auto i = 0; i < basis_sets.size(); ++i) {
-            ranges.push_back(nwx_TA::make_tiled_range(basis_sets[i], tile_size));
-
             LIBasis_sets.push_back(nwx_libint::make_basis(basis_sets[i]));
+            ranges.push_back(nwx_TA::make_tiled_range(LIBasis_sets[i], tile_size));
 
             auto max_nprim_i = libint2::max_nprim(LIBasis_sets[i]);
             auto max_l_i = libint2::max_l(LIBasis_sets[i]);
