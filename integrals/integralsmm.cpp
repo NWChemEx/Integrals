@@ -5,7 +5,7 @@
 #include "integrals/eri_integrals.hpp"
 #include "integrals/stg_integrals.hpp"
 #include "integrals/yukawa_integrals.hpp"
-//#include "integrals/emultipole_integrals.hpp"
+#include "integrals/emultipole_integrals.hpp"
 
 namespace integrals {
 
@@ -60,14 +60,14 @@ void load_modules(sde::ModuleManager& mm,
     //mm.at("Yukawa4").change_input("Screening Threshold",screen);
     mm.at("Yukawa4").change_input("STG Exponent",stg_exponent);
 
-//    mm.add_module("EDipole", std::make_shared<EDipole>());
-//    mm.at("EDipole").change_input("Tile Size",tile_size);
-//
-//    mm.add_module("EQuadrupole", std::make_shared<EQuadrupole>());
-//    mm.at("EQuadrupole").change_input("Tile Size",tile_size);
-//
-//    mm.add_module("EOctopole", std::make_shared<EOctopole>());
-//    mm.at("EOctopole").change_input("Tile Size",tile_size);
+    mm.add_module("EDipole", std::make_shared<EDipole>());
+    mm.at("EDipole").change_input("Tile Size",tile_size);
+
+    mm.add_module("EQuadrupole", std::make_shared<EQuadrupole>());
+    mm.at("EQuadrupole").change_input("Tile Size",tile_size);
+
+    mm.add_module("EOctopole", std::make_shared<EOctopole>());
+    mm.at("EOctopole").change_input("Tile Size",tile_size);
 }
 
 } // namespace integrals

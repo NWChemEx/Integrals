@@ -1,16 +1,17 @@
-#include "integrals/overlap_integral.hpp"
+#include <integrals/nwx_TA/fill_multipole_functor.hpp>
+#include "integrals/emultipole_integrals.hpp"
 #include "nwx_libint/nwx_libint.hpp"
 #include "nwx_libint/nwx_libint_factory.hpp"
 #include "nwx_TA/nwx_TA_utils.hpp"
-#include "nwx_TA/fill_2D_functor.hpp"
+#include "nwx_TA/fill_multipole_functor.hpp"
 #include "integrals/world.hpp"
 
 namespace integrals {
 
     template<typename element_type>
-    OverlapInt<element_type>::OverlapInt() : sde::ModuleBase(this) {
-        description("Computes overlap integrals with Libint");
-        satisfies_property_type<overlap_type>();
+    EOctopoleInt<element_type>::EOctopoleInt() : sde::ModuleBase(this) {
+        description("Computes dipole integrals with Libint");
+        satisfies_property_type<eOctopole_type>();
 
         add_input<element_type>("Threshold")
                 .set_description("Convergence threshold of integrals")
@@ -22,16 +23,19 @@ namespace integrals {
     }
 
     template<typename element_type>
-    sde::type::result_map OverlapInt<element_type>::run_(sde::type::input_map inputs,
-                                                         sde::type::submodule_map submods) const {
-        auto [bra, ket, deriv] = overlap_type::unwrap_inputs(inputs);
+    sde::type::result_map EOctopoleInt<element_type>::run_(sde::type::input_map inputs,
+                                                             sde::type::submodule_map submods) const {
+        auto [bra, ket, deriv, origin] = eOctopole_type::unwrap_inputs(inputs);
         auto thresh = inputs.at("Threshold").value<element_type>();
         auto tile_size = inputs.at("Tile Size").value<size_type>();
         auto& world = *pworld; // cf. world.hpp
 
         std::vector<basis_set> basis_sets{bra, ket};
 
-        std::vector<TA::TiledRange1> ranges{};
+        auto nopers = libint2::operator_traits<libint2::Operator::emultipole3>::nopers;
+        auto component_range = nwx_TA::make_tiled_range(nopers, nopers);
+
+        std::vector<TA::TiledRange1> ranges{component_range};
         std::vector<libint2::BasisSet> LIBasis_sets{};
         size_type max_nprim = 0;
         int max_l = 0;
@@ -51,17 +55,17 @@ namespace integrals {
 
         libint2::initialize();
 
-        nwx_libint::LibintFactory<2, libint2::Operator::overlap> factory(max_nprim, max_l, thresh, deriv);
-        nwx_TA::Fill2DFunctor<typename tensor::value_type, libint2::Operator::overlap> fill(LIBasis_sets, factory);
+        nwx_libint::LibintFactory<2, libint2::Operator::emultipole3> factory(max_nprim, max_l, thresh, deriv);
+        nwx_TA::FillMultipoleFunctor<typename tensor::value_type, libint2::Operator::emultipole3> fill(LIBasis_sets, factory);
 
         auto S = TiledArray::make_array<TiledArray::TSpArrayD>(world, trange, fill);
 
         libint2::finalize();
 
         auto rv = results();
-        return overlap_type::wrap_results(rv, S);
+        return eOctopole_type::wrap_results(rv, S);
     }
 
-    template class OverlapInt<double>;
+    template class EOctopoleInt<double>;
 
-} // namespace integrals
+}
