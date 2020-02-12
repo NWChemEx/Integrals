@@ -10,6 +10,7 @@ namespace integrals {
 
         using eDipole_type = property_types::EDipoleIntegral<element_type>;
         using size_type = std::size_t;
+        using size_vec = std::vector<size_type>;
         using tensor = typename integrals::type::tensor<element_type>;
         using basis_set = integrals::type::basis_set<element_type>;
 
@@ -26,6 +27,7 @@ namespace integrals {
 
         using eQuadrupole_type = property_types::EQuadrupoleIntegral<element_type>;
         using size_type = std::size_t;
+        using size_vec = std::vector<size_type>;
         using tensor = typename integrals::type::tensor<element_type>;
         using basis_set = integrals::type::basis_set<element_type>;
 
@@ -42,6 +44,7 @@ namespace integrals {
 
         using eOctopole_type = property_types::EOctopoleIntegral<element_type>;
         using size_type = std::size_t;
+        using size_vec = std::vector<size_type>;
         using tensor = typename integrals::type::tensor<element_type>;
         using basis_set = integrals::type::basis_set<element_type>;
 

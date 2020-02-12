@@ -7,11 +7,11 @@ TEST_CASE("ERI2C") {
 
     sde::ModuleManager mm;
     integrals::load_modules(mm);
-    mm.at("ERI2").change_input("Tile size", std::size_t{1});
+    mm.at("ERI2").change_input("Tile size", std::vector<std::size_t>{1});
     auto [molecule, bs] = make_molecule();
     auto [I] = mm.at("ERI2").run_as<integral_type>(bs, bs, std::size_t{0});
 
-    std::cout << "ERI2" << std::endl;
-    std::cout << I << std::endl;
-    std::cout << std::endl;
+//    std::cout << "ERI2" << std::endl;
+//    std::cout << I << std::endl;
+//    std::cout << std::endl;
 }

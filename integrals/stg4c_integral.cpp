@@ -16,9 +16,9 @@ namespace integrals {
                 .set_description("Convergence threshold of integrals")
                 .set_default(1.0E-16);
 
-        add_input<size_type>("Tile Size")
+        add_input<size_vec>("Tile Size")
                 .set_description("Size threshold for tiling tensors by atom blocks")
-                .set_default(size_type{180});
+                .set_default(size_vec{180});
     }
 
     template<typename element_type>
@@ -26,7 +26,7 @@ namespace integrals {
                                                        sde::type::submodule_map submods) const {
         auto [bra1, bra2, ket1, ket2, deriv, stg_exponent] = stg4c_type::unwrap_inputs(inputs);
         auto thresh = inputs.at("Threshold").value<element_type>();
-        auto tile_size = inputs.at("Tile Size").value<size_type>();
+        auto tile_size = inputs.at("Tile Size").value<size_vec>();
         auto& world = *pworld; // cf. world.hpp
 
         std::vector<basis_set> basis_sets{bra1, bra2, ket1, ket2};

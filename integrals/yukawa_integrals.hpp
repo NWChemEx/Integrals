@@ -10,6 +10,7 @@ namespace integrals {
 
         using yukawa2c_type = property_types::Yukawa2CIntegral<element_type>;
         using size_type = std::size_t;
+        using size_vec = std::vector<size_type>;
         using tensor = typename integrals::type::tensor<element_type>;
         using basis_set = integrals::type::basis_set<element_type>;
 
@@ -26,6 +27,7 @@ namespace integrals {
 
         using yukawa3c_type = property_types::Yukawa3CIntegral<element_type>;
         using size_type = std::size_t;
+        using size_vec = std::vector<size_type>;
         using tensor = typename integrals::type::tensor<element_type>;
         using basis_set = integrals::type::basis_set<element_type>;
 
@@ -42,6 +44,7 @@ namespace integrals {
 
         using yukawa4c_type = property_types::Yukawa4CIntegral<element_type>;
         using size_type = std::size_t;
+        using size_vec = std::vector<size_type>;
         using tensor = typename integrals::type::tensor<element_type>;
         using basis_set = integrals::type::basis_set<element_type>;
 
