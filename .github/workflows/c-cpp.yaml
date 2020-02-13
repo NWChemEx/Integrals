@@ -40,7 +40,8 @@ jobs:
       run:  sudo apt-get install libeigen3-dev
     - name: get-openmpi
       run: |
-            sudo apt-get install openmpi-bin libopenmpi-dev
+            #sudo apt-get install openmpi-bin libopenmpi-dev
+            sudo apt-get install mpich2
             mpicc   -show
             mpifort -show
             mpicxx  -show
