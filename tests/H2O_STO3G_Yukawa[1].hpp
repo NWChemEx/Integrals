@@ -1,5 +1,5 @@
 #pragma once
-#include "test_common.hpp"
+#include "test_common_TA.hpp"
 
 //This file meant only for inclusion in slater.cpp
 
