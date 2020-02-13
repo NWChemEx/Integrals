@@ -18,6 +18,7 @@ jobs:
             sudo apt-get update
             sudo apt-get install gcc-8 g++-8 
             sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 95 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
+            gcc  --version
             g++  --version
             gcov --version
     - name: get-gcovr
@@ -37,36 +38,6 @@ jobs:
       run:  sudo apt-get install libboost-dev libboost-all-dev
     - name: get-eigen3
       run:  sudo apt-get install libeigen3-dev
-    - name: build-libint
-      run: |
-            export INSTALL_PATH=`pwd`/install
-            # check code out
-            git clone https://github.com/evaleev/libint
-            # make code and tarball
-            cd libint
-            ./autogen.sh
-            mkdir build
-            cd build
-            ../configure
-            make export # Needed to generate code and CMake stuff.
-            # compile the code and install
-            cd ../..
-            tar -xf libint/build/libint-*.tgz
-            cd libint-*
-            ../cmake-3.16.3-Linux-x86_64/bin/cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH}
-            cd build
-            make
-            make install
-    - name: build-tiledarray
-      run: |
-            export INSTALL_PATH=`pwd`/install
-            # check code out
-            git clone https://github.com/evaleev/tiledarray
-            cd tiledarray
-            ../cmake-3.16.3-Linux-x86_64/bin/cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH}
-            cd build
-            make
-            make install
     - name: cmake
       env:
             CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
