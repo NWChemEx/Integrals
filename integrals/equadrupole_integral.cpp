@@ -31,17 +31,12 @@ namespace integrals {
 
         std::vector<basis_set> basis_sets{bra, ket};
 
-        auto nopers = libint2::operator_traits<libint2::Operator::emultipole2>::nopers;
-        auto component_range = nwx_TA::make_tiled_range(nopers, nopers);
-
-        std::vector<TA::TiledRange1> ranges{component_range};
         std::vector<libint2::BasisSet> LIBasis_sets{};
         size_type max_nprim = 0;
         int max_l = 0;
 
         for (auto i = 0; i < basis_sets.size(); ++i) {
             LIBasis_sets.push_back(nwx_libint::make_basis(basis_sets[i]));
-            ranges.push_back(nwx_TA::make_tiled_range(LIBasis_sets[i], tile_size));
 
             auto max_nprim_i = libint2::max_nprim(LIBasis_sets[i]);
             auto max_l_i = libint2::max_l(LIBasis_sets[i]);
@@ -49,7 +44,9 @@ namespace integrals {
             max_l = std::max(max_l, max_l_i);
         }
 
-        TA::TiledRange trange(ranges.begin(), ranges.end());
+        auto nopers = libint2::operator_traits<libint2::Operator::emultipole2>::nopers;
+        auto component_range = nwx_TA::make_tiled_range(nopers, nopers);
+        auto trange = nwx_TA::make_trange(LIBasis_sets, tile_size, {component_range});
 
         libint2::initialize();
 

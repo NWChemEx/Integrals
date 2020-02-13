@@ -16,4 +16,8 @@ namespace nwx_TA {
 
     std::vector<size> aos2shells(libint2::BasisSet basis_set, size lower, size upper);
 
+    TA::TiledRange make_trange(const std::vector<libint2::BasisSet>& basis_sets,
+                               const std::vector<size>& tile_sizes,
+                               std::vector<TA::TiledRange1> ranges = {});
+
 } // namespace nwx_TA
