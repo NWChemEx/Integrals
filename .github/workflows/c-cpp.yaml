@@ -39,6 +39,8 @@ jobs:
     - name: get-eigen3
       run:  sudo apt-get install libeigen3-dev
     - name: build-libint
+      env:
+            CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
       run: |
             export INSTALL_PATH=`pwd`/install
             # check code out
@@ -54,7 +56,19 @@ jobs:
             cd ../..
             tar -xf libint/build/libint-*.tgz
             cd libint-*
-            ../cmake-3.16.3-Linux-x86_64/bin/cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH}
+            ../cmake-3.16.3-Linux-x86_64/bin/cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DCPP_GITHUB_TOKEN=$CPP_GITHUB_TOKEN
+            cd build
+            make
+            make install
+    - name: build-tiledarray
+      run: |
+            export INSTALL_PATH=`pwd`/install
+            export CXX=`which g++`
+            export CC=`which gcc`
+            # check code out
+            git clone https://github.com/evaleev/tiledarray
+            cd tiledarray
+            ../cmake-3.16.3-Linux-x86_64/bin/cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC}
             cd build
             make
             make install
