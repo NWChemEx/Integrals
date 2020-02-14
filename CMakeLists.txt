@@ -26,6 +26,7 @@ cpp_find_or_build_dependency(
         property_types
         URL github.com/NWChemEx-Project/PropertyTypes
         PRIVATE TRUE
+        VERSION doi
         BUILD_TARGET property_types
         FIND_TARGET nwx::property_types
         CMAKE_ARGS BUILD_TESTING=OFF

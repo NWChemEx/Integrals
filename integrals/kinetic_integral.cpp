@@ -8,28 +8,33 @@
 namespace integrals {
 
     template<typename element_type>
+    using kinetic_type = property_types::KineticIntegral<element_type>;
+    template<typename element_type>
+    using tensor = typename integrals::type::tensor<element_type>;
+
+    template<typename element_type>
     KineticInt<element_type>::KineticInt() : sde::ModuleBase(this) {
         description("Computes kinetic integrals with Libint");
-        satisfies_property_type<kinetic_type>();
+        satisfies_property_type<kinetic_type<element_type>>();
 
         add_input<element_type>("Threshold")
                 .set_description("Convergence threshold of integrals")
                 .set_default(1.0E-16);
 
-        add_input<size_vec>("Tile Size")
+        add_input<std::vector<type::size>>("Tile Size")
                 .set_description("Size threshold for tiling tensors by atom blocks")
-                .set_default(size_vec{180});
+                .set_default(std::vector<type::size>{180});
     }
 
     template<typename element_type>
     sde::type::result_map KineticInt<element_type>::run_(sde::type::input_map inputs,
                                                          sde::type::submodule_map submods) const {
-        auto [bra, ket, deriv] = kinetic_type::unwrap_inputs(inputs);
+        auto [bra, ket, deriv] = kinetic_type<element_type>::unwrap_inputs(inputs);
         auto thresh = inputs.at("Threshold").value<element_type>();
-        auto tile_size = inputs.at("Tile Size").value<size_vec>();
+        auto tile_size = inputs.at("Tile Size").value<std::vector<type::size>>();
         auto& world = *pworld; // cf. world.hpp
 
-        auto fill = nwx_TA::Fill2DFunctor<typename tensor::value_type, libint2::Operator::kinetic>();
+        auto fill = nwx_TA::Fill2DFunctor<typename tensor<element_type>::value_type, libint2::Operator::kinetic>();
 
         fill.LIBasis_sets = nwx_libint::make_basis_sets({bra, ket});
 
@@ -42,11 +47,11 @@ namespace integrals {
         auto trange = nwx_TA::make_trange(fill.LIBasis_sets, tile_size);
 
         libint2::initialize();
-        auto T = TiledArray::make_array<tensor>(world, trange, fill);
+        auto T = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
         libint2::finalize();
 
         auto rv = results();
-        return kinetic_type::wrap_results(rv, T);
+        return kinetic_type<element_type>::wrap_results(rv, T);
     }
 
     template class KineticInt<double>;
