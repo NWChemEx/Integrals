@@ -6,6 +6,7 @@
 #include "integrals/stg_integrals.hpp"
 #include "integrals/yukawa_integrals.hpp"
 #include "integrals/emultipole_integrals.hpp"
+#include "integrals/doi.hpp"
 
 namespace integrals {
 
@@ -39,6 +40,8 @@ void load_modules(sde::ModuleManager& mm) {
     mm.add_module("EQuadrupole", std::make_shared<EQuadrupole>());
 
     mm.add_module("EOctopole", std::make_shared<EOctopole>());
+
+    mm.add_module("DOI", std::make_shared<DOI>());
 }
 
 } // namespace integrals
