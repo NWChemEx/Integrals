@@ -4,10 +4,10 @@
 namespace nwx_libint {
 
 template<typename T>
-libint2::BasisSet _make_basis(const integrals::type::basis_set<T>& bs) {
+LI_basis _make_basis(const NWX_basis<T>& bs) {
     using coord_type = std::array<double, 3>;
     using Contraction = libint2::Shell::Contraction;
-    libint2::BasisSet shells;
+    LI_basis shells;
 
     for(const auto&& shelli : bs.shells()) {
         const auto nprims = shelli.n_unique_primitives();
@@ -29,12 +29,55 @@ libint2::BasisSet _make_basis(const integrals::type::basis_set<T>& bs) {
     return shells;
 }
 
-libint2::BasisSet make_basis(const integrals::type::basis_set<double>& bs) {
+LI_basis make_basis(const NWX_basis<double>& bs) {
     return _make_basis(bs);
 }
 
-libint2::BasisSet make_basis(const integrals::type::basis_set<float>& bs) {
+LI_basis make_basis(const NWX_basis<float>& bs) {
     return _make_basis(bs);
+}
+
+
+
+template<typename T>
+std::vector<LI_basis> _make_basis_sets(const std::vector<NWX_basis<T>>& sets) {
+    std::vector<LI_basis> LI_basis_sets{};
+
+    for (auto set : sets) {
+        LI_basis_sets.push_back(make_basis(set));
+    }
+
+    return LI_basis_sets;
+}
+
+std::vector<LI_basis> make_basis_sets(const std::vector<NWX_basis<double>>& sets) {
+    return _make_basis_sets(sets);
+}
+
+std::vector<LI_basis> make_basis_sets(const std::vector<NWX_basis<float>>& sets) {
+    return _make_basis_sets(sets);
+}
+
+
+
+size sets_max_nprims(const std::vector<LI_basis>& sets) {
+    size max_nprims = 0;
+
+    for (auto set : sets) {
+        max_nprims = std::max(max_nprims, libint2::max_nprim(set));
+    }
+
+    return max_nprims;
+}
+
+int sets_max_l(const std::vector<LI_basis>& sets) {
+    int max_l = 0;
+
+    for (auto set : sets) {
+        max_l = std::max(max_l, libint2::max_l(set));
+    }
+
+    return max_l;
 }
 
 } // namespace nwx_libint

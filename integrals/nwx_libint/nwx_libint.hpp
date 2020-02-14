@@ -10,6 +10,17 @@ namespace nwx_libint {
  *  @returns The basis set as a LibInt2 BasisSet object
  */
 
-libint2::BasisSet make_basis(const integrals::type::basis_set<double>& bs);
-libint2::BasisSet make_basis(const integrals::type::basis_set<float>& bs);
+template<typename T> using NWX_basis = integrals::type::basis_set<T>;
+using LI_basis = libint2::BasisSet;
+using size = integrals::type::size;
+
+LI_basis make_basis(const NWX_basis<double>& bs);
+LI_basis make_basis(const NWX_basis<float>& bs);
+
+std::vector<LI_basis> make_basis_sets(const std::vector<NWX_basis<double>>& sets);
+std::vector<LI_basis> make_basis_sets(const std::vector<NWX_basis<float>>& sets);
+
+size sets_max_nprims(const std::vector<LI_basis>& sets);
+int sets_max_l(const std::vector<LI_basis>& sets);
+
 } // namespace nwx_libint
