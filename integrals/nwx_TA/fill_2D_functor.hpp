@@ -15,9 +15,6 @@ namespace nwx_TA {
 
         Fill2DFunctor() = default;
 
-        Fill2DFunctor(std::vector<basis> LIBasis_sets, nwx_libint::LibintFactory<2, op> factory) :
-                LIBasis_sets{std::move(LIBasis_sets)}, factory{std::move(factory)} {}
-
         float operator()(val_type& tile, const TiledArray::Range& range) {
             return _fill(tile, range);
         }

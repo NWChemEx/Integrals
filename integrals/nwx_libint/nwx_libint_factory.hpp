@@ -11,10 +11,10 @@ namespace nwx_libint {
     struct LibintFactory {
 
         // parameters of the Libint engine
-        size_type max_nprims;
-        size_type max_l;
-        double thresh;
-        size_type deriv;
+        size_type max_nprims = 0;
+        size_type max_l = 0;
+        double thresh = 0;
+        size_type deriv = 0;
 
         // parameters for specific integral types
         double stg_exponent = 1.0;
