@@ -13,6 +13,8 @@ namespace nwx_TA {
         std::vector<basis> LIBasis_sets;
         nwx_libint::LibintFactory<4, op> factory;
 
+        Fill4DFunctor() = default;
+
         Fill4DFunctor(std::vector<basis> LIBasis_sets, nwx_libint::LibintFactory<4, op> factory) :
                 LIBasis_sets{std::move(LIBasis_sets)}, factory{std::move(factory)} {}
 

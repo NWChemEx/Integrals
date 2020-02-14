@@ -21,6 +21,8 @@ namespace nwx_libint {
         std::array<double, 3> origin{0, 0, 0};
         mol_type mol;
 
+        LibintFactory() = default;
+
         LibintFactory(size_type max_nprims, size_type max_l, double thresh, size_type deriv) :
                       max_nprims(max_nprims), max_l(max_l), thresh(thresh), deriv(deriv) {}
 
