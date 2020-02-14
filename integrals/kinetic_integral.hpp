@@ -1,6 +1,5 @@
 #pragma once
 #include <sde/module_base.hpp>
-#include <property_types/ao_integrals/kinetic.hpp>
 #include "integrals/types.hpp"
 
 namespace integrals {

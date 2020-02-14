@@ -4,6 +4,7 @@
 #include "nwx_TA/nwx_TA_utils.hpp"
 #include "nwx_TA/fill_2D_functor.hpp"
 #include "integrals/world.hpp"
+#include <property_types/ao_integrals/nuclear.hpp>
 
 namespace integrals {
 
