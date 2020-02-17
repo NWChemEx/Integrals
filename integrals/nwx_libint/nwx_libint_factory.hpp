@@ -7,10 +7,11 @@ namespace nwx_libint {
     using size_type = integrals::type::size;
     using mol_type = integrals::type::molecule;
 
+    // Factory class that produces Libint2 engines.
     template<size_type NBases, libint2::Operator op>
     struct LibintFactory {
 
-        // parameters of the Libint engine
+        // general parameters of the Libint engine
         size_type max_nprims = 0;
         size_type max_l = 0;
         double thresh = 0;
@@ -26,7 +27,7 @@ namespace nwx_libint {
         LibintFactory(size_type max_nprims, size_type max_l, double thresh, size_type deriv) :
                       max_nprims(max_nprims), max_l(max_l), thresh(thresh), deriv(deriv) {}
 
-        // produce a libint engine
+        // produce a LibInt2 engine, given the current parameters
         libint2::Engine operator()() {
             libint2::Engine engine(op, max_nprims, max_l, deriv, thresh);
 
