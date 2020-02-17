@@ -3,7 +3,6 @@
 #include "nwx_libint/nwx_libint_factory.hpp"
 #include "nwx_TA/nwx_TA_utils.hpp"
 #include "nwx_TA/fill_multipole_functor.hpp"
-#include "integrals/world.hpp"
 #include <property_types/ao_integrals/emultipole.hpp>
 
 namespace integrals {
@@ -33,7 +32,7 @@ namespace integrals {
         auto [bra, ket, deriv, origin] = eDipole_type<element_type>::unwrap_inputs(inputs);
         auto thresh = inputs.at("Threshold").value<element_type>();
         auto tile_size = inputs.at("Tile Size").value<std::vector<type::size>>();
-        auto& world = *pworld; // cf. world.hpp
+        auto& world = TA::get_default_world();
 
         auto fill = nwx_TA::FillMultipoleFunctor<typename tensor<element_type>::value_type,
                                                  libint2::Operator::emultipole1>();
