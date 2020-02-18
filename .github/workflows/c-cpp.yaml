@@ -52,31 +52,12 @@ jobs:
       run: |
             export INSTALL_PATH=`pwd`/install
             # check code out
-            git clone https://github.com/evaleev/libint
-            # make code and tarball
-            cd libint
-            ./autogen.sh
-            mkdir build
-            cd build
-            ../configure
-            make export # Needed to generate code and CMake stuff.
-            # compile the code and install
-            cd ../..
-            tar -xf libint/build/libint-*.tgz
+            wget https://github.com/evaleev/libint/releases/download/v2.6.0/libint-2.6.0.tgz
+            tar -zxf libint-2.6.0.tgz
             cd libint-*
-            ../cmake-3.16.3-Linux-x86_64/bin/cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DCPP_GITHUB_TOKEN=$CPP_GITHUB_TOKEN
-            cd build
-            make
-            make install
-    - name: build-tiledarray
-      run: |
-            export INSTALL_PATH=`pwd`/install
-            export CXX=`which mpicxx`
-            export CC=`which mpicc`
-            # check code out
-            git clone https://github.com/evaleev/tiledarray
-            cd tiledarray
-            ../cmake-3.16.3-Linux-x86_64/bin/cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_FLAGS="-std=c++17"
+            export CXX=`which g++-8`
+            export CC=`which gcc-8`
+            ../cmake-3.16.3-Linux-x86_64/bin/cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_FLAGS="-std=c++17" -DBUILD_SHARED_LIBS=ON -DCPP_GITHUB_TOKEN=$CPP_GITHUB_TOKEN
             cd build
             make
             make install
@@ -85,9 +66,11 @@ jobs:
             CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
       run: |
             export INSTALL_PATH=`pwd`/install
-            export CXX=`which mpicxx`
-            export CC=`which mpicc`
-            cmake-3.16.3-Linux-x86_64/bin/cmake -H. -Bbuild -DCMAKE_PREFIX_PATH=${INSTALL_PATH} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=TRUE -DCATCH_ENABLE_COVERAGE=ON -DCMAKE_CXX_FLAGS="-std=c++17 -O0 --coverage" -DCMAKE_C_FLAGS="-O0 --coverage" -DCMAKE_EXE_LINKER_FLAGS="-O0 -fprofile-arcs" -DCPP_GITHUB_TOKEN=$CPP_GITHUB_TOKEN -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC}
+            export CXX=`which g++-8`
+            export CC=`which gcc-8`
+            export MPICXX=`which mpicxx`
+            export MPICC=`which mpicc`
+            cmake-3.16.3-Linux-x86_64/bin/cmake -H. -Bbuild -DCMAKE_PREFIX_PATH=${INSTALL_PATH} -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=TRUE -DCATCH_ENABLE_COVERAGE=ON -DCMAKE_CXX_FLAGS="-std=c++17 -O0 --coverage" -DCMAKE_C_FLAGS="-O0 --coverage" -DCMAKE_EXE_LINKER_FLAGS="-O0 -fprofile-arcs" -DCPP_GITHUB_TOKEN=$CPP_GITHUB_TOKEN -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC} -DMPI_CXX_COMPILER=${MPICXX} -DMPI_C_COMPILER=${MPICC}
     - name: ctest
       run: |
             #cmake-3.16.3-Linux-x86_64/bin/ctest --build-and-test build build --build-nocmake --build-generator "Unix Makefiles" --test-command make test
