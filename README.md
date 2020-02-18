@@ -1,6 +1,6 @@
-[![Actions](https://github.com/hjjvandam/Integrals/workflows/C_C++_CI/badge.svg)](https://github.com/NWChemEx-Project/Integrals)
+[![Actions](https://github.com/NWChemEx-Project/Integrals/workflows/C_C++_CI/badge.svg)](https://github.com/NWChemEx-Project/Integrals)
 
-[![Codecov](https://codecov.io/github/hjjvandam/Integrals/branch/github-actions/graphs/sunburst.svg?token=PO7KR1oCuH)](https://codecov.io/github/NWChemEx-Project/Integrals/branch/master)
+[![Codecov](https://codecov.io/github/NWChemEx-Project/Integrals/branch/master/graphs/sunburst.svg?token=5ChSH9Fq4j)](https://codecov.io/github/NWChemEx-Project/Integrals/branch/master)
 
 Integrals
 ===========
