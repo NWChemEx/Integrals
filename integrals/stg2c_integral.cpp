@@ -2,7 +2,7 @@
 #include "nwx_libint/nwx_libint.hpp"
 #include "nwx_libint/nwx_libint_factory.hpp"
 #include "nwx_TA/nwx_TA_utils.hpp"
-#include "nwx_TA/fill_2D_functor.hpp"
+#include "nwx_TA/fill_ND_functor.hpp"
 #include <property_types/ao_integrals/stg.hpp>
 
 namespace integrals {
@@ -34,7 +34,7 @@ namespace integrals {
         auto tile_size = inputs.at("Tile Size").value<std::vector<type::size>>();
         auto& world = TA::get_default_world();
 
-        auto fill = nwx_TA::Fill2DFunctor<typename tensor<element_type>::value_type, libint2::Operator::stg>();
+        auto fill = nwx_TA::FillNDFunctor<typename tensor<element_type>::value_type, libint2::Operator::stg, 2>();
 
         fill.LIBasis_sets = nwx_libint::make_basis_sets({bra, ket});
 
