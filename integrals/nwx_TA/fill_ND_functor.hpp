@@ -83,7 +83,7 @@ namespace nwx_TA {
                     _call_libint(tile_engine, shells, std::make_index_sequence<NBases>());
 
                     // Store the location of the results
-                    auto int_vals = tile_engine.results()[0];
+                    const auto& int_vals = tile_engine.results()[0];
 
                     // Initially set indexer to first coordinate of tile
                     auto indexer = offsets;
