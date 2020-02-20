@@ -150,8 +150,7 @@ using Yukawa4 = detail_::Integral<libint2::Operator::yukawa, 4, double>;
 using EDipole = detail_::Integral<libint2::Operator::emultipole1, 2, double>;
 
 /// Electric quadrupole
-using EQuadrupole =
-  detail_::Integral<libint2::Operator::emultipole2, 2, double>;
+using EQuadrupole = detail_::Integral<libint2::Operator::emultipole2, 2, double>;
 
 /// Electric octopole
 using EOctopole = detail_::Integral<libint2::Operator::emultipole3, 2, double>;

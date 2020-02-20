@@ -1,22 +1,16 @@
 #define CATCH_CONFIG_RUNNER
-#include <catch/catch.hpp>
-#include <ga.h>
-#include <mpi.h>
-#include <macdecls.h>
-#include <ga-mpi.h>
+#include <catch2/catch.hpp>
+#include <tiledarray.h>
 
-int main(int argc, char* argv[])
-{
-    MPI_Init(&argc,&argv);
-    GA_Initialize();
-    MA_init(MT_DBL, 8000000, 20000000);
+int main(int argc, char* argv[]) {
+    // Initialize Everything and set world pointer
+    auto& world = TA::initialize(argc, argv);
 
-    int mpi_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-
+    // Run tests
     int res = Catch::Session().run(argc, argv);
-    GA_Terminate();
-    MPI_Finalize();
+
+    // Finalize Everything
+    TA::finalize();
 
     return res;
 }
