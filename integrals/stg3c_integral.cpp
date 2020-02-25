@@ -47,9 +47,7 @@ namespace integrals {
 
         auto trange = nwx_TA::make_trange(fill.LIBasis_sets, tile_size);
 
-        libint2::initialize();
         auto I = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
-        libint2::finalize();
 
         auto rv = results();
         return stg3c_type<element_type>::wrap_results(rv, I);

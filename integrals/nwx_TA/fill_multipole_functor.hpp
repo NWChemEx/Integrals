@@ -17,7 +17,8 @@ namespace nwx_TA {
         // The factory that produces the appropriate LibInt2 engines
         nwx_libint::LibintFactory<2, op> factory;
 
-        FillMultipoleFunctor() = default;
+        FillMultipoleFunctor() { libint2::initialize(); }
+        ~FillMultipoleFunctor() { libint2::finalize(); }
 
         // Complies with the TA API for these functions
         float operator()(val_type& tile, const TiledArray::Range& range) {
@@ -38,6 +39,9 @@ namespace nwx_TA {
             tile = val_type(range);
             // The number of arrays in the LibInt results
             auto nopers = libint2::operator_traits<op>::nopers;
+
+            // In case soemthing else finalized
+            if (not libint2::initialized()) { libint2::initialize(); }
 
             // Make libint engine
             auto tile_engine = factory();

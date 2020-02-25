@@ -49,9 +49,7 @@ namespace integrals {
         auto component_range = nwx_TA::make_tiled_range(nopers, nopers);
         auto trange = nwx_TA::make_trange(fill.LIBasis_sets, tile_size, {component_range});
 
-        libint2::initialize();
         auto S = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
-        libint2::finalize();
 
         auto rv = results();
         return eOctopole_type<element_type>::wrap_results(rv, S);

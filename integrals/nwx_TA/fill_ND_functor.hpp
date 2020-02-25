@@ -18,7 +18,9 @@ namespace nwx_TA {
         // The factory that produces the appropriate LibInt2 engines
         nwx_libint::LibintFactory<NBases, op> factory;
 
-        FillNDFunctor() = default;
+        // Initialize and finalize LibInt2
+        FillNDFunctor() { libint2::initialize(); }
+        ~FillNDFunctor() { libint2::finalize(); }
 
         // Complies with the TA API for these functions
         float operator()(val_type& tile, const TiledArray::Range& range) {
@@ -37,6 +39,9 @@ namespace nwx_TA {
          */
         float _fill(val_type& tile, const TiledArray::Range& range) {
             tile = val_type(range);
+
+            // In case soemthing else finalized
+            if (not libint2::initialized()) { libint2::initialize(); }
 
             // Make libint engine
             auto tile_engine = factory();
