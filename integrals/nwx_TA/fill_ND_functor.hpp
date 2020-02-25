@@ -18,6 +18,9 @@ namespace nwx_TA {
         // The factory that produces the appropriate LibInt2 engines
         nwx_libint::LibintFactory<NBases, op> factory;
 
+        // Number of arrays returned by operator
+        std::size_t nopers = libint2::operator_traits<op>::nopers;
+
         // Initialize and finalize LibInt2
         FillNDFunctor() { libint2::initialize(); }
         ~FillNDFunctor() { libint2::finalize(); }
@@ -40,7 +43,7 @@ namespace nwx_TA {
         float _fill(val_type& tile, const TiledArray::Range& range) {
             tile = val_type(range);
 
-            // In case soemthing else finalized
+            // In case something else finalized
             if (not libint2::initialized()) { libint2::initialize(); }
 
             // Make libint engine
@@ -67,7 +70,7 @@ namespace nwx_TA {
          *  @param tile_engine The LibInt2 engine that computes integrals
          *  @param offsets Vector containing the coordinate offset based on the current AOs
          *  @param shells Vector tracking the indices of the current shells
-         *  @param depth The current dimension of the tile
+         *  @param depth The current dimension of the desired tensor
          */
         void _index_shells(val_type& tile,
                            const TiledArray::Range& range,
@@ -75,11 +78,14 @@ namespace nwx_TA {
                            size_vec& offsets,
                            size_vec& shells,
                            int depth) {
+            // Deal with the additional dimension of the tile for multipoles
+            int tile_depth = (nopers == 1) ? depth : depth + 1;
+
             // Set initial offset as the dimensions lower bound
-            offsets[depth] = range.lobound()[depth];
+            offsets[depth] = range.lobound()[tile_depth];
 
             // Loop over the shells that contain the AOs spanned by the tile in this dimension
-            for (auto s : aos2shells(LIBasis_sets[depth], range.lobound()[depth], range.upbound()[depth])) {
+            for (auto s : aos2shells(LIBasis_sets[depth], range.lobound()[tile_depth], range.upbound()[tile_depth])) {
                 // Save index of current shell to be passed down the line
                 shells[depth] = s;
 
@@ -87,17 +93,39 @@ namespace nwx_TA {
                     // Compute integrals for current shells
                     _call_libint(tile_engine, shells, std::make_index_sequence<NBases>());
 
-                    // Store the location of the results
-                    const auto& int_vals = tile_engine.results()[0];
+                    // Switch for multipole cases
+                    if (nopers == 1) {
+                        // Initially set indexer to first coordinate of tile
+                        size_vec indexer = offsets;
 
-                    // Initially set indexer to first coordinate of tile
-                    auto indexer = offsets;
+                        // Store the location of the results
+                        const auto& int_vals = tile_engine.results()[0];
 
-                    // Index for integrals values; referenced so it gets pasted around
-                    int int_i = 0;
+                        // Index for integrals values; referenced so it gets pasted around
+                        int int_i = 0;
 
-                    // Fill in the values of the tile
-                    _fill_from_libint(tile, offsets, shells, int_vals, indexer, int_i, 0);
+                        // Fill in the values of the tile
+                        _fill_from_libint(tile, offsets, shells, int_vals, indexer, int_i, 0);
+                    } else {
+                        // Deal with the additional dimension of the tile for multipoles
+                        size_vec indexer = {range.lobound()[0]};
+                        indexer.insert(indexer.end(), offsets.begin(), offsets.end());
+
+                        // Loop over multipoles to fill in values
+                        for (auto f = 0ul; f != nopers; ++f) {
+                            // Store the location of the results
+                            const auto& int_vals = tile_engine.results()[f];
+
+                            // Index for integrals values; referenced so it gets pasted around
+                            int int_i = 0;
+
+                            // Fill in the values of the multipole
+                            _fill_from_libint(tile, offsets, shells, int_vals, indexer, int_i, 0);
+
+                            // Increment the coordinate for the multipoles
+                            indexer[0]++;
+                        }
+                    }
                 } else {
                     // Keep going down until all dimensions of the the tensor have been covered
                     _index_shells(tile, range, tile_engine, offsets, shells, depth + 1);
@@ -116,7 +144,7 @@ namespace nwx_TA {
          *  @param int_vals Pointer to the beginning of the integral values
          *  @param indexer Index for placing values into array
          *  @param int_i Index for accessing the current integral value to be filled
-         *  @param depth The current dimension of the tile
+         *  @param depth The current dimension of the desired tensor
          */
         void _fill_from_libint(val_type& tile,
                                const size_vec& offsets,
@@ -125,6 +153,9 @@ namespace nwx_TA {
                                size_vec& indexer,
                                int& int_i,
                                int depth) {
+            // Deal with the additional dimension of the tile for multipoles
+            int tile_depth = (nopers == 1) ? depth : depth + 1;
+
             // Loop over the size of the current shell for this dimension
             for (auto f = 0ul; f != LIBasis_sets[depth][shells[depth]].size(); ++f) {
                 if (depth == (NBases - 1)) {
@@ -142,10 +173,10 @@ namespace nwx_TA {
                     _fill_from_libint(tile, offsets, shells, int_vals, indexer, int_i, depth + 1);
                 }
                 // Increment the coordinate for this dimension
-                indexer[depth]++;
+                indexer[tile_depth]++;
             }
             // Reset the indexer to the initial position for next loop
-            indexer[depth] = offsets[depth];
+            indexer[tile_depth] = offsets[depth];
         }
 
         /** @brief Wrap the call of LibInt2 engine so it can take a variable number of shell inputs.
