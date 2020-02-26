@@ -8,21 +8,35 @@ namespace nwx_TA {
 
     template<typename val_type, libint2::Operator op>
     struct FillMultipoleFunctor {
-        using basis = libint2::BasisSet;
 
-        std::vector<basis> LIBasis_sets;
+        using basis_vec = std::vector<libint2::BasisSet>;
+
+        // The collected LibInt2 basis sets needed for the integral
+        basis_vec LIBasis_sets;
+
+        // The factory that produces the appropriate LibInt2 engines
         nwx_libint::LibintFactory<2, op> factory;
 
-        FillMultipoleFunctor(std::vector<basis> LIBasis_sets, nwx_libint::LibintFactory<2, op> factory) :
-                LIBasis_sets{std::move(LIBasis_sets)}, factory{std::move(factory)} {}
+        FillMultipoleFunctor() = default;
 
+        // Complies with the TA API for these functions
         float operator()(val_type& tile, const TiledArray::Range& range) {
             return _fill(tile, range);
         }
 
     private:
+
+        /** @brief Handles the particular case of the multipole arrays to minimize repetitive
+         *         LibInt computations. Gets the tile @p tile and range @p range from TA,
+         *         then initializes the tile and fills it in.
+         *
+         *  @param[in] tile The tile to be filled
+         *  @param[in] range The range of the tile
+         *  @returns The norm of the filled tile
+         */
         float _fill(val_type& tile, const TiledArray::Range& range) {
             tile = val_type(range);
+            // The number of arrays in the LibInt results
             auto nopers = libint2::operator_traits<op>::nopers;
 
             // Make libint engine
@@ -40,7 +54,7 @@ namespace nwx_TA {
                 // Number of basis functions in first shell
                 auto n1 = LIBasis_sets[0][s0].size();
 
-                // initially set the second offset to tile lower bound
+                // Initially set the second offset to tile lower bound
                 auto basis2_offset = lowers[2];
                 for (auto s1 : aos2shells(LIBasis_sets[1], lowers[2], uppers[2])) {
 
@@ -69,6 +83,7 @@ namespace nwx_TA {
                             }
                         }
                     }
+                    // Increase the offsets by the sizes of the completed shells
                     basis2_offset += LIBasis_sets[1][s1].size();
                 }
                 basis1_offset += LIBasis_sets[0][s0].size();

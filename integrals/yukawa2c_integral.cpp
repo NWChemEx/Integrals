@@ -2,64 +2,57 @@
 #include "nwx_libint/nwx_libint.hpp"
 #include "nwx_libint/nwx_libint_factory.hpp"
 #include "nwx_TA/nwx_TA_utils.hpp"
-#include "nwx_TA/fill_2D_functor.hpp"
-#include "integrals/world.hpp"
+#include "nwx_TA/fill_ND_functor.hpp"
+#include <property_types/ao_integrals/yukawa.hpp>
 
 namespace integrals {
 
     template<typename element_type>
+    using yukawa2c_type = property_types::Yukawa2CIntegral<element_type>;
+    template<typename element_type>
+    using tensor = typename integrals::type::tensor<element_type>;
+
+    template<typename element_type>
     Yukawa2CInt<element_type>::Yukawa2CInt() : sde::ModuleBase(this) {
         description("Computes 2-center Slater geminal integrals with Libint");
-        satisfies_property_type<yukawa2c_type>();
+        satisfies_property_type<yukawa2c_type<element_type>>();
 
         add_input<element_type>("Threshold")
                 .set_description("Convergence threshold of integrals")
                 .set_default(1.0E-16);
 
-        add_input<size_vec>("Tile Size")
+        add_input<std::vector<type::size>>("Tile Size")
                 .set_description("Size threshold for tiling tensors by atom blocks")
-                .set_default(size_vec{180});
+                .set_default(std::vector<type::size>{180});
     }
 
     template<typename element_type>
     sde::type::result_map Yukawa2CInt<element_type>::run_(sde::type::input_map inputs,
                                                           sde::type::submodule_map submods) const {
-        auto [bra, ket, deriv, stg_exponent] = yukawa2c_type::unwrap_inputs(inputs);
+        auto [bra, ket, deriv, stg_exponent] = yukawa2c_type<element_type>::unwrap_inputs(inputs);
         auto thresh = inputs.at("Threshold").value<element_type>();
-        auto tile_size = inputs.at("Tile Size").value<size_vec>();
-        auto& world = *pworld; // cf. world.hpp
+        auto tile_size = inputs.at("Tile Size").value<std::vector<type::size>>();
+        auto& world = TA::get_default_world();
 
-        std::vector<basis_set> basis_sets{bra, ket};
+        auto fill = nwx_TA::FillNDFunctor<typename tensor<element_type>::value_type, libint2::Operator::yukawa, 2>();
 
-        std::vector<TA::TiledRange1> ranges{};
-        std::vector<libint2::BasisSet> LIBasis_sets{};
-        size_type max_nprim = 0;
-        int max_l = 0;
+        fill.LIBasis_sets = nwx_libint::make_basis_sets({bra, ket});
 
-        for (auto i = 0; i < basis_sets.size(); ++i) {
-            LIBasis_sets.push_back(nwx_libint::make_basis(basis_sets[i]));
-            ranges.push_back(nwx_TA::make_tiled_range(LIBasis_sets[i], tile_size));
+        fill.factory = nwx_libint::LibintFactory<2, libint2::Operator::yukawa>();
+        fill.factory.max_nprims = nwx_libint::sets_max_nprims(fill.LIBasis_sets);
+        fill.factory.max_l = nwx_libint::sets_max_l(fill.LIBasis_sets);
+        fill.factory.thresh = thresh;
+        fill.factory.deriv = deriv;
+        fill.factory.stg_exponent = stg_exponent;
 
-            auto max_nprim_i = libint2::max_nprim(LIBasis_sets[i]);
-            auto max_l_i = libint2::max_l(LIBasis_sets[i]);
-            max_nprim = std::max(max_nprim, max_nprim_i);
-            max_l = std::max(max_l, max_l_i);
-        }
-
-        TA::TiledRange trange(ranges.begin(), ranges.end());
+        auto trange = nwx_TA::make_trange(fill.LIBasis_sets, tile_size);
 
         libint2::initialize();
-
-        nwx_libint::LibintFactory<2, libint2::Operator::yukawa> factory(max_nprim, max_l, thresh, deriv);
-        factory.stg_exponent = stg_exponent;
-        nwx_TA::Fill2DFunctor<typename tensor::value_type, libint2::Operator::yukawa> fill(LIBasis_sets, factory);
-
-        auto I = TiledArray::make_array<tensor>(world, trange, fill);
-
+        auto I = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
         libint2::finalize();
 
         auto rv = results();
-        return yukawa2c_type::wrap_results(rv, I);
+        return yukawa2c_type<element_type>::wrap_results(rv, I);
     }
 
     template class Yukawa2CInt<double>;

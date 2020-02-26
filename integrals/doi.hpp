@@ -5,9 +5,9 @@
 namespace integrals {
 
     template<typename element_type = double>
-    DECLARE_MODULE(KineticInt);
+    DECLARE_MODULE(DOInt);
 
-    extern template class KineticInt<double>;
+    extern template class DOInt<double>;
 
-    using Kinetic = KineticInt<double>;
+    using DOI = DOInt<double>;
 } // namespace integrals

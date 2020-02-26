@@ -97,4 +97,16 @@ namespace nwx_TA {
         return return_vec;
     }
 
+    TA::TiledRange make_trange(const std::vector<libint2::BasisSet>& basis_sets,
+                               const std::vector<size>& tile_sizes,
+                               std::vector<TA::TiledRange1> ranges) {
+
+        for (const auto& basis_set : basis_sets) {
+            ranges.push_back(make_tiled_range(basis_set, tile_sizes));
+        }
+
+        TA::TiledRange trange(ranges.begin(), ranges.end());
+        return trange;
+    }
+
 } // namespace nwx_TA
