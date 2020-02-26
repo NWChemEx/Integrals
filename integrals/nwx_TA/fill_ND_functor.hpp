@@ -2,7 +2,6 @@
 #include <libint2.hpp>
 #include <tiledarray.h>
 #include "integrals/nwx_libint/nwx_libint_factory.hpp"
-#include "integrals/nwx_TA/nwx_TA_utils.hpp"
 
 namespace nwx_TA {
 

@@ -1,4 +1,5 @@
 #include "integrals/nwx_TA/fill_ND_functor.hpp"
+#include "integrals/nwx_TA/nwx_TA_utils.hpp"
 
 namespace nwx_TA {
 

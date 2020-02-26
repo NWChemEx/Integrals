@@ -28,38 +28,26 @@ namespace nwx_libint {
                       max_nprims(max_nprims), max_l(max_l), thresh(thresh), deriv(deriv) {}
 
         // produce a LibInt2 engine, given the current parameters
-        libint2::Engine operator()() {
-            libint2::Engine engine(op, max_nprims, max_l, deriv, thresh);
-
-            // Take care of any special set-up
-            if constexpr(libint2::rank(op) == 2 && NBases == 2) {
-                engine.set(libint2::BraKet::xs_xs);
-            }
-
-            if constexpr(libint2::rank(op) == 2 && NBases == 3) {
-                engine.set(libint2::BraKet::xs_xx);
-            }
-
-            if constexpr(op == libint2::Operator::nuclear) {
-                std::vector<std::pair<double, std::array<double, 3>>> qs;
-
-                for(const auto& ai : mol)
-                    qs.push_back({static_cast<const double&>(ai.Z()), ai.coords()});
-
-                engine.set_params(qs);
-
-            } else if constexpr (op == libint2::Operator::stg ||
-                                 op == libint2::Operator::yukawa) {
-                engine.set_params(stg_exponent);
-            } else if constexpr (op == libint2::Operator::emultipole1 ||
-                                 op == libint2::Operator::emultipole2 ||
-                                 op == libint2::Operator::emultipole3 ) {
-                engine.set_params(origin);
-            }
-
-            return engine;
-        }
+        libint2::Engine operator()();
 
     }; // Class LibIntFactory
+
+    extern template class LibintFactory<2, libint2::Operator::overlap>;
+    extern template class LibintFactory<2, libint2::Operator::kinetic>;
+    extern template class LibintFactory<2, libint2::Operator::nuclear>;
+    extern template class LibintFactory<2, libint2::Operator::coulomb>;
+    extern template class LibintFactory<3, libint2::Operator::coulomb>;
+    extern template class LibintFactory<4, libint2::Operator::coulomb>;
+    extern template class LibintFactory<2, libint2::Operator::stg>;
+    extern template class LibintFactory<3, libint2::Operator::stg>;
+    extern template class LibintFactory<4, libint2::Operator::stg>;
+    extern template class LibintFactory<2, libint2::Operator::yukawa>;
+    extern template class LibintFactory<3, libint2::Operator::yukawa>;
+    extern template class LibintFactory<4, libint2::Operator::yukawa>;
+    extern template class LibintFactory<2, libint2::Operator::emultipole1>;
+    extern template class LibintFactory<2, libint2::Operator::emultipole2>;
+    extern template class LibintFactory<2, libint2::Operator::emultipole3>;
+    extern template class LibintFactory<4, libint2::Operator::delta>;
+
 
 } // namespace nwx_libint
