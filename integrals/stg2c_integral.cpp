@@ -24,6 +24,10 @@ namespace integrals {
         add_input<std::vector<type::size>>("Tile Size")
                 .set_description("Size threshold for tiling tensors by atom blocks")
                 .set_default(std::vector<type::size>{180});
+
+        add_input<element_type>("Screening Threshold")
+                .set_description("Threshold for Cauchy-Schwarz screening")
+                .set_default(0.0);
     }
 
     template<typename element_type>
@@ -32,6 +36,7 @@ namespace integrals {
         auto [bra, ket, deriv, stg_exponent] = stg2c_type<element_type>::unwrap_inputs(inputs);
         auto thresh = inputs.at("Threshold").value<element_type>();
         auto tile_size = inputs.at("Tile Size").value<std::vector<type::size>>();
+        auto cs_thresh = inputs.at("Screening Threshold").value<element_type>();
         auto& world = TA::get_default_world();
 
         auto fill = nwx_TA::FillNDFunctor<typename tensor<element_type>::value_type, libint2::Operator::stg, 2>();
@@ -44,6 +49,8 @@ namespace integrals {
         fill.factory.thresh = thresh;
         fill.factory.deriv = deriv;
         fill.factory.stg_exponent = stg_exponent;
+
+        fill.cs_thresh = cs_thresh;
 
         auto trange = nwx_TA::make_trange(fill.LIBasis_sets, tile_size);
 
