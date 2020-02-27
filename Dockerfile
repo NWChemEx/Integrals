@@ -69,8 +69,7 @@ RUN wget https://github.com/evaleev/libint/releases/download/v2.6.0/libint-2.6.0
 RUN tar -zxf libint-2.6.0.tgz
 RUN cd libint-*; export CXX=/usr/bin/g++-8; export CC=/usr/bin/gcc-8; ../cmake-3.16.3-Linux-x86_64/bin/cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=/Integrals/install -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_FLAGS="-std=c++17" -DBUILD_SHARED_LIBS=ON; cd build; make; make install
 #
-#RUN git clone https://$username:$password@github.com/NWChemEx-Project/Integrals
-RUN git clone https://$username:$password@github.com/hjjvandam/Integrals
+RUN git clone https://$username:$password@github.com/NWChemEx-Project/Integrals
 WORKDIR /Integrals/Integrals
 RUN git branch github-actions
 RUN git checkout github-actions
