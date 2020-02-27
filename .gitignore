@@ -1,3 +1,6 @@
+#This is the clang-format script downloaded by the pre-commit hook
+.clang-format
+
 #These are configuration files for QtCreator
 Integrals.config
 Integrals.creator
