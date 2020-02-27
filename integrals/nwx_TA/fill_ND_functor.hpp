@@ -17,6 +17,9 @@ namespace nwx_TA {
         // The factory that produces the appropriate LibInt2 engines
         nwx_libint::LibintFactory<NBases, op> factory;
 
+        // Cauchy-Schwarz Screening Threshold
+        double cs_thresh = 0.0;
+
         // Number of arrays returned by operator
         std::size_t nopers = libint2::operator_traits<op>::nopers;
 
