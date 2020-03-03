@@ -2,6 +2,7 @@
 #include <libint2.hpp>
 #include <tiledarray.h>
 #include "integrals/nwx_libint/nwx_libint_factory.hpp"
+#include "integrals/nwx_libint/cauchy_schwarz.hpp"
 
 namespace nwx_TA {
 
@@ -19,6 +20,7 @@ namespace nwx_TA {
 
         // Cauchy-Schwarz Screening Threshold
         double cs_thresh = 0.0;
+        nwx_libint::CauchySchwarz<NBases, op> screen;
 
         // Number of arrays returned by operator
         std::size_t nopers = libint2::operator_traits<op>::nopers;

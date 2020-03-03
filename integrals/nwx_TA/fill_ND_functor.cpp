@@ -10,6 +10,9 @@ namespace nwx_TA {
 
     template<typename val_type, libint2::Operator op, std::size_t NBases>
     float FillNDFunctor<val_type, op, NBases>::_fill(val_type& tile, const TiledArray::Range& range) {
+        // Determine if the entire tile is screened, before anymore work is done
+        if ((cs_thresh > 0.0) && screen.tile(range, cs_thresh)) { return 0.0; }
+
         tile = val_type(range);
 
         // In case something else finalized
@@ -50,8 +53,14 @@ namespace nwx_TA {
             shells[depth] = s;
 
             if (depth == (NBases - 1)) {
+                // Check if the shell set can be screened
+                auto screened = (cs_thresh == 0.0) ? false : screen.shellset(shells, cs_thresh);
+
                 // Compute integrals for current shells
-                _call_libint(tile_engine, shells, std::make_index_sequence<NBases>());
+                const auto& buf = tile_engine.results();
+                if (not screened) {
+                    _call_libint(tile_engine, shells, std::make_index_sequence<NBases>());
+                }
 
                 // Switch for multipole cases
                 if (nopers == 1) {
@@ -59,7 +68,7 @@ namespace nwx_TA {
                     size_vec indexer = offsets;
 
                     // Store the location of the results
-                    const auto& int_vals = tile_engine.results()[0];
+                    const auto& int_vals = (screened) ? nullptr : buf[0];
 
                     // Index for integrals values; referenced so it gets pasted around
                     int int_i = 0;
@@ -74,7 +83,7 @@ namespace nwx_TA {
                     // Loop over multipoles to fill in values
                     for (auto f = 0ul; f != nopers; ++f) {
                         // Store the location of the results
-                        const auto& int_vals = tile_engine.results()[f];
+                        const auto& int_vals = (screened) ? nullptr : buf[f];
 
                         // Index for integrals values; referenced so it gets pasted around
                         int int_i = 0;
