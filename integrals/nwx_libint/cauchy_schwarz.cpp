@@ -3,34 +3,35 @@
 namespace nwx_libint {
 
     template<size_type NBases, libint2::Operator op>
-    CauchySchwarz<NBases, op>::CauchySchwarz(nwx_libint::LibintFactory<NBases, op>& factory, basis_vec& bs_vec) :
-            basis_sets(bs_vec), factory(factory) {
+    void CauchySchwarz<NBases, op>::initialize(const basis_vec& basis_sets, factory_type& factory) {
 
         // Handle different potential cases
         if constexpr (NBases == 2) {
-            cs_mat1 = make_mat(basis_sets[0]);
+            cs_mat1 = make_mat(basis_sets[0], factory);
 
             if (basis_sets[0] == basis_sets[1]) {
                 cs_mat2 = cs_mat1; // don't waste time if these are the same
             } else {
-                cs_mat2 = make_mat(basis_sets[1]);
+                cs_mat2 = make_mat(basis_sets[1], factory);
             }
         } else if constexpr (NBases == 3) {
-            cs_mat1 = make_mat(basis_sets[0]);
-            cs_mat2 = make_mat(basis_sets[1], basis_sets[2]);
+            cs_mat1 = make_mat(basis_sets[0], factory);
+            cs_mat2 = make_mat(basis_sets[1], basis_sets[2], factory);
         } else if constexpr (NBases == 4) {
-            cs_mat1 = make_mat(basis_sets[0], basis_sets[1]);
+            cs_mat1 = make_mat(basis_sets[0], basis_sets[1], factory);
 
             if ((basis_sets[0] == basis_sets[1]) && (basis_sets[2] == basis_sets[3])) {
                 cs_mat2 = cs_mat1; // Same as before
             } else {
-                cs_mat2 = make_mat(basis_sets[2], basis_sets[3]);
+                cs_mat2 = make_mat(basis_sets[2], basis_sets[3], factory);
             }
         }
     }
 
     template<size_type NBases, libint2::Operator op>
-    bool CauchySchwarz<NBases, op>::tile(const TiledArray::Range& range, double cs_thresh){
+    bool CauchySchwarz<NBases, op>::tile(const basis_vec& basis_sets,
+                                         const TiledArray::Range& range,
+                                         double cs_thresh) {
         // The corners indices for the submatrix
         size_vec corners;
         // The length of the submatrix in the different dimensions
@@ -76,9 +77,8 @@ namespace nwx_libint {
     }
 
     template<size_type NBases, libint2::Operator op>
-    double CauchySchwarz<NBases, op>::cs_approx(const shell_vec& shells) {
-        // Get an engine from the factory
-        auto engine = factory();
+    double CauchySchwarz<NBases, op>::cs_approx(const shell_vec& shells, libint2::Engine engine) {
+        // Buffer of results
         const auto& buf = engine.results();
 
         // Appropriate call to engine to compute values
@@ -104,7 +104,8 @@ namespace nwx_libint {
     }
 
     template<size_type NBases, libint2::Operator op>
-    Eigen::MatrixXd CauchySchwarz<NBases, op>::make_mat(const basis_type& bs) {
+    Eigen::MatrixXd CauchySchwarz<NBases, op>::make_mat(const basis_type& bs,
+                                                        factory_type& factory) {
         auto& world = TA::get_default_world();
         if (not libint2::initialized()) { libint2::initialize(); } // in case it was finalized
 
@@ -112,7 +113,7 @@ namespace nwx_libint {
         Eigen::MatrixXd mat = Eigen::MatrixXd::Zero(bs.size(), 1);
 
         // Lambda to fill in the values
-        auto into_mat = [&] (int i) { mat(i, 0) = cs_approx({bs[i]}); };
+        auto into_mat = [&] (int i) { mat(i, 0) = cs_approx({bs[i]}, factory()); };
 
         // Calculate values
         for (int i = 0; i < bs.size(); ++i) { world.taskq.add(into_mat, i); }
@@ -122,7 +123,8 @@ namespace nwx_libint {
     }
 
     template<size_type NBases, libint2::Operator op>
-    Eigen::MatrixXd CauchySchwarz<NBases, op>::make_mat(const basis_type& bs1, const basis_type& bs2) {
+    Eigen::MatrixXd CauchySchwarz<NBases, op>::make_mat(const basis_type& bs1, const basis_type& bs2,
+                                                        factory_type& factory) {
         auto& world = TA::get_default_world();
         if (not libint2::initialized()) { libint2::initialize(); } // in case it was finalized
 
@@ -134,7 +136,7 @@ namespace nwx_libint {
 
         // Lambda to fill in the values
         auto into_mat = [&] (int i, int j) {
-            mat(i, j) = cs_approx({bs1[i], bs2[j]});
+            mat(i, j) = cs_approx({bs1[i], bs2[j]}, factory());
             if (same_bs && (i!=j)) { mat(j, i) = mat(i, j); } // cut down on work
         };
 

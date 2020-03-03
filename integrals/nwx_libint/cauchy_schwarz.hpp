@@ -13,24 +13,30 @@ namespace nwx_libint {
         using basis_type = libint2::BasisSet;
         using basis_vec = std::vector<basis_type>;
         using size_vec = std::vector<std::size_t>;
+        using factory_type = nwx_libint::LibintFactory<NBases, op>;
 
         // Matrices to hold the approximations for the two sides of the integral
         Eigen::MatrixXd cs_mat1;
         Eigen::MatrixXd cs_mat2;
 
-        // References to the basis sets and the integral factory
-        basis_vec& basis_sets;
-        nwx_libint::LibintFactory<NBases, op>& factory;
+        CauchySchwarz() = default;
+        ~CauchySchwarz() = default;
 
-        CauchySchwarz(nwx_libint::LibintFactory<NBases, op>& factory, basis_vec& bs_vec);
+        /** @brief Fill in screening matrices
+         *
+         *  @param basis_sets The basis sets of the integral
+         *  @param factory A factory that produces appropriate LibInt engines
+         */
+        void initialize(const basis_vec& basis_sets, factory_type& factory);
 
         /** @brief Check if a whole tile passes screening
          *
+         *  @param basis_sets The basis sets of the integral
          *  @param range The range of the tile
          *  @param cs_thresh The screening threshold
          *  @returns true if the tile is screened out
          */
-        bool tile(const TiledArray::Range& range, double cs_thresh);
+        bool tile(const basis_vec& basis_sets, const TiledArray::Range& range, double cs_thresh);
 
         /** @brief Check if a shell set passes screening
          *
@@ -43,24 +49,27 @@ namespace nwx_libint {
         /** @brief Calculate the Cauchy-Schwarz approximation for a shell or pair of shells
          *
          *  @param shells The LibInt2 shell(s)
+         *  @param engine A LibInt2 engine
          *  @returns The square root of the norm of the approximate integral
          */
-        double cs_approx(const shell_vec& shells);
+        double cs_approx(const shell_vec& shells, libint2::Engine engine);
 
         /** @brief Make matrix with approximation values for two-index integral
          *
          *  @param bs The LibInt2 basis set
+         *  @param factory A factory that produces appropriate LibInt engines
          *  @returns The matrix with the approximation values
          */
-        Eigen::MatrixXd make_mat(const basis_type& bs);
+        Eigen::MatrixXd make_mat(const basis_type& bs, factory_type& factory);
 
         /** @brief Make matrix with approximation values for four-index integral
          *
          *  @param bs1 One of the LibInt2 basis sets
          *  @param bs2 The other LibInt2 basis set
+         *  @param factory A factory that produces appropriate LibInt engines
          *  @returns The matrix with the approximation values
          */
-        Eigen::MatrixXd make_mat(const basis_type& bs1, const basis_type& bs2);
+        Eigen::MatrixXd make_mat(const basis_type& bs1, const basis_type& bs2, factory_type& factory);
 
     }; // Class CauchySchwarz
 

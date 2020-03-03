@@ -11,7 +11,7 @@ namespace nwx_TA {
     template<typename val_type, libint2::Operator op, std::size_t NBases>
     float FillNDFunctor<val_type, op, NBases>::_fill(val_type& tile, const TiledArray::Range& range) {
         // Determine if the entire tile is screened, before anymore work is done
-        if ((cs_thresh > 0.0) && screen.tile(range, cs_thresh)) { return 0.0; }
+        if ((cs_thresh > 0.0) && screen.tile(LIBasis_sets, range, cs_thresh)) { return 0.0; }
 
         tile = val_type(range);
 
