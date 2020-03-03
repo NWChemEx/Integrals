@@ -4,6 +4,7 @@
 #include <integrals/nwx_libint/cauchy_schwarz.hpp>
 #include <integrals/nwx_libint/nwx_libint_factory.hpp>
 #include <property_types/ao_integrals/electron_repulsion.hpp>
+#include "H2O_STO3G_ERI_SCREENED.hpp"
 
 
 std::vector<double> two_index {1.0229550772140450,
@@ -50,7 +51,9 @@ TEST_CASE("Cauchy-Schwarz") {
 
     sde::ModuleManager mm;
     integrals::load_modules(mm);
-    mm.at("ERI4").change_input("Screening Threshold", 0.004);
+    mm.at("ERI4").change_input("Screening Threshold", 0.005);
     auto [I] = mm.at("ERI4").run_as<integral_type>(bs, bs, bs, bs, std::size_t{0});
+
+    compare_integrals(I, corr);
 }
 
