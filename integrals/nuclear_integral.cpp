@@ -50,7 +50,10 @@ namespace integrals {
         fill.factory.deriv = deriv;
         fill.factory.mol = mol;
 
-        fill.cs_thresh = cs_thresh;
+        if (cs_thresh != 0.0) {
+            fill.cs_thresh = cs_thresh;
+            fill.screen.initialize(fill.LIBasis_sets, fill.factory);
+        }
 
         auto trange = nwx_TA::make_trange(fill.LIBasis_sets, tile_size);
 

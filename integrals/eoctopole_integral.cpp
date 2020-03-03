@@ -50,7 +50,10 @@ namespace integrals {
         fill.factory.thresh = thresh;
         fill.factory.deriv = deriv;
 
-        fill.cs_thresh = cs_thresh;
+        if (cs_thresh != 0.0) {
+            fill.cs_thresh = cs_thresh;
+            fill.screen.initialize(fill.LIBasis_sets, fill.factory);
+        }
 
         auto nopers = libint2::operator_traits<libint2::Operator::emultipole3>::nopers;
         auto component_range = nwx_TA::make_tiled_range(nopers, nopers);
