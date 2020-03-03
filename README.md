@@ -1,3 +1,7 @@
+[![Actions](https://github.com/NWChemEx-Project/Integrals/workflows/C_C++_CI/badge.svg)](https://github.com/NWChemEx-Project/Integrals)
+
+[![Codecov](https://codecov.io/github/NWChemEx-Project/Integrals/branch/master/graphs/sunburst.svg?token=5ChSH9Fq4j)](https://codecov.io/github/NWChemEx-Project/Integrals/branch/master)
+
 Integrals
 ===========
 
