@@ -25,15 +25,22 @@ inline void compare_integrals(TensorType& calc, BlockTensor& corr,
                               const double marg = 100 * std::numeric_limits<double>::epsilon()) {
     REQUIRE(calc.size() == corr.size());
 
-    for (const auto& it : calc) {
-        auto calc_block = it.get();
-        auto& corr_block = corr.at(it.index());
+    for (const auto& elem : corr) {
+        auto idx = elem.first;
+        auto corr_block = elem.second;
+        auto is_zero = calc.shape().is_zero(idx);
 
-        REQUIRE(calc_block.size() <= corr_block.size());
-        auto check_len = std::min(calc_block.size(), corr_block.size());
+        if (is_zero) {
+            for (double val : corr_block) {
+                REQUIRE(0.0 == Approx(val).epsilon(eps).margin(marg));
+            }
+        } else {
+            auto calc_block = calc.find(idx).get();
 
-        for (int i = 0; i < check_len; ++i) {
-            REQUIRE(calc_block[i] == Approx(corr_block[i]).epsilon(eps).margin(marg));
+            REQUIRE(calc_block.size() <= corr_block.size());
+            for (int i = 0; i < calc_block.size(); ++i) {
+                REQUIRE(calc_block[i] == Approx(corr_block[i]).epsilon(eps).margin(marg));
+            }
         }
     }
 }
