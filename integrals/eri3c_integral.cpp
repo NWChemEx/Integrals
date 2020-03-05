@@ -3,6 +3,7 @@
 #include "nwx_libint/nwx_libint_factory.hpp"
 #include "nwx_TA/nwx_TA_utils.hpp"
 #include "nwx_TA/fill_ND_functor.hpp"
+#include "integrals/libint_integral.hpp"
 #include <property_types/ao_integrals/electron_repulsion.hpp>
 
 namespace integrals {
@@ -10,28 +11,22 @@ namespace integrals {
     template<typename element_type>
     using eri3c_type = property_types::ERI3CIntegral<element_type>;
     template<typename element_type>
+    using libint_type = property_types::LibIntIntegral<element_type>;
+    template<typename element_type>
     using tensor = typename type::tensor<element_type>;
 
     template<typename element_type>
     ERI3CInt<element_type>::ERI3CInt() : sde::ModuleBase(this) {
         description("Computes 3-center electron repulsion integrals with Libint");
         satisfies_property_type<eri3c_type<element_type>>();
-
-        add_input<element_type>("Threshold")
-                .set_description("Convergence threshold of integrals")
-                .set_default(1.0E-16);
-
-        add_input<std::vector<type::size>>("Tile Size")
-                .set_description("Size threshold for tiling tensors by atom blocks")
-                .set_default(std::vector<type::size>{180});
+        satisfies_property_type<libint_type<element_type>>();
     }
 
     template<typename element_type>
     sde::type::result_map ERI3CInt<element_type>::run_(sde::type::input_map inputs,
                                                        sde::type::submodule_map submods) const {
         auto [bra, ket1, ket2, deriv] = eri3c_type<element_type>::unwrap_inputs(inputs);
-        auto thresh = inputs.at("Threshold").value<element_type>();
-        auto tile_size = inputs.at("Tile Size").value<std::vector<type::size>>();
+        auto [thresh, tile_size, cs_thresh] = libint_type<element_type>::unwrap_inputs(inputs);
         auto& world = TA::get_default_world();
 
         auto fill = nwx_TA::FillNDFunctor<typename tensor<element_type>::value_type, libint2::Operator::coulomb, 3>();
@@ -44,11 +39,14 @@ namespace integrals {
         fill.factory.thresh = thresh;
         fill.factory.deriv = deriv;
 
+        if (cs_thresh != 0.0) {
+            fill.cs_thresh = cs_thresh;
+            fill.screen.initialize(fill.LIBasis_sets, fill.factory);
+        }
+
         auto trange = nwx_TA::make_trange(fill.LIBasis_sets, tile_size);
 
-        libint2::initialize();
         auto I = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
-        libint2::finalize();
 
         auto rv = results();
         return eri3c_type<element_type>::wrap_results(rv, I);
