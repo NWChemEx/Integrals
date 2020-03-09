@@ -59,6 +59,7 @@ namespace nwx_TA {
                            libint2::Engine& tile_engine,
                            size_vec& offsets,
                            size_vec& shells,
+                           std::vector<size_vec>& tile_shells,
                            int depth);
 
         /** @brief Recursive function that transverses all of the dimensions of the current tile

@@ -27,8 +27,19 @@ namespace nwx_TA {
         // Vector for storing the indices of the current shells
         size_vec shells(NBases);
 
+        // Shells in the current tile
+        std::vector<size_vec> tile_shells;
+        for (int depth = 0; depth < NBases; depth++) {
+            int tile_depth = (nopers == 1) ? depth : depth + 1;
+
+            auto depth_shells = aos2shells(LIBasis_sets[depth],
+                    range.lobound()[tile_depth], range.upbound()[tile_depth]);
+
+            tile_shells.push_back(depth_shells);
+        }
+
         // Start recurvise process to determine the shells needed for the current tile
-        _index_shells(tile, range, tile_engine, offsets, shells, 0);
+        _index_shells(tile, range, tile_engine, offsets, shells, tile_shells, 0);
 
         // Return norm for new tile
         return tile.norm();
@@ -40,6 +51,7 @@ namespace nwx_TA {
                                                             libint2::Engine& tile_engine,
                                                             size_vec& offsets,
                                                             size_vec& shells,
+                                                            std::vector<size_vec>& tile_shells,
                                                             int depth) {
         // Deal with the additional dimension of the tile for multipoles
         int tile_depth = (nopers == 1) ? depth : depth + 1;
@@ -48,7 +60,7 @@ namespace nwx_TA {
         offsets[depth] = range.lobound()[tile_depth];
 
         // Loop over the shells that contain the AOs spanned by the tile in this dimension
-        for (auto s : aos2shells(LIBasis_sets[depth], range.lobound()[tile_depth], range.upbound()[tile_depth])) {
+        for (auto s : tile_shells[depth]) {
             // Save index of current shell to be passed down the line
             shells[depth] = s;
 
@@ -97,7 +109,7 @@ namespace nwx_TA {
                 }
             } else {
                 // Keep going down until all dimensions of the the tensor have been covered
-                _index_shells(tile, range, tile_engine, offsets, shells, depth + 1);
+                _index_shells(tile, range, tile_engine, offsets, shells, tile_shells, depth + 1);
             }
             // Increase the offsets for the current dimension by the size of the completed shell
             offsets[depth] += LIBasis_sets[depth][shells[depth]].size();
