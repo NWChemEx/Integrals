@@ -14,6 +14,8 @@ namespace integrals {
     using libint_type = property_types::LibIntIntegral<element_type>;
     template<typename element_type>
     using tensor = typename type::tensor<element_type>;
+    template<typename element_type>
+    using value_type = typename tensor<element_type>::value_type;
 
     template<typename element_type>
     ERI3CInt<element_type>::ERI3CInt() : sde::ModuleBase(this) {
@@ -29,7 +31,7 @@ namespace integrals {
         auto [thresh, tile_size, cs_thresh] = libint_type<element_type>::unwrap_inputs(inputs);
         auto& world = TA::get_default_world();
 
-        auto fill = nwx_TA::FillNDFunctor<typename tensor<element_type>::value_type, libint2::Operator::coulomb, 3>();
+        auto fill = nwx_TA::FillNDFunctor<value_type<element_type>, libint2::Operator::coulomb, 3>();
 
         fill.LIBasis_sets = nwx_libint::make_basis_sets({bra, ket1, ket2});
 

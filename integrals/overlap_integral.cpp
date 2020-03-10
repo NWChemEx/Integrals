@@ -13,7 +13,9 @@ namespace integrals {
     template<typename element_type>
     using libint_type = property_types::LibIntIntegral<element_type>;
     template<typename element_type>
-    using tensor = typename integrals::type::tensor<element_type>;
+    using tensor = typename type::tensor<element_type>;
+    template<typename element_type>
+    using value_type = typename tensor<element_type>::value_type;
 
     template<typename element_type>
     OverlapInt<element_type>::OverlapInt() : sde::ModuleBase(this) {
@@ -29,7 +31,7 @@ namespace integrals {
         auto [thresh, tile_size, cs_thresh] = libint_type<element_type>::unwrap_inputs(inputs);
         auto& world = TA::get_default_world();
 
-        auto fill = nwx_TA::FillNDFunctor<typename tensor<element_type>::value_type, libint2::Operator::overlap, 2>();
+        auto fill = nwx_TA::FillNDFunctor<value_type<element_type>, libint2::Operator::overlap, 2>();
 
         fill.LIBasis_sets = nwx_libint::make_basis_sets({bra, ket});
 
