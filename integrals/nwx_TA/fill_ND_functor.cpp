@@ -1,7 +1,29 @@
 #include "integrals/nwx_TA/fill_ND_functor.hpp"
 #include "integrals/nwx_TA/nwx_TA_utils.hpp"
+#include "integrals/nwx_libint/nwx_libint.hpp"
 
 namespace nwx_TA {
+
+    template<typename val_type, libint2::Operator op, std::size_t NBases>
+    void FillNDFunctor<val_type, op, NBases>::initialize(const basis_vec& sets,
+                                                         size_type deriv,
+                                                         element_type thresh,
+                                                         element_type cs) {
+        LIBasis_sets = sets;
+        cs_thresh = cs;
+
+        // Build factory
+        factory = nwx_libint::LibintFactory<NBases, op>();
+        factory.max_nprims = nwx_libint::sets_max_nprims(LIBasis_sets);
+        factory.max_l = nwx_libint::sets_max_l(LIBasis_sets);
+        factory.thresh = thresh;
+        factory.deriv = deriv;
+
+        // Initialize screening
+        if (cs_thresh != 0.0) {
+            screen.initialize(LIBasis_sets, factory);
+        }
+    }
 
     template<typename val_type, libint2::Operator op, std::size_t NBases>
     float FillNDFunctor<val_type, op, NBases>::operator()(val_type& tile, const TiledArray::Range& range) {

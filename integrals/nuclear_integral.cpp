@@ -1,6 +1,5 @@
 #include "nuclear_integral.hpp"
 #include "nwx_libint/nwx_libint.hpp"
-#include "nwx_libint/nwx_libint_factory.hpp"
 #include "nwx_TA/nwx_TA_utils.hpp"
 #include "nwx_TA/fill_ND_functor.hpp"
 #include "integrals/libint_integral.hpp"
@@ -33,19 +32,8 @@ namespace integrals {
 
         auto fill = nwx_TA::FillNDFunctor<value_type<element_type>, libint2::Operator::nuclear, 2>();
 
-        fill.LIBasis_sets = nwx_libint::make_basis_sets({bra, ket});
-
-        fill.factory = nwx_libint::LibintFactory<2, libint2::Operator::nuclear>();
-        fill.factory.max_nprims = nwx_libint::sets_max_nprims(fill.LIBasis_sets);
-        fill.factory.max_l = nwx_libint::sets_max_l(fill.LIBasis_sets);
-        fill.factory.thresh = thresh;
-        fill.factory.deriv = deriv;
+        fill.initialize(nwx_libint::make_basis_sets({bra, ket}), deriv, thresh, cs_thresh);
         fill.factory.mol = mol;
-
-        if (cs_thresh != 0.0) {
-            fill.cs_thresh = cs_thresh;
-            fill.screen.initialize(fill.LIBasis_sets, fill.factory);
-        }
 
         auto trange = nwx_TA::make_trange(fill.LIBasis_sets, tile_size);
 

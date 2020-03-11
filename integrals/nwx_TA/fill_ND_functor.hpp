@@ -1,6 +1,7 @@
 #pragma once
 #include <libint2.hpp>
 #include <tiledarray.h>
+#include "integrals/types.hpp"
 #include "integrals/nwx_libint/nwx_libint_factory.hpp"
 #include "integrals/nwx_libint/cauchy_schwarz.hpp"
 
@@ -9,8 +10,10 @@ namespace nwx_TA {
     template<typename val_type, libint2::Operator op, std::size_t NBases>
     struct FillNDFunctor {
 
+        using size_type = integrals::type::size;
         using basis_vec = std::vector<libint2::BasisSet>;
-        using size_vec = std::vector<std::size_t>;
+        using size_vec = std::vector<size_type>;
+        using element_type = typename val_type::numeric_type;
 
         // The collected LibInt2 basis sets needed for the integral
         basis_vec LIBasis_sets;
@@ -23,11 +26,13 @@ namespace nwx_TA {
         nwx_libint::CauchySchwarz<NBases, op> screen;
 
         // Number of arrays returned by operator
-        std::size_t nopers = libint2::operator_traits<op>::nopers;
+        size_type nopers = libint2::operator_traits<op>::nopers;
 
         // Initialize and finalize LibInt2
         FillNDFunctor() { libint2::initialize(); }
         ~FillNDFunctor() { libint2::finalize(); }
+
+        void initialize(const basis_vec& sets, size_type deriv, element_type thresh, element_type cs_thresh);
 
         // Complies with the TA API for these functions
         float operator()(val_type& tile, const TiledArray::Range& range);
