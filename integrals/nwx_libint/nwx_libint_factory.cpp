@@ -22,12 +22,11 @@ namespace nwx_libint {
 
             engine.set_params(qs);
 
-        } else if (op == libint2::Operator::stg ||
-                             op == libint2::Operator::yukawa) {
+        } else if (op == libint2::Operator::stg || op == libint2::Operator::yukawa) {
             engine.set_params(stg_exponent);
         } else if (op == libint2::Operator::emultipole1 ||
-                             op == libint2::Operator::emultipole2 ||
-                             op == libint2::Operator::emultipole3 ) {
+                   op == libint2::Operator::emultipole2 ||
+                   op == libint2::Operator::emultipole3 ) {
             engine.set_params(origin);
         }
 
