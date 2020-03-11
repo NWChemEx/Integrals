@@ -19,7 +19,7 @@ namespace nwx_TA {
         basis_vec LIBasis_sets;
 
         // The factory that produces the appropriate LibInt2 engines
-        nwx_libint::LibintFactory<NBases, op> factory;
+        nwx_libint::LibintFactory factory;
 
         // Cauchy-Schwarz Screening Threshold
         double cs_thresh = 0.0;

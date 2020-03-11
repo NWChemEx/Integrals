@@ -13,7 +13,7 @@ namespace nwx_TA {
         cs_thresh = cs;
 
         // Build factory
-        factory = nwx_libint::LibintFactory<NBases, op>();
+        factory = nwx_libint::LibintFactory();
         factory.max_nprims = nwx_libint::sets_max_nprims(LIBasis_sets);
         factory.max_l = nwx_libint::sets_max_l(LIBasis_sets);
         factory.thresh = thresh;
@@ -41,7 +41,7 @@ namespace nwx_TA {
         if (not libint2::initialized()) { libint2::initialize(); }
 
         // Make libint engine
-        auto tile_engine = factory();
+        auto tile_engine = factory(NBases, op);
 
         // Vector for storing the offsets of the current shells
         size_vec offsets(NBases);

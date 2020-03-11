@@ -32,7 +32,7 @@ TEST_CASE("Cauchy-Schwarz") {
     auto li_bs = nwx_libint::make_basis(bs);
     std::vector<libint2::BasisSet> sets = {li_bs, li_bs, li_bs};
 
-    auto factory = nwx_libint::LibintFactory<3, libint2::Operator::coulomb>();
+    auto factory = nwx_libint::LibintFactory();
     factory.max_nprims = libint2::max_nprim(li_bs);
     factory.max_l = libint2::max_l(li_bs);
     factory.thresh = 1.0E-16;

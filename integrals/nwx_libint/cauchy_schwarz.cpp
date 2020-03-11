@@ -113,7 +113,7 @@ namespace nwx_libint {
         Eigen::MatrixXd mat = Eigen::MatrixXd::Zero(bs.size(), 1);
 
         // Lambda to fill in the values
-        auto into_mat = [&] (int i) { mat(i, 0) = cs_approx({bs[i]}, factory()); };
+        auto into_mat = [&] (int i) { mat(i, 0) = cs_approx({bs[i]}, factory(NBases, op)); };
 
         // Calculate values
         for (int i = 0; i < bs.size(); ++i) { world.taskq.add(into_mat, i); }
@@ -136,7 +136,7 @@ namespace nwx_libint {
 
         // Lambda to fill in the values
         auto into_mat = [&] (int i, int j) {
-            mat(i, j) = cs_approx({bs1[i], bs2[j]}, factory());
+            mat(i, j) = cs_approx({bs1[i], bs2[j]}, factory(NBases, op));
             if (same_bs && (i!=j)) { mat(j, i) = mat(i, j); } // cut down on work
         };
 

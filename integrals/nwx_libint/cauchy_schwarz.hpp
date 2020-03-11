@@ -13,7 +13,7 @@ namespace nwx_libint {
         using basis_type = libint2::BasisSet;
         using basis_vec = std::vector<basis_type>;
         using size_vec = std::vector<std::size_t>;
-        using factory_type = nwx_libint::LibintFactory<NBases, op>;
+        using factory_type = nwx_libint::LibintFactory;
 
         // Matrices to hold the approximations for the two sides of the integral
         Eigen::MatrixXd cs_mat1;
