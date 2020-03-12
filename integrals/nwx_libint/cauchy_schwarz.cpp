@@ -2,7 +2,7 @@
 
 namespace nwx_libint {
 
-    template<size_type NBases, libint2::Operator op>
+    template<std::size_t NBases, libint2::Operator op>
     void CauchySchwarz<NBases, op>::initialize(const basis_vec& basis_sets, factory_type& factory) {
 
         // Handle different potential cases
@@ -28,7 +28,7 @@ namespace nwx_libint {
         }
     }
 
-    template<size_type NBases, libint2::Operator op>
+    template<std::size_t NBases, libint2::Operator op>
     bool CauchySchwarz<NBases, op>::tile(const basis_vec& basis_sets,
                                          const TiledArray::Range& range,
                                          double cs_thresh) {
@@ -63,7 +63,7 @@ namespace nwx_libint {
         }
     }
 
-    template<size_type NBases, libint2::Operator op>
+    template<std::size_t NBases, libint2::Operator op>
     bool CauchySchwarz<NBases, op>::shellset(size_vec shells, double cs_thresh) {
         // Check approximation product vs provided threshold value
         if constexpr (NBases == 2) {
@@ -76,7 +76,7 @@ namespace nwx_libint {
         return false;
     }
 
-    template<size_type NBases, libint2::Operator op>
+    template<std::size_t NBases, libint2::Operator op>
     double CauchySchwarz<NBases, op>::cs_approx(const shell_vec& shells, libint2::Engine engine) {
         // Buffer of results
         const auto& buf = engine.results();
@@ -103,7 +103,7 @@ namespace nwx_libint {
         return infinity_norm;
     }
 
-    template<size_type NBases, libint2::Operator op>
+    template<std::size_t NBases, libint2::Operator op>
     Eigen::MatrixXd CauchySchwarz<NBases, op>::make_mat(const basis_type& bs,
                                                         factory_type& factory) {
         auto& world = TA::get_default_world();
@@ -122,7 +122,7 @@ namespace nwx_libint {
         return mat;
     }
 
-    template<size_type NBases, libint2::Operator op>
+    template<std::size_t NBases, libint2::Operator op>
     Eigen::MatrixXd CauchySchwarz<NBases, op>::make_mat(const basis_type& bs1, const basis_type& bs2,
                                                         factory_type& factory) {
         auto& world = TA::get_default_world();

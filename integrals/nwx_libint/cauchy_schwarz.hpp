@@ -7,12 +7,13 @@
 namespace nwx_libint {
 
     // Class to handle the Cauchy-Schwarz approximations for an integral
-    template<size_type NBases, libint2::Operator op>
+    template<std::size_t NBases, libint2::Operator op>
     struct CauchySchwarz {
+        using size_type = integrals::type::size;
         using shell_vec = std::vector<libint2::Shell>;
         using basis_type = libint2::BasisSet;
         using basis_vec = std::vector<basis_type>;
-        using size_vec = std::vector<std::size_t>;
+        using size_vec = std::vector<size_type >;
         using factory_type = nwx_libint::LibintFactory;
 
         // Matrices to hold the approximations for the two sides of the integral

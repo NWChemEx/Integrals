@@ -4,11 +4,10 @@
 
 namespace nwx_libint {
 
-    using size_type = integrals::type::size;
-    using mol_type = integrals::type::molecule;
-
     // Factory class that produces Libint2 engines.
     struct LibintFactory {
+        using size_type = integrals::type::size;
+        using mol_type = integrals::type::molecule;
 
         // general parameters of the Libint engine
         size_type max_nprims = 0;
