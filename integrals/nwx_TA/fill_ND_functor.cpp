@@ -13,7 +13,6 @@ namespace nwx_TA {
         cs_thresh = cs;
 
         // Build factory
-        factory = nwx_libint::LibintFactory();
         factory.max_nprims = nwx_libint::sets_max_nprims(LIBasis_sets);
         factory.max_l = nwx_libint::sets_max_l(LIBasis_sets);
         factory.thresh = thresh;
@@ -27,11 +26,6 @@ namespace nwx_TA {
 
     template<typename val_type, libint2::Operator op, std::size_t NBases>
     float FillNDFunctor<val_type, op, NBases>::operator()(val_type& tile, const TiledArray::Range& range) {
-        return _fill(tile, range);
-    }
-
-    template<typename val_type, libint2::Operator op, std::size_t NBases>
-    float FillNDFunctor<val_type, op, NBases>::_fill(val_type& tile, const TiledArray::Range& range) {
         // Determine if the entire tile is screened, before anymore work is done
         if ((cs_thresh > 0.0) && screen.tile(LIBasis_sets, range, cs_thresh)) { return 0.0; }
 
@@ -55,7 +49,7 @@ namespace nwx_TA {
             int tile_depth = (nopers == 1) ? depth : depth + 1;
 
             auto depth_shells = aos2shells(LIBasis_sets[depth],
-                    range.lobound()[tile_depth], range.upbound()[tile_depth]);
+                                           range.lobound()[tile_depth], range.upbound()[tile_depth]);
 
             tile_shells.push_back(depth_shells);
         }
@@ -65,6 +59,43 @@ namespace nwx_TA {
 
         // Return norm for new tile
         return tile.norm();
+    }
+
+    template<typename val_type, libint2::Operator op, std::size_t NBases>
+    val_type FillNDFunctor<val_type, op, NBases>::operator()(const TiledArray::Range& range) {
+        // Determine if the entire tile is screened, before anymore work is done
+        if ((cs_thresh > 0.0) && screen.tile(LIBasis_sets, range, cs_thresh)) { return val_type(range, 0.0); }
+
+        val_type tile(range);
+
+        // In case something else finalized
+        if (not libint2::initialized()) { libint2::initialize(); }
+
+        // Make libint engine
+        auto tile_engine = factory(NBases, op);
+
+        // Vector for storing the offsets of the current shells
+        size_vec offsets(NBases);
+
+        // Vector for storing the indices of the current shells
+        size_vec shells(NBases);
+
+        // Shells in the current tile
+        std::vector<size_vec> tile_shells;
+        for (int depth = 0; depth < NBases; depth++) {
+            int tile_depth = (nopers == 1) ? depth : depth + 1;
+
+            auto depth_shells = aos2shells(LIBasis_sets[depth],
+                                           range.lobound()[tile_depth], range.upbound()[tile_depth]);
+
+            tile_shells.push_back(depth_shells);
+        }
+
+        // Start recurvise process to determine the shells needed for the current tile
+        _index_shells(tile, range, tile_engine, offsets, shells, tile_shells, 0);
+
+        // Return norm for new tile
+        return tile;
     }
 
     template<typename val_type, libint2::Operator op, std::size_t NBases>

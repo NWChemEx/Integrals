@@ -19,7 +19,7 @@ namespace nwx_TA {
         basis_vec LIBasis_sets;
 
         // The factory that produces the appropriate LibInt2 engines
-        nwx_libint::LibintFactory factory;
+        nwx_libint::LibintFactory factory = nwx_libint::LibintFactory();
 
         // Cauchy-Schwarz Screening Threshold
         double cs_thresh = 0.0;
@@ -29,25 +29,24 @@ namespace nwx_TA {
         size_type nopers = libint2::operator_traits<op>::nopers;
 
         // Initialize and finalize LibInt2
-        FillNDFunctor() { libint2::initialize(); }
-        ~FillNDFunctor() { libint2::finalize(); }
+        FillNDFunctor() = default;
+        ~FillNDFunctor() = default;
 
         void initialize(const basis_vec& sets, size_type deriv, element_type thresh, element_type cs_thresh);
 
-        // Complies with the TA API for these functions
-        float operator()(val_type& tile, const TiledArray::Range& range);
-
-    private:
-
         /** @brief The top level function that starts the recursive calls of the other functions.
          *         Gets the tile @p tile and range @p range from TA, then initializes the tile and
-         *         declares the vectors for the offsets and shells.
+         *         declares the vectors for the offsets and shells. Complies with the TA API for
+         *         these functions
          *
          *  @param[in] tile The tile to be filled
          *  @param[in] range The range of the tile
          *  @returns The norm of the filled tile
          */
-        float _fill(val_type& tile, const TiledArray::Range& range);
+        float operator()(val_type& tile, const TiledArray::Range& range);
+        val_type operator()(const TiledArray::Range& range);
+
+    private:
 
         /** @brief Recursive function that transverses all of the dimensions of the current tile
          *         and finds the shells that need to be computed to fill the tile.
