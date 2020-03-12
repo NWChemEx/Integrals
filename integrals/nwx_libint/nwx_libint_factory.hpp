@@ -7,7 +7,6 @@ namespace nwx_libint {
     // Factory class that produces Libint2 engines.
     struct LibintFactory {
         using size_type = integrals::type::size;
-        using mol_type = integrals::type::molecule;
 
         // general parameters of the Libint engine
         size_type max_nprims = 0;
@@ -18,7 +17,7 @@ namespace nwx_libint {
         // parameters for specific integral types
         double stg_exponent = 1.0;
         std::array<double, 3> origin{0, 0, 0};
-        mol_type mol;
+        std::vector<std::pair<double, std::array<double, 3>>> qs;
 
         LibintFactory() = default;
 

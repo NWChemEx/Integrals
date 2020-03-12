@@ -15,11 +15,6 @@ namespace nwx_libint {
         }
 
         if (op == libint2::Operator::nuclear) {
-            std::vector<std::pair<double, std::array<double, 3>>> qs;
-
-            for(const auto& ai : mol)
-                qs.emplace_back(static_cast<const double&>(ai.Z()), ai.coords());
-
             engine.set_params(qs);
 
         } else if (op == libint2::Operator::stg || op == libint2::Operator::yukawa) {

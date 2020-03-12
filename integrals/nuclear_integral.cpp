@@ -30,10 +30,14 @@ namespace integrals {
         auto [thresh, tile_size, cs_thresh] = libint_type<element_type>::unwrap_inputs(inputs);
         auto& world = TA::get_default_world();
 
+        std::vector<std::pair<double, std::array<double, 3>>> qs;
+        for(const auto& ai : mol)
+            qs.emplace_back(static_cast<const double&>(ai.Z()), ai.coords());
+
         auto fill = nwx_TA::FillNDFunctor<value_type<element_type>, libint2::Operator::nuclear, 2>();
 
         fill.initialize(nwx_libint::make_basis_sets({bra, ket}), deriv, thresh, cs_thresh);
-        fill.factory.mol = mol;
+        fill.factory.qs = qs;
 
         auto trange = nwx_TA::make_trange(fill.LIBasis_sets, tile_size);
 

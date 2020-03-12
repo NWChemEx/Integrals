@@ -37,7 +37,6 @@ TEST_CASE("Cauchy-Schwarz") {
     factory.max_l = libint2::max_l(li_bs);
     factory.thresh = 1.0E-16;
     factory.deriv = 0;
-    factory.mol = molecule;
 
     auto cs_screener = nwx_libint::CauchySchwarz<3, libint2::Operator::coulomb>();
     cs_screener.initialize(sets, factory);
