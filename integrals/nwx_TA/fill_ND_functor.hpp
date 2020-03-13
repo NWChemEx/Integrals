@@ -2,8 +2,10 @@
 #include <libint2.hpp>
 #include <tiledarray.h>
 #include "integrals/types.hpp"
+#include "integrals/nwx_TA/basis_set_serialize.hpp"
 #include "integrals/nwx_libint/nwx_libint_factory.hpp"
 #include "integrals/nwx_libint/cauchy_schwarz.hpp"
+
 
 namespace nwx_TA {
 
@@ -23,7 +25,7 @@ namespace nwx_TA {
 
         // Cauchy-Schwarz Screening Threshold
         double cs_thresh = 0.0;
-        nwx_libint::CauchySchwarz<NBases, op> screen;
+        nwx_libint::CauchySchwarz<NBases, op> screen = nwx_libint::CauchySchwarz<NBases, op>();
 
         // Number of arrays returned by operator
         size_type nopers = libint2::operator_traits<op>::nopers;
@@ -51,6 +53,9 @@ namespace nwx_TA {
             ar &nopers;
             ar &cs_thresh;
 
+            ar &screen.cs_mat1;
+            ar &screen.cs_mat2;
+
             ar &factory.max_nprims;
             ar &factory.max_l;
             ar &factory.thresh;
@@ -59,19 +64,7 @@ namespace nwx_TA {
             ar &factory.origin;
             ar &factory.qs;
 
-            ar &screen.cs_mat1;
-            ar &screen.cs_mat2;
-
-//            std::size_t nsets = LIBasis_sets.size();
-//            std::vector<std::size_t> set_lens;
-//            for (auto set : LIBasis_sets) { set_lens.emplace_back(set.size()); }
-//            for (auto set : LIBasis_sets) {
-//                for (auto shell : set) {
-//
-//                }
-//            }
-
-
+            serialize_basis_sets(ar, LIBasis_sets);
         }
 
     private:
