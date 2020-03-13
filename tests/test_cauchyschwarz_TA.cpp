@@ -42,9 +42,9 @@ TEST_CASE("Cauchy-Schwarz") {
     cs_screener.initialize(sets, factory);
 
     for (int i = 0; i < 5; ++i) {
-        REQUIRE(cs_screener.cs_mat1(i, 0) == Approx(two_index[i]).epsilon(eps).margin(marg));
+        REQUIRE(cs_screener.cs_mat1[0][i] == Approx(two_index[i]).epsilon(eps).margin(marg));
         for (int j = 0; j < 5; ++j) {
-            REQUIRE(cs_screener.cs_mat2(i, j) == Approx(four_index[i][j]).epsilon(eps).margin(marg));
+            REQUIRE(cs_screener.cs_mat2[i][j] == Approx(four_index[i][j]).epsilon(eps).margin(marg));
         }
     }
 

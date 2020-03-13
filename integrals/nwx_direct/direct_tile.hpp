@@ -23,6 +23,7 @@ struct DirectTile {
     template<typename Archive>
     void serialize(Archive &ar) {
         ar &range;
+        ar &builder;
     }
 
 }; // class DirectTile

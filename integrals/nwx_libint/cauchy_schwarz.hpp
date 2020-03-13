@@ -15,10 +15,11 @@ namespace nwx_libint {
         using basis_vec = std::vector<basis_type>;
         using size_vec = std::vector<size_type >;
         using factory_type = nwx_libint::LibintFactory;
+        using approx_vec = std::vector<std::vector<double>>;
 
         // Matrices to hold the approximations for the two sides of the integral
-        Eigen::MatrixXd cs_mat1;
-        Eigen::MatrixXd cs_mat2;
+        approx_vec cs_mat1;
+        approx_vec cs_mat2;
 
         CauchySchwarz() = default;
         ~CauchySchwarz() = default;
@@ -61,7 +62,7 @@ namespace nwx_libint {
          *  @param factory A factory that produces appropriate LibInt engines
          *  @returns The matrix with the approximation values
          */
-        Eigen::MatrixXd make_mat(const basis_type& bs, factory_type& factory);
+        auto make_mat(const basis_type& bs, factory_type& factory);
 
         /** @brief Make matrix with approximation values for four-index integral
          *
@@ -70,7 +71,7 @@ namespace nwx_libint {
          *  @param factory A factory that produces appropriate LibInt engines
          *  @returns The matrix with the approximation values
          */
-        Eigen::MatrixXd make_mat(const basis_type& bs1, const basis_type& bs2, factory_type& factory);
+        auto make_mat(const basis_type& bs1, const basis_type& bs2, factory_type& factory);
 
     }; // Class CauchySchwarz
 

@@ -46,6 +46,34 @@ namespace nwx_TA {
         float operator()(val_type& tile, const TiledArray::Range& range);
         val_type operator()(const TiledArray::Range& range);
 
+        template<typename Archive>
+        void serialize(Archive &ar) {
+            ar &nopers;
+            ar &cs_thresh;
+
+            ar &factory.max_nprims;
+            ar &factory.max_l;
+            ar &factory.thresh;
+            ar &factory.deriv;
+            ar &factory.stg_exponent;
+            ar &factory.origin;
+            ar &factory.qs;
+
+            ar &screen.cs_mat1;
+            ar &screen.cs_mat2;
+
+//            std::size_t nsets = LIBasis_sets.size();
+//            std::vector<std::size_t> set_lens;
+//            for (auto set : LIBasis_sets) { set_lens.emplace_back(set.size()); }
+//            for (auto set : LIBasis_sets) {
+//                for (auto shell : set) {
+//
+//                }
+//            }
+
+
+        }
+
     private:
 
         /** @brief Recursive function that transverses all of the dimensions of the current tile
