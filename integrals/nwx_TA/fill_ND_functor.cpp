@@ -62,8 +62,8 @@ namespace nwx_TA {
 
         std::vector<size_vec> tile_shells;// Shells in the current tile
         for (int depth = 0; depth < NBases; depth++) {
-            int tile_depth = (nopers == 1) ? depth : depth + 1;
-            auto depth_shells = aos2shells(LIBasis_sets[depth], range.lobound()[tile_depth], range.upbound()[tile_depth]);
+            size_vec depth_shells;
+            for (int i = 0; i < LIBasis_sets[depth].size(); ++i) { depth_shells.emplace_back(i); }
             tile_shells.push_back(depth_shells);
         }
 

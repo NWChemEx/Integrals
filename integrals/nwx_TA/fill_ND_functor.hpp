@@ -36,18 +36,32 @@ namespace nwx_TA {
 
         void initialize(const basis_vec& sets, size_type deriv, element_type thresh, element_type cs_thresh);
 
-        /** @brief The top level function that starts the recursive calls of the other functions.
-         *         Gets the tile @p tile and range @p range from TA, then initializes the tile and
-         *         declares the vectors for the offsets and shells. Complies with the TA API for
-         *         these functions
+        /** @brief The top level function that starts the recursive calls of the other functions. Core version.
+         *
+         *  Gets the tile @p tile and range @p range from TA, then initializes the tile and
+         *  declares the vectors for the offsets and shells. Complies with the TA API for
+         *  these functions
          *
          *  @param[in] tile The tile to be filled
          *  @param[in] range The range of the tile
          *  @returns The norm of the filled tile
          */
         float operator()(val_type& tile, const TiledArray::Range& range);
+
+        /** @brief The top level function that starts the recursive calls of the other functions. Direct version.
+         *
+         *  Assumes that LIBasis_sets only contains the shells needed for the current tile.
+         *
+         *  @param[in] range The range of the tile
+         *  @returns The filled tile
+         */
         val_type operator()(const TiledArray::Range& range);
 
+        /** @brief Serialize this object.
+         *
+         *  @tparam Archive the archive type
+         *  @param ar The archive
+         */
         template<typename Archive>
         void serialize(Archive &ar) {
             ar &nopers;
@@ -88,7 +102,7 @@ namespace nwx_TA {
                            int depth);
 
         /** @brief Recursive function that transverses all of the dimensions of the current tile
-         *         and fills the LibInt2 results into the correct coordinate position in the tile
+         *         and fills the LibInt2 results.
          *
          *  @param tile The tile to be filled
          *  @param offsets Vector containing the coordinate offset based on the current AOs

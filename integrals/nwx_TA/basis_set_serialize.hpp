@@ -4,6 +4,11 @@
 
 namespace nwx_TA {
 
+    /** @brief Serialization of a Libint Contraction
+     *
+     *  @param ar The archive
+     *  @param cont The contraction
+     */
     template<typename Archive>
     std::enable_if_t<madness::archive::is_output_archive<Archive>::value, void>
     serialize_contraction(Archive &ar, const libint2::Shell::Contraction& cont) {
@@ -29,8 +34,15 @@ namespace nwx_TA {
         ar &std_coeffs;
 
         libint2::svector<double> coeffs(std_coeffs.begin(), std_coeffs.end());
+
+        cont = libint2::Shell::Contraction({l, pure, coeffs});
     }
 
+    /** @brief Serialization of a Libint Shell
+     *
+     *  @param ar The archive
+     *  @param shell The shell
+     */
     template<typename Archive>
     std::enable_if_t<madness::archive::is_output_archive<Archive>::value, void>
     serialize_basis_shell(Archive &ar, const libint2::Shell& shell) {
@@ -71,6 +83,11 @@ namespace nwx_TA {
         shell = libint2::Shell(alphas, conts, center);
     }
 
+    /** @brief Serialization of a Libint Basis Set
+     *
+     *  @param ar The archive
+     *  @param set The basis set
+     */
     template<typename Archive>
     std::enable_if_t<madness::archive::is_output_archive<Archive>::value, void>
     serialize_basis_set(Archive &ar, const libint2::BasisSet& set) {
@@ -95,6 +112,11 @@ namespace nwx_TA {
         }
     }
 
+    /** @brief Serialization of a std::vector of Libint Basis Sets
+     *
+     *  @param ar The archive
+     *  @param sets The basis set vector
+     */
     template<typename Archive>
     std::enable_if_t<madness::archive::is_output_archive<Archive>::value, void>
     serialize_basis_sets(Archive &ar, const std::vector<libint2::BasisSet>& sets) {

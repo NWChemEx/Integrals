@@ -1,4 +1,5 @@
 #include "integrals/nwx_libint/cauchy_schwarz.hpp"
+#include "integrals/nwx_TA/nwx_TA_utils.hpp"
 
 namespace nwx_libint {
 
@@ -123,7 +124,7 @@ namespace nwx_libint {
         if (not libint2::initialized()) { libint2::initialize(); } // in case it was finalized
 
         // Place for values to go
-        approx_vec mat(1, std::vector<double>(bs.size(), 0.0));;
+        approx_vec mat(1, double_vec(bs.size(), 0.0));
 
         // Lambda to fill in the values
         auto into_mat = [&] (int i) { mat[0][i] = cs_approx({bs[i]}, factory(NBases, op)); };
@@ -141,7 +142,7 @@ namespace nwx_libint {
         if (not libint2::initialized()) { libint2::initialize(); } // in case it was finalized
 
         // Place for values to go
-        approx_vec mat(bs1.size(), std::vector<double>(bs2.size(), 0.0));
+        approx_vec mat(bs1.size(), double_vec(bs2.size(), 0.0));
 
         // Check if the basis sets are the same
         bool same_bs = (bs1 == bs2);
@@ -162,6 +163,49 @@ namespace nwx_libint {
         world.gop.fence();
 
         return mat;
+    }
+
+    template<std::size_t NBases, libint2::Operator op>
+    void CauchySchwarz<NBases, op>::set_sub_screen(const basis_vec& basis_sets, const TiledArray::Range& range,
+                                                   approx_vec& mat1, approx_vec& mat2) {
+        // Shell lists for current tile
+        std::vector<size_vec> shell_list;
+
+        // Fill in the above vectors
+        for (int i = 0; i < NBases; ++i) {
+            shell_list.push_back(nwx_TA::aos2shells(basis_sets[i], range.lobound()[i], range.upbound()[i]));
+        }
+
+        if constexpr (NBases == 2) {
+            mat1 = approx_vec(1, double_vec(shell_list[0].size(), 0.0));
+            mat2 = approx_vec(1, double_vec(shell_list[1].size(), 0.0));
+            for (int i = 0; i < shell_list[0].size(); ++i) { mat1[0][i] = cs_mat1[0][shell_list[0][i]]; }
+            for (int i = 0; i < shell_list[1].size(); ++i) { mat2[0][i] = cs_mat2[0][shell_list[1][i]]; }
+
+        } else if constexpr (NBases == 3) {
+            mat1 = approx_vec(1, double_vec(shell_list[0].size(), 0.0));
+            mat2 = approx_vec(shell_list[1].size(), double_vec(shell_list[2].size(), 0.0));
+            for (int i = 0; i < shell_list[0].size(); ++i) { mat1[0][i] = cs_mat1[0][shell_list[0][i]]; }
+            for (int i = 0; i < shell_list[1].size(); ++i) {
+                for (int j = 0; j < shell_list[2].size(); ++j) {
+                    mat2[i][j] = cs_mat2[shell_list[1][i]][shell_list[2][j]];
+                }
+            }
+
+        } else if constexpr (NBases == 4) {
+            mat1 = approx_vec(shell_list[0].size(), double_vec(shell_list[1].size(), 0.0));
+            mat2 = approx_vec(shell_list[2].size(), double_vec(shell_list[3].size(), 0.0));
+            for (int i = 0; i < shell_list[0].size(); ++i) {
+                for (int j = 0; j < shell_list[1].size(); ++j) {
+                    mat1[i][j] = cs_mat1[shell_list[0][i]][shell_list[1][j]];
+                }
+            }
+            for (int i = 0; i < shell_list[2].size(); ++i) {
+                for (int j = 0; j < shell_list[3].size(); ++j) {
+                    mat2[i][j] = cs_mat2[shell_list[2][i]][shell_list[3][j]];
+                }
+            }
+        }
     }
 
     template class CauchySchwarz<2, libint2::Operator::overlap>;
