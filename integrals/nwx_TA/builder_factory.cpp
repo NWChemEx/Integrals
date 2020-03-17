@@ -25,8 +25,15 @@ namespace nwx_TA {
 
             basis_subsets.emplace_back(current_subset);
         }
+
         // Initialize the new builder with the sub-basis sets and master's parameters.
         builder.initialize(basis_subsets, master.factory.deriv, master.factory.thresh, 0.0);
+
+        // New builder factory special parameters to master (STG exponent, origin, charges...)
+        builder.factory.stg_exponent = master.factory.stg_exponent;
+        builder.factory.origin = master.factory.origin;
+        builder.factory.qs = master.factory.qs;
+
         // Get Cauchy-Schwarz information from master, it's only calculated once.
         master.screen.set_sub_screen(master.LIBasis_sets, range, builder.screen.cs_mat1, builder.screen.cs_mat2);
         builder.cs_thresh = master.cs_thresh;

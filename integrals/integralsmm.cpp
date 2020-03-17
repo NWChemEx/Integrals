@@ -8,6 +8,8 @@
 #include "integrals/emultipole_integrals.hpp"
 #include "integrals/doi.hpp"
 #include "integrals/nwx_direct/eri_direct.hpp"
+#include "integrals/nwx_direct/stg_direct.hpp"
+#include "integrals/nwx_direct/yukawa_direct.hpp"
 
 namespace integrals {
 
@@ -47,6 +49,14 @@ void load_modules(sde::ModuleManager& mm) {
     mm.add_module("ERI3Direct", std::make_shared<ERI3Direct>());
 
     mm.add_module("ERI4Direct", std::make_shared<ERI4Direct>());
+
+    mm.add_module("STG3Direct", std::make_shared<STG3Direct>());
+
+    mm.add_module("STG4Direct", std::make_shared<STG4Direct>());
+
+    mm.add_module("Yukawa3Direct", std::make_shared<Yukawa3Direct>());
+
+    mm.add_module("Yukawa4Direct", std::make_shared<Yukawa4Direct>());
 }
 
 } // namespace integrals
