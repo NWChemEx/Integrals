@@ -4,6 +4,7 @@
 #include <integrals/nwx_libint/cauchy_schwarz.hpp>
 #include <integrals/nwx_libint/nwx_libint_factory.hpp>
 #include <property_types/ao_integrals/electron_repulsion.hpp>
+#include <integrals/nwx_direct/eri_direct_type.hpp>
 #include "H2O_STO3G_ERI_SCREENED.hpp"
 
 
@@ -26,6 +27,7 @@ const double marg = 100 * std::numeric_limits<double>::epsilon();
 
 TEST_CASE("Cauchy-Schwarz") {
     using integral_type = property_types::ERI4CIntegral<double>;
+    using direct_type = property_types::ERI4CDirect<double>;
 
     auto [molecule, bs] = make_molecule();
 
@@ -54,5 +56,13 @@ TEST_CASE("Cauchy-Schwarz") {
     auto [I] = mm.at("ERI4").run_as<integral_type>(bs, bs, bs, bs, std::size_t{0});
 
     compare_integrals(I, corr);
+
+    mm.at("ERI4Direct").change_input("Screening Threshold", 0.005);
+    auto [I_direct] = mm.at("ERI4Direct").run_as<direct_type>(bs, bs, bs, bs, std::size_t{0});
+
+    TensorType I_core(I.world(), I.trange());
+    I_core("k, l, m, n") = I_direct("k, l, m, n");
+
+    compare_integrals(I_core, corr);
 }
 
