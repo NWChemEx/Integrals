@@ -7,6 +7,7 @@
 #include "integrals/yukawa_integrals.hpp"
 #include "integrals/emultipole_integrals.hpp"
 #include "integrals/doi.hpp"
+#include "integrals/nwx_direct/eri_direct.hpp"
 
 namespace integrals {
 
@@ -42,6 +43,10 @@ void load_modules(sde::ModuleManager& mm) {
     mm.add_module("EOctopole", std::make_shared<EOctopole>());
 
     mm.add_module("DOI", std::make_shared<DOI>());
+
+    mm.add_module("ERI3Direct", std::make_shared<ERI3Direct>());
+
+    mm.add_module("ERI4Direct", std::make_shared<ERI4Direct>());
 }
 
 } // namespace integrals

@@ -30,10 +30,6 @@ namespace nwx_TA {
         // Number of arrays returned by operator
         size_type nopers = libint2::operator_traits<op>::nopers;
 
-        // Initialize and finalize LibInt2
-        FillNDFunctor() = default;
-        ~FillNDFunctor() = default;
-
         void initialize(const basis_vec& sets, size_type deriv, element_type thresh, element_type cs_thresh);
 
         /** @brief The top level function that starts the recursive calls of the other functions. Core version.

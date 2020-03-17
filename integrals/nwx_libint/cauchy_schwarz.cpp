@@ -167,42 +167,48 @@ namespace nwx_libint {
 
     template<std::size_t NBases, libint2::Operator op>
     void CauchySchwarz<NBases, op>::set_sub_screen(const basis_vec& basis_sets, const TiledArray::Range& range,
-                                                   approx_vec& mat1, approx_vec& mat2) {
-        // Shell lists for current tile
-        std::vector<size_vec> shell_list;
+                                                   approx_vec& mat1, approx_vec& mat2) const {
+        if (cs_mat1.empty() || cs_mat2.empty()) {
+            // Default out if cs_mats aren't set to anything
+            mat1 = {}, mat2 = {};
+        } else {
+            // Shell lists for current tile
+            std::vector<size_vec> shell_list;
 
-        // Fill in the above vectors
-        for (int i = 0; i < NBases; ++i) {
-            shell_list.push_back(nwx_TA::aos2shells(basis_sets[i], range.lobound()[i], range.upbound()[i]));
-        }
-
-        if constexpr (NBases == 2) {
-            mat1 = approx_vec(1, double_vec(shell_list[0].size(), 0.0));
-            mat2 = approx_vec(1, double_vec(shell_list[1].size(), 0.0));
-            for (int i = 0; i < shell_list[0].size(); ++i) { mat1[0][i] = cs_mat1[0][shell_list[0][i]]; }
-            for (int i = 0; i < shell_list[1].size(); ++i) { mat2[0][i] = cs_mat2[0][shell_list[1][i]]; }
-
-        } else if constexpr (NBases == 3) {
-            mat1 = approx_vec(1, double_vec(shell_list[0].size(), 0.0));
-            mat2 = approx_vec(shell_list[1].size(), double_vec(shell_list[2].size(), 0.0));
-            for (int i = 0; i < shell_list[0].size(); ++i) { mat1[0][i] = cs_mat1[0][shell_list[0][i]]; }
-            for (int i = 0; i < shell_list[1].size(); ++i) {
-                for (int j = 0; j < shell_list[2].size(); ++j) {
-                    mat2[i][j] = cs_mat2[shell_list[1][i]][shell_list[2][j]];
-                }
+            // Fill in the above vectors
+            for (int i = 0; i < NBases; ++i) {
+                shell_list.push_back(nwx_TA::aos2shells(basis_sets[i], range.lobound()[i], range.upbound()[i]));
             }
 
-        } else if constexpr (NBases == 4) {
-            mat1 = approx_vec(shell_list[0].size(), double_vec(shell_list[1].size(), 0.0));
-            mat2 = approx_vec(shell_list[2].size(), double_vec(shell_list[3].size(), 0.0));
-            for (int i = 0; i < shell_list[0].size(); ++i) {
-                for (int j = 0; j < shell_list[1].size(); ++j) {
-                    mat1[i][j] = cs_mat1[shell_list[0][i]][shell_list[1][j]];
+            if constexpr (NBases == 2) {
+                mat1 = approx_vec(1, double_vec(shell_list[0].size(), 0.0));
+                mat2 = approx_vec(1, double_vec(shell_list[1].size(), 0.0));
+
+                for (int i = 0; i < shell_list[0].size(); ++i) { mat1[0][i] = cs_mat1[0][shell_list[0][i]]; }
+                for (int i = 0; i < shell_list[1].size(); ++i) { mat2[0][i] = cs_mat2[0][shell_list[1][i]]; }
+
+            } else if constexpr (NBases == 3) {
+                mat1 = approx_vec(1, double_vec(shell_list[0].size(), 0.0));
+                mat2 = approx_vec(shell_list[1].size(), double_vec(shell_list[2].size(), 0.0));
+                for (int i = 0; i < shell_list[0].size(); ++i) { mat1[0][i] = cs_mat1[0][shell_list[0][i]]; }
+                for (int i = 0; i < shell_list[1].size(); ++i) {
+                    for (int j = 0; j < shell_list[2].size(); ++j) {
+                        mat2[i][j] = cs_mat2[shell_list[1][i]][shell_list[2][j]];
+                    }
                 }
-            }
-            for (int i = 0; i < shell_list[2].size(); ++i) {
-                for (int j = 0; j < shell_list[3].size(); ++j) {
-                    mat2[i][j] = cs_mat2[shell_list[2][i]][shell_list[3][j]];
+
+            } else if constexpr (NBases == 4) {
+                mat1 = approx_vec(shell_list[0].size(), double_vec(shell_list[1].size(), 0.0));
+                mat2 = approx_vec(shell_list[2].size(), double_vec(shell_list[3].size(), 0.0));
+                for (int i = 0; i < shell_list[0].size(); ++i) {
+                    for (int j = 0; j < shell_list[1].size(); ++j) {
+                        mat1[i][j] = cs_mat1[shell_list[0][i]][shell_list[1][j]];
+                    }
+                }
+                for (int i = 0; i < shell_list[2].size(); ++i) {
+                    for (int j = 0; j < shell_list[3].size(); ++j) {
+                        mat2[i][j] = cs_mat2[shell_list[2][i]][shell_list[3][j]];
+                    }
                 }
             }
         }

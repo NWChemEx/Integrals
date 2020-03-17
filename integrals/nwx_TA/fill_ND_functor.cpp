@@ -60,7 +60,7 @@ namespace nwx_TA {
         size_vec offsets(NBases); // Vector for storing the offsets of the current shells
         size_vec shells(NBases); // Vector for storing the indices of the current shells
 
-        std::vector<size_vec> tile_shells;// Shells in the current tile
+        std::vector<size_vec> tile_shells;// Shells in the current tile; assumes basis sets are tile specific
         for (int depth = 0; depth < NBases; depth++) {
             size_vec depth_shells;
             for (int i = 0; i < LIBasis_sets[depth].size(); ++i) { depth_shells.emplace_back(i); }

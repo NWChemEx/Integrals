@@ -18,11 +18,8 @@ namespace nwx_libint {
         using approx_vec = std::vector<double_vec>;
 
         // Matrices to hold the approximations for the two sides of the integral
-        approx_vec cs_mat1;
-        approx_vec cs_mat2;
-
-        CauchySchwarz() = default;
-        ~CauchySchwarz() = default;
+        approx_vec cs_mat1 = {};
+        approx_vec cs_mat2 = {};
 
         /** @brief Fill in screening matrices
          *
@@ -81,7 +78,7 @@ namespace nwx_libint {
          *  @param mat2 The vector that is a subset of cs_mat2
          */
         void set_sub_screen(const basis_vec& basis_sets, const TiledArray::Range& range,
-                            approx_vec& mat1, approx_vec& mat2);
+                            approx_vec& mat1, approx_vec& mat2) const;
 
     }; // Class CauchySchwarz
 

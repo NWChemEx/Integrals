@@ -19,8 +19,6 @@ namespace nwx_libint {
         std::array<double, 3> origin{0, 0, 0};
         std::vector<std::pair<double, std::array<double, 3>>> qs;
 
-        LibintFactory() = default;
-
         // produce a LibInt2 engine, given the current parameters
         libint2::Engine operator()(size_type NBases, libint2::Operator op);
 
