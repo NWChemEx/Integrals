@@ -53,16 +53,16 @@ TEST_CASE("Cauchy-Schwarz") {
     sde::ModuleManager mm;
     integrals::load_modules(mm);
     mm.at("ERI4").change_input("Screening Threshold", 0.005);
-    auto [I] = mm.at("ERI4").run_as<integral_type>(bs, bs, bs, bs, std::size_t{0});
+    auto [X] = mm.at("ERI4").run_as<integral_type>(bs, bs, bs, bs, std::size_t{0});
 
-    compare_integrals(I, corr);
+    compare_integrals(X, corr);
 
     mm.at("ERI4Direct").change_input("Screening Threshold", 0.005);
-    auto [I_direct] = mm.at("ERI4Direct").run_as<direct_type>(bs, bs, bs, bs, std::size_t{0});
+    auto [X_direct] = mm.at("ERI4Direct").run_as<direct_type>(bs, bs, bs, bs, std::size_t{0});
 
-    TensorType I_core(I.world(), I.trange());
-    I_core("k, l, m, n") = I_direct("k, l, m, n");
+    TensorType X_core(X.world(), X.trange());
+    X_core("k, l, m, n") = X_direct("k, l, m, n");
 
-    compare_integrals(I_core, corr);
+    compare_integrals(X_core, corr);
 }
 

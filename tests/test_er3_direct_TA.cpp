@@ -9,10 +9,10 @@ TEST_CASE("ERI3CDirect") {
     sde::ModuleManager mm;
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
-    auto [I] = mm.at("ERI3Direct").run_as<integral_type>(bs, bs, bs, std::size_t{0});
+    auto [X] = mm.at("ERI3Direct").run_as<integral_type>(bs, bs, bs, std::size_t{0});
 
-    TensorType real_I(I.world(), I.trange());
-    real_I("k, l, m") = I("k, l, m");
+    TensorType real_X(X.world(), X.trange());
+    real_X("k, l, m") = X("k, l, m");
 
-    compare_integrals(real_I, corr);
+    compare_integrals(real_X, corr);
 }

@@ -39,7 +39,7 @@ TEST_CASE("ERI2C") {
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
     mm.at("ERI2").change_input("Tile size", std::vector<std::size_t>{1});
-    auto [I] = mm.at("ERI2").run_as<integral_type>(bs, bs, std::size_t{0});
+    auto [X] = mm.at("ERI2").run_as<integral_type>(bs, bs, std::size_t{0});
 
-    compare_integrals(I, corr);
+    compare_integrals(X, corr);
 }

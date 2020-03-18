@@ -9,7 +9,7 @@ TEST_CASE("ERI4C") {
     sde::ModuleManager mm;
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
-    auto [I] = mm.at("ERI4").run_as<integral_type>(bs, bs, bs, bs, std::size_t{0});
+    auto [X] = mm.at("ERI4").run_as<integral_type>(bs, bs, bs, bs, std::size_t{0});
 
-    compare_integrals(I, corr);
+    compare_integrals(X, corr);
 }

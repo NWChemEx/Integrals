@@ -11,10 +11,10 @@ TEST_CASE("STG3CDirect") {
     auto [molecule, bs] = make_molecule();
     auto stg_exponent = 1.0;
     mm.at("STG3Direct").change_input("Tile size", std::vector<std::size_t>{1, 1, 5});
-    auto [I] = mm.at("STG3Direct").run_as<integral_type>(bs, bs, bs, std::size_t{0}, stg_exponent);
+    auto [X] = mm.at("STG3Direct").run_as<integral_type>(bs, bs, bs, std::size_t{0}, stg_exponent);
 
-    TensorType real_I(I.world(), I.trange());
-    real_I("k, l, m") = I("k, l, m");
+    TensorType real_X(X.world(), X.trange());
+    real_X("k, l, m") = X("k, l, m");
 
-    compare_integrals(real_I, corr);
+    compare_integrals(real_X, corr);
 }

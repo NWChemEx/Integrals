@@ -44,6 +44,9 @@ TEST_CASE("Test Utilities") {
     auto i_range2 = nwx_TA::make_tiled_range(10, std::vector<std::size_t>{2});
     REQUIRE(i_range1 == corr_range2);
 
+    auto i_range3 = nwx_TA::make_tiled_range(10, std::vector<std::size_t>{2, 2});
+    REQUIRE(i_range3 == corr_range2);
+
     auto shells = nwx_TA::aos2shells(LI_sto, 0, 5);
     std::vector<std::size_t> corr_shells{0, 1, 2};
     REQUIRE(shells == corr_shells);

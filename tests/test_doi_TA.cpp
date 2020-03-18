@@ -9,7 +9,7 @@ TEST_CASE("DOI") {
     sde::ModuleManager mm;
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
-    auto [I] = mm.at("DOI").run_as<integral_type>(bs, bs, std::size_t{0});
+    auto [X] = mm.at("DOI").run_as<integral_type>(bs, bs, std::size_t{0});
 
-    compare_integrals(I, corr);
+    compare_integrals(X, corr);
 }

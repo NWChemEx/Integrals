@@ -9,10 +9,10 @@ TEST_CASE("STG4CDirect") {
     sde::ModuleManager mm;
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
-    auto [I] = mm.at("STG4Direct").run_as<integral_type>(bs, bs, bs, bs, std::size_t{0});
+    auto [X] = mm.at("STG4Direct").run_as<integral_type>(bs, bs, bs, bs, std::size_t{0});
 
-    TensorType real_I(I.world(), I.trange());
-    real_I("k, l, m, n") = I("k, l, m, n");
+    TensorType real_X(X.world(), X.trange());
+    real_X("k, l, m, n") = X("k, l, m, n");
 
-    compare_integrals(real_I, stg1ref, 0.0, 1e-12);
+    compare_integrals(real_X, stg1ref, 0.0, 1e-12);
 }

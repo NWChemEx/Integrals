@@ -10,10 +10,10 @@ TEST_CASE("Yukawa3CDirect") {
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
     mm.at("Yukawa3Direct").change_input("Tile size", std::vector<std::size_t>{1, 1, 4, 1});
-    auto [I] = mm.at("Yukawa3Direct").run_as<integral_type>(bs, bs, bs, std::size_t{0});
+    auto [X] = mm.at("Yukawa3Direct").run_as<integral_type>(bs, bs, bs, std::size_t{0});
 
-    TensorType real_I(I.world(), I.trange());
-    real_I("k, l, m") = I("k, l, m");
+    TensorType real_X(X.world(), X.trange());
+    real_X("k, l, m") = X("k, l, m");
 
-    compare_integrals(real_I, corr);
+    compare_integrals(real_X, corr);
 }
