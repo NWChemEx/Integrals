@@ -1,37 +1,77 @@
 #include "integrals/nwx_TA/fill_ND_functor.hpp"
 #include "integrals/nwx_TA/nwx_TA_utils.hpp"
+#include "integrals/nwx_libint/nwx_libint.hpp"
 
 namespace nwx_TA {
 
     template<typename val_type, libint2::Operator op, std::size_t NBases>
-    float FillNDFunctor<val_type, op, NBases>::operator()(val_type& tile, const TiledArray::Range& range) {
-        return _fill(tile, range);
+    void FillNDFunctor<val_type, op, NBases>::initialize(const basis_vec& sets,
+                                                         size_type deriv,
+                                                         element_type thresh,
+                                                         element_type cs) {
+        LIBasis_sets = sets;
+        cs_thresh = cs;
+
+        // Build factory
+        factory.max_nprims = nwx_libint::sets_max_nprims(LIBasis_sets);
+        factory.max_l = nwx_libint::sets_max_l(LIBasis_sets);
+        factory.thresh = thresh;
+        factory.deriv = deriv;
+
+        // Initialize screening
+        if (cs_thresh != 0.0) {
+            screen.initialize(LIBasis_sets, factory);
+        }
     }
 
     template<typename val_type, libint2::Operator op, std::size_t NBases>
-    float FillNDFunctor<val_type, op, NBases>::_fill(val_type& tile, const TiledArray::Range& range) {
+    float FillNDFunctor<val_type, op, NBases>::operator()(val_type& tile, const TiledArray::Range& range) {
         // Determine if the entire tile is screened, before anymore work is done
         if ((cs_thresh > 0.0) && screen.tile(LIBasis_sets, range, cs_thresh)) { return 0.0; }
+        tile = val_type(range); // Initialize tile
 
-        tile = val_type(range);
+        if (not libint2::initialized()) { libint2::initialize(); } // In case something else finalized
+        auto tile_engine = factory(NBases, op); // Make libint engine
+        size_vec offsets(NBases); // Vector for storing the offsets of the current shells
+        size_vec shells(NBases); // Vector for storing the indices of the current shells
 
-        // In case something else finalized
-        if (not libint2::initialized()) { libint2::initialize(); }
-
-        // Make libint engine
-        auto tile_engine = factory();
-
-        // Vector for storing the offsets of the current shells
-        size_vec offsets(NBases);
-
-        // Vector for storing the indices of the current shells
-        size_vec shells(NBases);
+        std::vector<size_vec> tile_shells; // Shells in the current tile
+        for (int depth = 0; depth < NBases; depth++) {
+            int tile_depth = (nopers == 1) ? depth : depth + 1;
+            auto depth_shells = aos2shells(LIBasis_sets[depth], range.lobound()[tile_depth], range.upbound()[tile_depth]);
+            tile_shells.push_back(depth_shells);
+        }
 
         // Start recurvise process to determine the shells needed for the current tile
-        _index_shells(tile, range, tile_engine, offsets, shells, 0);
+        _index_shells(tile, range, tile_engine, offsets, shells, tile_shells, 0);
 
         // Return norm for new tile
         return tile.norm();
+    }
+
+    template<typename val_type, libint2::Operator op, std::size_t NBases>
+    val_type FillNDFunctor<val_type, op, NBases>::operator()(const TiledArray::Range& range) {
+        // Determine if the entire tile is screened, before anymore work is done
+        if ((cs_thresh > 0.0) && screen.tile(LIBasis_sets, range, cs_thresh)) { return val_type(range, 0.0); }
+        val_type tile(range); // Declare and initialize tile
+
+        if (not libint2::initialized()) { libint2::initialize(); } // In case something else finalized
+        auto tile_engine = factory(NBases, op); // Make libint engine
+        size_vec offsets(NBases); // Vector for storing the offsets of the current shells
+        size_vec shells(NBases); // Vector for storing the indices of the current shells
+
+        std::vector<size_vec> tile_shells;// Shells in the current tile; assumes basis sets are tile specific
+        for (int depth = 0; depth < NBases; depth++) {
+            size_vec depth_shells;
+            for (int i = 0; i < LIBasis_sets[depth].size(); ++i) { depth_shells.emplace_back(i); }
+            tile_shells.push_back(depth_shells);
+        }
+
+        // Start recurvise process to determine the shells needed for the current tile
+        _index_shells(tile, range, tile_engine, offsets, shells, tile_shells, 0);
+
+        // Return norm for new tile
+        return tile;
     }
 
     template<typename val_type, libint2::Operator op, std::size_t NBases>
@@ -40,6 +80,7 @@ namespace nwx_TA {
                                                             libint2::Engine& tile_engine,
                                                             size_vec& offsets,
                                                             size_vec& shells,
+                                                            std::vector<size_vec>& tile_shells,
                                                             int depth) {
         // Deal with the additional dimension of the tile for multipoles
         int tile_depth = (nopers == 1) ? depth : depth + 1;
@@ -48,30 +89,23 @@ namespace nwx_TA {
         offsets[depth] = range.lobound()[tile_depth];
 
         // Loop over the shells that contain the AOs spanned by the tile in this dimension
-        for (auto s : aos2shells(LIBasis_sets[depth], range.lobound()[tile_depth], range.upbound()[tile_depth])) {
-            // Save index of current shell to be passed down the line
-            shells[depth] = s;
+        for (auto s : tile_shells[depth]) {
+            shells[depth] = s; // Save index of current shell to be passed down the line
 
             if (depth == (NBases - 1)) {
                 // Check if the shell set can be screened
                 auto screened = (cs_thresh == 0.0) ? false : screen.shellset(shells, cs_thresh);
 
-                // Compute integrals for current shells
                 const auto& buf = tile_engine.results();
-                if (not screened) {
+                if (not screened) { // Compute integrals for current shells
                     _call_libint(tile_engine, shells, std::make_index_sequence<NBases>());
                 }
 
                 // Switch for multipole cases
                 if (nopers == 1) {
-                    // Initially set indexer to first coordinate of tile
-                    size_vec indexer = offsets;
-
-                    // Store the location of the results
-                    const auto& int_vals = (screened) ? nullptr : buf[0];
-
-                    // Index for integrals values; referenced so it gets pasted around
-                    int int_i = 0;
+                    size_vec indexer = offsets; // Initially set indexer to first coordinate of tile
+                    const auto& int_vals = (screened) ? nullptr : buf[0]; // Store the location of the results
+                    int int_i = 0; // Index for integrals values; referenced so it gets pasted around
 
                     // Fill in the values of the tile
                     _fill_from_libint(tile, offsets, shells, int_vals, indexer, int_i, 0);
@@ -82,22 +116,18 @@ namespace nwx_TA {
 
                     // Loop over multipoles to fill in values
                     for (auto f = 0ul; f != nopers; ++f) {
-                        // Store the location of the results
-                        const auto& int_vals = (screened) ? nullptr : buf[f];
-
-                        // Index for integrals values; referenced so it gets pasted around
-                        int int_i = 0;
+                        const auto& int_vals = (screened) ? nullptr : buf[f]; // Store the location of the results
+                        int int_i = 0; // Index for integrals values; referenced so it gets pasted around
 
                         // Fill in the values of the multipole
                         _fill_from_libint(tile, offsets, shells, int_vals, indexer, int_i, 0);
 
-                        // Increment the coordinate for the multipoles
-                        indexer[0]++;
+                        indexer[0]++; // Increment the coordinate for the multipoles
                     }
                 }
             } else {
                 // Keep going down until all dimensions of the the tensor have been covered
-                _index_shells(tile, range, tile_engine, offsets, shells, depth + 1);
+                _index_shells(tile, range, tile_engine, offsets, shells, tile_shells, depth + 1);
             }
             // Increase the offsets for the current dimension by the size of the completed shell
             offsets[depth] += LIBasis_sets[depth][shells[depth]].size();
@@ -120,22 +150,18 @@ namespace nwx_TA {
             if (depth == (NBases - 1)) {
                 // Assign integral value
                 if (int_vals == nullptr) {
-                    // Default case of all zeroes
-                    tile[indexer] = 0;
+                    tile[indexer] = 0; // Default case of all zeroes
                 } else {
-                    // Get values from LibInt
-                    tile[indexer] = int_vals[int_i];
+                    tile[indexer] = int_vals[int_i]; // Get values from LibInt
                     int_i++;
                 }
             } else {
                 // Keep going down until all dimensions of the the tensor have been covered
                 _fill_from_libint(tile, offsets, shells, int_vals, indexer, int_i, depth + 1);
             }
-            // Increment the coordinate for this dimension
-            indexer[tile_depth]++;
+            indexer[tile_depth]++; // Increment the coordinate for this dimension
         }
-        // Reset the indexer to the initial position for next loop
-        indexer[tile_depth] = offsets[depth];
+        indexer[tile_depth] = offsets[depth]; // Reset the indexer to the initial position for next loop
     }
 
     template<typename val_type, libint2::Operator op, std::size_t NBases>

@@ -27,7 +27,7 @@ TEST_CASE("Yukawa2C") {
     auto [molecule, bs] = make_molecule();
     auto stg_exponent = 1.0;
     mm.at("Yukawa2").change_input("Tile size", std::vector<std::size_t>{6});
-    auto [I] = mm.at("Yukawa2").run_as<integral_type>(bs, bs, std::size_t{0}, stg_exponent);
+    auto [X] = mm.at("Yukawa2").run_as<integral_type>(bs, bs, std::size_t{0}, stg_exponent);
 
-    compare_integrals(I, corr);
+    compare_integrals(X, corr);
 }

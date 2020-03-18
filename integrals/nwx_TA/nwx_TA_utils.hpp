@@ -8,9 +8,11 @@ namespace nwx_TA {
 
     using size = integrals::type::size;
 
-    /** @brief Takes a LibInt2 BasisSet @p basis_set and a tile size @p tile_size and
-     *         returns a TiledArray TiledRange1 where the shells are tiled together
-     *         sequentially and the tile sizes are greater than or equal to @p tile_size.
+    /** @brief Make a TA TiledRange from basis set information
+     *
+     *  Takes a LibInt2 BasisSet @p basis_set and a tile size @p tile_size and
+     *  returns a TiledArray TiledRange1 where the shells are tiled together
+     *  sequentially and the tile sizes are greater than or equal to @p tile_size.
      *
      *  @param[in] bs The LibInt2 BasisSet to be tiled
      *  @param[in] tile_size The minimum size for the tiles
@@ -18,9 +20,11 @@ namespace nwx_TA {
      */
     TA::TiledRange1 make_tiled_range(libint2::BasisSet basis_set, size tile_size);
 
-    /** @brief Takes a LibInt2 BasisSet @p basis_set and an std::vector of tile sizes
-     *         @p tile_sizes, allowing for variable tile sizes. The tile sizes are looped
-     *         over if end of the vector is reached before the entire basis set is tiled.
+    /** @brief Make a TA TiledRange from basis set information
+     *
+     *  Takes a LibInt2 BasisSet @p basis_set and an std::vector of tile sizes
+     *  @p tile_sizes, allowing for variable tile sizes. The tile sizes are looped
+     *  over if end of the vector is reached before the entire basis set is tiled.
      *
      *  @param[in] bs The LibInt2 BasisSet to be tiled
      *  @param[in] tile_sizes The vector of minimum tiles sizes
@@ -38,8 +42,9 @@ namespace nwx_TA {
     TA::TiledRange1 make_tiled_range(size upper, size tile_size);
 
     /** @brief Produces a TiledArray TiledRange1 from 0 to the specified upper value @p upper
-     *         with variable tile sizes @p tile_sizes. The tile sizes are looped over if the
-     *         end of the vector is reached before the end of the range.
+     *         with variable tile sizes @p tile_sizes.
+     *
+     *  The tile sizes are looped over if the end of the vector is reached before the end of the range.
      *
      *  @param[in] upper The upper value of the range
      *  @param[in] tile_sizes The vector of tile sizes for the tiles
@@ -47,9 +52,11 @@ namespace nwx_TA {
      */
     TA::TiledRange1 make_tiled_range(size upper, std::vector<size> tile_sizes);
 
-    /** @brief Given a LibInt2 BasisSet @p basis_set and a lower @p lower and upper @p upper
-     *         AO index, returns a std::vector of shell indices that contain the AOs between
-     *         @p lower and @p upper.
+    /** @brief Find the shells that contain the specified AOs.
+     *
+     *  Given a LibInt2 BasisSet @p basis_set and a lower @p lower and upper @p upper
+     *  AO index, returns a std::vector of shell indices that contain the AOs between
+     *  @p lower and @p upper.
      *
      *  @param[in] basis_set The LibInt2 BasisSet containing the AOs
      *  @param[in] lower The lower value of the AO range
@@ -58,10 +65,12 @@ namespace nwx_TA {
      */
     std::vector<size> aos2shells(libint2::BasisSet basis_set, size lower, size upper);
 
-    /** @brief Takes a std::vector of LibInt2 BasisSets @p basis_sets, a std::vector of
-     *         tile sizes @p tile_sizes, and a std::vector of TiledArray TiledRange1 @p ranges
-     *         and returns a TiledArray TiledRange composed of the any values in @p ranges
-     *         and the tiled ranges of the basis sets.
+    /** @brief Make trange from basis set information.
+     *
+     *  Takes a std::vector of LibInt2 BasisSets @p basis_sets, a std::vector of
+     *  tile sizes @p tile_sizes, and a std::vector of TiledArray TiledRange1 @p ranges
+     *  and returns a TiledArray TiledRange composed of the any values in @p ranges
+     *  and the tiled ranges of the basis sets.
      *
      *  @param[in] basis_sets The vector of LibInt2 basis sets
      *  @param[in] tile_sizes The vector of tile sizes

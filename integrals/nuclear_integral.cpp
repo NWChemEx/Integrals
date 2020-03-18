@@ -1,6 +1,5 @@
 #include "nuclear_integral.hpp"
 #include "nwx_libint/nwx_libint.hpp"
-#include "nwx_libint/nwx_libint_factory.hpp"
 #include "nwx_TA/nwx_TA_utils.hpp"
 #include "nwx_TA/fill_ND_functor.hpp"
 #include "integrals/libint_integral.hpp"
@@ -13,7 +12,9 @@ namespace integrals {
     template<typename element_type>
     using libint_type = property_types::LibIntIntegral<element_type>;
     template<typename element_type>
-    using tensor = typename integrals::type::tensor<element_type>;
+    using tensor = typename type::tensor<element_type>;
+    template<typename element_type>
+    using value_type = typename tensor<element_type>::value_type;
 
     template<typename element_type>
     NuclearInt<element_type>::NuclearInt() : sde::ModuleBase(this) {
@@ -29,21 +30,14 @@ namespace integrals {
         auto [thresh, tile_size, cs_thresh] = libint_type<element_type>::unwrap_inputs(inputs);
         auto& world = TA::get_default_world();
 
-        auto fill = nwx_TA::FillNDFunctor<typename tensor<element_type>::value_type, libint2::Operator::nuclear, 2>();
+        std::vector<std::pair<double, std::array<double, 3>>> qs;
+        for(const auto& ai : mol)
+            qs.emplace_back(static_cast<const double&>(ai.Z()), ai.coords());
 
-        fill.LIBasis_sets = nwx_libint::make_basis_sets({bra, ket});
+        auto fill = nwx_TA::FillNDFunctor<value_type<element_type>, libint2::Operator::nuclear, 2>();
 
-        fill.factory = nwx_libint::LibintFactory<2, libint2::Operator::nuclear>();
-        fill.factory.max_nprims = nwx_libint::sets_max_nprims(fill.LIBasis_sets);
-        fill.factory.max_l = nwx_libint::sets_max_l(fill.LIBasis_sets);
-        fill.factory.thresh = thresh;
-        fill.factory.deriv = deriv;
-        fill.factory.mol = mol;
-
-        if (cs_thresh != 0.0) {
-            fill.cs_thresh = cs_thresh;
-            fill.screen.initialize(fill.LIBasis_sets, fill.factory);
-        }
+        fill.initialize(nwx_libint::make_basis_sets({bra, ket}), deriv, thresh, cs_thresh);
+        fill.factory.qs = qs;
 
         auto trange = nwx_TA::make_trange(fill.LIBasis_sets, tile_size);
 

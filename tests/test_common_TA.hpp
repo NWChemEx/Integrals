@@ -8,6 +8,7 @@
 using TensorType = integrals::type::tensor<double>;
 using IndexType = std::vector<std::size_t>;
 using BlockTensor = std::map<IndexType, std::vector<double>>;
+using string_list = std::initializer_list<std::string>;
 
 inline auto make_molecule(const std::string& bs_name = "sto-3g") {
     using libchemist::Atom;
@@ -42,5 +43,29 @@ inline void compare_integrals(TensorType& calc, BlockTensor& corr,
                 REQUIRE(calc_block[i] == Approx(corr_block[i]).epsilon(eps).margin(marg));
             }
         }
+    }
+}
+
+/**@brief Factors out the boilerplate required to test a property type
+ *
+ * @tparam T The type of the property type
+ * @param input_fields An initializer list of the property type's input fields
+ * @param result_fields An initializer list of the property type's returns
+ */
+template<typename T>
+inline static void test_property_type(string_list input_fields,
+                                      string_list result_fields) {
+    SECTION("inputs"){
+        auto inputs = T::inputs();
+        REQUIRE(inputs.size() == input_fields.size());
+        for(const auto& field : input_fields)
+            SECTION(field){ REQUIRE(inputs.count(field) == 1); }
+
+    }
+    SECTION("results"){
+        auto results = T::results();
+        REQUIRE(results.size() == result_fields.size());
+        for(const auto& field : result_fields)
+            SECTION(field){ REQUIRE(results.count(field) == 1); }
     }
 }

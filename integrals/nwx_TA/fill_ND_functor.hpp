@@ -1,48 +1,83 @@
 #pragma once
 #include <libint2.hpp>
 #include <tiledarray.h>
+#include "integrals/types.hpp"
+#include "integrals/nwx_TA/basis_set_serialize.hpp"
 #include "integrals/nwx_libint/nwx_libint_factory.hpp"
 #include "integrals/nwx_libint/cauchy_schwarz.hpp"
+
 
 namespace nwx_TA {
 
     template<typename val_type, libint2::Operator op, std::size_t NBases>
     struct FillNDFunctor {
 
+        using size_type = integrals::type::size;
         using basis_vec = std::vector<libint2::BasisSet>;
-        using size_vec = std::vector<std::size_t>;
+        using size_vec = std::vector<size_type>;
+        using element_type = typename val_type::numeric_type;
 
         // The collected LibInt2 basis sets needed for the integral
         basis_vec LIBasis_sets;
 
         // The factory that produces the appropriate LibInt2 engines
-        nwx_libint::LibintFactory<NBases, op> factory;
+        nwx_libint::LibintFactory factory = nwx_libint::LibintFactory();
 
         // Cauchy-Schwarz Screening Threshold
         double cs_thresh = 0.0;
-        nwx_libint::CauchySchwarz<NBases, op> screen;
+        nwx_libint::CauchySchwarz<NBases, op> screen = nwx_libint::CauchySchwarz<NBases, op>();
 
         // Number of arrays returned by operator
-        std::size_t nopers = libint2::operator_traits<op>::nopers;
+        size_type nopers = libint2::operator_traits<op>::nopers;
 
-        // Initialize and finalize LibInt2
-        FillNDFunctor() { libint2::initialize(); }
-        ~FillNDFunctor() { libint2::finalize(); }
+        void initialize(const basis_vec& sets, size_type deriv, element_type thresh, element_type cs_thresh);
 
-        // Complies with the TA API for these functions
-        float operator()(val_type& tile, const TiledArray::Range& range);
-
-    private:
-
-        /** @brief The top level function that starts the recursive calls of the other functions.
-         *         Gets the tile @p tile and range @p range from TA, then initializes the tile and
-         *         declares the vectors for the offsets and shells.
+        /** @brief The top level function that starts the recursive calls of the other functions. Core version.
+         *
+         *  Gets the tile @p tile and range @p range from TA, then initializes the tile and
+         *  declares the vectors for the offsets and shells. Complies with the TA API for
+         *  these functions
          *
          *  @param[in] tile The tile to be filled
          *  @param[in] range The range of the tile
          *  @returns The norm of the filled tile
          */
-        float _fill(val_type& tile, const TiledArray::Range& range);
+        float operator()(val_type& tile, const TiledArray::Range& range);
+
+        /** @brief The top level function that starts the recursive calls of the other functions. Direct version.
+         *
+         *  Assumes that LIBasis_sets only contains the shells needed for the current tile.
+         *
+         *  @param[in] range The range of the tile
+         *  @returns The filled tile
+         */
+        val_type operator()(const TiledArray::Range& range);
+
+        /** @brief Serialize this object.
+         *
+         *  @tparam Archive the archive type
+         *  @param ar The archive
+         */
+        template<typename Archive>
+        void serialize(Archive &ar) {
+            ar &nopers;
+            ar &cs_thresh;
+
+            ar &screen.cs_mat1;
+            ar &screen.cs_mat2;
+
+            ar &factory.max_nprims;
+            ar &factory.max_l;
+            ar &factory.thresh;
+            ar &factory.deriv;
+            ar &factory.stg_exponent;
+            ar &factory.origin;
+            ar &factory.qs;
+
+            serialize_basis_sets(ar, LIBasis_sets);
+        }
+
+    private:
 
         /** @brief Recursive function that transverses all of the dimensions of the current tile
          *         and finds the shells that need to be computed to fill the tile.
@@ -59,10 +94,11 @@ namespace nwx_TA {
                            libint2::Engine& tile_engine,
                            size_vec& offsets,
                            size_vec& shells,
+                           std::vector<size_vec>& tile_shells,
                            int depth);
 
         /** @brief Recursive function that transverses all of the dimensions of the current tile
-         *         and fills the LibInt2 results into the correct coordinate position in the tile
+         *         and fills the LibInt2 results.
          *
          *  @param tile The tile to be filled
          *  @param offsets Vector containing the coordinate offset based on the current AOs

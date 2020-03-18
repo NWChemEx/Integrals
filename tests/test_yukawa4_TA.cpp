@@ -10,7 +10,7 @@ TEST_CASE("Yukawa4C") {
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
     auto stg_exponent = 1.0;
-    auto [I] = mm.at("Yukawa4").run_as<integral_type>(bs, bs, bs, bs, std::size_t{0}, stg_exponent);
+    auto [X] = mm.at("Yukawa4").run_as<integral_type>(bs, bs, bs, bs, std::size_t{0}, stg_exponent);
 
-    compare_integrals(I, yukawa1ref, 0.0, 1e-12);
+    compare_integrals(X, yukawa1ref, 0.0, 1e-12);
 }
