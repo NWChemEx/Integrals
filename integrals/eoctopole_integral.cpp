@@ -36,7 +36,7 @@ namespace integrals {
 
         auto nopers = libint2::operator_traits<libint2::Operator::emultipole3>::nopers;
         auto component_range = nwx_TA::make_tiled_range(nopers, nopers);
-        auto trange = nwx_TA::make_trange(fill.LIBasis_sets, tile_size, {component_range});
+        auto trange = nwx_TA::make_trange({bra, ket}, tile_size, {component_range});
 
         auto S = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
 

@@ -33,7 +33,7 @@ namespace integrals {
         auto fill = nwx_TA::FillNDFunctor<value_type<element_type>, libint2::Operator::delta, 4>();
         fill.initialize(nwx_libint::make_basis_sets({bra, bra, ket, ket}), deriv, thresh, cs_thresh);
 
-        auto trange = nwx_TA::make_trange(fill.LIBasis_sets, tile_size);
+        auto trange = nwx_TA::make_trange({bra, bra, ket, ket}, tile_size);
 
         auto I = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
 

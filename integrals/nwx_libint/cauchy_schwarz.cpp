@@ -1,5 +1,5 @@
 #include "integrals/nwx_libint/cauchy_schwarz.hpp"
-#include "integrals/nwx_TA/nwx_TA_utils.hpp"
+#include "integrals/nwx_libint/nwx_libint.hpp"
 
 namespace nwx_libint {
 
@@ -38,7 +38,7 @@ namespace nwx_libint {
 
         // Fill in the above vectors
         for (int i = 0; i < NBases; ++i) {
-            shell_list.push_back(nwx_TA::aos2shells(basis_sets[i], range.lobound()[i], range.upbound()[i]));
+            shell_list.push_back(nwx_libint::aos2shells(basis_sets[i], range.lobound()[i], range.upbound()[i]));
         }
 
         // Find the largest coefficient in each submatrix and use them for the approximation
@@ -177,7 +177,7 @@ namespace nwx_libint {
 
             // Fill in the above vectors
             for (int i = 0; i < NBases; ++i) {
-                shell_list.push_back(nwx_TA::aos2shells(basis_sets[i], range.lobound()[i], range.upbound()[i]));
+                shell_list.push_back(nwx_libint::aos2shells(basis_sets[i], range.lobound()[i], range.upbound()[i]));
             }
 
             if constexpr (NBases == 2) {

@@ -40,7 +40,7 @@ namespace integrals {
         master.initialize(nwx_libint::make_basis_sets({bra, ket1, ket2}), deriv, thresh, cs_thresh);
         auto bfactory = bfactory_type(master);
 
-        auto trange = nwx_TA::make_trange(master.LIBasis_sets, tile_size);
+        auto trange = nwx_TA::make_trange({bra, ket1, ket2}, tile_size);
         auto I = tensor(world, trange);
 
         auto initer = [=](TA::Range& range) { return direct_type(range, bfactory(range)); };
@@ -78,7 +78,7 @@ namespace integrals {
         master.initialize(nwx_libint::make_basis_sets({bra1, bra2, ket1, ket2}), deriv, thresh, cs_thresh);
         auto bfactory = bfactory_type(master);
 
-        auto trange = nwx_TA::make_trange(master.LIBasis_sets, tile_size);
+        auto trange = nwx_TA::make_trange({bra1, bra2, ket1, ket2}, tile_size);
         auto I = tensor(world, trange);
 
         auto initer = [=](TA::Range& range) { return direct_type(range, bfactory(range)); };

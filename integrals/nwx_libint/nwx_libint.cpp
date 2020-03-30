@@ -80,4 +80,16 @@ int sets_max_l(const std::vector<LI_basis>& sets) {
     return max_l;
 }
 
+    std::vector<size> aos2shells(libint2::BasisSet basis_set, size lower, size upper) {
+        std::vector<size> return_vec;
+
+        for (auto ishell = 0, offset = 0; ishell < basis_set.size(); ++ishell) {
+            if (offset >= upper) break;
+            if (offset >= lower) return_vec.push_back(ishell);
+            offset += basis_set[ishell].size();
+        }
+
+        return return_vec;
+    }
+
 } // namespace nwx_libint
