@@ -1,5 +1,5 @@
 #include "builder_factory.hpp"
-#include <integrals/nwx_TA/nwx_TA_utils.hpp>
+#include "integrals/nwx_libint/nwx_libint.hpp"
 
 namespace nwx_TA {
 
@@ -14,7 +14,7 @@ namespace nwx_TA {
 
         for (int depth = 0; depth < NBases; depth++) {
             int tile_depth = (master.nopers == 1) ? depth : depth + 1; // Deals with multipole cases
-            auto depth_shells = nwx_TA::aos2shells(master.LIBasis_sets[depth],
+            auto depth_shells = nwx_libint::aos2shells(master.LIBasis_sets[depth],
                     range.lobound()[tile_depth], range.upbound()[tile_depth]); // Get indices for shells at this depth
 
             libint2::BasisSet current_subset; // Shells subset for this depth

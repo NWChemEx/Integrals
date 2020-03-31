@@ -42,4 +42,17 @@ namespace nwx_libint {
      */
     int sets_max_l(const std::vector<LI_basis>& sets);
 
+    /** @brief Find the shells that contain the specified AOs.
+     *
+     *  Given a LibInt2 BasisSet @p basis_set and a lower @p lower and upper @p upper
+     *  AO index, returns a std::vector of shell indices that contain the AOs between
+     *  @p lower and @p upper.
+     *
+     *  @param[in] basis_set The LibInt2 BasisSet containing the AOs
+     *  @param[in] lower The lower value of the AO range
+     *  @param[in] upper The upper value of the AO range
+     *  @returns The std::vector of the shell indices
+     */
+    std::vector<size> aos2shells(LI_basis basis_set, size lower, size upper);
+
 } // namespace nwx_libint

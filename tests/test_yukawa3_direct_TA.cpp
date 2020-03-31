@@ -9,7 +9,7 @@ TEST_CASE("Yukawa3CDirect") {
     sde::ModuleManager mm;
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
-    mm.at("Yukawa3Direct").change_input("Tile size", std::vector<std::size_t>{1, 1, 4, 1});
+    mm.at("Yukawa3Direct").change_input("Tile size", std::vector<std::size_t>{7});
     auto [X] = mm.at("Yukawa3Direct").run_as<integral_type>(bs, bs, bs, std::size_t{0});
 
     TensorType real_X(X.world(), X.trange());

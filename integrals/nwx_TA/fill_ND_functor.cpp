@@ -1,5 +1,4 @@
 #include "integrals/nwx_TA/fill_ND_functor.hpp"
-#include "integrals/nwx_TA/nwx_TA_utils.hpp"
 #include "integrals/nwx_libint/nwx_libint.hpp"
 
 namespace nwx_TA {
@@ -38,7 +37,8 @@ namespace nwx_TA {
         std::vector<size_vec> tile_shells; // Shells in the current tile
         for (int depth = 0; depth < NBases; depth++) {
             int tile_depth = (nopers == 1) ? depth : depth + 1;
-            auto depth_shells = aos2shells(LIBasis_sets[depth], range.lobound()[tile_depth], range.upbound()[tile_depth]);
+            auto depth_shells = nwx_libint::aos2shells(LIBasis_sets[depth],
+                    range.lobound()[tile_depth], range.upbound()[tile_depth]);
             tile_shells.push_back(depth_shells);
         }
 

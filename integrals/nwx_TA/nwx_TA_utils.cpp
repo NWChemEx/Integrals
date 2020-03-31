@@ -1,43 +1,55 @@
 #include "integrals/nwx_TA/nwx_TA_utils.hpp"
 
+#include <utility>
+
 namespace nwx_TA {
 
-    using size = integrals::type::size;
-
-    TA::TiledRange1 make_tiled_range(libint2::BasisSet basis_set, size tile_size) {
+    template<typename T>
+    TA::TiledRange1 _make_tiled_range(basis<T> basis_set, size tile_size) {
         std::vector<size> bounds{0};
 
         auto span = 0;
-        for (auto ishell = 0; ishell < basis_set.size(); ++ishell) {
-            span += basis_set[ishell].size();
+        for (const auto& atom : basis_set) {
+            span += atom.n_aos();
 
             if (span < tile_size) continue;
 
-            auto bound = bounds.back() + span;
-            bounds.push_back(bound);
+            bounds.push_back(bounds.back() + span);
             span = 0;
         }
-        if (span != 0) bounds.push_back(bounds.back() + span);
+        if (span != 0) {
+            if ((span < (tile_size / 5)) && (bounds.size() != 1)) {
+                bounds.back() += span;
+            } else {
+                bounds.push_back(bounds.back() + span);
+            }
+        }
 
         return TA::TiledRange1(bounds.begin(), bounds.end());
     }
 
-    TA::TiledRange1 make_tiled_range(libint2::BasisSet basis_set, std::vector<size> tile_sizes) {
-        if (tile_sizes.size() == 1) {
-            return make_tiled_range(basis_set, tile_sizes[0]);
-        }
+    TA::TiledRange1 make_tiled_range(basis<double> basis_set, size tile_size) {
+        return _make_tiled_range<double>(std::move(basis_set), tile_size);
+    }
+
+    TA::TiledRange1 make_tiled_range(basis<float> basis_set, size tile_size) {
+        return _make_tiled_range<float>(std::move(basis_set), tile_size);
+    }
+
+    template<typename T>
+    TA::TiledRange1 _make_tiled_range(basis<T> basis_set, std::vector<size> tile_sizes) {
+        if (tile_sizes.size() == 1) return make_tiled_range(basis_set, tile_sizes[0]);
 
         std::vector<size> bounds{0};
         auto sizes_index = 0;
 
         auto span = 0;
-        for (auto ishell = 0; ishell < basis_set.size(); ++ishell) {
-            span += basis_set[ishell].size();
+        for (const auto& atom : basis_set) {
+            span += atom.n_aos();
 
             if (span < tile_sizes[sizes_index]) continue;
 
-            auto bound = bounds.back() + span;
-            bounds.push_back(bound);
+            bounds.push_back(bounds.back() + span);
             span = 0;
 
             sizes_index++;
@@ -50,21 +62,25 @@ namespace nwx_TA {
         return TA::TiledRange1(bounds.begin(), bounds.end());
     }
 
+    TA::TiledRange1 make_tiled_range(basis<double> basis_set, std::vector<size> tile_sizes) {
+        return _make_tiled_range<double>(std::move(basis_set), std::move(tile_sizes));
+    }
+
+    TA::TiledRange1 make_tiled_range(basis<float> basis_set, std::vector<size> tile_sizes) {
+        return _make_tiled_range<float>(std::move(basis_set), std::move(tile_sizes));
+    }
+
     TA::TiledRange1 make_tiled_range(size upper, size tile_size) {
         std::vector<size> bounds{};
 
-        for (auto bound = 0; bound < upper; bound+=tile_size) {
-            bounds.push_back(bound);
-        }
+        for (auto bound = 0; bound < upper; bound+=tile_size) bounds.push_back(bound);
         if (bounds.back() != upper) bounds.push_back(upper);
 
         return TA::TiledRange1(bounds.begin(), bounds.end());
     }
 
     TA::TiledRange1 make_tiled_range(size upper, std::vector<size> tile_sizes) {
-        if (tile_sizes.size() == 1) {
-            return make_tiled_range(upper, tile_sizes[0]);
-        }
+        if (tile_sizes.size() == 1) return make_tiled_range(upper, tile_sizes[0]);
 
         std::vector<size> bounds{};
         auto sizes_index = 0;
@@ -85,28 +101,46 @@ namespace nwx_TA {
         return TA::TiledRange1(bounds.begin(), bounds.end());
     }
 
-    std::vector<size> aos2shells(libint2::BasisSet basis_set, size lower, size upper) {
+    template<typename T>
+    std::vector<size> _aos2shells(basis<T> basis_set, size lower, size upper) {
         std::vector<size> return_vec;
 
-        for (auto ishell = 0, offset = 0; ishell < basis_set.size(); ++ishell) {
+        for (auto ishell = 0, offset = 0; ishell < basis_set.n_shells(); ++ishell) {
             if (offset >= upper) break;
             if (offset >= lower) return_vec.push_back(ishell);
-            offset += basis_set[ishell].size();
+            offset += basis_set.shell(ishell).size();
         }
 
         return return_vec;
     }
 
-    TA::TiledRange make_trange(const std::vector<libint2::BasisSet>& basis_sets,
+    std::vector<size> aos2shells(basis<double> basis_set, size lower, size upper) {
+        return _aos2shells(std::move(basis_set), lower, upper);
+    }
+
+    std::vector<size> aos2shells(basis<float> basis_set, size lower, size upper) {
+        return _aos2shells(std::move(basis_set), lower, upper);
+    }
+
+    template<typename basis_type>
+    TA::TiledRange _make_trange(const std::vector<basis_type>& basis_sets,
                                const std::vector<size>& tile_sizes,
                                std::vector<TA::TiledRange1> ranges) {
-
-        for (const auto& basis_set : basis_sets) {
-            ranges.push_back(make_tiled_range(basis_set, tile_sizes));
-        }
-
+        for (const auto& basis_set : basis_sets) ranges.push_back(make_tiled_range(basis_set, tile_sizes));
         TA::TiledRange trange(ranges.begin(), ranges.end());
         return trange;
+    }
+
+    TA::TiledRange make_trange(const std::vector<basis<double>>& basis_sets,
+                               const std::vector<size>& tile_sizes,
+                               std::vector<TA::TiledRange1> ranges) {
+        return _make_trange(basis_sets, tile_sizes, std::move(ranges));
+    }
+
+    TA::TiledRange make_trange(const std::vector<basis<float>>& basis_sets,
+                               const std::vector<size>& tile_sizes,
+                               std::vector<TA::TiledRange1> ranges) {
+        return _make_trange(basis_sets, tile_sizes, std::move(ranges));
     }
 
 } // namespace nwx_TA

@@ -34,7 +34,7 @@ namespace integrals {
         fill.initialize(nwx_libint::make_basis_sets({bra, ket}), deriv, thresh, cs_thresh);
         fill.factory.stg_exponent = stg_exponent;
 
-        auto trange = nwx_TA::make_trange(fill.LIBasis_sets, tile_size);
+        auto trange = nwx_TA::make_trange({bra, ket}, tile_size);
 
         auto I = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
 
