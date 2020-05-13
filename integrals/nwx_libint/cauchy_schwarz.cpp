@@ -21,7 +21,7 @@ namespace nwx_libint {
         } else if constexpr (NBases == 4) {
             cs_mat1 = make_mat(basis_sets[0], basis_sets[1], factory);
 
-            if ((basis_sets[0] == basis_sets[1]) && (basis_sets[2] == basis_sets[3])) {
+            if ((basis_sets[0] == basis_sets[2]) && (basis_sets[1] == basis_sets[3])) {
                 cs_mat2 = cs_mat1; // Same as before
             } else {
                 cs_mat2 = make_mat(basis_sets[2], basis_sets[3], factory);
