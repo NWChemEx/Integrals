@@ -10,6 +10,7 @@
 #include "integrals/nwx_direct/eri_direct.hpp"
 #include "integrals/nwx_direct/stg_direct.hpp"
 #include "integrals/nwx_direct/yukawa_direct.hpp"
+#include "integrals/cauchy_schwarz.hpp"
 
 namespace integrals {
 
@@ -57,6 +58,12 @@ void load_modules(sde::ModuleManager& mm) {
     mm.add_module("Yukawa3Direct", std::make_shared<Yukawa3Direct>());
 
     mm.add_module("Yukawa4Direct", std::make_shared<Yukawa4Direct>());
+
+    mm.add_module("CauchySchwarzERI", std::make_shared<CS_ERI>());
+
+    mm.add_module("CauchySchwarzSTG", std::make_shared<CS_STG>());
+
+    mm.add_module("CauchySchwarzYukawa", std::make_shared<CS_Yukawa>());
 }
 
 } // namespace integrals
