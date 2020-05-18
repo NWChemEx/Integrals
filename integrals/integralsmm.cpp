@@ -64,6 +64,21 @@ void load_modules(sde::ModuleManager& mm) {
     mm.add_module("CauchySchwarzSTG", std::make_shared<CS_STG>());
 
     mm.add_module("CauchySchwarzYukawa", std::make_shared<CS_Yukawa>());
+
+    mm.at("ERI3").change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(mm.at("CauchySchwarzERI")));
+    mm.at("ERI4").change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(mm.at("CauchySchwarzERI")));
+    mm.at("ERI3Direct").change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(mm.at("CauchySchwarzERI")));
+    mm.at("ERI4Direct").change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(mm.at("CauchySchwarzERI")));
+
+    mm.at("STG3").change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(mm.at("CauchySchwarzSTG")));
+    mm.at("STG4").change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(mm.at("CauchySchwarzSTG")));
+    mm.at("STG3Direct").change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(mm.at("CauchySchwarzSTG")));
+    mm.at("STG4Direct").change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(mm.at("CauchySchwarzSTG")));
+
+    mm.at("Yukawa3").change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(mm.at("CauchySchwarzYukawa")));
+    mm.at("Yukawa4").change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(mm.at("CauchySchwarzYukawa")));
+    mm.at("Yukawa3Direct").change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(mm.at("CauchySchwarzYukawa")));
+    mm.at("Yukawa4Direct").change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(mm.at("CauchySchwarzYukawa")));
 }
 
 } // namespace integrals

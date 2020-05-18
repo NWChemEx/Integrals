@@ -31,7 +31,6 @@ namespace integrals {
         auto& world = TA::get_default_world();
 
         auto fill = nwx_TA::FillNDFunctor<value_type<element_type>, libint2::Operator::kinetic, 2>();
-
         fill.initialize(nwx_libint::make_basis_sets({bra, ket}), deriv, thresh, cs_thresh);
 
         auto trange = nwx_TA::make_trange({bra, ket}, tile_size);

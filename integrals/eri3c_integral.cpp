@@ -4,6 +4,7 @@
 #include "nwx_TA/fill_ND_functor.hpp"
 #include "integrals/libint_integral.hpp"
 #include <property_types/ao_integrals/electron_repulsion.hpp>
+#include <property_types/cauchy_schwarz_approximation.hpp>
 
 namespace integrals {
 
@@ -15,12 +16,18 @@ namespace integrals {
     using tensor = typename type::tensor<element_type>;
     template<typename element_type>
     using value_type = typename tensor<element_type>::value_type;
+    template<typename element_type>
+    using cs_approx_type = property_types::CauchySchwarzApprox<element_type>;
 
     template<typename element_type>
     ERI3CInt<element_type>::ERI3CInt() : sde::ModuleBase(this) {
         description("Computes 3-center electron repulsion integrals with Libint");
         satisfies_property_type<eri3c_type<element_type>>();
         satisfies_property_type<libint_type<element_type>>();
+
+        add_submodule<cs_approx_type<element_type>>("Cauchy-Schwarz")
+            .set_description("Computes the Cauchy-Schwarz Matrix for a pair of basis sets");
+
     }
 
     template<typename element_type>
@@ -32,6 +39,11 @@ namespace integrals {
 
         auto fill = nwx_TA::FillNDFunctor<value_type<element_type>, libint2::Operator::coulomb, 3>();
         fill.initialize(nwx_libint::make_basis_sets({bra, ket1, ket2}), deriv, thresh, cs_thresh);
+
+        if (cs_thresh > 0.0) {
+            auto [cs_mat] = submods.at("Cauchy-Schwarz").run_as<cs_approx_type<element_type>>(ket1, ket2, deriv);
+            fill.screen.cs_mat2 = cs_mat;
+        }
 
         auto trange = nwx_TA::make_trange({bra, ket1, ket2}, tile_size);
 
