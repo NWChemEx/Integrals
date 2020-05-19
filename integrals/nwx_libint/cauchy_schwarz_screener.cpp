@@ -23,7 +23,7 @@ namespace nwx_libint {
 
             for (auto i : shell_list[1]) {
                 for (auto j : shell_list[2]) {
-                    maxVal = std::max(maxVal, cs_mat1[i][j]);
+                    maxVal = std::max(maxVal, cs_mat2[i][j]);
                 }
             }
 
@@ -63,7 +63,7 @@ namespace nwx_libint {
     void CauchySchwarzScreener<NBases>::set_sub_screen(const basis_vec& basis_sets,
                                                        const TiledArray::Range& range,
                                                        approx_vec& mat1, approx_vec& mat2) const {
-        if (cs_mat1.empty() || cs_mat2.empty()) {
+        if (cs_mat2.empty()) {
             // Default out if cs_mats aren't set to anything
             mat1 = {}, mat2 = {};
         } else {
@@ -83,7 +83,6 @@ namespace nwx_libint {
                         mat2[i][j] = cs_mat2[shell_list[1][i]][shell_list[2][j]];
                     }
                 }
-
             } else if constexpr (NBases == 4) {
                 mat1 = approx_vec(shell_list[0].size(), double_vec(shell_list[1].size(), 0.0));
                 mat2 = approx_vec(shell_list[2].size(), double_vec(shell_list[3].size(), 0.0));
