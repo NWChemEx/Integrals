@@ -21,6 +21,10 @@ jobs:
             gcc  --version
             g++  --version
             gcov --version
+    - name: Get Doxygen
+      run: |
+            sudo apt update
+            sudo apt-get install -f doxygen
     - name: get-gcovr
       run:  pip install gcovr
     - name: get-cmake

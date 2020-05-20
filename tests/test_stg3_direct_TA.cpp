@@ -11,6 +11,7 @@ TEST_CASE("STG3CDirect") {
     auto [molecule, bs] = make_molecule();
     auto stg_exponent = 1.0;
     mm.at("STG3Direct").change_input("Tile size", std::vector<std::size_t>{7});
+    mm.at("STG3Direct").change_input("Screening Threshold", 0.000001);
     auto [X] = mm.at("STG3Direct").run_as<integral_type>(bs, bs, bs, std::size_t{0}, stg_exponent);
 
     TensorType real_X(X.world(), X.trange());

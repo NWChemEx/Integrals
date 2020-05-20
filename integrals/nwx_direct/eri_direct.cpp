@@ -5,6 +5,7 @@
 #include "integrals/libint_integral.hpp"
 #include "integrals/nwx_direct/eri_direct_type.hpp"
 #include "integrals/nwx_TA/builder_factory.hpp"
+#include <property_types/cauchy_schwarz_approximation.hpp>
 
 namespace integrals {
 
@@ -16,12 +17,18 @@ namespace integrals {
     using libint_type = property_types::LibIntIntegral<element_type>;
     template<typename element_type>
     using tile_type = TA::Tensor<element_type>;
+    template<typename element_type>
+    using cs_approx_type = property_types::CauchySchwarzApprox<element_type>;
 
     template<typename element_type>
     ERI3CIntDirect<element_type>::ERI3CIntDirect() : sde::ModuleBase(this) {
         description("Computes 3-center electron repulsion integrals with Libint");
         satisfies_property_type<eri3c_type<element_type>>();
         satisfies_property_type<libint_type<element_type>>();
+
+        add_submodule<cs_approx_type<element_type>>("Cauchy-Schwarz")
+                .set_description("Computes the Cauchy-Schwarz Matrix for a pair of basis sets");
+
     }
 
     template<typename element_type>
@@ -38,6 +45,10 @@ namespace integrals {
 
         auto master = builder_type();
         master.initialize(nwx_libint::make_basis_sets({bra, ket1, ket2}), deriv, thresh, cs_thresh);
+        if (cs_thresh > 0.0) {
+            auto [cs_mat] = submods.at("Cauchy-Schwarz").run_as<cs_approx_type<element_type>>(ket1, ket2, deriv);
+            master.screen.cs_mat2 = cs_mat;
+        }
         auto bfactory = bfactory_type(master);
 
         auto trange = nwx_TA::make_trange({bra, ket1, ket2}, tile_size);
@@ -60,6 +71,10 @@ namespace integrals {
         description("Computes 4-center electron repulsion integrals with Libint");
         satisfies_property_type<eri4c_type<element_type>>();
         satisfies_property_type<libint_type<element_type>>();
+
+        add_submodule<cs_approx_type<element_type>>("Cauchy-Schwarz")
+                .set_description("Computes the Cauchy-Schwarz Matrix for a pair of basis sets");
+
     }
 
     template<typename element_type>
@@ -76,6 +91,12 @@ namespace integrals {
 
         auto master = builder_type();
         master.initialize(nwx_libint::make_basis_sets({bra1, bra2, ket1, ket2}), deriv, thresh, cs_thresh);
+        if (cs_thresh > 0.0) {
+            auto [cs_mat1] = submods.at("Cauchy-Schwarz").run_as<cs_approx_type<element_type>>(bra1, bra2, deriv);
+            auto [cs_mat2] = submods.at("Cauchy-Schwarz").run_as<cs_approx_type<element_type>>(ket1, ket2, deriv);
+            master.screen.cs_mat1 = cs_mat1;
+            master.screen.cs_mat2 = cs_mat2;
+        }
         auto bfactory = bfactory_type(master);
 
         auto trange = nwx_TA::make_trange({bra1, bra2, ket1, ket2}, tile_size);

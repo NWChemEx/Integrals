@@ -4,7 +4,7 @@
 #include "integrals/types.hpp"
 #include "integrals/nwx_TA/basis_set_serialize.hpp"
 #include "integrals/nwx_libint/nwx_libint_factory.hpp"
-#include "integrals/nwx_libint/cauchy_schwarz.hpp"
+#include "integrals/nwx_libint/cauchy_schwarz_screener.hpp"
 
 
 namespace nwx_TA {
@@ -25,7 +25,7 @@ namespace nwx_TA {
 
         // Cauchy-Schwarz Screening Threshold
         double cs_thresh = 0.0;
-        nwx_libint::CauchySchwarz<NBases, op> screen = nwx_libint::CauchySchwarz<NBases, op>();
+        nwx_libint::CauchySchwarzScreener<NBases> screen = nwx_libint::CauchySchwarzScreener<NBases>();
 
         // Number of arrays returned by operator
         size_type nopers = libint2::operator_traits<op>::nopers;

@@ -9,18 +9,13 @@ namespace nwx_TA {
                                                          element_type thresh,
                                                          element_type cs) {
         LIBasis_sets = sets;
-        cs_thresh = cs;
+        cs_thresh = (NBases == 2) ? 0.0 : cs;
 
         // Build factory
         factory.max_nprims = nwx_libint::sets_max_nprims(LIBasis_sets);
         factory.max_l = nwx_libint::sets_max_l(LIBasis_sets);
         factory.thresh = thresh;
         factory.deriv = deriv;
-
-        // Initialize screening
-        if (cs_thresh != 0.0) {
-            screen.initialize(LIBasis_sets, factory);
-        }
     }
 
     template<typename val_type, libint2::Operator op, std::size_t NBases>

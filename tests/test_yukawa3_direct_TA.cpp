@@ -10,6 +10,7 @@ TEST_CASE("Yukawa3CDirect") {
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
     mm.at("Yukawa3Direct").change_input("Tile size", std::vector<std::size_t>{7});
+    mm.at("Yukawa3Direct").change_input("Screening Threshold", 0.000001);
     auto [X] = mm.at("Yukawa3Direct").run_as<integral_type>(bs, bs, bs, std::size_t{0});
 
     TensorType real_X(X.world(), X.trange());

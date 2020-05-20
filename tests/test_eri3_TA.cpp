@@ -9,6 +9,7 @@ TEST_CASE("ERI3C") {
     sde::ModuleManager mm;
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
+    mm.at("ERI3").change_input("Screening Threshold", 0.000001);
     auto [X] = mm.at("ERI3").run_as<integral_type>(bs, bs, bs, std::size_t{0});
 
     compare_integrals(X, corr);

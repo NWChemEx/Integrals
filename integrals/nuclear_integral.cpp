@@ -35,7 +35,6 @@ namespace integrals {
             qs.emplace_back(static_cast<const double&>(ai.Z()), ai.coords());
 
         auto fill = nwx_TA::FillNDFunctor<value_type<element_type>, libint2::Operator::nuclear, 2>();
-
         fill.initialize(nwx_libint::make_basis_sets({bra, ket}), deriv, thresh, cs_thresh);
         fill.factory.qs = qs;
 

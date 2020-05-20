@@ -9,6 +9,7 @@ TEST_CASE("ERI3CDirect") {
     sde::ModuleManager mm;
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
+    mm.at("ERI3Direct").change_input("Screening Threshold", 0.000001);
     auto [X] = mm.at("ERI3Direct").run_as<integral_type>(bs, bs, bs, std::size_t{0});
 
     TensorType real_X(X.world(), X.trange());
