@@ -63,8 +63,15 @@ TEST_CASE("Test Utilities") {
     shells = nwx_TA::aos2shells(sto, 0, 5);
     REQUIRE(shells == corr_shells);
 
-    auto trange = nwx_TA::make_trange({sto, sto}, {1});
+    auto trange1 = nwx_TA::make_trange({sto, sto}, std::vector<std::size_t>{1});
     std::vector<TA::TiledRange1> ranges{bs_range1, bs_range1};
-    TA::TiledRange corr_trange(ranges.begin(), ranges.end());
-    REQUIRE(trange == corr_trange);
+    TA::TiledRange corr_trange1(ranges.begin(), ranges.end());
+    REQUIRE(trange1 == corr_trange1);
+
+    std::vector<std::vector<std::size_t>> atom_ranges = {{0, 1}, {2}};
+    auto trange2 = nwx_TA::make_trange({sto, adz}, atom_ranges);
+    TA::TiledRange1 adz_range{0, 32, 41};
+    TA::TiledRange corr_trange2{corr_range2, adz_range};
+    REQUIRE(trange2 == corr_trange2);
+
 }
