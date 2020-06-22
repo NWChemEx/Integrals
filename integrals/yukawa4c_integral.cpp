@@ -34,7 +34,7 @@ namespace integrals {
     sde::type::result_map Yukawa4CInt<element_type>::run_(sde::type::input_map inputs,
                                                           sde::type::submodule_map submods) const {
         auto [bra1, bra2, ket1, ket2, deriv, stg_exponent] = yukawa4c_type<element_type>::unwrap_inputs(inputs);
-        auto [thresh, tile_size, cs_thresh] = libint_type<element_type>::unwrap_inputs(inputs);
+        auto [thresh, tile_size, cs_thresh, atom_ranges] = libint_type<element_type>::unwrap_inputs(inputs);
         auto& world = TA::get_default_world();
 
         auto fill = nwx_TA::FillNDFunctor<value_type<element_type>, libint2::Operator::yukawa, 4>();
@@ -48,7 +48,12 @@ namespace integrals {
             fill.screen.cs_mat2 = cs_mat2;
         }
 
-        auto trange = nwx_TA::make_trange({bra1, bra2, ket1, ket2}, tile_size);
+        TA::TiledRange trange;
+        if (atom_ranges.empty()) {
+            trange = nwx_TA::make_trange({bra1, bra2, ket1, ket2}, tile_size);
+        } else {
+            trange = nwx_TA::make_trange({bra1, bra2, ket1, ket2}, atom_ranges);
+        }
 
         auto I = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
 

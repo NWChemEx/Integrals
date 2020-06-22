@@ -12,4 +12,11 @@ TEST_CASE("DOI") {
     auto [X] = mm.at("DOI").run_as<integral_type>(bs, bs, std::size_t{0});
 
     compare_integrals(X, corr);
+
+    mm.copy_module("DOI", "DOI_1");
+    std::vector<std::vector<std::size_t>> atom_groups{{0, 1, 2}};
+    mm.at("DOI_1").change_input("Atom Tile Groups", atom_groups);
+    auto [X_1] = mm.at("DOI_1").run_as<integral_type>(bs, bs, std::size_t{0});
+
+    compare_integrals(X_1, corr);
 }

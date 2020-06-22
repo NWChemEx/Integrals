@@ -27,7 +27,7 @@ namespace integrals {
     sde::type::result_map EQuadrupoleInt<element_type>::run_(sde::type::input_map inputs,
                                                              sde::type::submodule_map submods) const {
         auto [bra, ket, deriv, origin] = eQuadrupole_type<element_type>::unwrap_inputs(inputs);
-        auto [thresh, tile_size, cs_thresh] = libint_type<element_type>::unwrap_inputs(inputs);
+        auto [thresh, tile_size, cs_thresh, atom_ranges] = libint_type<element_type>::unwrap_inputs(inputs);
         auto& world = TA::get_default_world();
 
         auto fill = nwx_TA::FillNDFunctor<value_type<element_type>, libint2::Operator::emultipole2, 2>();
@@ -36,7 +36,12 @@ namespace integrals {
 
         auto nopers = libint2::operator_traits<libint2::Operator::emultipole2>::nopers;
         auto component_range = nwx_TA::make_tiled_range(nopers, nopers);
-        auto trange = nwx_TA::make_trange({bra, ket}, tile_size, {component_range});
+        TA::TiledRange trange;
+        if (atom_ranges.empty()) {
+            trange = nwx_TA::make_trange({bra, ket}, tile_size, {component_range});
+        } else {
+            trange = nwx_TA::make_trange({bra, ket}, atom_ranges, {component_range});
+        }
 
         auto S = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
 

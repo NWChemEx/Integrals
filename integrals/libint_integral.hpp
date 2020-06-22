@@ -26,10 +26,12 @@ namespace property_types {
         auto rv = sde::declare_input()
                 .add_field<ElementType>("Threshold", 1.0E-16)
                 .template add_field<size_vec>("Tile Size", size_vec{180})
-                .template add_field<ElementType>("Screening Threshold", 0.0);
+                .template add_field<ElementType>("Screening Threshold", 0.0)
+                .template add_field<std::vector<size_vec>>("Atom Tile Groups", std::vector<size_vec>{});
         rv["Threshold"].set_description("Convergence threshold of integrals");
         rv["Tile Size"].set_description("Size threshold for tiling tensors by atom blocks");
         rv["Screening Threshold"].set_description("Threshold for Cauchy-Schwarz screening");
+        rv["Atom Tile Groups"].set_description("Groups of Atoms to tile together. Overwrites Tile Size");
         return rv;
     }
 

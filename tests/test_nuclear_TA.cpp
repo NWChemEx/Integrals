@@ -24,4 +24,11 @@ TEST_CASE("Nuclear") {
     auto [V] = mm.at("Nuclear").run_as<integral_type>(bs, bs, molecule, std::size_t{0});
 
     compare_integrals(V, corr);
+
+    mm.copy_module("Nuclear", "Nuclear_1");
+    std::vector<std::vector<std::size_t>> atom_groups{{0, 1}, {2}};
+    mm.at("Nuclear_1").change_input("Atom Tile Groups", atom_groups);
+    auto [V_1] = mm.at("Nuclear_1").run_as<integral_type>(bs, bs, molecule, std::size_t{0});
+
+    compare_integrals(V_1, corr);
 }
