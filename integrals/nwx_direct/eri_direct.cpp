@@ -51,12 +51,7 @@ namespace integrals {
         }
         auto bfactory = bfactory_type(master);
 
-        TA::TiledRange trange;
-        if (atom_ranges.empty()) {
-            trange = nwx_TA::make_trange({bra, ket1, ket2}, tile_size);
-        } else {
-            trange = nwx_TA::make_trange({bra, ket1, ket2}, atom_ranges);
-        }
+        auto trange = nwx_TA::select_tiling({bra, ket1, ket2}, tile_size, atom_ranges);
         auto I = tensor(world, trange);
 
         auto initer = [=](TA::Range& range) { return direct_type(range, bfactory(range)); };
@@ -104,12 +99,7 @@ namespace integrals {
         }
         auto bfactory = bfactory_type(master);
 
-        TA::TiledRange trange;
-        if (atom_ranges.empty()) {
-            trange = nwx_TA::make_trange({bra1, bra2, ket1, ket2}, tile_size);
-        } else {
-            trange = nwx_TA::make_trange({bra1, bra2, ket1, ket2}, atom_ranges);
-        }
+        auto trange = nwx_TA::select_tiling({bra1, bra2, ket1, ket2}, tile_size, atom_ranges);
         auto I = tensor(world, trange);
 
         auto initer = [=](TA::Range& range) { return direct_type(range, bfactory(range)); };

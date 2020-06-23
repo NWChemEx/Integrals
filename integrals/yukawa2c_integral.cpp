@@ -36,12 +36,7 @@ namespace integrals {
         fill.initialize(nwx_libint::make_basis_sets({bra, ket}), deriv, thresh, cs_thresh);
         fill.factory.stg_exponent = stg_exponent;
 
-        TA::TiledRange trange;
-        if (atom_ranges.empty()) {
-            trange = nwx_TA::make_trange({bra, ket}, tile_size);
-        } else {
-            trange = nwx_TA::make_trange({bra, ket}, atom_ranges);
-        }
+        auto trange = nwx_TA::select_tiling({bra, ket}, tile_size, atom_ranges);
 
         auto I = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
 

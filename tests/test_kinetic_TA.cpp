@@ -25,11 +25,4 @@ TEST_CASE("Kinetic") {
     auto [T] = mm.at("Kinetic").run_as<integral_type>(bs, bs, std::size_t{0});
 
     compare_integrals(T, corr);
-
-    mm.copy_module("Kinetic", "Kinetic_1");
-    std::vector<std::vector<std::size_t>> atom_groups{{0}, {1, 2}};
-    mm.at("Kinetic_1").change_input("Atom Tile Groups", atom_groups);
-    auto [T_1] = mm.at("Kinetic_1").run_as<integral_type>(bs, bs, std::size_t{0});
-
-    compare_integrals(T_1, corr);
 }

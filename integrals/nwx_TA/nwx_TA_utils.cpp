@@ -124,8 +124,8 @@ namespace nwx_TA {
 
     template<typename basis_type>
     TA::TiledRange _make_trange(const std::vector<basis_type>& basis_sets,
-                               const std::vector<size>& tile_sizes,
-                               std::vector<TA::TiledRange1> ranges) {
+                                const std::vector<size>& tile_sizes,
+                                std::vector<TA::TiledRange1> ranges) {
         for (const auto& basis_set : basis_sets) ranges.push_back(make_tiled_range(basis_set, tile_sizes));
         TA::TiledRange trange(ranges.begin(), ranges.end());
         return trange;
@@ -145,7 +145,7 @@ namespace nwx_TA {
 
     template<typename basis_type>
     TA::TiledRange _make_trange(const std::vector<basis_type>& basis_sets,
-                                const std::vector<std::vector<size>>& atom_ranges,
+                                const std::vector<std::pair<size, size>>& atom_ranges,
                                 std::vector<TA::TiledRange1> ranges) {
 
         for (const auto& basis_set : basis_sets) {
@@ -157,7 +157,7 @@ namespace nwx_TA {
                 size next_tile_size = 0;
 
                 // Add the total basis set count for current atom range to the last bound
-                for (auto atom : atom_range) {
+                for (auto atom = atom_range.first; atom < atom_range.second; ++atom) {
                     next_tile_size += basis_set[atom].n_aos();
                 }
                 // Push back bound
@@ -173,15 +173,42 @@ namespace nwx_TA {
     }
 
     TA::TiledRange make_trange(const std::vector<basis<double>>& basis_sets,
-                               const std::vector<std::vector<size>>& atom_ranges,
+                               const std::vector<std::pair<size, size>>& atom_ranges,
                                std::vector<TA::TiledRange1> ranges) {
         return _make_trange(basis_sets, atom_ranges, std::move(ranges));
     }
 
     TA::TiledRange make_trange(const std::vector<basis<float>>& basis_sets,
-                               const std::vector<std::vector<size>>& atom_ranges,
+                               const std::vector<std::pair<size, size>>& atom_ranges,
                                std::vector<TA::TiledRange1> ranges) {
         return _make_trange(basis_sets, atom_ranges, std::move(ranges));
+    }
+
+    template<typename basis_type>
+    TA::TiledRange _select_tiling(const std::vector<basis_type>& basis_sets,
+                                  const std::vector<size>& tile_sizes,
+                                  const std::vector<std::pair<size, size>>& atom_ranges,
+                                  std::vector<TA::TiledRange1> ranges) {
+
+        if (atom_ranges.empty()) {
+            return make_trange(basis_sets, tile_sizes, ranges);
+        } else {
+            return make_trange(basis_sets, atom_ranges, ranges);
+        }
+    }
+
+    TA::TiledRange select_tiling(const std::vector<basis<double>>& basis_sets,
+                                 const std::vector<size>& tile_sizes,
+                                 const std::vector<std::pair<size, size>>& atom_ranges,
+                                 std::vector<TA::TiledRange1> ranges){
+        return _select_tiling(basis_sets, tile_sizes, atom_ranges, std::move(ranges));
+    }
+
+    TA::TiledRange select_tiling(const std::vector<basis<float>>& basis_sets,
+                                 const std::vector<size>& tile_sizes,
+                                 const std::vector<std::pair<size, size>>& atom_ranges,
+                                 std::vector<TA::TiledRange1> ranges){
+        return _select_tiling(basis_sets, tile_sizes, atom_ranges, std::move(ranges));
     }
 
 } // namespace nwx_TA

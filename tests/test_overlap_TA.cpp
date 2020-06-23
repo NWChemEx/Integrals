@@ -77,7 +77,7 @@ TEST_CASE("Overlap") {
     compare_integrals(S, corr);
 
     mm.copy_module("Overlap", "Overlap_1");
-    std::vector<std::vector<std::size_t>> atom_groups{{0}, {1}, {2}};
+    std::vector<std::pair<std::size_t, std::size_t>> atom_groups{{0, 1}, {1, 2}, {2, 3}};
     mm.at("Overlap_1").change_input("Tile size", std::vector<std::size_t>{100});
     mm.at("Overlap_1").change_input("Atom Tile Groups", atom_groups);
     auto [S_1] = mm.at("Overlap_1").run_as<integral_type>(bs, bs, std::size_t{0});

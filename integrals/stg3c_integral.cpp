@@ -46,12 +46,7 @@ namespace integrals {
             fill.screen.cs_mat2 = cs_mat;
         }
 
-        TA::TiledRange trange;
-        if (atom_ranges.empty()) {
-            trange = nwx_TA::make_trange({bra, ket1, ket2}, tile_size);
-        } else {
-            trange = nwx_TA::make_trange({bra, ket1, ket2}, atom_ranges);
-        }
+        auto trange = nwx_TA::select_tiling({bra, ket1, ket2}, tile_size, atom_ranges);
 
         auto I = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
 
