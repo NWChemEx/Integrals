@@ -40,7 +40,7 @@ namespace integrals {
         using tensor = TA::DistArray<direct_type, TA::SparsePolicy>;
 
         auto [bra, ket1, ket2, deriv, stg_exponent] = eri3c_type<element_type>::unwrap_inputs(inputs);
-        auto [thresh, tile_size, cs_thresh] = libint_type<element_type>::unwrap_inputs(inputs);
+        auto [thresh, tile_size, cs_thresh, atom_ranges] = libint_type<element_type>::unwrap_inputs(inputs);
         auto& world = TA::get_default_world();
 
         auto master = builder_type();
@@ -52,7 +52,7 @@ namespace integrals {
         }
         auto bfactory = bfactory_type(master);
 
-        auto trange = nwx_TA::make_trange({bra, ket1, ket2}, tile_size);
+        auto trange = nwx_TA::select_tiling({bra, ket1, ket2}, tile_size, atom_ranges);
         auto I = tensor(world, trange);
 
         auto initer = [=](TA::Range& range) { return direct_type(range, bfactory(range)); };
@@ -87,7 +87,7 @@ namespace integrals {
         using tensor = TA::DistArray<direct_type, TA::SparsePolicy>;
 
         auto [bra1, bra2, ket1, ket2, deriv, stg_exponent] = eri4c_type<element_type>::unwrap_inputs(inputs);
-        auto [thresh, tile_size, cs_thresh] = libint_type<element_type>::unwrap_inputs(inputs);
+        auto [thresh, tile_size, cs_thresh, atom_ranges] = libint_type<element_type>::unwrap_inputs(inputs);
         auto& world = TA::get_default_world();
 
         auto master = builder_type();
@@ -101,7 +101,7 @@ namespace integrals {
         }
         auto bfactory = bfactory_type(master);
 
-        auto trange = nwx_TA::make_trange({bra1, bra2, ket1, ket2}, tile_size);
+        auto trange = nwx_TA::select_tiling({bra1, bra2, ket1, ket2}, tile_size, atom_ranges);
         auto I = tensor(world, trange);
 
         auto initer = [=](TA::Range& range) { return direct_type(range, bfactory(range)); };

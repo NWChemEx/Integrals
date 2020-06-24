@@ -124,8 +124,8 @@ namespace nwx_TA {
 
     template<typename basis_type>
     TA::TiledRange _make_trange(const std::vector<basis_type>& basis_sets,
-                               const std::vector<size>& tile_sizes,
-                               std::vector<TA::TiledRange1> ranges) {
+                                const std::vector<size>& tile_sizes,
+                                std::vector<TA::TiledRange1> ranges) {
         for (const auto& basis_set : basis_sets) ranges.push_back(make_tiled_range(basis_set, tile_sizes));
         TA::TiledRange trange(ranges.begin(), ranges.end());
         return trange;
@@ -141,6 +141,74 @@ namespace nwx_TA {
                                const std::vector<size>& tile_sizes,
                                std::vector<TA::TiledRange1> ranges) {
         return _make_trange(basis_sets, tile_sizes, std::move(ranges));
+    }
+
+    template<typename basis_type>
+    TA::TiledRange _make_trange(const std::vector<basis_type>& basis_sets,
+                                const std::vector<std::pair<size, size>>& atom_ranges,
+                                std::vector<TA::TiledRange1> ranges) {
+
+        for (const auto& basis_set : basis_sets) {
+            // figure out tilings for each basis set
+            std::vector<size> tile_sizes = {};
+
+            // Step through atom ranges [first, second]
+            for (const auto& atom_range : atom_ranges) {
+                size next_tile_size = 0;
+
+                // Add the total basis set count for current atom range to the last bound
+                for (auto atom = atom_range.first; atom < atom_range.second; ++atom) {
+                    next_tile_size += basis_set[atom].n_aos();
+                }
+                // Push back bound
+                tile_sizes.push_back(next_tile_size);
+            }
+
+            // Make appropriate range for basis set
+            ranges.push_back(make_tiled_range(basis_set, tile_sizes));
+        }
+
+        TA::TiledRange trange(ranges.begin(), ranges.end());
+        return trange;
+    }
+
+    TA::TiledRange make_trange(const std::vector<basis<double>>& basis_sets,
+                               const std::vector<std::pair<size, size>>& atom_ranges,
+                               std::vector<TA::TiledRange1> ranges) {
+        return _make_trange(basis_sets, atom_ranges, std::move(ranges));
+    }
+
+    TA::TiledRange make_trange(const std::vector<basis<float>>& basis_sets,
+                               const std::vector<std::pair<size, size>>& atom_ranges,
+                               std::vector<TA::TiledRange1> ranges) {
+        return _make_trange(basis_sets, atom_ranges, std::move(ranges));
+    }
+
+    template<typename basis_type>
+    TA::TiledRange _select_tiling(const std::vector<basis_type>& basis_sets,
+                                  const std::vector<size>& tile_sizes,
+                                  const std::vector<std::pair<size, size>>& atom_ranges,
+                                  std::vector<TA::TiledRange1> ranges) {
+
+        if (atom_ranges.empty()) {
+            return make_trange(basis_sets, tile_sizes, ranges);
+        } else {
+            return make_trange(basis_sets, atom_ranges, ranges);
+        }
+    }
+
+    TA::TiledRange select_tiling(const std::vector<basis<double>>& basis_sets,
+                                 const std::vector<size>& tile_sizes,
+                                 const std::vector<std::pair<size, size>>& atom_ranges,
+                                 std::vector<TA::TiledRange1> ranges){
+        return _select_tiling(basis_sets, tile_sizes, atom_ranges, std::move(ranges));
+    }
+
+    TA::TiledRange select_tiling(const std::vector<basis<float>>& basis_sets,
+                                 const std::vector<size>& tile_sizes,
+                                 const std::vector<std::pair<size, size>>& atom_ranges,
+                                 std::vector<TA::TiledRange1> ranges){
+        return _select_tiling(basis_sets, tile_sizes, atom_ranges, std::move(ranges));
     }
 
 } // namespace nwx_TA

@@ -27,7 +27,7 @@ namespace integrals {
     sde::type::result_map Yukawa2CInt<element_type>::run_(sde::type::input_map inputs,
                                                           sde::type::submodule_map submods) const {
         auto [bra, ket, deriv, stg_exponent] = yukawa2c_type<element_type>::unwrap_inputs(inputs);
-        auto [thresh, tile_size, cs_thresh] = libint_type<element_type>::unwrap_inputs(inputs);
+        auto [thresh, tile_size, cs_thresh, atom_ranges] = libint_type<element_type>::unwrap_inputs(inputs);
         auto& world = TA::get_default_world();
 
         auto fill = nwx_TA::FillNDFunctor<value_type<element_type>, libint2::Operator::yukawa, 2>();
@@ -36,7 +36,7 @@ namespace integrals {
         fill.initialize(nwx_libint::make_basis_sets({bra, ket}), deriv, thresh, cs_thresh);
         fill.factory.stg_exponent = stg_exponent;
 
-        auto trange = nwx_TA::make_trange({bra, ket}, tile_size);
+        auto trange = nwx_TA::select_tiling({bra, ket}, tile_size, atom_ranges);
 
         auto I = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
 

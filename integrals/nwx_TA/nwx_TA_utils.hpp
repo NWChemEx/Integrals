@@ -89,4 +89,46 @@ namespace nwx_TA {
                                const std::vector<size>& tile_sizes,
                                std::vector<TA::TiledRange1> ranges = {});
 
+    /** @brief Make trange from basis set information.
+     *
+     *  Takes a std::vector of LibChemist BasisSets @p basis_sets, a std::vector of
+     *  atom ranges @p tile_sizes, and a std::vector of TiledArray TiledRange1 @p ranges
+     *  and returns a TiledArray TiledRange composed of any values in @p ranges
+     *  and the tiled ranges of the basis sets.
+     *
+     *  Allows for tiling by atom blocks
+     *
+     *  @param[in] basis_sets The vector of LibChemist basis sets
+     *  @param[in] atom_ranges The vector of atoms ranges per tile
+     *  @param[in] ranges A potentially empty vector of premade TiledRange1
+     *  @returns The TiledArray TiledRange made from all of the TiledRange1
+     */
+    TA::TiledRange make_trange(const std::vector<basis<double>>& basis_sets,
+                               const std::vector<std::pair<size, size>>& atom_ranges,
+                               std::vector<TA::TiledRange1> ranges = {});
+
+    TA::TiledRange make_trange(const std::vector<basis<float>>& basis_sets,
+                               const std::vector<std::pair<size, size>>& atom_ranges,
+                               std::vector<TA::TiledRange1> ranges = {});
+
+    /** @brief Make trange from basis set and tiling information.
+     *
+     *  Based on tiling settings, return the appropriate TiledRange.
+     *
+     *  @param[in] basis_sets The vector of LibChemist basis sets
+     *  @param[in] tile_sizes The vector of tile sizes
+     *  @param[in] atom_ranges The vector of atoms ranges per tile
+     *  @param[in] ranges A potentially empty vector of premade TiledRange1
+     *  @returns The TiledArray TiledRange made from all of the TiledRange1
+     */
+    TA::TiledRange select_tiling(const std::vector<basis<double>>& basis_sets,
+                                 const std::vector<size>& tile_sizes,
+                                 const std::vector<std::pair<size, size>>& atom_ranges,
+                                 std::vector<TA::TiledRange1> ranges = {});
+
+    TA::TiledRange select_tiling(const std::vector<basis<float>>& basis_sets,
+                                 const std::vector<size>& tile_sizes,
+                                 const std::vector<std::pair<size, size>>& atom_ranges,
+                                 std::vector<TA::TiledRange1> ranges = {});
+
 } // namespace nwx_TA
