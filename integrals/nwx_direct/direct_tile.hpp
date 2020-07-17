@@ -8,6 +8,7 @@ template<typename Tile, typename Builder>
 struct DirectTile {
     using eval_type = Tile;
     using numeric_type = typename Tile::numeric_type;
+    using value_type = typename Tile::value_type;
 
     TA::Range range; // The range of the tile
     Builder builder; // The builder that produces the tile data on call
