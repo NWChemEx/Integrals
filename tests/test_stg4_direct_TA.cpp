@@ -15,5 +15,5 @@ TEST_CASE("STG4CDirect") {
     TensorType real_X(X.world(), X.trange());
     real_X("k, l, m, n") = X("k, l, m, n");
 
-    compare_integrals(real_X, stg1ref, 0.0, 1e-12);
+    REQUIRE(libchemist::allclose(real_X, TensorType(real_X.world(), real_X.trange(), corr)));
 }

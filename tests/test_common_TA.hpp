@@ -7,7 +7,6 @@
 
 using TensorType = integrals::type::tensor<double>;
 using IndexType = std::vector<std::size_t>;
-using BlockTensor = std::map<IndexType, std::vector<double>>;
 using string_list = std::initializer_list<std::string>;
 
 inline auto make_molecule(const std::string& bs_name = "sto-3g") {
@@ -18,32 +17,6 @@ inline auto make_molecule(const std::string& bs_name = "sto-3g") {
     Atom H2{1ul, c_t{-1.638033502034240, 1.136556880358410, 0.000000000000000}};
     libchemist::Molecule water(O, H1, H2);
     return std::make_tuple(water, libchemist::apply_basis(bs_name, water));
-}
-
-
-inline void compare_integrals(TensorType& calc, BlockTensor& corr,
-                              const double eps  = 10000 * std::numeric_limits<double>::epsilon(),
-                              const double marg = 100 * std::numeric_limits<double>::epsilon()) {
-    REQUIRE(calc.size() == corr.size());
-
-    for (const auto& elem : corr) {
-        auto idx = elem.first;
-        auto corr_block = elem.second;
-        auto is_zero = calc.shape().is_zero(idx);
-
-        if (is_zero) {
-            for (double val : corr_block) {
-                REQUIRE(0.0 == Approx(val).epsilon(eps).margin(marg));
-            }
-        } else {
-            auto calc_block = calc.find(idx).get();
-
-            REQUIRE(calc_block.size() <= corr_block.size());
-            for (int i = 0; i < calc_block.size(); ++i) {
-                REQUIRE(calc_block[i] == Approx(corr_block[i]).epsilon(eps).margin(marg));
-            }
-        }
-    }
 }
 
 /**@brief Factors out the boilerplate required to test a property type

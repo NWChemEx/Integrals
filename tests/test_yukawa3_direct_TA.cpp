@@ -16,5 +16,5 @@ TEST_CASE("Yukawa3CDirect") {
     TensorType real_X(X.world(), X.trange());
     real_X("k, l, m") = X("k, l, m");
 
-    compare_integrals(real_X, corr);
+    REQUIRE(libchemist::allclose(real_X, TensorType(real_X.world(), real_X.trange(), corr)));
 }

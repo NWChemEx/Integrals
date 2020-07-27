@@ -11,5 +11,5 @@ TEST_CASE("DOI") {
     auto [molecule, bs] = make_molecule();
     auto [X] = mm.at("DOI").run_as<integral_type>(bs, bs, std::size_t{0});
 
-    compare_integrals(X, corr);
+    REQUIRE(libchemist::allclose(X, TensorType(X.world(), X.trange(), corr)));
 }
