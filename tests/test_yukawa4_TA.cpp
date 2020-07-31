@@ -13,5 +13,5 @@ TEST_CASE("Yukawa4C") {
     mm.at("Yukawa4").change_input("Screening Threshold", 0.000001);
     auto [X] = mm.at("Yukawa4").run_as<integral_type>(bs, bs, bs, bs, std::size_t{0}, stg_exponent);
 
-    compare_integrals(X, yukawa1ref, 0.0, 1e-12);
+    REQUIRE(libchemist::allclose(X, TensorType(X.world(), X.trange(), corr)));
 }

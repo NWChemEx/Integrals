@@ -14,5 +14,5 @@ TEST_CASE("STG3C") {
     mm.at("STG3").change_input("Screening Threshold", 0.000001);
     auto [X] = mm.at("STG3").run_as<integral_type>(bs, bs, bs, std::size_t{0}, stg_exponent);
 
-    compare_integrals(X, corr);
+    REQUIRE(libchemist::allclose(X, TensorType(X.world(), X.trange(), corr)));
 }

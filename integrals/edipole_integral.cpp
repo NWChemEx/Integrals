@@ -3,10 +3,14 @@
 #include "nwx_TA/nwx_TA_utils.hpp"
 #include "nwx_TA/fill_ND_functor.hpp"
 #include "integrals/libint_integral.hpp"
+#include <libchemist/ta_helpers/einsum/einsum.hpp>
+#include <property_types/ao_integrals/overlap.hpp>
 #include <property_types/ao_integrals/emultipole.hpp>
 
 namespace integrals {
 
+    template<typename element_type>
+    using overlap_type = property_types::OverlapIntegral<element_type>;
     template<typename element_type>
     using eDipole_type = property_types::EDipoleIntegral<element_type>;
     template<typename element_type>
@@ -19,6 +23,7 @@ namespace integrals {
     template<typename element_type>
     EDipoleInt<element_type>::EDipoleInt() : sde::ModuleBase(this) {
         description("Computes dipole integrals with Libint");
+        satisfies_property_type<overlap_type<element_type>>();
         satisfies_property_type<eDipole_type<element_type>>();
         satisfies_property_type<libint_type<element_type>>();
     }
@@ -38,10 +43,26 @@ namespace integrals {
         auto component_range = nwx_TA::make_tiled_range(nopers, nopers);
         auto trange = nwx_TA::select_tiling({bra, ket}, tile_size, atom_ranges, {component_range});
 
-        auto S = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
+        auto X = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
+        auto separate_comps = nwx_TA::make_tiled_range(nopers, {1, 3});
+        trange = nwx_TA::select_tiling({bra, ket}, tile_size, atom_ranges, {separate_comps});
+        X = TA::retile(X, trange);
+
+        // Separate out components
+        tensor<element_type> S, D;
+        auto upper = trange.tiles_range().upbound();
+        S("i,j,k") = X("i,j,k").block({0, 0, 0}, {1, upper[1], upper[2]});
+        D("i,j,k") = X("i,j,k").block({1, 0, 0}, {2, upper[1], upper[2]});
+
+        // Make overlap 2D
+        auto I = TA::diagonal_array<tensor<element_type>, element_type>(world,
+          {S.trange().dim(0)});
+        S = libchemist::einsum::einsum("j,k", "i,j,k", "i", S, I);
 
         auto rv = results();
-        return eDipole_type<element_type>::wrap_results(rv, S);
+        rv = overlap_type<element_type>::wrap_results(rv, S);
+        rv = eDipole_type<element_type>::wrap_results(rv, D);
+        return rv;
     }
 
     template class EDipoleInt<double>;
