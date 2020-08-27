@@ -64,7 +64,9 @@ namespace integrals {
 
             // Find the norm and take the square root
             double infinity_norm = 0.0;
-            for (int a = 0; a < nvals; ++a) { infinity_norm = std::max(infinity_norm, std::abs(vals[a])); }
+            if (vals != nullptr) {
+                for (int a = 0; a < nvals; ++a) { infinity_norm = std::max(infinity_norm, std::abs(vals[a])); }
+            }
             mat[i][j] = std::sqrt(infinity_norm);
             if (same_bs && (i!=j)) { mat[j][i] = mat[i][j]; } // cut down on work
         };
