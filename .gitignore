@@ -1,30 +1,27 @@
-#This is the clang-format script downloaded by the pre-commit hook
-.clang-format
+################################################################################
+#
+# The master .gitignore lives at NWChemEx-Project/DeveloperTools. The .gitignore
+# file contained in all other NWChemEx-Project repositories is a synchronized
+# copy of the master .gitignore. Thus to make changes to the .gitignore file
+# please make them to the master .gitignore file.
+#
+################################################################################
 
-#These are configuration files for QtCreator
-Integrals.config
-Integrals.creator
-Integrals.creator.user
-Integrals.files
-Integrals.includes
+# These are extensions commonly used to denote temporary files
+*.tmp
 *.autosave
+*.bak
 
-#These are configuration files for CLion
+# These are directories used by IDEs for storing settings
 .idea/
 
-#This is the documentation build directory
-docs/
-
-#These are my common build directory names
+# These are common build directory names
+docs/build
+docs/doxyoutput
+docs/source/api
+*-build-*/
 Debug/
 Release/
 
-#These are the build directories used by the tests
-build/
-
-#These are CLion's build dirs
-cmake-build-debug/
-cmake-build-release/
-
-#This is the typical toolchain file
+# Users commonly store their specific CMake settings in a toolchain file
 toolchain.cmake
