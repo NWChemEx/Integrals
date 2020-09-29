@@ -35,6 +35,7 @@ echo "set(BUILD_TESTING ON)" > "${toolchain_file}"
   echo 'set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)'
   echo "set(BUILD_SHARED_LIBS ON)"
   echo "set(CATCH_ENABLE_COVERAGE ON)"
+  echo "set(CMAKE_PREFIX_PATH $(pwd)/install)"
   echo 'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -std=c++17")'
   echo 'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOMPI_SKIP_MPICXX")'
   echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")'
