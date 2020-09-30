@@ -1,13 +1,13 @@
 #pragma once
-#include <sde/module_base.hpp>
 #include "integrals/types.hpp"
+#include <sde/module_base.hpp>
 
 namespace integrals {
 
-    template<typename element_type = double>
-    DECLARE_MODULE(OverlapInt);
+template<typename element_type = double>
+DECLARE_MODULE(OverlapInt);
 
-    extern template class OverlapInt<double>;
+extern template class OverlapInt<double>;
 
-    using Overlap = OverlapInt<double>;
+using Overlap = OverlapInt<double>;
 } // namespace integrals
