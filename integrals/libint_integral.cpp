@@ -2,7 +2,7 @@
 
 namespace property_types {
 
-    template class LibIntIntegral<double>;
-    template class LibIntIntegral<float>;
+template class LibIntIntegral<double>;
+template class LibIntIntegral<float>;
 
 } // namespace property_types
