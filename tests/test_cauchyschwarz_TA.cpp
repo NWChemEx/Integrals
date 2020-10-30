@@ -44,6 +44,9 @@ TEST_CASE("Cauchy-Schwarz") {
     sde::ModuleManager mm;
     integrals::load_modules(mm);
 
+    mm.at("CauchySchwarzSTG").change_input("STG Exponent", 1.0);
+    mm.at("CauchySchwarzYukawa").change_input("STG Exponent", 1.0);
+
     // Check Cauchy-Schwarz Module
     auto [cs_mat_eri] = mm.at("CauchySchwarzERI").run_as<cs_approx>(bs, bs, std::size_t{0});
     auto [cs_mat_stg] = mm.at("CauchySchwarzSTG").run_as<cs_approx>(bs, bs, std::size_t{0});
