@@ -18,6 +18,13 @@ CauchySchwarz<element_type, op>::CauchySchwarz() : sde::ModuleBase(this) {
     add_input<element_type>("Threshold")
       .set_description("Convergence threshold of integrals")
       .set_default(1.0E-16);
+
+    if constexpr(op == libint2::Operator::stg ||
+                 op == libint2::Operator::yukawa) {
+        add_input<element_type>("STG Exponent")
+          .set_description("The exponent for the Slater type geminal")
+          .set_default(element_type{1.0});
+    }
 }
 
 template<typename element_type, libint2::Operator op>
@@ -41,6 +48,12 @@ sde::type::result_map CauchySchwarz<element_type, op>::run_(
     factory.max_l      = nwx_libint::sets_max_l({bs1, bs2});
     factory.thresh     = thresh;
     factory.deriv      = deriv;
+
+    if constexpr (op == libint2::Operator::stg ||
+                  op == libint2::Operator::yukawa) {
+        auto stg_exponent = inputs.at("STG Exponent").value<element_type>();
+        factory.stg_exponent = stg_exponent;
+    }
 
     // In case it was finalized
     if(not libint2::initialized()) { libint2::initialize(); }
