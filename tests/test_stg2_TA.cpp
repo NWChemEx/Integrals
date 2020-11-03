@@ -24,5 +24,5 @@ TEST_CASE("STG2C") {
     mm.at("STG2").change_input("Tile size", std::vector<std::size_t>{3});
     auto [X] = mm.at("STG2").run_as<integral_type>(bs, bs, std::size_t{0}, stg_exponent);
 
-    REQUIRE(libchemist::allclose(X, TensorType(X.world(), X.trange(), corr)));
+    REQUIRE(libchemist::ta_helpers::allclose(X, TensorType(X.world(), X.trange(), corr)));
 }

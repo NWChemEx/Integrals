@@ -68,7 +68,7 @@ sde::type::result_map EQuadrupoleInt<element_type>::run_(
     // Make overlap 2D
     auto I = TA::diagonal_array<tensor<element_type>, element_type>(
       world, {S.trange().dim(0)});
-    S = libchemist::einsum::einsum("j,k", "i,j,k", "i", S, I);
+    S = libchemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
 
     auto rv = results();
     rv      = overlap_type<element_type>::wrap_results(rv, S);

@@ -18,7 +18,7 @@ TEST_CASE("Quadrupole") {
     auto [D] = mm.at("EDipole").run_as<d_type>(bs, bs, std::size_t{0}, origin);
     auto [Q] = mm.at("EQuadrupole").run_as<q_type>(bs, bs, std::size_t{0}, origin);
 
-    REQUIRE(libchemist::allclose(S, TensorType(S.world(), S.trange(), corr)));
-    REQUIRE(libchemist::allclose(D, TensorType(D.world(), D.trange(), corr_dipole)));
-    REQUIRE(libchemist::allclose(Q, TensorType(Q.world(), Q.trange(), corr_quad)));
+    REQUIRE(libchemist::ta_helpers::allclose(S, TensorType(S.world(), S.trange(), corr)));
+    REQUIRE(libchemist::ta_helpers::allclose(D, TensorType(D.world(), D.trange(), corr_dipole)));
+    REQUIRE(libchemist::ta_helpers::allclose(Q, TensorType(Q.world(), Q.trange(), corr_quad)));
 }

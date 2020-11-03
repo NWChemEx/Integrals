@@ -79,12 +79,12 @@ TEST_CASE("Cauchy-Schwarz") {
     // Check Screened Integrals
     mm.at("ERI4").change_input("Screening Threshold", 0.005);
     auto [X] = mm.at("ERI4").run_as<integral_type>(bs, bs, bs, bs, std::size_t{0});
-    REQUIRE(libchemist::allclose(X, TensorType(X.world(), X.trange(), corr)));
+    REQUIRE(libchemist::ta_helpers::allclose(X, TensorType(X.world(), X.trange(), corr)));
 
     mm.at("ERI4Direct").change_input("Screening Threshold", 0.005);
     auto [X_direct] = mm.at("ERI4Direct").run_as<direct_type>(bs, bs, bs, bs, std::size_t{0});
     TensorType X_core(X.world(), X.trange());
     X_core("k, l, m, n") = X_direct("k, l, m, n");
-    REQUIRE(libchemist::allclose(X_core, TensorType(X_core.world(), X_core.trange(), corr)));
+    REQUIRE(libchemist::ta_helpers::allclose(X_core, TensorType(X_core.world(), X_core.trange(), corr)));
 }
 
