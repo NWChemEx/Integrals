@@ -81,5 +81,5 @@ TEST_CASE("Yukawa2C") {
     auto [X] = mm.at("Yukawa2").run_as<integral_type>(bs, bs, std::size_t{0},
                                                       stg_exponent);
 
-    REQUIRE(libchemist::allclose(X, TensorType(X.world(), X.trange(), corr)));
+    REQUIRE(libchemist::ta_helpers::allclose(X, TensorType(X.world(), X.trange(), corr)));
 }

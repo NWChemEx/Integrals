@@ -80,5 +80,5 @@ TEST_CASE("Nuclear") {
     auto [V] =
       mm.at("Nuclear").run_as<integral_type>(bs, bs, molecule, std::size_t{0});
 
-    REQUIRE(libchemist::allclose(V, TensorType(V.world(), V.trange(), corr)));
+    REQUIRE(libchemist::ta_helpers::allclose(V, TensorType(V.world(), V.trange(), corr)));
 }

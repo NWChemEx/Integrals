@@ -13,7 +13,7 @@ TEST_CASE("Overlap") {
     auto [molecule, bs] = make_molecule();
     auto [S] = mm.at("Overlap").run_as<integral_type>(bs, bs, std::size_t{0});
 
-    REQUIRE(libchemist::allclose(S, TensorType(S.world(), S.trange(), corr)));
+    REQUIRE(libchemist::ta_helpers::allclose(S, TensorType(S.world(), S.trange(), corr)));
 
     mm.copy_module("Overlap", "Overlap_1");
     std::vector<std::pair<std::size_t, std::size_t>> atom_groups{
@@ -24,5 +24,5 @@ TEST_CASE("Overlap") {
       mm.at("Overlap_1").run_as<integral_type>(bs, bs, std::size_t{0});
 
     REQUIRE(
-      libchemist::allclose(S_1, TensorType(S_1.world(), S_1.trange(), corr)));
+      libchemist::ta_helpers::allclose(S_1, TensorType(S_1.world(), S_1.trange(), corr)));
 }

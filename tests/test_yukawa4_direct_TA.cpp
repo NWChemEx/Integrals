@@ -15,5 +15,5 @@ TEST_CASE("Yukawa4CDirect") {
     TensorType real_X(X.world(), X.trange());
     real_X("k, l, m, n") = X("k, l, m, n");
 
-    REQUIRE(libchemist::allclose(real_X, TensorType(real_X.world(), real_X.trange(), corr)));
+    REQUIRE(libchemist::ta_helpers::allclose(real_X, TensorType(real_X.world(), real_X.trange(), corr)));
 }

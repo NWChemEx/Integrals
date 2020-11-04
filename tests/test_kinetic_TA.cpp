@@ -79,5 +79,5 @@ TEST_CASE("Kinetic") {
     mm.at("Kinetic").change_input("Tile size", std::vector<std::size_t>{1, 2});
     auto [T] = mm.at("Kinetic").run_as<integral_type>(bs, bs, std::size_t{0});
 
-    REQUIRE(libchemist::allclose(T, TensorType(T.world(), T.trange(), corr)));
+    REQUIRE(libchemist::ta_helpers::allclose(T, TensorType(T.world(), T.trange(), corr)));
 }

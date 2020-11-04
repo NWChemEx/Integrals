@@ -11,5 +11,5 @@ TEST_CASE("ERI4C") {
     auto [molecule, bs] = make_molecule();
     auto [X] = mm.at("ERI4").run_as<integral_type>(bs, bs, bs, bs, std::size_t{0});
 
-    REQUIRE(libchemist::allclose(X, TensorType(X.world(), X.trange(), corr)));
+    REQUIRE(libchemist::ta_helpers::allclose(X, TensorType(X.world(), X.trange(), corr)));
 }

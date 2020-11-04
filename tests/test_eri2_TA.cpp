@@ -79,5 +79,5 @@ TEST_CASE("ERI2C") {
     mm.at("ERI2").change_input("Tile size", std::vector<std::size_t>{1});
     auto [X] = mm.at("ERI2").run_as<integral_type>(bs, bs, std::size_t{0});
 
-    REQUIRE(libchemist::allclose(X, TensorType(X.world(), X.trange(), corr)));
+    REQUIRE(libchemist::ta_helpers::allclose(X, TensorType(X.world(), X.trange(), corr)));
 }
