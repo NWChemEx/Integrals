@@ -49,9 +49,9 @@ sde::type::result_map CauchySchwarz<element_type, op>::run_(
     factory.thresh     = thresh;
     factory.deriv      = deriv;
 
-    if constexpr (op == libint2::Operator::stg ||
-                  op == libint2::Operator::yukawa) {
-        auto stg_exponent = inputs.at("STG Exponent").value<element_type>();
+    if constexpr(op == libint2::Operator::stg ||
+                 op == libint2::Operator::yukawa) {
+        auto stg_exponent    = inputs.at("STG Exponent").value<element_type>();
         factory.stg_exponent = stg_exponent;
     }
 
