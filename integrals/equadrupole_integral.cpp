@@ -60,9 +60,9 @@ sde::type::result_map EQuadrupoleInt<element_type>::run_(
 
     // Separate out components
     tensor<element_type> S, D, Q;
-    auto upper = trange.tiles_range().upbound();
+    auto upper      = trange.tiles_range().upbound();
     using size_type = long;
-    using il_type = std::initializer_list<size_type>;
+    using il_type   = std::initializer_list<size_type>;
     il_type lo_S{0, 0, 0}, hi_S{1, upper[1], upper[2]};
     il_type lo_D{1, 0, 0}, hi_D{2, upper[1], upper[2]};
     il_type lo_Q{2, 0, 0}, hi_Q{3, upper[1], upper[2]};
