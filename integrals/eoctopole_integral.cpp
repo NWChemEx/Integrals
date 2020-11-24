@@ -64,14 +64,21 @@ sde::type::result_map EOctopoleInt<element_type>::run_(
     // Separate out components
     tensor<element_type> S, D, Q, O;
     auto upper = trange.tiles_range().upbound();
-    S("i,j,k") = X("i,j,k").block({0, 0, 0}, {1, upper[1], upper[2]});
-    D("i,j,k") = X("i,j,k").block({1, 0, 0}, {2, upper[1], upper[2]});
-    Q("i,j,k") = X("i,j,k").block({2, 0, 0}, {3, upper[1], upper[2]});
-    O("i,j,k") = X("i,j,k").block({3, 0, 0}, {4, upper[1], upper[2]});
+    using size_type = long;
+    using il_type = std::initializer_list<size_type>;
+    il_type lo_S{0, 0, 0}, hi_S{1, upper[1], upper[2]};
+    il_type lo_D{1, 0, 0}, hi_D{2, upper[1], upper[2]};
+    il_type lo_Q{2, 0, 0}, hi_Q{3, upper[1], upper[2]};
+    il_type lo_O{3, 0, 0}, hi_O{4, upper[1], upper[2]};
+
+    S("i,j,k") = X("i,j,k").block(lo_S, hi_S);
+    D("i,j,k") = X("i,j,k").block(lo_D, hi_D);
+    Q("i,j,k") = X("i,j,k").block(lo_Q, hi_Q);
+    O("i,j,k") = X("i,j,k").block(lo_O, hi_O);
 
     // Make overlap 2D
     auto I = TA::diagonal_array<tensor<element_type>, element_type>(
-      world, {S.trange().dim(0)});
+      world, TA::TiledRange{S.trange().dim(0)});
     S = libchemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
 
     auto rv = results();
