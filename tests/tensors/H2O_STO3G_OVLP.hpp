@@ -1,5 +1,5 @@
 #pragma once
-#include "test_common_TA.hpp"
+#include "../test_common_TA.hpp"
 
 using matrix_t = TA::detail::matrix_il<double>;
 

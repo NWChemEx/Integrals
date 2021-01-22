@@ -9,7 +9,7 @@
 namespace integrals {
 
 template<typename element_type>
-using eri3c_type = property_types::ERI3CIntegral<element_type>;
+using eri3c_type = property_types::ao_integrals::ERI3C<element_type>;
 template<typename element_type>
 using libint_type = property_types::LibIntIntegral<element_type>;
 template<typename element_type>
@@ -33,8 +33,14 @@ ERI3CInt<element_type>::ERI3CInt() : sde::ModuleBase(this) {
 template<typename element_type>
 sde::type::result_map ERI3CInt<element_type>::run_(
   sde::type::input_map inputs, sde::type::submodule_map submods) const {
-    auto [bra, ket1, ket2, deriv] =
+    auto [bra_space, ket1_space, ket2_space] =
       eri3c_type<element_type>::unwrap_inputs(inputs);
+
+    auto& bra         = bra_space.basis_set();
+    auto& ket1        = ket1_space.basis_set();
+    auto& ket2        = ket2_space.basis_set();
+    std::size_t deriv = 0;
+
     auto [thresh, tile_size, cs_thresh, atom_ranges] =
       libint_type<element_type>::unwrap_inputs(inputs);
     auto& world = TA::get_default_world();

@@ -1,8 +1,8 @@
 #pragma once
-#include "integrals/nwx_TA/basis_set_serialize.hpp"
-#include "integrals/nwx_libint/cauchy_schwarz_screener.hpp"
-#include "integrals/nwx_libint/nwx_libint_factory.hpp"
+#include "basis_set_serialize.hpp"
+#include "cauchy_schwarz_screener.hpp"
 #include "integrals/types.hpp"
+#include "nwx_libint_factory.hpp"
 #include <libint2.hpp>
 #include <tiledarray.h>
 

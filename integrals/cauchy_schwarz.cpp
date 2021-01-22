@@ -36,8 +36,12 @@ sde::type::result_map CauchySchwarz<element_type, op>::run_(
     using basis_vec  = std::vector<basis_type>;
 
     // Get inputs
-    auto [basis1, basis2, deriv] =
+    auto [basis1_space, basis2_space, deriv] =
       cs_approx_type<element_type>::unwrap_inputs(inputs);
+
+    auto& basis1 = basis1_space.basis_set();
+    auto& basis2 = basis2_space.basis_set();
+
     auto thresh = inputs.at("Threshold").value<element_type>();
 
     // Set up

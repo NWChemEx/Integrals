@@ -1,5 +1,5 @@
-#include "integrals/nwx_TA/fill_ND_functor.hpp"
-#include "integrals/nwx_libint/nwx_libint.hpp"
+#include "fill_ND_functor.hpp"
+#include "nwx_libint.hpp"
 
 namespace nwx_TA {
 

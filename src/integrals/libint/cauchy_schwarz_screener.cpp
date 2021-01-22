@@ -1,5 +1,5 @@
-#include "integrals/nwx_libint/cauchy_schwarz_screener.hpp"
-#include "integrals/nwx_libint/nwx_libint.hpp"
+#include "cauchy_schwarz_screener.hpp"
+#include "nwx_libint.hpp"
 
 namespace nwx_libint {
 

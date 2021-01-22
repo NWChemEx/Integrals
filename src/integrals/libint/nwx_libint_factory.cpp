@@ -1,4 +1,4 @@
-#include "integrals/nwx_libint/nwx_libint_factory.hpp"
+#include "nwx_libint_factory.hpp"
 
 namespace nwx_libint {
 

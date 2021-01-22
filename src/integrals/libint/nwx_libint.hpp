@@ -1,11 +1,12 @@
 #pragma once
 #include "integrals/types.hpp"
+#include <libchemist/basis_set/ao_basis_set.hpp>
 #include <libint2.hpp>
 
 namespace nwx_libint {
 
 template<typename T>
-using NWX_basis = integrals::type::basis_set<T>;
+using NWX_basis = libchemist::AOBasisSet<T>;
 using LI_basis  = libint2::BasisSet;
 using size      = integrals::type::size;
 

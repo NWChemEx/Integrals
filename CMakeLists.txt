@@ -36,8 +36,8 @@ cpp_find_or_build_dependency(
 
 cpp_add_library(
         integrals
-        SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/integrals"
-        INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/integrals"
+        SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/src/integrals"
+        INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/include/integrals"
         DEPENDS Libint2::int2 nwx::property_types
 )
 
@@ -52,7 +52,7 @@ if("${BUILD_TESTING}")
     cpp_add_tests(
             test_integrals
             SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/tests"
-            INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/integrals"
+            INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/tests"
             DEPENDS Catch2::Catch2 integrals
     )
 endif()

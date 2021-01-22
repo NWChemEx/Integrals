@@ -1,5 +1,4 @@
-#include "integrals/nwx_TA/nwx_TA_utils.hpp"
-
+#include "nwx_TA_utils.hpp"
 #include <utility>
 
 namespace nwx_TA {

@@ -10,13 +10,14 @@
 namespace integrals {
 
 template<typename element_type>
-using overlap_type = property_types::OverlapIntegral<element_type>;
+using overlap_type = property_types::ao_integrals::Overlap<element_type>;
 template<typename element_type>
-using eDipole_type = property_types::EDipoleIntegral<element_type>;
+using eDipole_type = property_types::ao_integrals::EDipole<element_type>;
 template<typename element_type>
-using eQuadrupole_type = property_types::EQuadrupoleIntegral<element_type>;
+using eQuadrupole_type =
+  property_types::ao_integrals::EQuadrupole<element_type>;
 template<typename element_type>
-using eOctopole_type = property_types::EOctopoleIntegral<element_type>;
+using eOctopole_type = property_types::ao_integrals::EOctopole<element_type>;
 template<typename element_type>
 using libint_type = property_types::LibIntIntegral<element_type>;
 template<typename element_type>
@@ -36,58 +37,7 @@ EOctopoleInt<element_type>::EOctopoleInt() : sde::ModuleBase(this) {
 
 template<typename element_type>
 sde::type::result_map EOctopoleInt<element_type>::run_(
-  sde::type::input_map inputs, sde::type::submodule_map submods) const {
-    auto [bra, ket, deriv, origin] =
-      eOctopole_type<element_type>::unwrap_inputs(inputs);
-    auto [thresh, tile_size, cs_thresh, atom_ranges] =
-      libint_type<element_type>::unwrap_inputs(inputs);
-    auto& world = TA::get_default_world();
-
-    auto fill = nwx_TA::FillNDFunctor<value_type<element_type>,
-                                      libint2::Operator::emultipole3, 2>();
-    fill.initialize(nwx_libint::make_basis_sets({bra, ket}), deriv, thresh,
-                    cs_thresh);
-    fill.factory.origin = origin;
-
-    auto nopers =
-      libint2::operator_traits<libint2::Operator::emultipole3>::nopers;
-    auto component_range = nwx_TA::make_tiled_range(nopers, nopers);
-    auto trange = nwx_TA::select_tiling({bra, ket}, tile_size, atom_ranges,
-                                        {component_range});
-
-    auto X = TiledArray::make_array<tensor<element_type>>(world, trange, fill);
-    auto separate_comps = nwx_TA::make_tiled_range(nopers, {1, 3, 6, 10});
-    trange = nwx_TA::select_tiling({bra, ket}, tile_size, atom_ranges,
-                                   {separate_comps});
-    X      = TA::retile(X, trange);
-
-    // Separate out components
-    tensor<element_type> S, D, Q, O;
-    auto upper      = trange.tiles_range().upbound();
-    using size_type = long;
-    using il_type   = std::initializer_list<size_type>;
-    il_type lo_S{0, 0, 0}, hi_S{1, upper[1], upper[2]};
-    il_type lo_D{1, 0, 0}, hi_D{2, upper[1], upper[2]};
-    il_type lo_Q{2, 0, 0}, hi_Q{3, upper[1], upper[2]};
-    il_type lo_O{3, 0, 0}, hi_O{4, upper[1], upper[2]};
-
-    S("i,j,k") = X("i,j,k").block(lo_S, hi_S);
-    D("i,j,k") = X("i,j,k").block(lo_D, hi_D);
-    Q("i,j,k") = X("i,j,k").block(lo_Q, hi_Q);
-    O("i,j,k") = X("i,j,k").block(lo_O, hi_O);
-
-    // Make overlap 2D
-    auto I = TA::diagonal_array<tensor<element_type>, element_type>(
-      world, TA::TiledRange{S.trange().dim(0)});
-    S = libchemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
-
-    auto rv = results();
-    rv      = overlap_type<element_type>::wrap_results(rv, S);
-    rv      = eDipole_type<element_type>::wrap_results(rv, D);
-    rv      = eQuadrupole_type<element_type>::wrap_results(rv, Q);
-    rv      = eOctopole_type<element_type>::wrap_results(rv, O);
-    return rv;
-}
+  sde::type::input_map inputs, sde::type::submodule_map submods) const {}
 
 template class EOctopoleInt<double>;
 

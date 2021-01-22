@@ -1,18 +1,24 @@
 #pragma once
 #include "integrals/types.hpp"
+#include <property_types/ao_integrals/electron_repulsion.hpp>
 #include <sde/module_base.hpp>
 
 namespace integrals {
 
-template<typename element_type = double>
-DECLARE_MODULE(ERI3CIntDirect);
+template<typename BaseType>
+DECLARE_MODULE(LibintDirect);
 
-template<typename element_type = double>
-DECLARE_MODULE(ERI4CIntDirect);
+template<typename ElementType>
+using DirectERI3C =
+  LibintDirect<property_types::ao_integrals::ERI3C<ElementType>>;
 
-extern template class ERI3CIntDirect<double>;
-extern template class ERI4CIntDirect<double>;
+template<typename ElementType>
+using DirectERI4C =
+  LibintDirect<property_types::ao_integrals::ERI4C<ElementType>>;
 
-using ERI3Direct = ERI3CIntDirect<double>;
-using ERI4Direct = ERI4CIntDirect<double>;
+extern template class LibintDirect<property_types::ao_integrals::ERI3C<double>>;
+extern template class LibintDirect<property_types::ao_integrals::ERI4C<double>>;
+
+using ERI3Direct = DirectERI3C<double>;
+using ERI4Direct = DirectERI4C<double>;
 } // namespace integrals
