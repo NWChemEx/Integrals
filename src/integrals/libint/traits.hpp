@@ -17,11 +17,8 @@ struct LibintOp<pt::doi<T>> {
 };
 
 template<typename T>
-struct NumberOfCenters;
-
-template<typename T>
-struct NumberOfCenters<pt::doi<T>> {
-    static constexpr unsigned value = 4;
+struct LibintOp<property_types::ao_integrals::ERI<T>> {
+    static constexpr auto value = libint2::Operator::coulomb;
 };
 
 template<typename T>
@@ -34,9 +31,6 @@ struct IsDOI<pt::doi<T>> : std::true_type {};
 
 template<typename T>
 static constexpr auto op_v = detail_::LibintOp<T>::value;
-
-template<typename T>
-static constexpr auto number_of_centers_v = detail_::NumberOfCenters<T>::value;
 
 template<typename T>
 static constexpr auto is_doi_v = detail_::IsDOI<T>::value;

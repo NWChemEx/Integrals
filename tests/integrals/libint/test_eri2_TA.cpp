@@ -1,6 +1,5 @@
-#include "test_common_TA.hpp"
-#include <integrals/integralsmm.hpp>
-#include <property_types/ao_integrals/electron_repulsion.hpp>
+#include "../../test_common_TA.hpp"
+#include "integrals/integrals.hpp"
 
 using matrix_t = TA::detail::matrix_il<double>;
 
@@ -71,13 +70,14 @@ static matrix_t corr{
 };
 
 TEST_CASE("ERI2C") {
-    using integral_type = property_types::ERI2CIntegral<double>;
-
+    using integral_type = integrals::pt::eri2c<double>;
+    using size_vector   = integrals::type::size_vector;
     sde::ModuleManager mm;
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
-    mm.at("ERI2").change_input("Tile size", std::vector<std::size_t>{1});
-    auto [X] = mm.at("ERI2").run_as<integral_type>(bs, bs, std::size_t{0});
+    mm.at("ERI2").change_input("Tile size", size_vector{1});
+    auto [X] = mm.at("ERI2").run_as<integral_type>(bs, bs);
 
-    REQUIRE(libchemist::ta_helpers::allclose(X, TensorType(X.world(), X.trange(), corr)));
+    REQUIRE(libchemist::ta_helpers::allclose(
+      X, TensorType(X.world(), X.trange(), corr)));
 }

@@ -2,6 +2,7 @@
 #include <catch2/catch.hpp>
 #include <integrals/types.hpp>
 #include <libchemist/libchemist.hpp>
+#include <libchemist/ta_helpers/ta_helpers.hpp>
 #include <libint2.hpp>
 #include <tiledarray.h>
 

@@ -4,6 +4,7 @@
 #include "nwx_TA_utils.hpp"
 #include "nwx_libint.hpp"
 #include "traits.hpp"
+#include <property_types/ao_integrals/type_traits.hpp>
 
 namespace integrals {
 
@@ -39,8 +40,9 @@ TEMPLATED_MODULE_RUN(Libint, PropType) {
     auto cs_thresh   = inputs.at("Screening Threshold").value<element_type>();
     auto atom_ranges = inputs.at("Atom Tile Groups").value<pair_vector>();
 
-    constexpr auto n_centers = number_of_centers_v<PropType>;
-    constexpr auto op        = op_v<PropType>;
+    constexpr auto n_centers =
+      property_types::ao_integrals::n_centers_v<PropType>;
+    constexpr auto op = op_v<PropType>;
 
     basis_vector bs;
 
@@ -52,13 +54,13 @@ TEMPLATED_MODULE_RUN(Libint, PropType) {
 
         auto& bra = bra_space.basis_set();
         auto& ket = ket_space.basis_set();
-        bs        = {bra, bra, ket, ket};
-    } else if(n_centers == 2) {
+        bs        = basis_vector{bra, bra, ket, ket};
+    } else if constexpr(n_centers == 2) {
         auto [bra_space, ket_space] = PropType::unwrap_inputs(inputs);
 
         auto& bra = bra_space.basis_set();
         auto& ket = ket_space.basis_set();
-        bs        = {bra, ket};
+        bs        = basis_vector{bra, ket};
     } else if constexpr(n_centers == 3) {
         auto [bra_space, ket1_space, ket2_space] =
           PropType::unwrap_inputs(inputs);
@@ -66,7 +68,7 @@ TEMPLATED_MODULE_RUN(Libint, PropType) {
         auto& bra  = bra_space.basis_set();
         auto& ket1 = ket1_space.basis_set();
         auto& ket2 = ket2_space.basis_set();
-        bs         = {bra, ket1, ket2};
+        bs         = basis_vector{bra, ket1, ket2};
     } else if constexpr(n_centers == 4) {
         auto [bra1_space, bra2_space, ket1_space, ket2_space] =
           PropType::unwrap_inputs(inputs);
@@ -75,7 +77,7 @@ TEMPLATED_MODULE_RUN(Libint, PropType) {
         auto& bra2 = bra2_space.basis_set();
         auto& ket1 = ket1_space.basis_set();
         auto& ket2 = ket2_space.basis_set();
-        bs         = {bra1, bra2, ket1, ket2};
+        bs         = basis_vector{bra1, bra2, ket1, ket2};
     }
 
     auto trange = nwx_TA::select_tiling(bs, tile_size, atom_ranges);
@@ -92,5 +94,8 @@ template class Libint<pt::doi<double>>;
 template class Libint<pt::edipole<double>>;
 template class Libint<pt::equadrupole<double>>;
 template class Libint<pt::eoctopole<double>>;
+template class Libint<pt::eri2c<double>>;
+template class Libint<pt::eri3c<double>>;
+template class Libint<pt::eri4c<double>>;
 
 } // namespace integrals

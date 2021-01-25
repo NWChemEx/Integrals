@@ -7,6 +7,9 @@ void load_modules(sde::ModuleManager& mm) {
     mm.add_module<LibintEDipole<double>>("EDipole");
     mm.add_module<LibintEQuadrupole<double>>("EQuadrupole");
     mm.add_module<LibintEOctopole<double>>("EOctopole");
+    mm.add_module<LibintERI2C<double>>("ERI2");
+    mm.add_module<LibintERI3C<double>>("ERI3");
+    mm.add_module<LibintERI4C<double>>("ERI4");
 }
 
 // void load_modules(sde::ModuleManager& mm) {
@@ -15,12 +18,6 @@ void load_modules(sde::ModuleManager& mm) {
 //     mm.add_module("Kinetic", std::make_shared<Kinetic>());
 
 //     mm.add_module("Nuclear", std::make_shared<Nuclear>());
-
-//     mm.add_module("ERI2", std::make_shared<ERI2>());
-
-//     mm.add_module("ERI3", std::make_shared<ERI3>());
-
-//     mm.add_module("ERI4", std::make_shared<ERI4>());
 
 //     mm.add_module("STG2", std::make_shared<STG2>());
 

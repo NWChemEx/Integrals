@@ -7,9 +7,7 @@
  */
 
 #pragma once
-#include <property_types/ao_integrals/doi.hpp>
-#include <property_types/ao_integrals/emultipole.hpp>
-#include <property_types/ao_integrals/overlap.hpp>
+#include <property_types/ao_integrals/ao_integrals.hpp>
 
 namespace integrals::pt {
 
@@ -24,6 +22,15 @@ using equadrupole = property_types::ao_integrals::EQuadrupole<ElementType>;
 
 template<typename ElementType>
 using eoctopole = property_types::ao_integrals::EOctopole<ElementType>;
+
+template<typename ElementType>
+using eri2c = property_types::ao_integrals::ERI2C<ElementType>;
+
+template<typename ElementType>
+using eri3c = property_types::ao_integrals::ERI3C<ElementType>;
+
+template<typename ElementType>
+using eri4c = property_types::ao_integrals::ERI4C<ElementType>;
 
 template<typename ElementType>
 using overlap = property_types::ao_integrals::Overlap<ElementType>;
