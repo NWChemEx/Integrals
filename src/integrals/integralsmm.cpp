@@ -10,26 +10,18 @@ void load_modules(sde::ModuleManager& mm) {
     mm.add_module<LibintERI2C<double>>("ERI2");
     mm.add_module<LibintERI3C<double>>("ERI3");
     mm.add_module<LibintERI4C<double>>("ERI4");
+    mm.add_module<LibintKinetic<double>>("Kinetic");
+    mm.add_module<LibintNuclear<double>>("Nuclear");
+    mm.add_module<LibintOverlap<double>>("Overlap");
+    mm.add_module<LibintSTG2C<double>>("STG2");
+    mm.add_module<LibintSTG3C<double>>("STG3");
+    mm.add_module<LibintSTG4C<double>>("STG4");
+    mm.add_module<LibintYukawa2C<double>>("Yukawa2");
+    mm.add_module<LibintYukawa3C<double>>("Yukawa3");
+    mm.add_module<LibintYukawa4C<double>>("Yukawa4");
 }
 
 // void load_modules(sde::ModuleManager& mm) {
-//     mm.add_module("Overlap", std::make_shared<Overlap>());
-
-//     mm.add_module("Kinetic", std::make_shared<Kinetic>());
-
-//     mm.add_module("Nuclear", std::make_shared<Nuclear>());
-
-//     mm.add_module("STG2", std::make_shared<STG2>());
-
-//     mm.add_module("STG3", std::make_shared<STG3>());
-
-//     mm.add_module("STG4", std::make_shared<STG4>());
-
-//     mm.add_module("Yukawa2", std::make_shared<Yukawa2>());
-
-//     mm.add_module("Yukawa3", std::make_shared<Yukawa3>());
-
-//     mm.add_module("Yukawa4", std::make_shared<Yukawa4>());
 
 //     mm.add_module("ERI3Direct", std::make_shared<ERI3Direct>());
 

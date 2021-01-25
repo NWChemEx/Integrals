@@ -1,6 +1,5 @@
-#include "test_common_TA.hpp"
-#include <integrals/integralsmm.hpp>
-#include <property_types/ao_integrals/nuclear.hpp>
+#include "../../test_common_TA.hpp"
+#include "integrals/integrals.hpp"
 
 using matrix_t = TA::detail::matrix_il<double>;
 
@@ -71,14 +70,14 @@ static matrix_t corr{
 };
 
 TEST_CASE("Nuclear") {
-    using integral_type = property_types::NuclearIntegral<double>;
+    using integral_type = integrals::pt::nuclear<double>;
+    using size_vector   = integrals::type::size_vector;
 
     sde::ModuleManager mm;
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
-    mm.at("Nuclear").change_input("Tile size", std::vector<std::size_t>{6, 1});
-    auto [V] =
-      mm.at("Nuclear").run_as<integral_type>(bs, bs, molecule, std::size_t{0});
-
-    REQUIRE(libchemist::ta_helpers::allclose(V, TensorType(V.world(), V.trange(), corr)));
+    mm.at("Nuclear").change_input("Tile size", size_vector{6, 1});
+    auto [V] = mm.at("Nuclear").run_as<integral_type>(molecule, bs, bs);
+    TensorType corr_V(V.world(), V.trange(), corr);
+    REQUIRE(libchemist::ta_helpers::allclose(V, corr_V));
 }

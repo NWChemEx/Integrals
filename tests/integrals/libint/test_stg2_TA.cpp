@@ -1,6 +1,5 @@
-#include "test_common_TA.hpp"
-#include <integrals/integralsmm.hpp>
-#include <property_types/ao_integrals/stg.hpp>
+#include "../../test_common_TA.hpp"
+#include "integrals/integrals.hpp"
 
 using matrix_t = TA::detail::matrix_il<double>;
 
@@ -15,14 +14,15 @@ static matrix_t corr{
 };
 
 TEST_CASE("STG2C") {
-    using integral_type = property_types::STG2CIntegral<double>;
+    using integral_type = integrals::pt::stg2c<double>;
+    using size_vector   = integrals::type::size_vector;
 
     sde::ModuleManager mm;
     integrals::load_modules(mm);
     auto [molecule, bs] = make_molecule();
     auto stg_exponent = 1.0;
-    mm.at("STG2").change_input("Tile size", std::vector<std::size_t>{3});
-    auto [X] = mm.at("STG2").run_as<integral_type>(bs, bs, std::size_t{0}, stg_exponent);
-
-    REQUIRE(libchemist::ta_helpers::allclose(X, TensorType(X.world(), X.trange(), corr)));
+    mm.at("STG2").change_input("Tile size", size_vector{3});
+    auto [X] = mm.at("STG2").run_as<integral_type>(stg_exponent, bs, bs);
+    TensorType corr_R(X.world(), X.trange(), corr);
+    REQUIRE(libchemist::ta_helpers::allclose(X, corr_R));
 }

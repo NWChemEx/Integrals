@@ -30,6 +30,7 @@ TEMPLATED_MODULE_RUN(Libint, PropType) {
     using value_type   = typename tensor_type::value_type;
     using basis_set    = type::basis_set<element_type>;
     using basis_vector = std::vector<basis_set>;
+    using ao_space_t   = const type::ao_space_t<element_type>&;
 
     using type::pair_vector;
     using type::size_vector;
@@ -48,30 +49,39 @@ TEMPLATED_MODULE_RUN(Libint, PropType) {
 
     // TODO: This logic should be encapsulated in the FillNDFunctor, which
     //       should be specialized on the property type
+    // TODO: satisfying a derived property type should automatically satisfy the
+    //       the base types. Once that happens use TWoCenter<T>::unwrap etc.
+    //       instead of manually grabbing the bras and kets
+
+    // DOI is a bit special in that it's 4 center with 2 basis sets
     if constexpr(is_doi_v<PropType>) {
-        // DOI is a bit special in that it's 4 center with 2 basis sets
-        auto [bra_space, ket_space] = PropType::unwrap_inputs(inputs);
+        auto bra_space = inputs.at("bra").value<ao_space_t>();
+        auto ket_space = inputs.at("ket").value<ao_space_t>();
 
         auto& bra = bra_space.basis_set();
         auto& ket = ket_space.basis_set();
         bs        = basis_vector{bra, bra, ket, ket};
     } else if constexpr(n_centers == 2) {
-        auto [bra_space, ket_space] = PropType::unwrap_inputs(inputs);
+        auto bra_space = inputs.at("bra").value<ao_space_t>();
+        auto ket_space = inputs.at("ket").value<ao_space_t>();
 
         auto& bra = bra_space.basis_set();
         auto& ket = ket_space.basis_set();
         bs        = basis_vector{bra, ket};
     } else if constexpr(n_centers == 3) {
-        auto [bra_space, ket1_space, ket2_space] =
-          PropType::unwrap_inputs(inputs);
+        auto bra_space  = inputs.at("bra").value<ao_space_t>();
+        auto ket1_space = inputs.at("ket 1").value<ao_space_t>();
+        auto ket2_space = inputs.at("ket 2").value<ao_space_t>();
 
         auto& bra  = bra_space.basis_set();
         auto& ket1 = ket1_space.basis_set();
         auto& ket2 = ket2_space.basis_set();
         bs         = basis_vector{bra, ket1, ket2};
     } else if constexpr(n_centers == 4) {
-        auto [bra1_space, bra2_space, ket1_space, ket2_space] =
-          PropType::unwrap_inputs(inputs);
+        auto bra1_space = inputs.at("bra 1").value<ao_space_t>();
+        auto bra2_space = inputs.at("bra 2").value<ao_space_t>();
+        auto ket1_space = inputs.at("ket 1").value<ao_space_t>();
+        auto ket2_space = inputs.at("ket 2").value<ao_space_t>();
 
         auto& bra1 = bra1_space.basis_set();
         auto& bra2 = bra2_space.basis_set();
@@ -85,6 +95,20 @@ TEMPLATED_MODULE_RUN(Libint, PropType) {
     auto fill = nwx_TA::FillNDFunctor<value_type, op, n_centers>();
     fill.initialize(nwx_libint::make_basis_sets(bs), 0, thresh, cs_thresh);
 
+    // Take care of any special parameters the fill function needs
+
+    if constexpr(is_nuclear_v<PropType>) {
+        using mol_type  = const libchemist::Molecule&;
+        const auto& mol = inputs.at("Molecule").value<mol_type>();
+        std::vector<std::pair<double, std::array<double, 3>>> qs;
+        for(const auto& ai : mol)
+            qs.emplace_back(static_cast<const double&>(ai.Z()), ai.coords());
+        fill.factory.qs = qs;
+    } else if constexpr(is_stg_v<PropType> || is_yukawa_v<PropType>) {
+        auto gamma = inputs.at("STG Exponent").value<element_type>();
+        fill.factory.stg_exponent = gamma;
+    }
+
     auto I  = TiledArray::make_array<tensor_type>(world, trange, fill);
     auto rv = results();
     return PropType::wrap_results(rv, I);
@@ -97,5 +121,14 @@ template class Libint<pt::eoctopole<double>>;
 template class Libint<pt::eri2c<double>>;
 template class Libint<pt::eri3c<double>>;
 template class Libint<pt::eri4c<double>>;
+template class Libint<pt::kinetic<double>>;
+template class Libint<pt::nuclear<double>>;
+template class Libint<pt::overlap<double>>;
+template class Libint<pt::stg2c<double>>;
+template class Libint<pt::stg3c<double>>;
+template class Libint<pt::stg4c<double>>;
+template class Libint<pt::yukawa2c<double>>;
+template class Libint<pt::yukawa3c<double>>;
+template class Libint<pt::yukawa4c<double>>;
 
 } // namespace integrals

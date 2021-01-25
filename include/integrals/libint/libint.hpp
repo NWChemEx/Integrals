@@ -42,6 +42,33 @@ using LibintERI3C = Libint<pt::eri3c<T>>;
 
 template<typename T>
 using LibintERI4C = Libint<pt::eri4c<T>>;
+
+template<typename T>
+using LibintKinetic = Libint<pt::kinetic<T>>;
+
+template<typename T>
+using LibintNuclear = Libint<pt::nuclear<T>>;
+
+template<typename T>
+using LibintOverlap = Libint<pt::overlap<T>>;
+
+template<typename T>
+using LibintSTG2C = Libint<pt::stg2c<T>>;
+
+template<typename T>
+using LibintSTG3C = Libint<pt::stg3c<T>>;
+
+template<typename T>
+using LibintSTG4C = Libint<pt::stg4c<T>>;
+
+template<typename T>
+using LibintYukawa2C = Libint<pt::yukawa2c<T>>;
+
+template<typename T>
+using LibintYukawa3C = Libint<pt::yukawa3c<T>>;
+
+template<typename T>
+using LibintYukawa4C = Libint<pt::yukawa4c<T>>;
 ///@}
 
 extern template class Libint<pt::doi<double>>;
@@ -51,5 +78,14 @@ extern template class Libint<pt::eoctopole<double>>;
 extern template class Libint<pt::eri2c<double>>;
 extern template class Libint<pt::eri3c<double>>;
 extern template class Libint<pt::eri4c<double>>;
+extern template class Libint<pt::kinetic<double>>;
+extern template class Libint<pt::nuclear<double>>;
+extern template class Libint<pt::overlap<double>>;
+extern template class Libint<pt::stg2c<double>>;
+extern template class Libint<pt::stg3c<double>>;
+extern template class Libint<pt::stg4c<double>>;
+extern template class Libint<pt::yukawa2c<double>>;
+extern template class Libint<pt::yukawa3c<double>>;
+extern template class Libint<pt::yukawa4c<double>>;
 
 } // namespace integrals

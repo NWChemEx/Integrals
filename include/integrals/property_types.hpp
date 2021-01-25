@@ -33,6 +33,30 @@ template<typename ElementType>
 using eri4c = property_types::ao_integrals::ERI4C<ElementType>;
 
 template<typename ElementType>
+using kinetic = property_types::ao_integrals::Kinetic<ElementType>;
+
+template<typename ElementType>
+using nuclear = property_types::ao_integrals::Nuclear<ElementType>;
+
+template<typename ElementType>
 using overlap = property_types::ao_integrals::Overlap<ElementType>;
+
+template<typename ElementType>
+using stg2c = property_types::ao_integrals::STG2C<ElementType>;
+
+template<typename ElementType>
+using stg3c = property_types::ao_integrals::STG3C<ElementType>;
+
+template<typename ElementType>
+using stg4c = property_types::ao_integrals::STG4C<ElementType>;
+
+template<typename ElementType>
+using yukawa2c = property_types::ao_integrals::Yukawa2C<ElementType>;
+
+template<typename ElementType>
+using yukawa3c = property_types::ao_integrals::Yukawa3C<ElementType>;
+
+template<typename ElementType>
+using yukawa4c = property_types::ao_integrals::Yukawa4C<ElementType>;
 
 } // namespace integrals::pt
