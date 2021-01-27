@@ -52,7 +52,7 @@ if("${BUILD_TESTING}")
     cpp_add_tests(
             test_integrals
             SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/tests"
-            INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/tests"
+            INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/src/integrals"
             DEPENDS Catch2::Catch2 integrals
     )
 endif()

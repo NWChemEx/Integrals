@@ -4,6 +4,7 @@
 #include <libchemist/libchemist.hpp>
 #include <libchemist/ta_helpers/ta_helpers.hpp>
 #include <libint2.hpp>
+#include <property_types/ao_integrals/ao_integrals.hpp>
 #include <tiledarray.h>
 
 using TensorType  = integrals::type::tensor<double>;
@@ -22,27 +23,40 @@ inline auto make_molecule(const std::string& bs_name = "sto-3g") {
                            libchemist::orbital_space::AOSpace<double>(bs));
 }
 
-/**@brief Factors out the boilerplate required to test a property type
- *
- * @tparam T The type of the property type
- * @param input_fields An initializer list of the property type's input fields
- * @param result_fields An initializer list of the property type's returns
- */
+// The following types will be used to loop over template parameters in some
+// unit tests
+
+// Tuple of the 2-centered integral property types templated on element type
 template<typename T>
-inline static void test_property_type(string_list input_fields,
-                                      string_list result_fields) {
-    SECTION("inputs") {
-        auto inputs = T::inputs();
-        REQUIRE(inputs.size() == input_fields.size());
-        for(const auto& field : input_fields) SECTION(field) {
-                REQUIRE(inputs.count(field) == 1);
-            }
-    }
-    SECTION("results") {
-        auto results = T::results();
-        REQUIRE(results.size() == result_fields.size());
-        for(const auto& field : result_fields) SECTION(field) {
-                REQUIRE(results.count(field) == 1);
-            }
-    }
-}
+using two_center = std::tuple<property_types::ao_integrals::ERI2C<T>,
+                              property_types::ao_integrals::EDipole<T>,
+                              property_types::ao_integrals::EQuadrupole<T>,
+                              property_types::ao_integrals::EOctopole<T>,
+                              property_types::ao_integrals::Kinetic<T>,
+                              property_types::ao_integrals::Nuclear<T>,
+                              property_types::ao_integrals::Overlap<T>,
+                              property_types::ao_integrals::STG2C<T>,
+                              property_types::ao_integrals::Yukawa2C<T>>;
+
+// Tuple of the 3-centered integral property types templated on element type
+template<typename T>
+using three_center = std::tuple<property_types::ao_integrals::ERI3C<T>,
+                                property_types::ao_integrals::STG3C<T>,
+                                property_types::ao_integrals::Yukawa3C<T>>;
+
+// Tuple of the 4-centered integral property types templated on element type
+template<typename T>
+using four_center = std::tuple<property_types::ao_integrals::DOI<T>,
+                               property_types::ao_integrals::ERI4C<T>,
+                               property_types::ao_integrals::STG4C<T>,
+                               property_types::ao_integrals::Yukawa4C<T>>;
+
+// Tuple with all 2-centered integral types in it
+using all_2c =
+  decltype(std::tuple_cat(two_center<float>{}, two_center<double>{}));
+
+using all_3c =
+  decltype(std::tuple_cat(three_center<float>{}, three_center<double>{}));
+
+using all_4c =
+  decltype(std::tuple_cat(four_center<float>{}, four_center<double>{}));

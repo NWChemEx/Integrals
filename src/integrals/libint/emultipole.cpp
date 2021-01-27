@@ -1,6 +1,6 @@
 #include "fill_ND_functor.hpp"
-#include "integrals/libint/libint.hpp"
 #include "integrals/types.hpp"
+#include "libint.hpp"
 #include "nwx_TA_utils.hpp"
 #include "nwx_libint.hpp"
 #include "traits.hpp"

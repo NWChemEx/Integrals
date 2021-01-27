@@ -8,6 +8,7 @@
 
 #pragma once
 #include <property_types/ao_integrals/ao_integrals.hpp>
+#include <property_types/transformed.hpp>
 
 namespace integrals::pt {
 
@@ -49,6 +50,9 @@ using stg3c = property_types::ao_integrals::STG3C<ElementType>;
 
 template<typename ElementType>
 using stg4c = property_types::ao_integrals::STG4C<ElementType>;
+
+template<typename BaseType>
+using transformed = property_types::Transformed<BaseType>;
 
 template<typename ElementType>
 using yukawa2c = property_types::ao_integrals::Yukawa2C<ElementType>;

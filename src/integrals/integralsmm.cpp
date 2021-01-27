@@ -1,25 +1,29 @@
-#include "integrals/libint/libint.hpp"
+#include "libint/libint.hpp"
+#include "transformed.hpp"
 
 namespace integrals {
 
-void load_modules(sde::ModuleManager& mm) {
-    mm.add_module<LibintDOI<double>>("DOI");
-    mm.add_module<LibintEDipole<double>>("EDipole");
-    mm.add_module<LibintEQuadrupole<double>>("EQuadrupole");
-    mm.add_module<LibintEOctopole<double>>("EOctopole");
-    mm.add_module<LibintERI2C<double>>("ERI2");
-    mm.add_module<LibintERI3C<double>>("ERI3");
-    mm.add_module<LibintERI4C<double>>("ERI4");
-    mm.add_module<LibintKinetic<double>>("Kinetic");
-    mm.add_module<LibintNuclear<double>>("Nuclear");
-    mm.add_module<LibintOverlap<double>>("Overlap");
-    mm.add_module<LibintSTG2C<double>>("STG2");
-    mm.add_module<LibintSTG3C<double>>("STG3");
-    mm.add_module<LibintSTG4C<double>>("STG4");
-    mm.add_module<LibintYukawa2C<double>>("Yukawa2");
-    mm.add_module<LibintYukawa3C<double>>("Yukawa3");
-    mm.add_module<LibintYukawa4C<double>>("Yukawa4");
+template<typename ElementType>
+void load_libint_integrals(sde::ModuleManager& mm) {
+    mm.add_module<LibintDOI<ElementType>>("DOI");
+    mm.add_module<LibintEDipole<ElementType>>("EDipole");
+    mm.add_module<LibintEQuadrupole<ElementType>>("EQuadrupole");
+    mm.add_module<LibintEOctopole<ElementType>>("EOctopole");
+    mm.add_module<LibintERI2C<ElementType>>("ERI2");
+    mm.add_module<LibintERI3C<ElementType>>("ERI3");
+    mm.add_module<LibintERI4C<ElementType>>("ERI4");
+    mm.add_module<LibintKinetic<ElementType>>("Kinetic");
+    mm.add_module<LibintNuclear<ElementType>>("Nuclear");
+    mm.add_module<LibintOverlap<ElementType>>("Overlap");
+    mm.add_module<LibintSTG2C<ElementType>>("STG2");
+    mm.add_module<LibintSTG3C<ElementType>>("STG3");
+    mm.add_module<LibintSTG4C<ElementType>>("STG4");
+    mm.add_module<LibintYukawa2C<ElementType>>("Yukawa2");
+    mm.add_module<LibintYukawa3C<ElementType>>("Yukawa3");
+    mm.add_module<LibintYukawa4C<ElementType>>("Yukawa4");
 }
+
+void load_modules(sde::ModuleManager& mm) { load_libint_integrals<double>(mm); }
 
 // void load_modules(sde::ModuleManager& mm) {
 

@@ -1,10 +1,14 @@
 #include "fill_ND_functor.hpp"
-#include "integrals/libint/libint.hpp"
 #include "integrals/types.hpp"
+#include "libint.hpp"
 #include "nwx_TA_utils.hpp"
 #include "nwx_libint.hpp"
 #include "traits.hpp"
+#include <libchemist/ta_helpers/ta_hashers.hpp>
 #include <property_types/ao_integrals/type_traits.hpp>
+#include <stdexcept>
+
+#include "../unpack_basis_sets.hpp"
 
 namespace integrals {
 
@@ -28,10 +32,6 @@ TEMPLATED_MODULE_RUN(Libint, PropType) {
     using element_type = double; // TODO: Get from PropType
     using tensor_type  = type::tensor<element_type>;
     using value_type   = typename tensor_type::value_type;
-    using basis_set    = type::basis_set<element_type>;
-    using basis_vector = std::vector<basis_set>;
-    using ao_space_t   = const type::ao_space_t<element_type>&;
-
     using type::pair_vector;
     using type::size_vector;
 
@@ -45,68 +45,29 @@ TEMPLATED_MODULE_RUN(Libint, PropType) {
       property_types::ao_integrals::n_centers_v<PropType>;
     constexpr auto op = op_v<PropType>;
 
-    basis_vector bs;
-
-    // TODO: This logic should be encapsulated in the FillNDFunctor, which
-    //       should be specialized on the property type
-    // TODO: satisfying a derived property type should automatically satisfy the
-    //       the base types. Once that happens use TWoCenter<T>::unwrap etc.
-    //       instead of manually grabbing the bras and kets
-
-    // DOI is a bit special in that it's 4 center with 2 basis sets
-    if constexpr(is_doi_v<PropType>) {
-        auto bra_space = inputs.at("bra").value<ao_space_t>();
-        auto ket_space = inputs.at("ket").value<ao_space_t>();
-
-        auto& bra = bra_space.basis_set();
-        auto& ket = ket_space.basis_set();
-        bs        = basis_vector{bra, bra, ket, ket};
-    } else if constexpr(n_centers == 2) {
-        auto bra_space = inputs.at("bra").value<ao_space_t>();
-        auto ket_space = inputs.at("ket").value<ao_space_t>();
-
-        auto& bra = bra_space.basis_set();
-        auto& ket = ket_space.basis_set();
-        bs        = basis_vector{bra, ket};
-    } else if constexpr(n_centers == 3) {
-        auto bra_space  = inputs.at("bra").value<ao_space_t>();
-        auto ket1_space = inputs.at("ket 1").value<ao_space_t>();
-        auto ket2_space = inputs.at("ket 2").value<ao_space_t>();
-
-        auto& bra  = bra_space.basis_set();
-        auto& ket1 = ket1_space.basis_set();
-        auto& ket2 = ket2_space.basis_set();
-        bs         = basis_vector{bra, ket1, ket2};
-    } else if constexpr(n_centers == 4) {
-        auto bra1_space = inputs.at("bra 1").value<ao_space_t>();
-        auto bra2_space = inputs.at("bra 2").value<ao_space_t>();
-        auto ket1_space = inputs.at("ket 1").value<ao_space_t>();
-        auto ket2_space = inputs.at("ket 2").value<ao_space_t>();
-
-        auto& bra1 = bra1_space.basis_set();
-        auto& bra2 = bra2_space.basis_set();
-        auto& ket1 = ket1_space.basis_set();
-        auto& ket2 = ket2_space.basis_set();
-        bs         = basis_vector{bra1, bra2, ket1, ket2};
-    }
-
+    auto bs     = unpack_basis_sets<PropType>(inputs);
     auto trange = nwx_TA::select_tiling(bs, tile_size, atom_ranges);
-
-    auto fill = nwx_TA::FillNDFunctor<value_type, op, n_centers>();
-    fill.initialize(nwx_libint::make_basis_sets(bs), 0, thresh, cs_thresh);
+    auto fill   = nwx_TA::FillNDFunctor<value_type, op, n_centers>();
+    const std::size_t deriv = 0; // TODO: Template on derivative order
+    fill.initialize(nwx_libint::make_basis_sets(bs), deriv, thresh, cs_thresh);
 
     // Take care of any special parameters the fill function needs
-
-    if constexpr(is_nuclear_v<PropType>) {
+    // (should probably we done inside FillNDFunctor to encapsulate the setup)
+    if constexpr(property_types::ao_integrals::is_nuclear_v<PropType>) {
         using mol_type  = const libchemist::Molecule&;
         const auto& mol = inputs.at("Molecule").value<mol_type>();
         std::vector<std::pair<double, std::array<double, 3>>> qs;
         for(const auto& ai : mol)
             qs.emplace_back(static_cast<const double&>(ai.Z()), ai.coords());
         fill.factory.qs = qs;
-    } else if constexpr(is_stg_v<PropType> || is_yukawa_v<PropType>) {
+    } else if constexpr(property_types::ao_integrals::is_stg_v<PropType> ||
+                        property_types::ao_integrals::is_yukawa_v<PropType>) {
         auto gamma = inputs.at("STG Exponent").value<element_type>();
         fill.factory.stg_exponent = gamma;
+    }
+
+    if(cs_thresh > 0.0) {
+        throw std::logic_error("Cauchy-Schwarz is disabled for the moment");
     }
 
     auto I  = TiledArray::make_array<tensor_type>(world, trange, fill);
