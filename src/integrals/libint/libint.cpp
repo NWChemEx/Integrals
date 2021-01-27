@@ -76,9 +76,6 @@ TEMPLATED_MODULE_RUN(Libint, PropType) {
 }
 
 template class Libint<pt::doi<double>>;
-template class Libint<pt::edipole<double>>;
-template class Libint<pt::equadrupole<double>>;
-template class Libint<pt::eoctopole<double>>;
 template class Libint<pt::eri2c<double>>;
 template class Libint<pt::eri3c<double>>;
 template class Libint<pt::eri4c<double>>;
