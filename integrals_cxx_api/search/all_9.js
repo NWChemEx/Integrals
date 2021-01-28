@@ -1,4 +1,0 @@
-var searchData=
-[
-  ['results_5f',['results_',['../structproperty__types_1_1LibIntIntegral.html#a58e5fdf94bb7b428bebd4b486accc9f8',1,'property_types::LibIntIntegral::results_()'],['../structproperty__types_1_1ERI3CDirect.html#a299a7e34e71e660dfc5903b6929573cc',1,'property_types::ERI3CDirect::results_()'],['../structproperty__types_1_1ERI4CDirect.html#a3d6099409cd3b25b8e2e6457250e2130',1,'property_types::ERI4CDirect::results_()'],['../structproperty__types_1_1STG3CDirect.html#a6f6ca91b26c6c2df16068654e12b01c4',1,'property_types::STG3CDirect::results_()'],['../structproperty__types_1_1STG4CDirect.html#a3ea8a55ea2402b43f83e91f6f2f7508e',1,'property_types::STG4CDirect::results_()'],['../structproperty__types_1_1Yukawa3CDirect.html#abd0d1e84b2d03028c29536b6e9376823',1,'property_types::Yukawa3CDirect::results_()'],['../structproperty__types_1_1Yukawa4CDirect.html#a85ac385a2cc6c7878516c406862ec97b',1,'property_types::Yukawa4CDirect::results_()']]]
-];
