@@ -1,5 +1,5 @@
+#include "integrals/transformed.hpp"
 #include "libint/libint.hpp"
-#include "transformed.hpp"
 
 namespace integrals {
 
@@ -23,7 +23,29 @@ void load_libint_integrals(sde::ModuleManager& mm) {
     mm.add_module<LibintYukawa4C<ElementType>>("Yukawa4");
 }
 
-void load_modules(sde::ModuleManager& mm) { load_libint_integrals<double>(mm); }
+template<typename T>
+void load_transformed_integrals(sde::ModuleManager& mm) {
+    register_transformed_integral<pt::doi<T>>(mm, "DOI");
+    register_transformed_integral<pt::edipole<T>>(mm, "EDipole");
+    register_transformed_integral<pt::equadrupole<T>>(mm, "EQuadrupole");
+    register_transformed_integral<pt::eoctopole<T>>(mm, "EOctopole");
+    register_transformed_integral<pt::eri2c<T>>(mm, "ERI2");
+    register_transformed_integral<pt::eri3c<T>>(mm, "ERI3");
+    register_transformed_integral<pt::kinetic<T>>(mm, "Kinetic");
+    register_transformed_integral<pt::nuclear<T>>(mm, "Nuclear");
+    register_transformed_integral<pt::overlap<T>>(mm, "Overlap");
+    register_transformed_integral<pt::stg2c<T>>(mm, "STG2");
+    register_transformed_integral<pt::stg3c<T>>(mm, "STG3");
+    register_transformed_integral<pt::yukawa2c<T>>(mm, "Yukawa2");
+    register_transformed_integral<pt::yukawa3c<T>>(mm, "Yukawa3");
+}
+
+#undef REGISTER_TRANSFORMED_INT
+
+void load_modules(sde::ModuleManager& mm) {
+    load_libint_integrals<double>(mm);
+    load_transformed_integrals<double>(mm);
+}
 
 // void load_modules(sde::ModuleManager& mm) {
 
