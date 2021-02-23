@@ -49,10 +49,16 @@ if("${BUILD_TESTING}")
             VERSION v2.x
             FIND_TARGET Catch2::Catch2
     )
+    cpp_find_or_build_dependency(
+            testing
+            URL github.com/NWChemEx-Project/testing
+            BUILD_TARGET testing
+            FIND_TARGET nwx::testing
+    )
     cpp_add_tests(
             test_integrals
             SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/tests"
             INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/src/integrals"
-            DEPENDS Catch2::Catch2 integrals
+            DEPENDS Catch2::Catch2 nwx::testing integrals
     )
 endif()

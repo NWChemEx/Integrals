@@ -1,7 +1,7 @@
-#include "../../tensors/H2O_STO3G_DOI.hpp"
 #include "../../test_common_TA.hpp"
 #include "integrals/integralsmm.hpp"
 #include "integrals/property_types.hpp"
+#include "nwx_testing/H2O_STO3G_DOI.hpp"
 #include <libchemist/ta_helpers/ta_helpers.hpp>
 
 TEST_CASE("DOI") {

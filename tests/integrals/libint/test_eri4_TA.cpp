@@ -1,6 +1,6 @@
-#include "../../tensors/H2O_STO3G_ERI.hpp"
 #include "../../test_common_TA.hpp"
 #include "integrals/integrals.hpp"
+#include "nwx_testing/H2O_STO3G_ERI.hpp"
 
 TEST_CASE("ERI4C") {
     using integral_type = integrals::pt::eri4c<double>;

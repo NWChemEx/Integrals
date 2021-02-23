@@ -1,7 +1,11 @@
+#include "f12/f12.hpp"
 #include "integrals/transformed.hpp"
 #include "libint/libint.hpp"
 
 namespace integrals {
+
+// TODO: These keys are going to clobber each other if double and float are
+//       loaded.
 
 template<typename ElementType>
 void load_libint_integrals(sde::ModuleManager& mm) {
@@ -42,11 +46,35 @@ void load_transformed_integrals(sde::ModuleManager& mm) {
     register_transformed_integral<pt::yukawa4c<T>>(mm, "Yukawa4");
 }
 
-#undef REGISTER_TRANSFORMED_INT
+template<typename T>
+void load_f12_integrals(sde::ModuleManager& mm) {
+    mm.add_module<f12::stg_correlation_factor_2c<T>>(
+      "STG 2 Center Correlation Factor");
+    mm.add_module<f12::stg_correlation_factor_4c<T>>(
+      "STG 4 Center Correlation Factor");
+    mm.add_module<f12::stg_gr2c<T>>("STG 2 Center GR");
+    mm.add_module<f12::stg_gr4c<T>>("STG 4 Center GR");
+}
+
+template<typename T>
+void set_f12_integral_defaults(sde::ModuleManager& mm) {
+    mm.change_submod("STG 2 Center Correlation Factor", "STG kernel", "STG2");
+    mm.change_submod("STG 4 Center Correlation Factor", "STG kernel", "STG4");
+    mm.change_submod("STG 2 Center GR", "Yukawa kernel", "Yukawa2");
+    mm.change_submod("STG 4 Center GR", "Yukawa kernel", "Yukawa4");
+}
 
 void load_modules(sde::ModuleManager& mm) {
     load_libint_integrals<double>(mm);
     load_transformed_integrals<double>(mm);
+    load_f12_integrals<double>(mm);
+
+    // See TODO at top of file before enabling
+    // load_libint_integrals<float>(mm);
+    // load_transformed_integrals<float>(mm);
+    // load_f12_integrals<float>(mm);
+
+    set_f12_integral_defaults<double>(mm);
 }
 
 // void load_modules(sde::ModuleManager& mm) {
