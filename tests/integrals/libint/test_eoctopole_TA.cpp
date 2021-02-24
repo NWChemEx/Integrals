@@ -1,9 +1,8 @@
-#include "../../test_common_TA.hpp"
 #include "integrals/integralsmm.hpp"
 #include "integrals/property_types.hpp"
-#include "nwx_tesing/H2O_STO3G_OVLP.hpp"
-#include "nwx_testing/H2O_STO3G_Multipole.hpp"
+#include <catch2/catch.hpp>
 #include <libchemist/ta_helpers/ta_helpers.hpp>
+#include <testing/testing.hpp>
 
 using namespace integrals;
 
@@ -13,30 +12,36 @@ TEST_CASE("Octopole") {
     using q_type = pt::equadrupole<double>;
     using o_type = pt::eoctopole<double>;
 
+    auto& world = TA::get_default_world();
     sde::ModuleManager mm;
     integrals::load_modules(mm);
-    auto [molecule, bs] = make_molecule();
-    auto origin         = std::array<double, 3>{0, 0, 0};
+
+    const auto name = "h2o";
+    const auto bs   = "sto-3g";
+    auto mol        = testing::get_molecules().at(name);
+    auto aos        = testing::get_bases().at(name).at(bs);
+    auto tensors    = testing::get_data(world).at(name).at(bs);
+    auto origin     = std::array<double, 3>{0, 0, 0};
 
     SECTION("Overlap") {
         mm.change_input("EOctopole", "Origin", origin);
-        auto [S] = mm.at("EOctopole").run_as<s_type>(bs, bs);
-        REQUIRE(libchemist::ta_helpers::allclose(
-          S, TensorType(S.world(), S.trange(), corr)));
+        auto [S] = mm.at("EOctopole").run_as<s_type>(aos, aos);
+        auto X   = TA::retile(tensors.at("Overlap"), S.trange());
+        REQUIRE(libchemist::ta_helpers::allclose(S, X));
     }
     SECTION("Dipole") {
-        auto [D] = mm.at("EOctopole").run_as<d_type>(origin, bs, bs);
-        REQUIRE(libchemist::ta_helpers::allclose(
-          D, TensorType(D.world(), D.trange(), corr_dipole)));
+        auto [D] = mm.at("EOctopole").run_as<d_type>(origin, aos, aos);
+        auto X   = TA::retile(tensors.at("Dipole"), D.trange());
+        REQUIRE(libchemist::ta_helpers::allclose(D, X));
     }
     SECTION("Quadrupole") {
-        auto [Q] = mm.at("EOctopole").run_as<q_type>(origin, bs, bs);
-        REQUIRE(libchemist::ta_helpers::allclose(
-          Q, TensorType(Q.world(), Q.trange(), corr_quad)));
+        auto [Q] = mm.at("EOctopole").run_as<q_type>(origin, aos, aos);
+        auto X   = TA::retile(tensors.at("Quadrupole"), Q.trange());
+        REQUIRE(libchemist::ta_helpers::allclose(Q, X));
     }
     SECTION("Octopole") {
-        auto [O] = mm.at("EOctopole").run_as<o_type>(origin, bs, bs);
-        REQUIRE(libchemist::ta_helpers::allclose(
-          O, TensorType(O.world(), O.trange(), corr_octo)));
+        auto [O] = mm.at("EOctopole").run_as<o_type>(origin, aos, aos);
+        auto X   = TA::retile(tensors.at("Octopole"), O.trange());
+        REQUIRE(libchemist::ta_helpers::allclose(O, X));
     }
 }

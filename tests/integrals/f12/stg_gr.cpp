@@ -1,7 +1,7 @@
 #include "../../test_common_TA.hpp"
 #include "integrals/integralsmm.hpp"
 #include "integrals/property_types.hpp"
-#include "nwx_testing/nwx_testing.hpp"
+#include "testing/testing.hpp"
 #include <libchemist/libchemist.hpp>
 #include <libchemist/ta_helpers/ta_helpers.hpp>
 
@@ -33,10 +33,10 @@ TEST_CASE("STG 4 Center GR") {
     auto& world = TA::get_default_world();
     sde::ModuleManager mm;
     integrals::load_modules(mm);
-    auto mols            = nwx_testing::get_mols();
-    auto data            = nwx_testing::get_data(world);
+    auto mols            = testing::get_molecules();
+    auto data            = testing::get_data(world);
     const auto mol_name  = "h2";
-    const auto prop_name = "4 center GR";
+    const auto prop_name = "STG 4C GR";
 
     SECTION(mol_name) {
         auto mol        = mols.at(mol_name);

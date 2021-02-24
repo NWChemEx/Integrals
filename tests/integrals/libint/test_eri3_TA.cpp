@@ -1,16 +1,21 @@
-#include "../../test_common_TA.hpp"
 #include "integrals/integrals.hpp"
-#include "nwx_testing/H2O_STO3G_DF.hpp"
+#include <catch2/catch.hpp>
+#include <libchemist/ta_helpers/ta_helpers.hpp>
+#include <testing/testing.hpp>
 
 TEST_CASE("ERI3C") {
     using integral_type = integrals::pt::eri3c<double>;
     const auto key      = "ERI3";
 
+    auto& world = TA::get_default_world();
     sde::ModuleManager mm;
     integrals::load_modules(mm);
-    auto [molecule, bs] = make_molecule();
-    // mm.change_input(key, "Screening Threshold", 0.000001);
-    auto [X] = mm.run_as<integral_type>(key, bs, bs, bs);
-    TensorType X_corr(X.world(), X.trange(), corr);
-    REQUIRE(libchemist::ta_helpers::allclose(X, X_corr));
+
+    const auto name = "h2o";
+    const auto bs   = "sto-3g";
+    auto mol        = testing::get_molecules().at(name);
+    auto aos        = testing::get_bases().at(name).at(bs);
+    auto tensors    = testing::get_data(world).at(name).at(bs);
+    auto [X]        = mm.run_as<integral_type>(key, aos, aos, aos);
+    REQUIRE(libchemist::ta_helpers::allclose(X, tensors.at("ERIs 3C")));
 }
