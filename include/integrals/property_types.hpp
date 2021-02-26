@@ -48,6 +48,12 @@ namespace integrals::pt {
 /// Property types for the F12 quantity f12
 MULTICENTER_TYPEDEF(correlation_factor_, CorrelationFactor);
 
+/// Property types for the F12 quantity f12*f12
+MULTICENTER_TYPEDEF(correlation_factor_squared_, CorrelationFactorSquared);
+
+/// Property types for the F12 quantity [f12, [T, f12]]
+MULTICENTER_TYPEDEF(dfdfr_squared_, dfdrSquared);
+
 /// Property type for the differential overlap integral
 template<typename ElementType>
 using doi = property_types::ao_integrals::DOI<ElementType>;

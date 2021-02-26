@@ -21,6 +21,8 @@
 namespace integrals::f12 {
 
 DECLARE_MULTICENTER_STG(correlation_factor_, CorrelationFactor);
+DECLARE_MULTICENTER_STG(correlation_factor_squared_, CorrelationFactorSquared);
+DECLARE_MULTICENTER_STG(dfdr_squared_, dfdrSquared);
 DECLARE_MULTICENTER_STG(gr, GR);
 
 } // namespace integrals::f12

@@ -5,7 +5,19 @@
 using namespace property_types::ao_integrals;
 
 static constexpr auto module_desc = R"""(
-    TODO: Write me!!!!
+This module computes the quantity :math:`\frac{f_{12}(r_{12})}{r_{12}}` for a
+Slater-type geminal correlation factor according to:
+
+.. math::
+
+   \newcommand{\r_one_two}{r_{12}}
+   \newcommand{\f_one_two}{f_{12}\left(\r_one_two\right)}
+   \newcommand{\stg}{e^{-\gamma \r_one_two}} 
+
+   \frac{\f_one_two}{\r_one_two} = \frac{-\stg}{\gamma \r_one_two}
+
+In practice this is computed by scaling the Yukawa integral by 
+:math:`-\frac{1}{\gamma}`.
 )""";
 
 namespace integrals::f12 {
@@ -17,6 +29,7 @@ TEMPLATED_MODULE_CTOR(STGGR, PropType) {
     using kernel_type        = Yukawa<NCenter<n_centers, element_type>>;
 
     satisfies_property_type<PropType>();
+    description(module_desc);
 
     add_submodule<kernel_type>("Yukawa kernel");
     add_input<element_type>("STG Exponent").set_default(1.2);

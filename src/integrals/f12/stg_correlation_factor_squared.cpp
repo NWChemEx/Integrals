@@ -13,15 +13,21 @@ is defined as:
 
    f_{12}\left(r_{12}\right) = -\frac{1}{\gamma}e^{-\gamma r_{12}}
 
+and its square is thus given by:
+
+.. math::
+
+   f_{12}^2\left(r_{12}\right) = \frac{1}{\gamma^2}e^{-2\gamma r_{12}}
+
 This module calls a submodule to compute the integral of 
-:math:`\exp(-\gamma r_{12})` and then returns the result scaled appropriately.
+:math:`\exp(-2\gamma r_{12})` and then returns the result scaled appropriately.
 
 )""";
 
 namespace integrals::f12 {
 
 template<typename PropType>
-TEMPLATED_MODULE_CTOR(STGCorrelationFactor, PropType) {
+TEMPLATED_MODULE_CTOR(STGCorrelationFactorSquared, PropType) {
     using element_type       = element_t<PropType>;
     constexpr auto n_centers = n_centers_v<PropType>;
     using kernel_type        = STG<NCenter<n_centers, element_type>>;
@@ -34,25 +40,36 @@ TEMPLATED_MODULE_CTOR(STGCorrelationFactor, PropType) {
 }
 
 template<typename PropType>
-TEMPLATED_MODULE_RUN(STGCorrelationFactor, PropType) {
+TEMPLATED_MODULE_RUN(STGCorrelationFactorSquared, PropType) {
     using element_type       = element_t<PropType>;
     using tensor_type        = type::tensor<element_type>;
     constexpr auto n_centers = n_centers_v<PropType>;
     using kernel_type        = STG<NCenter<n_centers, element_type>>;
 
-    auto gamma         = inputs.at("STG Exponent").value<element_type>();
+    auto gamma = inputs.at("STG Exponent").value<element_type>();
+    inputs.at("STG Exponent").change(2.0 * gamma);
     auto kernel_output = submods.at("STG kernel").value().run(inputs);
     auto [X]           = kernel_type::unwrap_results(kernel_output);
     const auto c0      = -element_type{1.0} / gamma;
     tensor_type c0X;
     auto idx = TA::detail::dummy_annotation(n_centers);
-    c0X(idx) = c0 * X(idx);
+    c0X(idx) = c0 * c0 * X(idx);
 
     auto rv = results();
     return PropType::wrap_results(rv, c0X);
 }
 
-template class STGCorrelationFactor<pt::correlation_factor_2c<double>>;
-template class STGCorrelationFactor<pt::correlation_factor_3c<double>>;
-template class STGCorrelationFactor<pt::correlation_factor_4c<double>>;
+template<typename T>
+using cf2_2c = pt::correlation_factor_squared_2c<T>;
+
+template<typename T>
+using cf2_3c = pt::correlation_factor_squared_3c<T>;
+
+template<typename T>
+using cf2_4c = pt::correlation_factor_squared_4c<T>;
+
+template class STGCorrelationFactorSquared<cf2_2c<double>>;
+template class STGCorrelationFactorSquared<cf2_3c<double>>;
+template class STGCorrelationFactorSquared<cf2_4c<double>>;
+
 } // namespace integrals::f12

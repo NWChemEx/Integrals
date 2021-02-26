@@ -35,7 +35,6 @@ TEST_CASE("STG 2 Center Correlation Factor") {
 
 TEST_CASE("STG 4 Center Correlation Factor") {
     using integral_type = integrals::pt::correlation_factor_4c<double>;
-    using overlap_type  = integrals::pt::overlap<double>;
     const auto key      = "STG 4 Center Correlation Factor";
 
     auto& world = TA::get_default_world();
@@ -53,20 +52,9 @@ TEST_CASE("STG 4 Center Correlation Factor") {
                 auto aos     = bases.at(name).at(bs);
                 auto tensors = data.at(name).at(bs);
                 auto X_corr  = tensors.at("STG 4C correlation factor");
-                auto [X]     = mm.at(key).run_as<integral_type>(aos, aos);
+                auto [X] = mm.at(key).run_as<integral_type>(aos, aos, aos, aos);
                 REQUIRE(libchemist::ta_helpers::allclose(X, X_corr));
             }
         }
-    }
-    SECTION("H2O") {
-        const auto name = "h2o";
-        auto mol        = mols.at(name);
-        const auto bs   = "sto-3g";
-        auto aos        = bases.at(name).at(bs);
-        auto tensors    = data.at(name).at(bs);
-        auto X_corr     = tensors.at("STG 4C correlation factor");
-
-        auto [X] = mm.at(key).run_as<integral_type>(aos, aos, aos, aos);
-        // REQUIRE(libchemist::ta_helpers::allclose(X, X_corr));
     }
 }
