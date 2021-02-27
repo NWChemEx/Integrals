@@ -1,83 +1,24 @@
-#include "../../test_common_TA.hpp"
 #include "integrals/integrals.hpp"
-
-using matrix_t = TA::detail::matrix_il<double>;
-
-static matrix_t corr{
-  {
-    1.0464370899978459,
-    3.4291996305312606,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    2.6052624057150817,
-    2.6052624057150817,
-  },
-  {
-    3.4291996305312606,
-    26.435225216427671,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    25.3420821293274088,
-    25.3420821293274088,
-  },
-  {
-    0.0000000000000000,
-    0.0000000000000000,
-    5.7847978365504318,
-    0.0000000000000000,
-    0.0000000000000000,
-    3.2924421173969143,
-    3.2924421173969143,
-  },
-  {
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    5.7847978365504300,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-  },
-  {
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    5.7847978365504318,
-    4.2141100538676941,
-    -4.2141100538676941,
-  },
-  {
-    2.6052624057150817,
-    25.3420821293274088,
-    3.2924421173969143,
-    0.0000000000000000,
-    4.2141100538676941,
-    39.9325707858561643,
-    26.6712894368540034,
-  },
-  {
-    2.6052624057150817,
-    25.3420821293274088,
-    3.2924421173969143,
-    0.0000000000000000,
-    -4.2141100538676941,
-    26.6712894368540034,
-    39.9325707858561643,
-  },
-};
+#include <catch2/catch.hpp>
+#include <libchemist/ta_helpers/ta_helpers.hpp>
+#include <testing/testing.hpp>
 
 TEST_CASE("ERI2C") {
     using integral_type = integrals::pt::eri2c<double>;
     using size_vector   = integrals::type::size_vector;
+
+    auto& world = TA::get_default_world();
     sde::ModuleManager mm;
     integrals::load_modules(mm);
-    auto [molecule, bs] = make_molecule();
-    mm.at("ERI2").change_input("Tile size", size_vector{1});
-    auto [X] = mm.at("ERI2").run_as<integral_type>(bs, bs);
+    auto name = "h2o";
+    auto bs   = "sto-3g";
+    auto mol  = testing::get_molecules().at(name);
+    auto aos  = testing::get_bases().at(name).at(bs);
+    auto corr = testing::get_data(world).at(name).at(bs);
 
-    REQUIRE(libchemist::ta_helpers::allclose(
-      X, TensorType(X.world(), X.trange(), corr)));
+    mm.at("ERI2").change_input("Tile size", size_vector{1});
+    auto [X]    = mm.at("ERI2").run_as<integral_type>(aos, aos);
+    auto X_corr = TA::retile(corr.at("ERIs 2C"), X.trange());
+
+    REQUIRE(libchemist::ta_helpers::allclose(X, X_corr));
 }

@@ -54,6 +54,7 @@ void load_f12_integrals(sde::ModuleManager& mm) {
       "STG 4 Center Correlation Factor");
     mm.add_module<f12::stg_correlation_factor_squared_4c<T>>(
       "STG 4 Center Correlation Factor Squared");
+    mm.add_module<f12::stg_dfdr_squared_4c<T>>("STG 4 Center dfdr Squared");
     mm.add_module<f12::stg_gr2c<T>>("STG 2 Center GR");
     mm.add_module<f12::stg_gr4c<T>>("STG 4 Center GR");
 }
@@ -64,6 +65,7 @@ void set_f12_integral_defaults(sde::ModuleManager& mm) {
     mm.change_submod("STG 4 Center Correlation Factor", "STG kernel", "STG4");
     mm.change_submod("STG 4 Center Correlation Factor Squared", "STG kernel",
                      "STG4");
+    mm.change_submod("STG 4 Center dfdr Squared", "STG Kernel", "STG4");
     mm.change_submod("STG 2 Center GR", "Yukawa kernel", "Yukawa2");
     mm.change_submod("STG 4 Center GR", "Yukawa kernel", "Yukawa4");
 }

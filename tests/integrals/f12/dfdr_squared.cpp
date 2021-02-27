@@ -6,9 +6,9 @@
 #include <libint2.hpp>
 #include <testing/testing.hpp>
 
-TEST_CASE("STG 4 Center Correlation Factor Squared") {
-    using integral_type = integrals::pt::correlation_factor_squared_4c<double>;
-    const auto key      = "STG 4 Center Correlation Factor Squared";
+TEST_CASE("STG 4 Center dfdr Squared") {
+    using integral_type = integrals::pt::dfdr_squared_4c<double>;
+    const auto key      = "STG 4 Center dfdr Squared";
 
     auto& world = TA::get_default_world();
     sde::ModuleManager mm;
@@ -24,7 +24,7 @@ TEST_CASE("STG 4 Center Correlation Factor Squared") {
             SECTION(bs) {
                 auto aos     = bases.at(name).at(bs);
                 auto tensors = data.at(name).at(bs);
-                auto X_corr  = tensors.at("STG 4C correlation factor squared");
+                auto X_corr  = tensors.at("STG 4C dfdr squared");
                 auto [X] = mm.at(key).run_as<integral_type>(aos, aos, aos, aos);
                 REQUIRE(libchemist::ta_helpers::allclose(X, X_corr));
             }
