@@ -1,5 +1,5 @@
 #pragma once
-#include "test_common_TA.hpp"
+#include "../test_common_TA.hpp"
 
 using corr_t = TA::detail::tensor4_il<double>;
 

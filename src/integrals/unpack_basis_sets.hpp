@@ -6,7 +6,7 @@ namespace integrals {
 
 /** @brief Given the inputs to a module unpacks the spaces for the integral.
  *
- *  This function wraps the logic required to unpack the apsces provided to an
+ *  This function wraps the logic required to unpack the spaces provided to an
  *  integral module. It can be used to unpack the spaces for normal AO integrals
  *  as well as for transformed variants.
  *
@@ -65,7 +65,7 @@ auto unpack_spaces(const sde::type::input_map& inputs,
     return spaces;
 }
 
-/** @brief Unpacks the AO basis sets from the inptus to an integral module.
+/** @brief Unpacks the AO basis sets from the inputs to an integral module.
  *
  *  This function is largely implemented by `unpack_spaces`. In addition to
  *  unpacking the spaces this function calls the `.basis_set()` member on each

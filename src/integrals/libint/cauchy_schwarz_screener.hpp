@@ -5,7 +5,7 @@
 
 namespace nwx_libint {
 
-// Class to handle the Cauchy-Schwarz approximations for an integral
+// Class to handle the Cauchy-Schwarz screening of an integral
 template<std::size_t NBases>
 struct CauchySchwarzScreener {
     using size_type  = integrals::type::size;

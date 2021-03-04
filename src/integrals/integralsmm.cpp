@@ -1,4 +1,6 @@
+#include "libint/cs_screened_integrals.hpp"
 #include "libint/libint.hpp"
+#include "libint/shellnorms.hpp"
 #include "transformed.hpp"
 
 namespace integrals {
@@ -21,6 +23,22 @@ void load_libint_integrals(sde::ModuleManager& mm) {
     mm.add_module<LibintYukawa2C<ElementType>>("Yukawa2");
     mm.add_module<LibintYukawa3C<ElementType>>("Yukawa3");
     mm.add_module<LibintYukawa4C<ElementType>>("Yukawa4");
+
+    mm.add_module<ScreenedERI3C<ElementType>>("ERI3 CS");
+    mm.add_module<ScreenedERI4C<ElementType>>("ERI4 CS");
+    mm.add_module<ScreenedSTG3C<ElementType>>("STG3 CS");
+    mm.add_module<ScreenedSTG4C<ElementType>>("STG4 CS");
+    mm.add_module<ScreenedYukawa3C<ElementType>>("Yukawa3 CS");
+    mm.add_module<ScreenedYukawa4C<ElementType>>("Yukawa4 CS");
+    mm.add_module<ShellNormCoulomb<ElementType>>("Shell Norms Coulomb");
+    mm.add_module<ShellNormSTG<ElementType>>("Shell Norms STG");
+    mm.add_module<ShellNormYukawa<ElementType>>("Shell Norms Yukawa");
+    mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
+    mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
 }
 
 void load_modules(sde::ModuleManager& mm) { load_libint_integrals<double>(mm); }
