@@ -149,6 +149,7 @@ void register_transformed_integral(sde::ModuleManager& mm,
     mm.change_submod(new_key, "AO integral", ao_key);
 }
 
+extern template class Transformed<pt::correlation_factor_4c<double>>;
 extern template class Transformed<pt::doi<double>>;
 extern template class Transformed<pt::eri2c<double>>;
 

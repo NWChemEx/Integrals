@@ -60,6 +60,11 @@ void load_f12_integrals(sde::ModuleManager& mm) {
 }
 
 template<typename T>
+void load_transformed_f12_integrals(sde::ModuleManager& mm) {
+  register_transformed_integral<pt::correlation_factor_4c<T>>(mm, "STG 4 Center Correlation Factor");
+}
+
+template<typename T>
 void set_f12_integral_defaults(sde::ModuleManager& mm) {
     mm.change_submod("STG 2 Center Correlation Factor", "STG kernel", "STG2");
     mm.change_submod("STG 4 Center Correlation Factor", "STG kernel", "STG4");
