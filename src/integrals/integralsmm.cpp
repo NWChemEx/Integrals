@@ -62,6 +62,8 @@ void load_f12_integrals(sde::ModuleManager& mm) {
 template<typename T>
 void load_transformed_f12_integrals(sde::ModuleManager& mm) {
   register_transformed_integral<pt::correlation_factor_4c<T>>(mm, "STG 4 Center Correlation Factor");
+  register_transformed_integral<pt::correlation_factor_squared_4c<T>>(mm, "STG 4 Center Correlation Factor Squared");
+  register_transformed_integral<pt::dfdr_squared_4c<T>>(mm, "STG 4 Center dfdr Squared");
 }
 
 template<typename T>
