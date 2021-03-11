@@ -5,7 +5,8 @@
 
 TEST_CASE("ERI3C") {
     using integral_type = integrals::pt::eri3c<double>;
-    const auto key      = "ERI3";
+    const auto key1     = "ERI3";
+    const auto key2     = "ERI3 CS";
 
     auto& world = TA::get_default_world();
     sde::ModuleManager mm;
@@ -16,6 +17,6 @@ TEST_CASE("ERI3C") {
     auto mol        = testing::get_molecules().at(name);
     auto aos        = testing::get_bases().at(name).at(bs);
     auto tensors    = testing::get_data(world).at(name).at(bs);
-    auto [X]        = mm.run_as<integral_type>(key, aos, aos, aos);
+    auto [X]        = mm.run_as<integral_type>(key1, aos, aos, aos);
     REQUIRE(libchemist::ta_helpers::allclose(X, tensors.at("ERIs 3C")));
 }
