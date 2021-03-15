@@ -25,6 +25,7 @@ TEST_CASE("Yukawa4C") {
     REQUIRE(libchemist::ta_helpers::allclose(X, corr_R));
 
     mm.change_input(key2, "Screening Threshold", 0.000001);
-    auto [X2] = mm.run_as<integral_type>(key2, stg_exponent, bs, bs, bs, bs);
+    auto [X2] =
+      mm.run_as<integral_type>(key2, stg_exponent, aos, aos, aos, aos);
     REQUIRE(libchemist::ta_helpers::allclose(X2, corr_R));
 }

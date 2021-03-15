@@ -26,6 +26,6 @@ TEST_CASE("Yukawa3C") {
 
     mm.change_input(key2, "Screening Threshold", 0.000001);
     mm.change_input(key2, "Tile size", size_vector{7});
-    auto [X2] = mm.run_as<integral_type>(key2, stg_exponent, bs, bs, bs);
+    auto [X2] = mm.run_as<integral_type>(key2, stg_exponent, aos, aos, aos);
     REQUIRE(libchemist::ta_helpers::allclose(X2, corr_R));
 }

@@ -3,7 +3,6 @@
 #include "libint/cs_screened_integrals.hpp"
 #include "libint/libint.hpp"
 #include "libint/shellnorms.hpp"
-#include "transformed.hpp"
 
 namespace integrals {
 
