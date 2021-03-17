@@ -60,8 +60,6 @@ void load_transformed_integrals(sde::ModuleManager& mm) {
     register_transformed_integral<pt::yukawa4c<T>>(mm, "Yukawa4");
 }
 
-#undef REGISTER_TRANSFORMED_INT
-
 void load_modules(sde::ModuleManager& mm) {
     load_libint_integrals<double>(mm);
     load_transformed_integrals<double>(mm);
