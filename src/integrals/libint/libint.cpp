@@ -1,3 +1,4 @@
+#include "../unpack_basis_sets.hpp"
 #include "fill_ND_functor.hpp"
 #include "integrals/types.hpp"
 #include "libint.hpp"
@@ -7,8 +8,6 @@
 #include <libchemist/ta_helpers/ta_hashers.hpp>
 #include <property_types/ao_integrals/type_traits.hpp>
 #include <stdexcept>
-
-#include "../unpack_basis_sets.hpp"
 
 namespace integrals {
 
@@ -43,7 +42,10 @@ TEMPLATED_MODULE_RUN(Libint, PropType) {
       property_types::ao_integrals::n_centers_v<PropType>;
     constexpr auto op = op_v<PropType>;
 
-    auto bs     = unpack_basis_sets<PropType>(inputs);
+    auto bs = unpack_basis_sets<PropType>(inputs);
+    if constexpr(property_types::ao_integrals::is_doi_v<PropType>) {
+        decltype(bs){bs[0], bs[0], bs[1], bs[1]}.swap(bs);
+    }
     auto trange = nwx_TA::select_tiling(bs, tile_size, atom_ranges);
     auto fill   = nwx_TA::FillNDFunctor<value_type, op, n_centers>();
     const std::size_t deriv = 0; // TODO: Template on derivative order

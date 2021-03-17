@@ -1,7 +1,7 @@
+#include "integrals/transformed.hpp"
 #include "libint/cs_screened_integrals.hpp"
 #include "libint/libint.hpp"
 #include "libint/shellnorms.hpp"
-#include "transformed.hpp"
 
 namespace integrals {
 
@@ -41,66 +41,28 @@ void load_libint_integrals(sde::ModuleManager& mm) {
     mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
 }
 
-void load_modules(sde::ModuleManager& mm) { load_libint_integrals<double>(mm); }
+template<typename T>
+void load_transformed_integrals(sde::ModuleManager& mm) {
+    register_transformed_integral<pt::edipole<T>>(mm, "EDipole");
+    register_transformed_integral<pt::equadrupole<T>>(mm, "EQuadrupole");
+    register_transformed_integral<pt::eoctopole<T>>(mm, "EOctopole");
+    register_transformed_integral<pt::eri2c<T>>(mm, "ERI2");
+    register_transformed_integral<pt::eri3c<T>>(mm, "ERI3");
+    register_transformed_integral<pt::eri4c<T>>(mm, "ERI4");
+    register_transformed_integral<pt::kinetic<T>>(mm, "Kinetic");
+    register_transformed_integral<pt::nuclear<T>>(mm, "Nuclear");
+    register_transformed_integral<pt::overlap<T>>(mm, "Overlap");
+    register_transformed_integral<pt::stg2c<T>>(mm, "STG2");
+    register_transformed_integral<pt::stg3c<T>>(mm, "STG3");
+    register_transformed_integral<pt::stg4c<T>>(mm, "STG4");
+    register_transformed_integral<pt::yukawa2c<T>>(mm, "Yukawa2");
+    register_transformed_integral<pt::yukawa3c<T>>(mm, "Yukawa3");
+    register_transformed_integral<pt::yukawa4c<T>>(mm, "Yukawa4");
+}
 
-// void load_modules(sde::ModuleManager& mm) {
-
-//     mm.add_module("ERI3Direct", std::make_shared<ERI3Direct>());
-
-//     mm.add_module("ERI4Direct", std::make_shared<ERI4Direct>());
-
-//     mm.add_module("STG3Direct", std::make_shared<STG3Direct>());
-
-//     mm.add_module("STG4Direct", std::make_shared<STG4Direct>());
-
-//     mm.add_module("Yukawa3Direct", std::make_shared<Yukawa3Direct>());
-
-//     mm.add_module("Yukawa4Direct", std::make_shared<Yukawa4Direct>());
-
-//     mm.add_module("CauchySchwarzERI", std::make_shared<CS_ERI>());
-
-//     mm.add_module("CauchySchwarzSTG", std::make_shared<CS_STG>());
-
-//     mm.add_module("CauchySchwarzYukawa", std::make_shared<CS_Yukawa>());
-
-//     mm.at("ERI3").change_submod("Cauchy-Schwarz",
-//     std::make_shared<sde::Module>(
-//                                                     mm.at("CauchySchwarzERI")));
-//     mm.at("ERI4").change_submod("Cauchy-Schwarz",
-//     std::make_shared<sde::Module>(
-//                                                     mm.at("CauchySchwarzERI")));
-//     mm.at("ERI3Direct")
-//       .change_submod("Cauchy-Schwarz",
-//                      std::make_shared<sde::Module>(mm.at("CauchySchwarzERI")));
-//     mm.at("ERI4Direct")
-//       .change_submod("Cauchy-Schwarz",
-//                      std::make_shared<sde::Module>(mm.at("CauchySchwarzERI")));
-
-//     mm.at("STG3").change_submod("Cauchy-Schwarz",
-//     std::make_shared<sde::Module>(
-//                                                     mm.at("CauchySchwarzSTG")));
-//     mm.at("STG4").change_submod("Cauchy-Schwarz",
-//     std::make_shared<sde::Module>(
-//                                                     mm.at("CauchySchwarzSTG")));
-//     mm.at("STG3Direct")
-//       .change_submod("Cauchy-Schwarz",
-//                      std::make_shared<sde::Module>(mm.at("CauchySchwarzSTG")));
-//     mm.at("STG4Direct")
-//       .change_submod("Cauchy-Schwarz",
-//                      std::make_shared<sde::Module>(mm.at("CauchySchwarzSTG")));
-
-//     mm.at("Yukawa3").change_submod(
-//       "Cauchy-Schwarz",
-//       std::make_shared<sde::Module>(mm.at("CauchySchwarzYukawa")));
-//     mm.at("Yukawa4").change_submod(
-//       "Cauchy-Schwarz",
-//       std::make_shared<sde::Module>(mm.at("CauchySchwarzYukawa")));
-//     mm.at("Yukawa3Direct")
-//       .change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(
-//                                          mm.at("CauchySchwarzYukawa")));
-//     mm.at("Yukawa4Direct")
-//       .change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(
-//                                          mm.at("CauchySchwarzYukawa")));
-// }
+void load_modules(sde::ModuleManager& mm) {
+    load_libint_integrals<double>(mm);
+    load_transformed_integrals<double>(mm);
+}
 
 } // namespace integrals
