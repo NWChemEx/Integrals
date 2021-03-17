@@ -157,18 +157,9 @@ void load_modules(sde::ModuleManager& mm) {
 //       .change_submod("Cauchy-Schwarz",
 //                      std::make_shared<sde::Module>(mm.at("CauchySchwarzSTG")));
 
-//     mm.at("Yukawa3").change_submod(
-//       "Cauchy-Schwarz",
-//       std::make_shared<sde::Module>(mm.at("CauchySchwarzYukawa")));
-//     mm.at("Yukawa4").change_submod(
-//       "Cauchy-Schwarz",
-//       std::make_shared<sde::Module>(mm.at("CauchySchwarzYukawa")));
-//     mm.at("Yukawa3Direct")
-//       .change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(
-//                                          mm.at("CauchySchwarzYukawa")));
-//     mm.at("Yukawa4Direct")
-//       .change_submod("Cauchy-Schwarz", std::make_shared<sde::Module>(
-//                                          mm.at("CauchySchwarzYukawa")));
-// }
+void load_modules(sde::ModuleManager& mm) {
+    load_libint_integrals<double>(mm);
+    load_transformed_integrals<double>(mm);
+}
 
 } // namespace integrals
