@@ -52,6 +52,7 @@ if("${BUILD_TESTING}")
     cpp_find_or_build_dependency(
             testing
             URL github.com/NWChemEx-Project/testing
+            PRIVATE TRUE
             BUILD_TARGET testing
             FIND_TARGET nwx::testing
     )
