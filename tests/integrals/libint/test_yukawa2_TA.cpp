@@ -1,84 +1,22 @@
-#include "../../test_common_TA.hpp"
 #include "integrals/integrals.hpp"
-
-using matrix_t = TA::detail::matrix_il<double>;
-
-static matrix_t corr{
-  {
-    0.7174258302062281,
-    1.134104974702415,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.3879048898831669,
-    0.387904889883167,
-  },
-  {
-    1.134104974702414,
-    6.113309677837837,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    3.420278138648697,
-    3.420278138648697,
-  },
-  {
-    0.0000000000000000,
-    0.0000000000000000,
-    3.251826432143477,
-    0.0000000000000000,
-    0.0000000000000000,
-    1.278509993399123,
-    1.278509993399123,
-  },
-  {
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    3.251826432143476,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-  },
-  {
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    3.251826432143477,
-    1.636408970923164,
-    -1.636408970923164,
-  },
-  {
-    0.387904889883167,
-    3.420278138648697,
-    1.278509993399123,
-    0.0000000000000000,
-    1.636408970923164,
-    6.808586200586897,
-    2.066996470412582,
-  },
-  {
-    0.387904889883167,
-    3.420278138648697,
-    1.278509993399123,
-    0.0000000000000000,
-    -1.636408970923164,
-    2.066996470412582,
-    6.808586200586897,
-  },
-};
+#include <catch2/catch.hpp>
+#include <libchemist/ta_helpers/ta_helpers.hpp>
+#include <testing/testing.hpp>
 
 TEST_CASE("Yukawa2C") {
     using integral_type = integrals::pt::yukawa2c<double>;
     using size_vector   = integrals::type::size_vector;
 
+    auto& world = TA::get_default_world();
     sde::ModuleManager mm;
     integrals::load_modules(mm);
-    auto [molecule, bs] = make_molecule();
-    auto stg_exponent   = 1.0;
+    auto name         = "h2o";
+    auto bs           = "sto-3g";
+    auto aos          = testing::get_bases().at(name).at(bs);
+    auto corr         = testing::get_data(world).at(name).at(bs);
+    auto stg_exponent = 1.0;
     mm.at("Yukawa2").change_input("Tile size", size_vector{6});
-    auto [X] = mm.at("Yukawa2").run_as<integral_type>(stg_exponent, bs, bs);
-    TensorType corr_R(X.world(), X.trange(), corr);
+    auto [X] = mm.at("Yukawa2").run_as<integral_type>(stg_exponent, aos, aos);
+    auto corr_R = TA::retile(corr.at("Yukawa 2C"), X.trange());
     REQUIRE(libchemist::ta_helpers::allclose(X, corr_R));
 }

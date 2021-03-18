@@ -1,84 +1,21 @@
-#include "../../test_common_TA.hpp"
 #include "integrals/integrals.hpp"
-
-using matrix_t = TA::detail::matrix_il<double>;
-
-static matrix_t corr{
-  {
-    29.00319994553958,
-    -0.1680109393164922,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    -0.008416385185447427,
-    -0.008416385185447427,
-  },
-  {
-    -0.1680109393164923,
-    0.8081279549303477,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.07051733851899882,
-    0.07051733851899882,
-  },
-  {
-    0.0000000000000000,
-    0.0000000000000000,
-    2.528731198194765,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.1149203802569082,
-    0.1149203802569082,
-  },
-  {
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    2.528731198194765,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-  },
-  {
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    2.528731198194765,
-    0.1470905524127557,
-    -0.1470905524127557,
-  },
-  {
-    -0.008416385185447427,
-    0.07051733851899882,
-    0.1149203802569082,
-    0.0000000000000000,
-    0.1470905524127557,
-    0.760031883566609,
-    -0.003979736727037247,
-  },
-  {
-    -0.008416385185447427,
-    0.07051733851899882,
-    0.1149203802569082,
-    0.0000000000000000,
-    -0.1470905524127557,
-    -0.003979736727037247,
-    0.760031883566609,
-  },
-};
+#include <catch2/catch.hpp>
+#include <libchemist/ta_helpers/ta_helpers.hpp>
+#include <testing/testing.hpp>
 
 TEST_CASE("Kinetic") {
     using integral_type = integrals::pt::kinetic<double>;
     using size_vector   = integrals::type::size_vector;
 
+    auto& world = TA::get_default_world();
     sde::ModuleManager mm;
     integrals::load_modules(mm);
-    auto [molecule, bs] = make_molecule();
+    auto name = "h2o";
+    auto bs   = "sto-3g";
+    auto aos  = testing::get_bases().at(name).at(bs);
+    auto corr = testing::get_data(world).at(name).at(bs);
     mm.at("Kinetic").change_input("Tile size", size_vector{1, 2});
-    auto [T] = mm.at("Kinetic").run_as<integral_type>(bs, bs);
-
-    REQUIRE(libchemist::ta_helpers::allclose(
-      T, TensorType(T.world(), T.trange(), corr)));
+    auto [T]    = mm.at("Kinetic").run_as<integral_type>(aos, aos);
+    auto T_corr = TA::retile(corr.at("Kinetic"), T.trange());
+    REQUIRE(libchemist::ta_helpers::allclose(T, T_corr));
 }

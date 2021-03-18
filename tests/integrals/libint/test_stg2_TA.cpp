@@ -1,28 +1,22 @@
-#include "../../test_common_TA.hpp"
 #include "integrals/integrals.hpp"
-
-using matrix_t = TA::detail::matrix_il<double>;
-
-static matrix_t corr{
-  {0.2537942162587338, 1.046215785805689, 0.000000000000000, 0.000000000000000, 0.000000000000000,0.5645176270609247, 0.5645176270609247,},
-  {1.046215785805689, 7.01044084560758, 0.000000000000000, 0.000000000000000, 0.000000000000000,4.944422029164063, 4.944422029164063,},
-  {0.000000000000000, 0.000000000000000, 2.314313940319281, 0.000000000000000, 0.000000000000000,1.342604331704185, 1.342604331704185,},
-  {0.000000000000000, 0.000000000000000, 0.000000000000000, 2.31431394031928, 0.000000000000000,0.000000000000000, 0.000000000000000,},
-  {0.000000000000000, 0.000000000000000, 0.000000000000000, 0.000000000000000, 2.314313940319281,1.718445521852997, -1.718445521852997,},
-  {0.5645176270609245, 4.944422029164063, 1.342604331704185, 0.000000000000000, 1.718445521852996,8.672980870957266, 3.554826241135164,},
-  {0.5645176270609245, 4.944422029164063, 1.342604331704185, 0.000000000000000, -1.718445521852996,3.554826241135164, 8.672980870957266,},
-};
+#include <catch2/catch.hpp>
+#include <libchemist/ta_helpers/ta_helpers.hpp>
+#include <testing/testing.hpp>
 
 TEST_CASE("STG2C") {
     using integral_type = integrals::pt::stg2c<double>;
     using size_vector   = integrals::type::size_vector;
 
+    auto& world = TA::get_default_world();
     sde::ModuleManager mm;
     integrals::load_modules(mm);
-    auto [molecule, bs] = make_molecule();
+    auto name         = "h2o";
+    auto bs           = "sto-3g";
+    auto aos          = testing::get_bases().at(name).at(bs);
+    auto corr         = testing::get_data(world).at(name).at(bs);
     auto stg_exponent = 1.0;
     mm.at("STG2").change_input("Tile size", size_vector{3});
-    auto [X] = mm.at("STG2").run_as<integral_type>(stg_exponent, bs, bs);
-    TensorType corr_R(X.world(), X.trange(), corr);
+    auto [X]    = mm.at("STG2").run_as<integral_type>(stg_exponent, aos, aos);
+    auto corr_R = TA::retile(corr.at("STG 2C"), X.trange());
     REQUIRE(libchemist::ta_helpers::allclose(X, corr_R));
 }

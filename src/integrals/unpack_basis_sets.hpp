@@ -5,7 +5,7 @@
 
 namespace integrals {
 
-/** @brief Unpacks the AO basis sets from the inputs to an integral module.
+/** @brief Unpacks the AO basis sets from the inptus to an integral module.
  *
  *  This function is largely implemented by `unpack_spaces`. In addition to
  *  unpacking the spaces this function calls the `.basis_set()` member on each

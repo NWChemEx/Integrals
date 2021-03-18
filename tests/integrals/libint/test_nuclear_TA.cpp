@@ -1,83 +1,22 @@
-#include "../../test_common_TA.hpp"
 #include "integrals/integrals.hpp"
-
-using matrix_t = TA::detail::matrix_il<double>;
-
-static matrix_t corr{
-  {
-    -61.5805952694322,
-    -7.410821856331163,
-    -0.0144738837457361,
-    0.0000000000000000,
-    0.0000000000000000,
-    -1.231685572142488,
-    -1.231685572142488,
-  },
-  {
-    -7.410821856331163,
-    -10.00907114207003,
-    -0.1768908347336431,
-    0.0000000000000000,
-    0.0000000000000000,
-    -2.977226853578134,
-    -2.977226853578134,
-  },
-  {
-    -0.01447388374573611,
-    -0.1768908347336431,
-    -9.944043341698766,
-    0.0000000000000000,
-    0.0000000000000000,
-    -1.471793338712961,
-    -1.471793338712961,
-  },
-  {
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    -9.875875995090944,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-  },
-  {
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    0.0000000000000000,
-    -9.987549935088563,
-    -1.822236913476131,
-    1.822236913476131,
-  },
-  {
-    -1.231685572142488,
-    -2.977226853578134,
-    -1.471793338712961,
-    0.0000000000000000,
-    -1.822236913476131,
-    -5.300203252295022,
-    -1.067171080472437,
-  },
-  {
-    -1.231685572142488,
-    -2.977226853578134,
-    -1.471793338712961,
-    0.0000000000000000,
-    1.82223691347613,
-    -1.067171080472437,
-    -5.30020325229502,
-  },
-};
+#include <catch2/catch.hpp>
+#include <libchemist/ta_helpers/ta_helpers.hpp>
+#include <testing/testing.hpp>
 
 TEST_CASE("Nuclear") {
     using integral_type = integrals::pt::nuclear<double>;
     using size_vector   = integrals::type::size_vector;
 
+    auto& world = TA::get_default_world();
     sde::ModuleManager mm;
     integrals::load_modules(mm);
-    auto [molecule, bs] = make_molecule();
+    auto name = "h2o";
+    auto bs   = "sto-3g";
+    auto mol  = testing::get_molecules().at(name);
+    auto aos  = testing::get_bases().at(name).at(bs);
+    auto corr = testing::get_data(world).at(name).at(bs);
     mm.at("Nuclear").change_input("Tile size", size_vector{6, 1});
-    auto [V] = mm.at("Nuclear").run_as<integral_type>(molecule, bs, bs);
-    TensorType corr_V(V.world(), V.trange(), corr);
+    auto [V]    = mm.at("Nuclear").run_as<integral_type>(mol, aos, aos);
+    auto corr_V = TA::retile(corr.at("Nuclear"), V.trange());
     REQUIRE(libchemist::ta_helpers::allclose(V, corr_V));
 }
