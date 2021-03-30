@@ -26,7 +26,8 @@ template<typename PropType>
 TEMPLATED_MODULE_CTOR(STGGR, PropType) {
     using element_type       = element_t<PropType>;
     constexpr auto n_centers = n_centers_v<PropType>;
-    using kernel_type        = Yukawa<NCenter<n_centers, element_type>>;
+    using n_center_type = NCenter<n_centers, type::ao_space_t<element_type>>;
+    using kernel_type   = Yukawa<n_center_type>;
 
     satisfies_property_type<PropType>();
     description(module_desc);
@@ -40,7 +41,8 @@ TEMPLATED_MODULE_RUN(STGGR, PropType) {
     using element_type       = element_t<PropType>;
     using tensor_type        = type::tensor<element_type>;
     constexpr auto n_centers = n_centers_v<PropType>;
-    using kernel_type        = Yukawa<NCenter<n_centers, element_type>>;
+    using n_center_type = NCenter<n_centers, type::ao_space_t<element_type>>;
+    using kernel_type   = Yukawa<n_center_type>;
 
     auto gamma         = inputs.at("STG Exponent").value<element_type>();
     auto kernel_output = submods.at("Yukawa kernel").value().run(inputs);

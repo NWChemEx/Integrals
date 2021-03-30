@@ -30,7 +30,8 @@ template<typename PropType>
 TEMPLATED_MODULE_CTOR(STGdfdrSquared, PropType) {
     using element_type       = element_t<PropType>;
     constexpr auto n_centers = n_centers_v<PropType>;
-    using kernel_type        = STG<NCenter<n_centers, element_type>>;
+    using n_center_type = NCenter<n_centers, type::ao_space_t<element_type>>;
+    using kernel_type   = STG<n_center_type>;
 
     satisfies_property_type<PropType>();
     description(module_desc);
@@ -44,7 +45,8 @@ TEMPLATED_MODULE_RUN(STGdfdrSquared, PropType) {
     using element_type       = element_t<PropType>;
     using tensor_type        = type::tensor<element_type>;
     constexpr auto n_centers = n_centers_v<PropType>;
-    using kernel_type        = STG<NCenter<n_centers, element_type>>;
+    using n_center_type = NCenter<n_centers, type::ao_space_t<element_type>>;
+    using kernel_type   = STG<n_center_type>;
 
     auto gamma = inputs.at("STG Exponent").value<element_type>();
     inputs.at("STG Exponent").change(2.0 * gamma);
