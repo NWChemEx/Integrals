@@ -3,6 +3,8 @@
 #include <libchemist/ta_helpers/ta_helpers.hpp>
 #include <testing/testing.hpp>
 
+using namespace testing;
+
 TEST_CASE("Overlap") {
     using integral_type = integrals::pt::overlap<double>;
     using size_vector   = integrals::type::size_vector;
@@ -13,12 +15,13 @@ TEST_CASE("Overlap") {
     sde::ModuleManager mm;
     integrals::load_modules(mm);
 
-    const auto name = "h2o";
-    const auto bs   = "sto-3g";
+    const auto name = molecule::h2o;
+    const auto bs   = basis_set::sto3g;
     auto mol        = testing::get_molecules().at(name);
     auto aos        = testing::get_bases().at(name).at(bs);
-    auto tensors    = testing::get_data(world).at(name).at(bs);
-    auto corr_S     = tensors.at("Overlap");
+    std::vector bases{bs, bs};
+    auto tensors = testing::get_ao_data(world).at(name).at(bases);
+    auto corr_S  = tensors.at(property::overlap);
 
     SECTION("Run 1") {
         mm.at("Overlap").change_input("Tile size", size_vector{3, 1, 1});
