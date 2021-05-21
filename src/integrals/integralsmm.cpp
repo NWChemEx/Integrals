@@ -85,6 +85,7 @@ void load_transformed_f12_integrals(sde::ModuleManager& mm) {
       mm, "STG 4 Center Correlation Factor Squared");
     register_transformed_integral<pt::dfdr_squared_4c<T>>(
       mm, "STG 4 Center dfdr Squared");
+    register_transformed_integral<pt::gr4c<T>>(mm, "STG 4 Center GR");
 }
 
 template<typename T>
@@ -102,6 +103,7 @@ void load_modules(sde::ModuleManager& mm) {
     load_libint_integrals<double>(mm);
     load_transformed_libint_integrals<double>(mm);
     load_f12_integrals<double>(mm);
+    load_transformed_f12_integrals<double>(mm);
 
     // See TODO at top of file before enabling
     // load_libint_integrals<float>(mm);

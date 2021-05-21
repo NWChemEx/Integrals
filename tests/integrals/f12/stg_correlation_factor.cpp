@@ -6,29 +6,27 @@
 #include <libint2.hpp>
 #include <testing/testing.hpp>
 
+using namespace testing;
+
 TEST_CASE("STG 2 Center Correlation Factor") {
     using integral_type = integrals::pt::correlation_factor_2c<double>;
-    using overlap_type  = integrals::pt::overlap<double>;
     const auto key      = "STG 2 Center Correlation Factor";
 
     auto& world = TA::get_default_world();
     sde::ModuleManager mm;
     integrals::load_modules(mm);
-    auto mols  = testing::get_molecules();
-    auto bases = testing::get_bases();
-    auto data  = testing::get_data(world);
 
-    SECTION("H2") {
-        const auto name = "h2";
-        auto mol        = mols.at(name);
-        for(auto bs : {"sto-3g", "cc-pvdz"}) {
-            SECTION(bs) {
-                auto aos     = bases.at(name).at(bs);
-                auto tensors = data.at(name).at(bs);
-                auto X_corr  = tensors.at("STG 2C correlation factor");
-                auto [X]     = mm.at(key).run_as<integral_type>(aos, aos);
-                REQUIRE(libchemist::ta_helpers::allclose(X, X_corr));
-            }
+    const auto name = molecule::h2;
+    const auto bs   = basis_set::sto3g;
+
+    for(const auto& bs : {basis_set::sto3g, basis_set::ccpvdz}) {
+        std::vector<basis_set> bs_key(2, bs);
+        SECTION(as_string(name) + "/" + as_string(bs)) {
+            auto aos     = get_bases().at(name).at(bs);
+            auto tensors = get_ao_data(world).at(name).at(bs_key);
+            auto X_corr  = tensors.at(property::stg_correlation_factor);
+            auto [X]     = mm.at(key).run_as<integral_type>(aos, aos);
+            REQUIRE(libchemist::ta_helpers::allclose(X, X_corr));
         }
     }
 }
@@ -40,21 +38,18 @@ TEST_CASE("STG 4 Center Correlation Factor") {
     auto& world = TA::get_default_world();
     sde::ModuleManager mm;
     integrals::load_modules(mm);
-    auto mols  = testing::get_molecules();
-    auto bases = testing::get_bases();
-    auto data  = testing::get_data(world);
 
-    SECTION("H2") {
-        const auto name = "h2";
-        auto mol        = mols.at(name);
-        for(auto bs : {"sto-3g", "cc-pvdz"}) {
-            SECTION(bs) {
-                auto aos     = bases.at(name).at(bs);
-                auto tensors = data.at(name).at(bs);
-                auto X_corr  = tensors.at("STG 4C correlation factor");
-                auto [X] = mm.at(key).run_as<integral_type>(aos, aos, aos, aos);
-                REQUIRE(libchemist::ta_helpers::allclose(X, X_corr));
-            }
+    const auto name = molecule::h2;
+    const auto bs   = basis_set::sto3g;
+
+    for(const auto& bs : {basis_set::sto3g, basis_set::ccpvdz}) {
+        std::vector<basis_set> bs_key(4, bs);
+        SECTION(as_string(name) + "/" + as_string(bs)) {
+            auto aos     = get_bases().at(name).at(bs);
+            auto tensors = get_ao_data(world).at(name).at(bs_key);
+            auto X_corr  = tensors.at(property::stg_correlation_factor);
+            auto [X]     = mm.at(key).run_as<integral_type>(aos, aos, aos, aos);
+            REQUIRE(libchemist::ta_helpers::allclose(X, X_corr));
         }
     }
 }
