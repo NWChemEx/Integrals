@@ -10,7 +10,7 @@ namespace nwx_TA {
  *  @param cont The contraction
  */
 template<typename Archive>
-std::enable_if_t<madness::archive::is_output_archive<Archive>::value, void>
+std::enable_if_t<madness::is_output_archive<Archive>::value, void>
 serialize_contraction(Archive& ar, const libint2::Shell::Contraction& cont) {
     int l                           = cont.l;
     bool pure                       = cont.pure;
@@ -23,7 +23,7 @@ serialize_contraction(Archive& ar, const libint2::Shell::Contraction& cont) {
 }
 
 template<typename Archive>
-std::enable_if_t<madness::archive::is_input_archive<Archive>::value, void>
+std::enable_if_t<madness::is_input_archive<Archive>::value, void>
 serialize_contraction(Archive& ar, libint2::Shell::Contraction& cont) {
     int l;
     bool pure;
@@ -44,7 +44,7 @@ serialize_contraction(Archive& ar, libint2::Shell::Contraction& cont) {
  *  @param shell The shell
  */
 template<typename Archive>
-std::enable_if_t<madness::archive::is_output_archive<Archive>::value, void>
+std::enable_if_t<madness::is_output_archive<Archive>::value, void>
 serialize_basis_shell(Archive& ar, const libint2::Shell& shell) {
     auto alphas                  = shell.alpha;
     auto conts                   = shell.contr;
@@ -60,7 +60,7 @@ serialize_basis_shell(Archive& ar, const libint2::Shell& shell) {
 }
 
 template<typename Archive>
-std::enable_if_t<madness::archive::is_input_archive<Archive>::value, void>
+std::enable_if_t<madness::is_input_archive<Archive>::value, void>
 serialize_basis_shell(Archive& ar, libint2::Shell& shell) {
     std::vector<double> std_alphas;
     libint2::svector<libint2::Shell::Contraction> conts;
@@ -87,7 +87,7 @@ serialize_basis_shell(Archive& ar, libint2::Shell& shell) {
  *  @param set The basis set
  */
 template<typename Archive>
-std::enable_if_t<madness::archive::is_output_archive<Archive>::value, void>
+std::enable_if_t<madness::is_output_archive<Archive>::value, void>
 serialize_basis_set(Archive& ar, const libint2::BasisSet& set) {
     auto len = set.size();
     ar& len;
@@ -96,7 +96,7 @@ serialize_basis_set(Archive& ar, const libint2::BasisSet& set) {
 }
 
 template<typename Archive>
-std::enable_if_t<madness::archive::is_input_archive<Archive>::value, void>
+std::enable_if_t<madness::is_input_archive<Archive>::value, void>
 serialize_basis_set(Archive& ar, libint2::BasisSet& set) {
     std::size_t len = 0;
     ar& len;
@@ -114,7 +114,7 @@ serialize_basis_set(Archive& ar, libint2::BasisSet& set) {
  *  @param sets The basis set vector
  */
 template<typename Archive>
-std::enable_if_t<madness::archive::is_output_archive<Archive>::value, void>
+std::enable_if_t<madness::is_output_archive<Archive>::value, void>
 serialize_basis_sets(Archive& ar, const std::vector<libint2::BasisSet>& sets) {
     std::size_t len = sets.size();
     ar& len;
@@ -123,7 +123,7 @@ serialize_basis_sets(Archive& ar, const std::vector<libint2::BasisSet>& sets) {
 }
 
 template<typename Archive>
-std::enable_if_t<madness::archive::is_input_archive<Archive>::value, void>
+std::enable_if_t<madness::is_input_archive<Archive>::value, void>
 serialize_basis_sets(Archive& ar, std::vector<libint2::BasisSet>& sets) {
     std::size_t len = 0;
     ar& len;
