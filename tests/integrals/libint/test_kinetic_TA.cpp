@@ -1,6 +1,6 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/ta_helpers/ta_helpers.hpp>
+#include <libchemist/tensors/allclose.hpp>
 #include <testing/testing.hpp>
 
 using namespace testing;
@@ -18,7 +18,9 @@ TEST_CASE("Kinetic") {
     std::vector bases{bs, bs};
     auto corr = testing::get_ao_data(world).at(name).at(bases);
     mm.at("Kinetic").change_input("Tile size", size_vector{1, 2});
-    auto [T]    = mm.at("Kinetic").run_as<integral_type>(aos, aos);
+    simde::type::el_kinetic t;
+    auto [T]    = mm.at("Kinetic").run_as<integral_type>(aos, t, aos);
     auto T_corr = TA::retile(corr.at(property::kinetic), T.trange());
-    REQUIRE(libchemist::ta_helpers::allclose(T, T_corr));
+    libchemist::tensor corr(T_corr);
+    REQUIRE(libchemist::tensor::allclose(T, corr));
 }

@@ -1,6 +1,6 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/ta_helpers/ta_helpers.hpp>
+#include <libchemist/tensors/allclose.hpp>
 #include <testing/testing.hpp>
 
 using namespace testing;
@@ -19,7 +19,8 @@ TEST_CASE("ERI4C") {
     std::vector bases{bs, bs, bs, bs};
     auto tensors = testing::get_ao_data(world).at(name).at(bases);
 
-    auto [X] = mm.at("ERI4").run_as<integral_type>(aos, aos, aos, aos);
-
-    REQUIRE(libchemist::ta_helpers::allclose(X, tensors.at(property::eris)));
+    simde::type::el_el_coulomb r12;
+    auto [X] = mm.at("ERI4").run_as<integral_type>(aos, aos, r12, aos, aos);
+    libchemist::tensor corr(tensors.at(property::eris)));
+    REQUIRE(libchemist::tensors::allclose(X, tcorr));
 }

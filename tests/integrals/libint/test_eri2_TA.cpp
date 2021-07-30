@@ -1,6 +1,6 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/ta_helpers/ta_helpers.hpp>
+#include <libchemist/tensors/allclose.hpp>
 #include <testing/testing.hpp>
 
 using namespace testing;
@@ -20,8 +20,9 @@ TEST_CASE("ERI2C") {
     auto corr = testing::get_ao_data(world).at(name).at(bases);
 
     mm.at("ERI2").change_input("Tile size", size_vector{1});
-    auto [X]    = mm.at("ERI2").run_as<integral_type>(aos, aos);
+    simde::type::el_el_coulomb r12;
+    auto [X]    = mm.at("ERI2").run_as<integral_type>(aos, r12, aos);
     auto X_corr = TA::retile(corr.at(property::eris), X.trange());
-
-    REQUIRE(libchemist::ta_helpers::allclose(X, X_corr));
+    libchemist::tensor corr(X_corr);
+    REQUIRE(libchemist::tensor::allclose(X, corr));
 }

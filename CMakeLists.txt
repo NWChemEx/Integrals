@@ -26,19 +26,22 @@ cpp_find_or_build_dependency(
 )
 
 cpp_find_or_build_dependency(
-        property_types
-        URL github.com/NWChemEx-Project/PropertyTypes
+        simde
+        URL github.com/NWChemEx-Project/SimDE
         PRIVATE TRUE
-        BUILD_TARGET property_types
-        FIND_TARGET nwx::property_types
+        BUILD_TARGET simde
+        FIND_TARGET nwx::simde
         CMAKE_ARGS BUILD_TESTING=OFF
 )
 
+set(project_src_dir "${CMAKE_CURRENT_LIST_DIR}/src/${PROJECT_NAME}")
+set(project_inc_dir "${CMAKE_CURRENT_LIST_DIR}/include/${PROJECT_NAME}")
+
 cpp_add_library(
-        integrals
-        SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/src/integrals"
-        INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/include/integrals"
-        DEPENDS Libint2::int2 nwx::property_types
+        ${PROJECT_NAME}
+        SOURCE_DIR "${project_src_dir}"
+        INCLUDE_DIR "${project_inc_dir}"
+        DEPENDS Libint2::int2 nwx::simde
 )
 
 if("${BUILD_TESTING}")
@@ -50,16 +53,16 @@ if("${BUILD_TESTING}")
             FIND_TARGET Catch2::Catch2
     )
     cpp_find_or_build_dependency(
-            testing
-            URL github.com/NWChemEx-Project/testing
-            PRIVATE TRUE
-            BUILD_TARGET testing
-            FIND_TARGET nwx::testing
+        mokup
+        URL github.com/NWChemEx-Project/Mokup
+        PRIVATE TRUE
+        BUILD_TARGET mokup
+        FIND_TARGET nwx::mokup
     )
     cpp_add_tests(
-            test_integrals
-            SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/tests"
-            INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/src/integrals"
-            DEPENDS Catch2::Catch2 nwx::testing integrals
+        test_integrals
+        SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/tests"
+        INCLUDE_DIR "${project_inc_dir}"
+        DEPENDS Catch2::Catch2 nwx::mokup ${PROJECT_NAME}
     )
 endif()

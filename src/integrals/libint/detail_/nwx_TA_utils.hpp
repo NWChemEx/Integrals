@@ -7,7 +7,7 @@ namespace nwx_TA {
 
 template<typename T>
 using basis = libchemist::AOBasisSet<T>;
-using size  = integrals::type::size;
+using size  = std::size_t;
 
 /** @brief Make a TA TiledRange from basis set information
  *

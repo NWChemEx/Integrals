@@ -1,8 +1,8 @@
 #pragma once
-#include <sde/module_manager.hpp>
+#include <pluginplay/module_manager.hpp>
 
 namespace integrals {
 
-void load_modules(sde::ModuleManager& mm);
+void load_modules(pluginplay::ModuleManager& mm);
 
 } // end namespace integrals

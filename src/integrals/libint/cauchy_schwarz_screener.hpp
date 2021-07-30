@@ -1,5 +1,5 @@
 #pragma once
-#include "nwx_libint_factory.hpp"
+#include "detail_/nwx_libint_factory.hpp"
 #include <libint2.hpp>
 #include <tiledarray.h>
 
