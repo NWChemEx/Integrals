@@ -21,4 +21,22 @@ struct SpecialSetup<simde::type::el_nuc_coulomb> {
     }
 };
 
+template<>
+struct SpecialSetup<simde::type::el_el_stg> {
+    template<typename FillerType>
+    static auto setup(FillerType& fill, const simde::type::el_el_stg& op) {
+        const auto& stg           = op.at<0>();
+        fill.factory.stg_exponent = stg.exponent;
+    }
+};
+
+template<>
+struct SpecialSetup<simde::type::el_el_yukawa> {
+    template<typename FillerType>
+    static auto setup(FillerType& fill, const simde::type::el_el_yukawa& op) {
+        const auto& stg           = op.at<0>();
+        fill.factory.stg_exponent = stg.exponent;
+    }
+};
+
 } // namespace integrals

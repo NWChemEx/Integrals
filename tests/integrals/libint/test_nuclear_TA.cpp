@@ -1,25 +1,25 @@
-// #include "integrals/integrals.hpp"
-// #include <catch2/catch.hpp>
-// #include <libchemist/ta_helpers/ta_helpers.hpp>
-// #include <testing/testing.hpp>
+#include "integrals/integrals.hpp"
+#include <catch2/catch.hpp>
+#include <libchemist/tensor/allclose.hpp>
+#include <mokup/mokup.hpp>
 
-// using namespace testing;
+TEST_CASE("Nuclear") {
+    using op_type       = simde::type::el_nuc_coulomb;
+    using integral_type = simde::AOTensorRepresentation<2, op_type>;
 
-// TEST_CASE("Nuclear") {
-//     using integral_type = integrals::pt::nuclear<double>;
-//     using size_vector   = integrals::type::size_vector;
+    auto& world = TA::get_default_world();
+    pluginplay::ModuleManager mm;
+    integrals::load_modules(mm);
 
-//     auto& world = TA::get_default_world();
-//     sde::ModuleManager mm;
-//     integrals::load_modules(mm);
-//     auto name = molecule::h2o;
-//     auto bs   = basis_set::sto3g;
-//     auto mol  = testing::get_molecules().at(name);
-//     auto aos  = testing::get_bases().at(name).at(bs);
-//     std::vector bases{bs, bs};
-//     auto corr = testing::get_ao_data(world).at(name).at(bases);
-//     mm.at("Nuclear").change_input("Tile size", size_vector{6, 1});
-//     auto [V]    = mm.at("Nuclear").run_as<integral_type>(mol, aos, aos);
-//     auto corr_V = TA::retile(corr.at(property::nuclear), V.trange());
-//     REQUIRE(libchemist::ta_helpers::allclose(V, corr_V));
-// }
+    auto name = mokup::molecule::h2o;
+    auto bs   = mokup::basis_set::sto3g;
+    auto mol  = mokup::get_molecules().at(name);
+    auto aos  = mokup::get_bases().at(name).at(bs);
+    std::vector bases{bs, bs};
+    auto corr = mokup::get_ao_data(world).at(name).at(bases);
+
+    // mm.at("Nuclear").change_input("Tile size", size_vector{6, 1});
+    op_type riA(libchemist::Electron{}, mol);
+    auto [V] = mm.at("Nuclear").run_as<integral_type>(aos, riA, aos);
+    REQUIRE(libchemist::tensor::allclose(V, corr.at(mokup::property::nuclear)));
+}

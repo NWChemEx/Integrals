@@ -71,15 +71,19 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
 
     SpecialSetup<OperatorType>::setup(fill, op);
 
-    // else if constexpr(property_types::ao_integrals::is_stg_v<PropType> ||
-    //                   property_types::ao_integrals::is_yukawa_v<PropType>) {
-    //     auto gamma = inputs.at("STG Exponent").value<element_type>();
-    //     fill.factory.stg_exponent = gamma;
-    // }
+    auto I_ta = TiledArray::make_array<tensor_type>(world, trange, fill);
+    simde::type::tensor I(I_ta);
 
-    auto I  = TiledArray::make_array<tensor_type>(world, trange, fill);
+    constexpr auto is_stg =
+      std::is_same_v<OperatorType, simde::type::el_el_stg>;
+    constexpr auto is_yukawa =
+      std::is_same_v<OperatorType, simde::type::el_el_yukawa>;
+    if constexpr(is_stg || is_yukawa) {
+        auto I_ann = I(I.make_annotation());
+        I_ann      = op.template at<0>().coefficient * I_ann;
+    }
     auto rv = results();
-    return my_pt::wrap_results(rv, simde::type::tensor(I));
+    return my_pt::wrap_results(rv, I);
 }
 
 template class Libint<2, simde::type::el_el_coulomb>;
@@ -87,4 +91,11 @@ template class Libint<3, simde::type::el_el_coulomb>;
 template class Libint<4, simde::type::el_el_coulomb>;
 template class Libint<2, simde::type::el_kinetic>;
 template class Libint<2, simde::type::el_nuc_coulomb>;
+template class Libint<2, simde::type::el_identity>;
+template class Libint<2, simde::type::el_el_stg>;
+template class Libint<3, simde::type::el_el_stg>;
+template class Libint<4, simde::type::el_el_stg>;
+template class Libint<2, simde::type::el_el_yukawa>;
+template class Libint<3, simde::type::el_el_yukawa>;
+template class Libint<4, simde::type::el_el_yukawa>;
 } // namespace integrals

@@ -22,25 +22,25 @@ struct LibintOp<simde::type::el_kinetic> {
     static constexpr auto value = libint2::Operator::kinetic;
 };
 
-// template<typename T>
-// struct LibintOp<property_types::ao_integrals::Overlap<T>> {
-//     static constexpr auto value = libint2::Operator::overlap;
-// };
+template<>
+struct LibintOp<simde::type::el_identity> {
+    static constexpr auto value = libint2::Operator::overlap;
+};
 
 template<>
 struct LibintOp<simde::type::el_nuc_coulomb> {
     static constexpr auto value = libint2::Operator::nuclear;
 };
 
-// template<typename T>
-// struct LibintOp<property_types::ao_integrals::STG<T>> {
-//     static constexpr auto value = libint2::Operator::stg;
-// };
+template<>
+struct LibintOp<simde::type::el_el_stg> {
+    static constexpr auto value = libint2::Operator::stg;
+};
 
-// template<typename T>
-// struct LibintOp<property_types::ao_integrals::Yukawa<T>> {
-//     static constexpr auto value = libint2::Operator::yukawa;
-// };
+template<>
+struct LibintOp<simde::type::el_el_yukawa> {
+    static constexpr auto value = libint2::Operator::yukawa;
+};
 
 } // namespace detail_
 

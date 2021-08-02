@@ -16,13 +16,13 @@ void load_libint_integrals(pluginplay::ModuleManager& mm) {
     mm.add_module<Libint<4, simde::type::el_el_coulomb>>("ERI4");
     mm.add_module<Libint<2, simde::type::el_kinetic>>("Kinetic");
     mm.add_module<Libint<2, simde::type::el_nuc_coulomb>>("Nuclear");
-    // mm.add_module<LibintOverlap<ElementType>>("Overlap");
-    // mm.add_module<LibintSTG2C<ElementType>>("STG2");
-    // mm.add_module<LibintSTG3C<ElementType>>("STG3");
-    // mm.add_module<LibintSTG4C<ElementType>>("STG4");
-    // mm.add_module<LibintYukawa2C<ElementType>>("Yukawa2");
-    // mm.add_module<LibintYukawa3C<ElementType>>("Yukawa3");
-    // mm.add_module<LibintYukawa4C<ElementType>>("Yukawa4");
+    mm.add_module<Libint<2, simde::type::el_identity>>("Overlap");
+    mm.add_module<Libint<2, simde::type::el_el_stg>>("STG2");
+    mm.add_module<Libint<3, simde::type::el_el_stg>>("STG3");
+    mm.add_module<Libint<4, simde::type::el_el_stg>>("STG4");
+    mm.add_module<Libint<2, simde::type::el_el_yukawa>>("Yukawa2");
+    mm.add_module<Libint<3, simde::type::el_el_yukawa>>("Yukawa3");
+    mm.add_module<Libint<4, simde::type::el_el_yukawa>>("Yukawa4");
 
     // mm.add_module<ScreenedERI3C<ElementType>>("ERI3 CS");
     // mm.add_module<ScreenedERI4C<ElementType>>("ERI4 CS");
@@ -60,36 +60,16 @@ void load_transformed_libint_integrals(pluginplay::ModuleManager& mm) {
 }
 
 void load_f12_integrals(pluginplay::ModuleManager& mm) {
-    // mm.add_module<f12::stg_correlation_factor_2c<T>>(
-    //   "STG 2 Center Correlation Factor");
-    // mm.add_module<f12::stg_correlation_factor_4c<T>>(
-    //   "STG 4 Center Correlation Factor");
-    // mm.add_module<f12::stg_correlation_factor_squared_4c<T>>(
-    //   "STG 4 Center Correlation Factor Squared");
     // mm.add_module<f12::stg_dfdr_squared_4c<T>>("STG 4 Center dfdr Squared");
-    // mm.add_module<f12::stg_gr2c<T>>("STG 2 Center GR");
-    // mm.add_module<f12::stg_gr4c<T>>("STG 4 Center GR");
 }
 
 void load_transformed_f12_integrals(pluginplay::ModuleManager& mm) {
-    // register_transformed_integral<pt::correlation_factor_4c<T>>(
-    //   mm, "STG 4 Center Correlation Factor");
-    // register_transformed_integral<pt::correlation_factor_squared_4c<T>>(
-    //   mm, "STG 4 Center Correlation Factor Squared");
     // register_transformed_integral<pt::dfdr_squared_4c<T>>(
     //   mm, "STG 4 Center dfdr Squared");
-    // register_transformed_integral<pt::gr4c<T>>(mm, "STG 4 Center GR");
 }
 
 void set_f12_integral_defaults(pluginplay::ModuleManager& mm) {
-    // mm.change_submod("STG 2 Center Correlation Factor", "STG kernel",
-    // "STG2"); mm.change_submod("STG 4 Center Correlation Factor", "STG
-    // kernel", "STG4"); mm.change_submod("STG 4 Center Correlation Factor
-    // Squared", "STG kernel",
-    //                  "STG4");
     // mm.change_submod("STG 4 Center dfdr Squared", "STG Kernel", "STG4");
-    // mm.change_submod("STG 2 Center GR", "Yukawa kernel", "Yukawa2");
-    // mm.change_submod("STG 4 Center GR", "Yukawa kernel", "Yukawa4");
 }
 
 void load_modules(pluginplay::ModuleManager& mm) {
@@ -97,12 +77,6 @@ void load_modules(pluginplay::ModuleManager& mm) {
     load_transformed_libint_integrals(mm);
     load_f12_integrals(mm);
     load_transformed_f12_integrals(mm);
-
-    // See TODO at top of file before enabling
-    // load_libint_integrals<float>(mm);
-    // load_transformed_integrals<float>(mm);
-    // load_f12_integrals<float>(mm);
-
     set_f12_integral_defaults(mm);
 }
 

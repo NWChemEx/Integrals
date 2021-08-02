@@ -30,12 +30,12 @@ extern template class Libint<3, simde::type::el_el_coulomb>;
 extern template class Libint<4, simde::type::el_el_coulomb>;
 extern template class Libint<2, simde::type::el_kinetic>;
 extern template class Libint<2, simde::type::el_nuc_coulomb>;
-// extern template class Libint<2, pt::overlap<double>>;
-// extern template class Libint<2, pt::stg2c<double>>;
-// extern template class Libint<3, pt::stg3c<double>>;
-// extern template class Libint<4, pt::stg4c<double>>;
-// extern template class Libint<2, pt::yukawa2c<double>>;
-// extern template class Libint<3, pt::yukawa3c<double>>;
-// extern template class Libint<4, pt::yukawa4c<double>>
+extern template class Libint<2, simde::type::el_identity>;
+extern template class Libint<2, simde::type::el_el_stg>;
+extern template class Libint<3, simde::type::el_el_stg>;
+extern template class Libint<4, simde::type::el_el_stg>;
+extern template class Libint<2, simde::type::el_el_yukawa>;
+extern template class Libint<3, simde::type::el_el_yukawa>;
+extern template class Libint<4, simde::type::el_el_yukawa>;
 
 } // namespace integrals
