@@ -8,7 +8,7 @@ namespace nwx_libint {
 template<typename T>
 using NWX_basis = libchemist::AOBasisSet<T>;
 using LI_basis  = libint2::BasisSet;
-using size      = integrals::type::size;
+using size      = std::size_t;
 
 /** @brief Converts a libchemist::AOBasisSet object @p bs to a LibInt2 BasisSet
  *         object

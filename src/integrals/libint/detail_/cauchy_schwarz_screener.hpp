@@ -1,5 +1,5 @@
 #pragma once
-#include "detail_/nwx_libint_factory.hpp"
+#include "nwx_libint_factory.hpp"
 #include <libint2.hpp>
 #include <tiledarray.h>
 
@@ -8,7 +8,7 @@ namespace nwx_libint {
 // Class to handle the Cauchy-Schwarz screening of an integral
 template<std::size_t NBases>
 struct CauchySchwarzScreener {
-    using size_type  = integrals::type::size;
+    using size_type  = std::size_t;
     using size_vec   = std::vector<size_type>;
     using basis_type = libint2::BasisSet;
     using basis_vec  = std::vector<basis_type>;

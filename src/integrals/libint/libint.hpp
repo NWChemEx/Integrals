@@ -1,5 +1,6 @@
 #pragma once
-#include <sde/module_base.hpp>
+#include <pluginplay/module_base.hpp>
+#include <simde/types.hpp>
 
 namespace integrals {
 

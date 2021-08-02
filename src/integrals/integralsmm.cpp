@@ -1,24 +1,21 @@
 #include "f12/f12.hpp"
+#include "integrals/integralsmm.hpp"
 #include "libint/cs_screened_integrals.hpp"
 #include "libint/libint.hpp"
 #include "libint/shellnorms.hpp"
 
 namespace integrals {
 
-// TODO: These keys are going to clobber each other if double and float are
-//       loaded.
-
-template<typename ElementType>
-void load_libint_integrals(sde::ModuleManager& mm) {
+void load_libint_integrals(pluginplay::ModuleManager& mm) {
     // mm.add_module<LibintDOI<ElementType>>("DOI");
     // mm.add_module<LibintEDipole<ElementType>>("EDipole");
     // mm.add_module<LibintEQuadrupole<ElementType>>("EQuadrupole");
     // mm.add_module<LibintEOctopole<ElementType>>("EOctopole");
-    mm.add_module<LibintERI2C<ElementType>>("ERI2");
-    mm.add_module<LibintERI3C<ElementType>>("ERI3");
-    mm.add_module<LibintERI4C<ElementType>>("ERI4");
-    mm.add_module<LibintKinetic<ElementType>>("Kinetic");
-    // mm.add_module<LibintNuclear<ElementType>>("Nuclear");
+    mm.add_module<Libint<2, simde::type::el_el_coulomb>>("ERI2");
+    mm.add_module<Libint<3, simde::type::el_el_coulomb>>("ERI3");
+    mm.add_module<Libint<4, simde::type::el_el_coulomb>>("ERI4");
+    mm.add_module<Libint<2, simde::type::el_kinetic>>("Kinetic");
+    mm.add_module<Libint<2, simde::type::el_nuc_coulomb>>("Nuclear");
     // mm.add_module<LibintOverlap<ElementType>>("Overlap");
     // mm.add_module<LibintSTG2C<ElementType>>("STG2");
     // mm.add_module<LibintSTG3C<ElementType>>("STG3");
@@ -44,8 +41,7 @@ void load_libint_integrals(sde::ModuleManager& mm) {
     // mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
 }
 
-template<typename T>
-void load_transformed_libint_integrals(sde::ModuleManager& mm) {
+void load_transformed_libint_integrals(pluginplay::ModuleManager& mm) {
     // register_transformed_integral<pt::edipole<T>>(mm, "EDipole");
     // register_transformed_integral<pt::equadrupole<T>>(mm, "EQuadrupole");
     // register_transformed_integral<pt::eoctopole<T>>(mm, "EOctopole");
@@ -63,8 +59,7 @@ void load_transformed_libint_integrals(sde::ModuleManager& mm) {
     // register_transformed_integral<pt::yukawa4c<T>>(mm, "Yukawa4");
 }
 
-template<typename T>
-void load_f12_integrals(sde::ModuleManager& mm) {
+void load_f12_integrals(pluginplay::ModuleManager& mm) {
     // mm.add_module<f12::stg_correlation_factor_2c<T>>(
     //   "STG 2 Center Correlation Factor");
     // mm.add_module<f12::stg_correlation_factor_4c<T>>(
@@ -76,8 +71,7 @@ void load_f12_integrals(sde::ModuleManager& mm) {
     // mm.add_module<f12::stg_gr4c<T>>("STG 4 Center GR");
 }
 
-template<typename T>
-void load_transformed_f12_integrals(sde::ModuleManager& mm) {
+void load_transformed_f12_integrals(pluginplay::ModuleManager& mm) {
     // register_transformed_integral<pt::correlation_factor_4c<T>>(
     //   mm, "STG 4 Center Correlation Factor");
     // register_transformed_integral<pt::correlation_factor_squared_4c<T>>(
@@ -87,8 +81,7 @@ void load_transformed_f12_integrals(sde::ModuleManager& mm) {
     // register_transformed_integral<pt::gr4c<T>>(mm, "STG 4 Center GR");
 }
 
-template<typename T>
-void set_f12_integral_defaults(sde::ModuleManager& mm) {
+void set_f12_integral_defaults(pluginplay::ModuleManager& mm) {
     // mm.change_submod("STG 2 Center Correlation Factor", "STG kernel",
     // "STG2"); mm.change_submod("STG 4 Center Correlation Factor", "STG
     // kernel", "STG4"); mm.change_submod("STG 4 Center Correlation Factor
@@ -99,18 +92,18 @@ void set_f12_integral_defaults(sde::ModuleManager& mm) {
     // mm.change_submod("STG 4 Center GR", "Yukawa kernel", "Yukawa4");
 }
 
-void load_modules(sde::ModuleManager& mm) {
-    load_libint_integrals<double>(mm);
-    load_transformed_libint_integrals<double>(mm);
-    load_f12_integrals<double>(mm);
-    load_transformed_f12_integrals<double>(mm);
+void load_modules(pluginplay::ModuleManager& mm) {
+    load_libint_integrals(mm);
+    load_transformed_libint_integrals(mm);
+    load_f12_integrals(mm);
+    load_transformed_f12_integrals(mm);
 
     // See TODO at top of file before enabling
     // load_libint_integrals<float>(mm);
     // load_transformed_integrals<float>(mm);
     // load_f12_integrals<float>(mm);
 
-    set_f12_integral_defaults<double>(mm);
+    set_f12_integral_defaults(mm);
 }
 
 } // namespace integrals

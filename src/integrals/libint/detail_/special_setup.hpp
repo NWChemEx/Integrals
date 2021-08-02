@@ -1,4 +1,5 @@
 #pragma once
+#include <simde/types.hpp>
 
 namespace integrals {
 
@@ -12,9 +13,9 @@ template<>
 struct SpecialSetup<simde::type::el_nuc_coulomb> {
     template<typename FillerType>
     static auto setup(FillerType& fill, const simde::type::el_nuc_coulomb& op) {
-        const auto& nuclei = op.get<1>();
+        const auto& nuclei = op.at<1>();
         std::vector<std::pair<double, std::array<double, 3>>> qs;
-        for(const auto& ai : mol)
+        for(const auto& ai : nuclei)
             qs.emplace_back(static_cast<const double&>(ai.Z()), ai.coords());
         fill.factory.qs = qs;
     }

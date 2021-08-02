@@ -12,12 +12,12 @@ struct LibintOp;
 //     static constexpr auto value = libint2::Operator::delta;
 // };
 
-template<typename T>
+template<>
 struct LibintOp<simde::type::el_el_coulomb> {
     static constexpr auto value = libint2::Operator::coulomb;
 };
 
-template<typename T>
+template<>
 struct LibintOp<simde::type::el_kinetic> {
     static constexpr auto value = libint2::Operator::kinetic;
 };
@@ -27,7 +27,7 @@ struct LibintOp<simde::type::el_kinetic> {
 //     static constexpr auto value = libint2::Operator::overlap;
 // };
 
-template<typename T>
+template<>
 struct LibintOp<simde::type::el_nuc_coulomb> {
     static constexpr auto value = libint2::Operator::nuclear;
 };

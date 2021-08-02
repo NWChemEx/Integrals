@@ -35,4 +35,4 @@
 // extern template class CauchySchwarzScreened<pt::yukawa3c<double>>;
 // extern template class CauchySchwarzScreened<pt::yukawa4c<double>>;
 
-} // namespace integrals
+//} // namespace integrals
