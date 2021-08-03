@@ -7,10 +7,10 @@ namespace detail_ {
 template<typename T>
 struct LibintOp;
 
-// template<typename T>
-// struct LibintOp<pt::doi<T>> {
-//     static constexpr auto value = libint2::Operator::delta;
-// };
+template<>
+struct LibintOp<simde::type::el_el_delta> {
+    static constexpr auto value = libint2::Operator::delta;
+};
 
 template<>
 struct LibintOp<simde::type::el_el_coulomb> {

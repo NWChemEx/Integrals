@@ -1,6 +1,7 @@
 #include "f12/f12.hpp"
 #include "integrals/integralsmm.hpp"
 #include "libint/cs_screened_integrals.hpp"
+#include "libint/emultipole.hpp"
 #include "libint/libint.hpp"
 #include "libint/shellnorms.hpp"
 
@@ -8,9 +9,9 @@ namespace integrals {
 
 void load_libint_integrals(pluginplay::ModuleManager& mm) {
     // mm.add_module<LibintDOI<ElementType>>("DOI");
-    // mm.add_module<LibintEDipole<ElementType>>("EDipole");
-    // mm.add_module<LibintEQuadrupole<ElementType>>("EQuadrupole");
-    // mm.add_module<LibintEOctopole<ElementType>>("EOctopole");
+    mm.add_module<LibintDipole>("EDipole");
+    mm.add_module<LibintQuadrupole>("EQuadrupole");
+    mm.add_module<LibintOctupole>("EOctupole");
     mm.add_module<Libint<2, simde::type::el_el_coulomb>>("ERI2");
     mm.add_module<Libint<3, simde::type::el_el_coulomb>>("ERI3");
     mm.add_module<Libint<4, simde::type::el_el_coulomb>>("ERI4");

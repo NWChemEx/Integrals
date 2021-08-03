@@ -59,8 +59,10 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
     auto tile_size   = inputs.at("Tile Size").value<size_vector>();
     auto atom_ranges = inputs.at("Atom Tile Groups").value<pair_vector>();
 
-    auto aos                 = unpack_bases<N>(inputs);
-    auto op                  = inputs.at("op").value<const OperatorType&>();
+    auto aos        = unpack_bases<N>(inputs);
+    bool is_overlap = std::is_same_v<OperatorType, simde::type::el_identity>;
+    auto op_str     = is_overlap ? "[I_1]" : "op";
+    auto op         = inputs.at(op_str).value<const OperatorType&>();
     constexpr auto libint_op = integrals::op_v<OperatorType>;
     auto trange            = nwx_TA::select_tiling(aos, tile_size, atom_ranges);
     using tensor_type      = TA::TSpArrayD;
