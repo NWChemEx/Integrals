@@ -28,7 +28,6 @@
 
 // template<typename PropType>
 // TEMPLATED_MODULE_CTOR(STGdfdrSquared, PropType) {
-//     using element_type       = element_t<PropType>;
 //     constexpr auto n_centers = n_centers_v<PropType>;
 //     using n_center_type = NCenter<n_centers, type::ao_space_t<element_type>>;
 //     using kernel_type   = STG<n_center_type>;

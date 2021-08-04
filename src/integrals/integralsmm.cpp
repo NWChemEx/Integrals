@@ -8,7 +8,7 @@
 namespace integrals {
 
 void load_libint_integrals(pluginplay::ModuleManager& mm) {
-    // mm.add_module<LibintDOI<ElementType>>("DOI");
+    mm.add_module<LibintDOI>("DOI");
     mm.add_module<LibintDipole>("EDipole");
     mm.add_module<LibintQuadrupole>("EQuadrupole");
     mm.add_module<LibintOctupole>("EOctupole");
@@ -24,22 +24,21 @@ void load_libint_integrals(pluginplay::ModuleManager& mm) {
     mm.add_module<Libint<2, simde::type::el_el_yukawa>>("Yukawa2");
     mm.add_module<Libint<3, simde::type::el_el_yukawa>>("Yukawa3");
     mm.add_module<Libint<4, simde::type::el_el_yukawa>>("Yukawa4");
-
-    // mm.add_module<ScreenedERI3C<ElementType>>("ERI3 CS");
-    // mm.add_module<ScreenedERI4C<ElementType>>("ERI4 CS");
-    // mm.add_module<ScreenedSTG3C<ElementType>>("STG3 CS");
-    // mm.add_module<ScreenedSTG4C<ElementType>>("STG4 CS");
-    // mm.add_module<ScreenedYukawa3C<ElementType>>("Yukawa3 CS");
-    // mm.add_module<ScreenedYukawa4C<ElementType>>("Yukawa4 CS");
-    // mm.add_module<ShellNormCoulomb<ElementType>>("Shell Norms Coulomb");
-    // mm.add_module<ShellNormSTG<ElementType>>("Shell Norms STG");
-    // mm.add_module<ShellNormYukawa<ElementType>>("Shell Norms Yukawa");
-    // mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
-    // mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
-    // mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
-    // mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
-    // mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
-    // mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
+    mm.add_module<CauchySchwarzScreened<simde::ERI3>>("ERI3 CS");
+    mm.add_module<CauchySchwarzScreened<simde::ERI4>>("ERI4 CS");
+    mm.add_module<CauchySchwarzScreened<simde::STG3>>("STG3 CS");
+    mm.add_module<CauchySchwarzScreened<simde::STG4>>("STG4 CS");
+    mm.add_module<CauchySchwarzScreened<simde::Yukawa3>>("Yukawa3 CS");
+    mm.add_module<CauchySchwarzScreened<simde::Yukawa4>>("Yukawa4 CS");
+    mm.add_module<ShellNormCoulomb<double>>("Shell Norms Coulomb");
+    mm.add_module<ShellNormSTG<double>>("Shell Norms STG");
+    mm.add_module<ShellNormYukawa<double>>("Shell Norms Yukawa");
+    mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
+    mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
 }
 
 void load_transformed_libint_integrals(pluginplay::ModuleManager& mm) {
@@ -61,7 +60,8 @@ void load_transformed_libint_integrals(pluginplay::ModuleManager& mm) {
 }
 
 void load_f12_integrals(pluginplay::ModuleManager& mm) {
-    // mm.add_module<f12::stg_dfdr_squared_4c<T>>("STG 4 Center dfdr Squared");
+    mm.add_module<Libint<4, simde::type::el_el_f12_commutator>>(
+      "STG 4 Center dfdr Squared");
 }
 
 void load_transformed_f12_integrals(pluginplay::ModuleManager& mm) {

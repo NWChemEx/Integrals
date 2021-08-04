@@ -38,6 +38,11 @@ struct LibintOp<simde::type::el_el_stg> {
 };
 
 template<>
+struct LibintOp<simde::type::el_el_f12_commutator> {
+    static constexpr auto value = libint2::Operator::stg;
+};
+
+template<>
 struct LibintOp<simde::type::el_el_yukawa> {
     static constexpr auto value = libint2::Operator::yukawa;
 };

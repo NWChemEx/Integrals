@@ -62,7 +62,7 @@ if("${BUILD_TESTING}")
     cpp_add_tests(
         test_integrals
         SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/tests"
-        INCLUDE_DIR "${project_inc_dir}"
+        INCLUDE_DIR "${project_src_dir}"
         DEPENDS Catch2::Catch2 nwx::mokup ${PROJECT_NAME}
     )
 endif()

@@ -39,4 +39,14 @@ struct SpecialSetup<simde::type::el_el_yukawa> {
     }
 };
 
+template<>
+struct SpecialSetup<simde::type::el_el_f12_commutator> {
+    template<typename FillerType>
+    static auto setup(FillerType& fill,
+                      const simde::type::el_el_f12_commutator& op) {
+        const auto& stg           = op.at<0>();
+        fill.factory.stg_exponent = 2.0 * stg.exponent;
+    }
+};
+
 } // namespace integrals

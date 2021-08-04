@@ -1,7 +1,7 @@
 #include "detail_/fill_ND_functor.hpp"
 #include "detail_/nwx_TA_utils.hpp"
 #include "detail_/nwx_libint.hpp"
-#include "emultipole.hpp"
+#include "libint.hpp"
 #include <simde/tensor_representation/tensor_representation.hpp>
 
 // TODO: Unify implementations. Maybe with recursion?
@@ -29,7 +29,10 @@ MODULE_CTOR(LibintDipole) {
     satisfies_property_type<overlap_pt>();
     satisfies_property_type<dipole_pt>();
 
-    change_input("[I_1]").change(identity_op{});
+    identity_op I;
+    dipole_op r;
+    change_input(I.as_string()).change(I);
+    change_input(r.as_string()).change(r);
 
     add_input<double>("Threshold").set_default(1.0E-16);
     add_input<size_vector>("Tile Size").set_default(size_vector{180});
@@ -97,9 +100,13 @@ MODULE_CTOR(LibintQuadrupole) {
     satisfies_property_type<dipole_pt>();
     satisfies_property_type<quadrupole_pt>();
 
-    change_input("[I_1]").change(identity_op{});
-    change_input("[r_1]^2").change(quadrupole_op{});
-    change_input("[r_1]").change(dipole_op{});
+    identity_op I;
+    dipole_op r;
+    quadrupole_op r2;
+
+    change_input(I.as_string()).change(I);
+    change_input(r.as_string()).change(r);
+    change_input(r2.as_string()).change(r2);
 
     add_input<double>("Threshold").set_default(1.0E-16);
     add_input<size_vector>("Tile Size").set_default(size_vector{180});
@@ -170,10 +177,15 @@ MODULE_CTOR(LibintOctupole) {
     satisfies_property_type<quadrupole_pt>();
     satisfies_property_type<octupole_pt>();
 
-    change_input("[I_1]").change(identity_op{});
-    change_input("[r_1]^2").change(quadrupole_op{});
-    change_input("[r_1]").change(dipole_op{});
-    change_input("[r_1]^3").change(octupole_op{});
+    identity_op I;
+    dipole_op r;
+    quadrupole_op r2;
+    octupole_op r3;
+
+    change_input(I.as_string()).change(I);
+    change_input(r.as_string()).change(r);
+    change_input(r2.as_string()).change(r2);
+    change_input(r3.as_string()).change(r3);
 
     add_input<double>("Threshold").set_default(1.0E-16);
     add_input<size_vector>("Tile Size").set_default(size_vector{180});

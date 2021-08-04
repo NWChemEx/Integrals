@@ -3,6 +3,7 @@
 #include "detail_/nwx_libint.hpp"
 #include "detail_/special_setup.hpp"
 #include "detail_/type_traits.hpp"
+#include "detail_/unpack_bases.hpp"
 #include "libint.hpp"
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
 
@@ -13,31 +14,6 @@ using size_vector = std::vector<size_type>;
 using pair_vector = std::vector<std::pair<size_type, size_type>>;
 
 namespace integrals {
-namespace {
-
-template<std::size_t N, typename ModuleInputs>
-auto unpack_bases(const ModuleInputs& inputs) {
-    using ao_space_ref = const ao_space_t&;
-    std::vector<ao_space_t> aos(N);
-    if constexpr(N == 2) {
-        aos[0] = inputs.at("bra").template value<ao_space_t>();
-        aos[1] = inputs.at("ket").template value<ao_space_t>();
-    } else if constexpr(N == 3) {
-        aos[0] = inputs.at("bra").template value<ao_space_t>();
-        aos[1] = inputs.at("ket 1").template value<ao_space_t>();
-        aos[2] = inputs.at("ket 2").template value<ao_space_t>();
-    } else if constexpr(N == 4) {
-        aos[0] = inputs.at("bra 1").template value<ao_space_t>();
-        aos[1] = inputs.at("bra 2").template value<ao_space_t>();
-        aos[2] = inputs.at("ket 1").template value<ao_space_t>();
-        aos[3] = inputs.at("ket 2").template value<ao_space_t>();
-    }
-    std::vector<libchemist::AOBasisSet<double>> rv;
-    for(auto i = 0u; i < N; ++i) rv.emplace_back(aos[i].basis_set());
-    return rv;
-}
-
-} // namespace
 
 template<std::size_t N, typename OperatorType>
 TEMPLATED_MODULE_CTOR(Libint, N, OperatorType) {
@@ -59,10 +35,9 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
     auto tile_size   = inputs.at("Tile Size").value<size_vector>();
     auto atom_ranges = inputs.at("Atom Tile Groups").value<pair_vector>();
 
-    auto aos        = unpack_bases<N>(inputs);
-    bool is_overlap = std::is_same_v<OperatorType, simde::type::el_identity>;
-    auto op_str     = is_overlap ? "[I_1]" : "op";
-    auto op         = inputs.at(op_str).value<const OperatorType&>();
+    auto aos    = detail_::unpack_bases<N>(inputs);
+    auto op_str = OperatorType().as_string();
+    auto op     = inputs.at(op_str).template value<const OperatorType&>();
     constexpr auto libint_op = integrals::op_v<OperatorType>;
     auto trange            = nwx_TA::select_tiling(aos, tile_size, atom_ranges);
     using tensor_type      = TA::TSpArrayD;
@@ -100,4 +75,5 @@ template class Libint<4, simde::type::el_el_stg>;
 template class Libint<2, simde::type::el_el_yukawa>;
 template class Libint<3, simde::type::el_el_yukawa>;
 template class Libint<4, simde::type::el_el_yukawa>;
+template class Libint<4, simde::type::el_el_f12_commutator>;
 } // namespace integrals

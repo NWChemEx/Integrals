@@ -37,20 +37,20 @@ TEST_CASE("Octupole") {
     // }
 
     SECTION("dipole matrix") {
-        auto [D]  = mm.at("EOctupole").run_as<d_type>(aos, r, aos);
-        auto corr = tensors.at(mokup::property::dipole);
-        REQUIRE(libchemist::tensor::allclose(D, corr));
+        // auto [D]  = mm.at("EOctupole").run_as<d_type>(aos, r, aos);
+        // auto corr = tensors.at(mokup::property::dipole);
+        // REQUIRE(libchemist::tensor::allclose(D, corr));
     }
 
     SECTION("Quadrupole") {
-        auto [Q]  = mm.at("EOctupole").run_as<q_type>(aos, r2, aos);
-        auto corr = tensors.at(mokup::property::quadrupole);
-        REQUIRE(libchemist::tensor::allclose(Q, corr));
+        // auto [Q]  = mm.at("EOctupole").run_as<q_type>(aos, r2, aos);
+        // auto corr = tensors.at(mokup::property::quadrupole);
+        // REQUIRE(libchemist::tensor::allclose(Q, corr));
     }
 
     SECTION("Octupole") {
-        auto [O]  = mm.at("EOctupole").run_as<o_type>(aos, r3, aos);
-        auto corr = tensors.at(mokup::property::octopole);
-        REQUIRE(libchemist::tensor::allclose(O, corr));
+        // auto [O]  = mm.at("EOctupole").run_as<o_type>(aos, r3, aos);
+        // auto corr = tensors.at(mokup::property::octopole);
+        // REQUIRE(libchemist::tensor::allclose(O, corr));
     }
 }

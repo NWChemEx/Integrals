@@ -7,7 +7,11 @@ namespace integrals {
 template<std::size_t N, typename OperatorType>
 DECLARE_MODULE(Libint);
 
-// extern template class Libint<2, simde::type::el_el_delta>;
+DECLARE_MODULE(LibintDipole);
+DECLARE_MODULE(LibintQuadrupole);
+DECLARE_MODULE(LibintOctupole);
+DECLARE_MODULE(LibintDOI);
+
 extern template class Libint<2, simde::type::el_el_coulomb>;
 extern template class Libint<3, simde::type::el_el_coulomb>;
 extern template class Libint<4, simde::type::el_el_coulomb>;
@@ -20,5 +24,8 @@ extern template class Libint<4, simde::type::el_el_stg>;
 extern template class Libint<2, simde::type::el_el_yukawa>;
 extern template class Libint<3, simde::type::el_el_yukawa>;
 extern template class Libint<4, simde::type::el_el_yukawa>;
+extern template class Libint<2, simde::type::el_el_f12_commutator>;
+extern template class Libint<3, simde::type::el_el_f12_commutator>;
+extern template class Libint<4, simde::type::el_el_f12_commutator>;
 
 } // namespace integrals
