@@ -1,89 +1,79 @@
-#include "../unpack_basis_sets.hpp"
-#include "fill_ND_functor.hpp"
-#include "integrals/types.hpp"
+#include "detail_/fill_ND_functor.hpp"
+#include "detail_/nwx_TA_utils.hpp"
+#include "detail_/nwx_libint.hpp"
+#include "detail_/special_setup.hpp"
+#include "detail_/type_traits.hpp"
+#include "detail_/unpack_bases.hpp"
 #include "libint.hpp"
-#include "nwx_TA_utils.hpp"
-#include "nwx_libint.hpp"
-#include "traits.hpp"
-#include <libchemist/ta_helpers/ta_hashers.hpp>
-#include <property_types/ao_integrals/type_traits.hpp>
-#include <stdexcept>
+#include <simde/tensor_representation/ao_tensor_representation.hpp>
+
+using ao_space_t  = simde::type::ao_space;
+using ao_ref_wrap = std::reference_wrapper<const ao_space_t>;
+using size_type   = std::size_t;
+using size_vector = std::vector<size_type>;
+using pair_vector = std::vector<std::pair<size_type, size_type>>;
 
 namespace integrals {
 
-template<typename PropType>
-TEMPLATED_MODULE_CTOR(Libint, PropType) {
-    using element_type = double; // TODO: Get from PropType
-    using type::pair_vector;
-    using type::size_vector;
+template<std::size_t N, typename OperatorType>
+TEMPLATED_MODULE_CTOR(Libint, N, OperatorType) {
+    using my_pt = simde::AOTensorRepresentation<N, OperatorType>;
 
-    description("Computes an in-core integral with libint");
-    satisfies_property_type<PropType>();
+    satisfies_property_type<my_pt>();
 
-    add_input<element_type>("Threshold").set_default(1.0E-16);
+    add_input<double>("Threshold").set_default(1.0E-16);
     add_input<size_vector>("Tile Size").set_default(size_vector{180});
     add_input<pair_vector>("Atom Tile Groups").set_default(pair_vector{});
 }
 
-template<typename PropType>
-TEMPLATED_MODULE_RUN(Libint, PropType) {
-    using element_type = double; // TODO: Get from PropType
-    using tensor_type  = type::tensor<element_type>;
-    using value_type   = typename tensor_type::value_type;
-    using type::pair_vector;
-    using type::size_vector;
+template<std::size_t N, typename OperatorType>
+TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
+    using my_pt = simde::AOTensorRepresentation<N, OperatorType>;
 
     auto& world      = TA::get_default_world(); // TODO: Get from runtime
-    auto thresh      = inputs.at("Threshold").value<element_type>();
+    auto thresh      = inputs.at("Threshold").value<double>();
     auto tile_size   = inputs.at("Tile Size").value<size_vector>();
     auto atom_ranges = inputs.at("Atom Tile Groups").value<pair_vector>();
 
-    constexpr auto n_centers =
-      property_types::ao_integrals::n_centers_v<PropType>;
-    constexpr auto op = op_v<PropType>;
+    auto aos    = detail_::unpack_bases<N>(inputs);
+    auto op_str = OperatorType().as_string();
+    auto op     = inputs.at(op_str).template value<const OperatorType&>();
+    constexpr auto libint_op = integrals::op_v<OperatorType>;
+    auto trange            = nwx_TA::select_tiling(aos, tile_size, atom_ranges);
+    using tensor_type      = TA::TSpArrayD;
+    using value_type       = typename tensor_type::value_type;
+    auto fill              = nwx_TA::FillNDFunctor<value_type, libint_op, N>();
+    const double cs_thresh = 0.0; // Just to satisfy initialize
+    fill.initialize(nwx_libint::make_basis_sets(aos), 0, thresh, cs_thresh);
 
-    auto bs = unpack_basis_sets<PropType>(inputs);
-    if constexpr(property_types::ao_integrals::is_doi_v<PropType>) {
-        decltype(bs){bs[0], bs[0], bs[1], bs[1]}.swap(bs);
+    SpecialSetup<OperatorType>::setup(fill, op);
+
+    auto I_ta = TiledArray::make_array<tensor_type>(world, trange, fill);
+    simde::type::tensor I(I_ta);
+
+    constexpr auto is_stg =
+      std::is_same_v<OperatorType, simde::type::el_el_stg>;
+    constexpr auto is_yukawa =
+      std::is_same_v<OperatorType, simde::type::el_el_yukawa>;
+    if constexpr(is_stg || is_yukawa) {
+        auto I_ann = I(I.make_annotation());
+        I_ann      = op.template at<0>().coefficient * I_ann;
     }
-    auto trange = nwx_TA::select_tiling(bs, tile_size, atom_ranges);
-    auto fill   = nwx_TA::FillNDFunctor<value_type, op, n_centers>();
-    const std::size_t deriv = 0; // TODO: Template on derivative order
-    const element_type cs_thresh = 0.0; // Just to satisfy initialize
-    fill.initialize(nwx_libint::make_basis_sets(bs), deriv, thresh, cs_thresh);
-
-    // Take care of any special parameters the fill function needs
-    // (should probably we done inside FillNDFunctor to encapsulate the setup)
-    if constexpr(property_types::ao_integrals::is_nuclear_v<PropType>) {
-        using mol_type  = const libchemist::Molecule&;
-        const auto& mol = inputs.at("Molecule").value<mol_type>();
-        std::vector<std::pair<double, std::array<double, 3>>> qs;
-        for(const auto& ai : mol)
-            qs.emplace_back(static_cast<const double&>(ai.Z()), ai.coords());
-        fill.factory.qs = qs;
-    } else if constexpr(property_types::ao_integrals::is_stg_v<PropType> ||
-                        property_types::ao_integrals::is_yukawa_v<PropType>) {
-        auto gamma = inputs.at("STG Exponent").value<element_type>();
-        fill.factory.stg_exponent = gamma;
-    }
-
-    auto I  = TiledArray::make_array<tensor_type>(world, trange, fill);
     auto rv = results();
-    return PropType::wrap_results(rv, I);
+    return my_pt::wrap_results(rv, I);
 }
 
-template class Libint<pt::doi<double>>;
-template class Libint<pt::eri2c<double>>;
-template class Libint<pt::eri3c<double>>;
-template class Libint<pt::eri4c<double>>;
-template class Libint<pt::kinetic<double>>;
-template class Libint<pt::nuclear<double>>;
-template class Libint<pt::overlap<double>>;
-template class Libint<pt::stg2c<double>>;
-template class Libint<pt::stg3c<double>>;
-template class Libint<pt::stg4c<double>>;
-template class Libint<pt::yukawa2c<double>>;
-template class Libint<pt::yukawa3c<double>>;
-template class Libint<pt::yukawa4c<double>>;
-
+template class Libint<2, simde::type::el_el_coulomb>;
+template class Libint<3, simde::type::el_el_coulomb>;
+template class Libint<4, simde::type::el_el_coulomb>;
+template class Libint<2, simde::type::el_kinetic>;
+template class Libint<2, simde::type::el_nuc_coulomb>;
+template class Libint<2, simde::type::el_identity>;
+template class Libint<2, simde::type::el_el_stg>;
+template class Libint<3, simde::type::el_el_stg>;
+template class Libint<4, simde::type::el_el_stg>;
+template class Libint<2, simde::type::el_el_yukawa>;
+template class Libint<3, simde::type::el_el_yukawa>;
+template class Libint<4, simde::type::el_el_yukawa>;
+template class Libint<4, simde::type::el_el_f12_commutator>;
 } // namespace integrals

@@ -10,10 +10,10 @@ namespace nwx_TA {
 
 template<typename val_type, libint2::Operator op, std::size_t NBases>
 struct FillNDFunctor {
-    using size_type    = integrals::type::size;
+    using size_type    = std::size_t;
     using basis_vec    = std::vector<libint2::BasisSet>;
     using size_vec     = std::vector<size_type>;
-    using element_type = typename val_type::numeric_type;
+    using element_type = double;
 
     // The collected LibInt2 basis sets needed for the integral
     basis_vec LIBasis_sets;

@@ -6,7 +6,8 @@ namespace nwx_libint {
 
 // Factory class that produces Libint2 engines.
 struct LibintFactory {
-    using size_type = integrals::type::size;
+    /// TODO: Set off of Libint
+    using size_type = std::size_t;
 
     // general parameters of the Libint engine
     size_type max_nprims = 0;

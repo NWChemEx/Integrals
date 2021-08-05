@@ -1,61 +1,66 @@
-#include "fill_ND_functor.hpp"
-#include "integrals/types.hpp"
+#include "detail_/fill_ND_functor.hpp"
+#include "detail_/nwx_TA_utils.hpp"
+#include "detail_/nwx_libint.hpp"
 #include "libint.hpp"
-#include "nwx_TA_utils.hpp"
-#include "nwx_libint.hpp"
-#include "traits.hpp"
-#include <libchemist/ta_helpers/einsum/einsum.hpp>
+#include <simde/tensor_representation/tensor_representation.hpp>
 
 // TODO: Unify implementations. Maybe with recursion?
 
 namespace integrals {
 
-template<typename T>
-TEMPLATED_MODULE_CTOR(Libint, pt::edipole<T>) {
-    using element_type = T;
-    using type::pair_vector;
-    using type::size_vector;
+using size_type   = std::size_t;
+using size_vector = std::vector<size_type>;
+using pair_vector = std::vector<std::pair<size_type, size_type>>;
+using tensor_type = TA::TSpArrayD;
+using value_type  = typename tensor_type::value_type;
 
-    description("Computes an in-core integral with libint");
-    satisfies_property_type<pt::overlap<T>>();
-    satisfies_property_type<pt::edipole<T>>();
+using identity_op   = simde::type::el_identity;
+using dipole_op     = simde::type::el_dipole;
+using quadrupole_op = simde::type::el_quadrupole;
+using octupole_op   = simde::type::el_octupole;
 
-    add_input<element_type>("Threshold").set_default(1.0E-16);
+using overlap_pt    = simde::AOTensorRepresentation<2, identity_op>;
+using dipole_pt     = simde::AOTensorRepresentation<2, dipole_op>;
+using quadrupole_pt = simde::AOTensorRepresentation<2, quadrupole_op>;
+using octupole_pt   = simde::AOTensorRepresentation<2, octupole_op>;
+
+MODULE_CTOR(LibintDipole) {
+    description("Computes in-core dipole integrals with libint");
+    satisfies_property_type<overlap_pt>();
+    satisfies_property_type<dipole_pt>();
+
+    identity_op I;
+    dipole_op r;
+    change_input(I.as_string()).change(I);
+    change_input(r.as_string()).change(r);
+
+    add_input<double>("Threshold").set_default(1.0E-16);
     add_input<size_vector>("Tile Size").set_default(size_vector{180});
-    add_input<element_type>("Screening Threshold").set_default(0.0);
+    add_input<double>("Screening Threshold").set_default(0.0);
     add_input<pair_vector>("Atom Tile Groups").set_default(pair_vector{});
 }
 
-template<typename T>
-TEMPLATED_MODULE_RUN(Libint, pt::edipole<T>) {
-    using element_type = T;
-    using edipole_pt   = pt::edipole<T>;
-    using overlap_pt   = pt::overlap<T>;
-    using tensor_type  = type::tensor<T>;
-    using value_type   = typename tensor_type::value_type;
-    using type::pair_vector;
-    using type::size_vector;
-
-    auto [origin, bra_space, ket_space] = edipole_pt::unwrap_inputs(inputs);
-
-    auto& bra         = bra_space.basis_set();
-    auto& ket         = ket_space.basis_set();
-    std::size_t deriv = 0;
-
-    auto thresh      = inputs.at("Threshold").value<element_type>();
+MODULE_RUN(LibintDipole) {
+    auto [bra_space, r, ket_space] = dipole_pt::unwrap_inputs(inputs);
+    auto thresh                    = inputs.at("Threshold").value<double>();
     auto tile_size   = inputs.at("Tile Size").value<size_vector>();
-    auto cs_thresh   = inputs.at("Screening Threshold").value<element_type>();
+    auto cs_thresh   = inputs.at("Screening Threshold").value<double>();
     auto atom_ranges = inputs.at("Atom Tile Groups").value<pair_vector>();
-    auto& world      = TA::get_default_world();
 
-    auto fill =
-      nwx_TA::FillNDFunctor<value_type, libint2::Operator::emultipole1, 2>();
-    fill.initialize(nwx_libint::make_basis_sets({bra, ket}), deriv, thresh,
-                    cs_thresh);
-    fill.factory.origin = origin;
+    auto& bra   = bra_space.basis_set();
+    auto& ket   = ket_space.basis_set();
+    auto& world = TA::get_default_world();
 
-    auto nopers =
-      libint2::operator_traits<libint2::Operator::emultipole1>::nopers;
+    constexpr auto libint_op = libint2::Operator::emultipole1;
+
+    auto fill = nwx_TA::FillNDFunctor<value_type, libint_op, 2>();
+    auto bs   = nwx_libint::make_basis_sets({bra, ket});
+    fill.initialize(bs, 0, thresh, cs_thresh);
+
+    for(size_type i = 0; i < 3; ++i)
+        fill.factory.origin[i] = r.gauge_origin().coord(i);
+
+    auto nopers          = libint2::operator_traits<libint_op>::nopers;
     auto component_range = nwx_TA::make_tiled_range(nopers, nopers);
     auto trange = nwx_TA::select_tiling({bra, ket}, tile_size, atom_ranges,
                                         {component_range});
@@ -67,76 +72,68 @@ TEMPLATED_MODULE_RUN(Libint, pt::edipole<T>) {
     X      = TA::retile(X, trange);
 
     // Separate out components
-    tensor_type S, D;
     auto upper      = trange.tiles_range().upbound();
     using size_type = long;
     using il_type   = std::initializer_list<size_type>;
-    il_type lo_S{0, 0, 0}, hi_S{1, upper[1], upper[2]};
+    tensor_type D;
     il_type lo_D{1, 0, 0}, hi_D{2, upper[1], upper[2]};
-
-    S("i,j,k") = X("i,j,k").block(lo_S, hi_S);
     D("i,j,k") = X("i,j,k").block(lo_D, hi_D);
 
+    // tensor_type S;
+    // il_type lo_S{0, 0, 0}, hi_S{1, upper[1], upper[2]};
+    // S("i,j,k") = X("i,j,k").block(lo_S, hi_S);
+
     // Make overlap 2D
-    auto I = TA::diagonal_array<tensor_type, element_type>(
-      world, TA::TiledRange{S.trange().dim(0)});
-    S = libchemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
+    // auto I_trange = TA::TiledRange{S.trange().dim(0)};
+    // auto I        = TA::diagonal_array<tensor_type, double>(world, I_trange);
+    // S("j,k")      = S("i,j,k") * I("i");
 
     auto rv = results();
-    rv      = overlap_pt::wrap_results(rv, S);
-    rv      = edipole_pt::wrap_results(rv, D);
+    // rv      = overlap_pt::wrap_results(rv, simde::type::tensor(S));
+    rv = dipole_pt::wrap_results(rv, simde::type::tensor(D));
     return rv;
 }
 
-template<typename T>
-TEMPLATED_MODULE_CTOR(Libint, pt::equadrupole<T>) {
-    using element_type = T;
-    using type::pair_vector;
-    using type::size_vector;
-
+MODULE_CTOR(LibintQuadrupole) {
     description("Computes an in-core integral with libint");
-    satisfies_property_type<pt::overlap<T>>();
-    satisfies_property_type<pt::edipole<T>>();
-    satisfies_property_type<pt::equadrupole<T>>();
+    satisfies_property_type<overlap_pt>();
+    satisfies_property_type<dipole_pt>();
+    satisfies_property_type<quadrupole_pt>();
 
-    add_input<element_type>("Threshold").set_default(1.0E-16);
+    identity_op I;
+    dipole_op r;
+    quadrupole_op r2;
+
+    change_input(I.as_string()).change(I);
+    change_input(r.as_string()).change(r);
+    change_input(r2.as_string()).change(r2);
+
+    add_input<double>("Threshold").set_default(1.0E-16);
     add_input<size_vector>("Tile Size").set_default(size_vector{180});
-    add_input<element_type>("Screening Threshold").set_default(0.0);
+    add_input<double>("Screening Threshold").set_default(0.0);
     add_input<pair_vector>("Atom Tile Groups").set_default(pair_vector{});
 }
 
-template<typename T>
-TEMPLATED_MODULE_RUN(Libint, pt::equadrupole<T>) {
-    using element_type   = T;
-    using overlap_pt     = pt::overlap<T>;
-    using edipole_pt     = pt::edipole<T>;
-    using equadrupole_pt = pt::equadrupole<T>;
-    using eoctopole_pt   = pt::eoctopole<T>;
-    using tensor_type    = type::tensor<T>;
-    using value_type     = typename tensor_type::value_type;
-    using type::pair_vector;
-    using type::size_vector;
-
-    auto [origin, bra_space, ket_space] = equadrupole_pt::unwrap_inputs(inputs);
-
-    auto& bra         = bra_space.basis_set();
-    auto& ket         = ket_space.basis_set();
-    std::size_t deriv = 0;
-
-    auto thresh      = inputs.at("Threshold").value<element_type>();
+MODULE_RUN(LibintQuadrupole) {
+    auto [bra_space, r2, ket_space] = quadrupole_pt::unwrap_inputs(inputs);
+    auto thresh                     = inputs.at("Threshold").value<double>();
     auto tile_size   = inputs.at("Tile Size").value<size_vector>();
-    auto cs_thresh   = inputs.at("Screening Threshold").value<element_type>();
+    auto cs_thresh   = inputs.at("Screening Threshold").value<double>();
     auto atom_ranges = inputs.at("Atom Tile Groups").value<pair_vector>();
-    auto& world      = TA::get_default_world();
 
-    auto fill =
-      nwx_TA::FillNDFunctor<value_type, libint2::Operator::emultipole2, 2>();
-    fill.initialize(nwx_libint::make_basis_sets({bra, ket}), deriv, thresh,
-                    cs_thresh);
-    fill.factory.origin = origin;
+    auto& bra   = bra_space.basis_set();
+    auto& ket   = ket_space.basis_set();
+    auto& world = TA::get_default_world();
 
-    auto nopers =
-      libint2::operator_traits<libint2::Operator::emultipole2>::nopers;
+    constexpr auto libint_op = libint2::Operator::emultipole2;
+    auto fill = nwx_TA::FillNDFunctor<value_type, libint_op, 2>();
+    auto bs   = nwx_libint::make_basis_sets({bra, ket});
+    fill.initialize(bs, 0, thresh, cs_thresh);
+
+    for(size_type i = 0; i < 3; ++i)
+        fill.factory.origin[i] = r2.gauge_origin().coord(i);
+
+    auto nopers          = libint2::operator_traits<libint_op>::nopers;
     auto component_range = nwx_TA::make_tiled_range(nopers, nopers);
     auto trange = nwx_TA::select_tiling({bra, ket}, tile_size, atom_ranges,
                                         {component_range});
@@ -148,80 +145,74 @@ TEMPLATED_MODULE_RUN(Libint, pt::equadrupole<T>) {
     X      = TA::retile(X, trange);
 
     // Separate out components
-    tensor_type S, D, Q;
+    tensor_type D, Q;
     auto upper      = trange.tiles_range().upbound();
     using size_type = long;
     using il_type   = std::initializer_list<size_type>;
-    il_type lo_S{0, 0, 0}, hi_S{1, upper[1], upper[2]};
     il_type lo_D{1, 0, 0}, hi_D{2, upper[1], upper[2]};
     il_type lo_Q{2, 0, 0}, hi_Q{3, upper[1], upper[2]};
 
-    S("i,j,k") = X("i,j,k").block(lo_S, hi_S);
     D("i,j,k") = X("i,j,k").block(lo_D, hi_D);
     Q("i,j,k") = X("i,j,k").block(lo_Q, hi_Q);
 
     // Make overlap 2D
-    auto I = TA::diagonal_array<tensor_type, element_type>(
-      world, TA::TiledRange{S.trange().dim(0)});
-    S = libchemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
+    // tensor_type S;
+    // il_type lo_S{0, 0, 0}, hi_S{1, upper[1], upper[2]};
+    // S("i,j,k") = X("i,j,k").block(lo_S, hi_S);
+    // auto I = TA::diagonal_array<tensor_type, element_type>(
+    //   world, TA::TiledRange{S.trange().dim(0)});
+    // S = libchemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
 
     auto rv = results();
-    rv      = overlap_pt::wrap_results(rv, S);
-    rv      = edipole_pt::wrap_results(rv, D);
-    rv      = equadrupole_pt::wrap_results(rv, Q);
+    // rv      = overlap_pt::wrap_results(rv, S);
+    rv = dipole_pt::wrap_results(rv, simde::type::tensor(D));
+    rv = quadrupole_pt::wrap_results(rv, simde::type::tensor(Q));
     return rv;
 }
 
-template<typename T>
-TEMPLATED_MODULE_CTOR(Libint, pt::eoctopole<T>) {
-    using element_type = T;
-    using type::pair_vector;
-    using type::size_vector;
-
+MODULE_CTOR(LibintOctupole) {
     description("Computes an in-core integral with libint");
-    satisfies_property_type<pt::overlap<T>>();
-    satisfies_property_type<pt::edipole<T>>();
-    satisfies_property_type<pt::equadrupole<T>>();
-    satisfies_property_type<pt::eoctopole<T>>();
+    satisfies_property_type<overlap_pt>();
+    satisfies_property_type<dipole_pt>();
+    satisfies_property_type<quadrupole_pt>();
+    satisfies_property_type<octupole_pt>();
 
-    add_input<element_type>("Threshold").set_default(1.0E-16);
+    identity_op I;
+    dipole_op r;
+    quadrupole_op r2;
+    octupole_op r3;
+
+    change_input(I.as_string()).change(I);
+    change_input(r.as_string()).change(r);
+    change_input(r2.as_string()).change(r2);
+    change_input(r3.as_string()).change(r3);
+
+    add_input<double>("Threshold").set_default(1.0E-16);
     add_input<size_vector>("Tile Size").set_default(size_vector{180});
-    add_input<element_type>("Screening Threshold").set_default(0.0);
+    add_input<double>("Screening Threshold").set_default(0.0);
     add_input<pair_vector>("Atom Tile Groups").set_default(pair_vector{});
 }
 
-template<typename T>
-TEMPLATED_MODULE_RUN(Libint, pt::eoctopole<T>) {
-    using element_type   = T;
-    using overlap_pt     = pt::overlap<T>;
-    using edipole_pt     = pt::edipole<T>;
-    using equadrupole_pt = pt::equadrupole<T>;
-    using eoctopole_pt   = pt::eoctopole<T>;
-    using tensor_type    = type::tensor<T>;
-    using value_type     = typename tensor_type::value_type;
-    using type::pair_vector;
-    using type::size_vector;
-
-    auto [origin, bra_space, ket_space] = eoctopole_pt::unwrap_inputs(inputs);
-
-    auto& bra         = bra_space.basis_set();
-    auto& ket         = ket_space.basis_set();
-    std::size_t deriv = 0;
-
-    auto thresh      = inputs.at("Threshold").value<element_type>();
+MODULE_RUN(LibintOctupole) {
+    auto [bra_space, r3, ket_space] = octupole_pt::unwrap_inputs(inputs);
+    auto thresh                     = inputs.at("Threshold").value<double>();
     auto tile_size   = inputs.at("Tile Size").value<size_vector>();
-    auto cs_thresh   = inputs.at("Screening Threshold").value<element_type>();
+    auto cs_thresh   = inputs.at("Screening Threshold").value<double>();
     auto atom_ranges = inputs.at("Atom Tile Groups").value<pair_vector>();
-    auto& world      = TA::get_default_world();
 
-    auto fill =
-      nwx_TA::FillNDFunctor<value_type, libint2::Operator::emultipole3, 2>();
-    fill.initialize(nwx_libint::make_basis_sets({bra, ket}), deriv, thresh,
-                    cs_thresh);
-    fill.factory.origin = origin;
+    auto& bra   = bra_space.basis_set();
+    auto& ket   = ket_space.basis_set();
+    auto& world = TA::get_default_world();
 
-    auto nopers =
-      libint2::operator_traits<libint2::Operator::emultipole3>::nopers;
+    constexpr auto libint_op = libint2::Operator::emultipole3;
+    auto fill = nwx_TA::FillNDFunctor<value_type, libint_op, 2>();
+    auto bs   = nwx_libint::make_basis_sets({bra, ket});
+    fill.initialize(bs, 0, thresh, cs_thresh);
+
+    for(size_type i = 0; i < 3; ++i)
+        fill.factory.origin[i] = r3.gauge_origin().coord(i);
+
+    auto nopers          = libint2::operator_traits<libint_op>::nopers;
     auto component_range = nwx_TA::make_tiled_range(nopers, nopers);
     auto trange = nwx_TA::select_tiling({bra, ket}, tile_size, atom_ranges,
                                         {component_range});
@@ -233,35 +224,33 @@ TEMPLATED_MODULE_RUN(Libint, pt::eoctopole<T>) {
     X      = TA::retile(X, trange);
 
     // Separate out components
-    tensor_type S, D, Q, O;
+    tensor_type D, Q, O;
     auto upper      = trange.tiles_range().upbound();
     using size_type = long;
     using il_type   = std::initializer_list<size_type>;
-    il_type lo_S{0, 0, 0}, hi_S{1, upper[1], upper[2]};
+
     il_type lo_D{1, 0, 0}, hi_D{2, upper[1], upper[2]};
     il_type lo_Q{2, 0, 0}, hi_Q{3, upper[1], upper[2]};
     il_type lo_O{3, 0, 0}, hi_O{4, upper[1], upper[2]};
 
-    S("i,j,k") = X("i,j,k").block(lo_S, hi_S);
     D("i,j,k") = X("i,j,k").block(lo_D, hi_D);
     Q("i,j,k") = X("i,j,k").block(lo_Q, hi_Q);
     O("i,j,k") = X("i,j,k").block(lo_O, hi_O);
 
     // Make overlap 2D
-    auto I = TA::diagonal_array<tensor_type, element_type>(
-      world, TA::TiledRange{S.trange().dim(0)});
-    S = libchemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
+    // tensor_type S;
+    // il_type lo_S{0, 0, 0}, hi_S{1, upper[1], upper[2]};
+    // S("i,j,k") = X("i,j,k").block(lo_S, hi_S);
+    // auto I = TA::diagonal_array<tensor_type, element_type>(
+    //   world, TA::TiledRange{S.trange().dim(0)});
+    // S = libchemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
 
     auto rv = results();
-    rv      = overlap_pt::wrap_results(rv, S);
-    rv      = edipole_pt::wrap_results(rv, D);
-    rv      = equadrupole_pt::wrap_results(rv, Q);
-    rv      = eoctopole_pt::wrap_results(rv, O);
+    // rv      = overlap_pt::wrap_results(rv, S);
+    rv = dipole_pt::wrap_results(rv, simde::type::tensor(D));
+    rv = quadrupole_pt::wrap_results(rv, simde::type::tensor(Q));
+    rv = octupole_pt::wrap_results(rv, simde::type::tensor(O));
     return rv;
 }
-
-template class Libint<pt::edipole<double>>;
-template class Libint<pt::equadrupole<double>>;
-template class Libint<pt::eoctopole<double>>;
 
 } // namespace integrals

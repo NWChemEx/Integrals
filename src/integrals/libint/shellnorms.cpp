@@ -1,19 +1,16 @@
+#include "detail_/nwx_libint.hpp"
+#include "detail_/nwx_libint_factory.hpp"
 #include "shellnorms.hpp"
-#include "nwx_libint.hpp"
-#include "nwx_libint_factory.hpp"
-#include <property_types/cauchy_schwarz_approximation.hpp>
+#include <simde/cauchy_schwarz_approximation.hpp>
 #include <tiledarray.h>
 
 namespace integrals {
-
-template<typename element_type>
-using cs_approx_type = property_types::ShellNorms<element_type>;
 
 template<typename element_type, libint2::Operator op>
 TEMPLATED_MODULE_CTOR(ShellNorms, element_type, op) {
     description("Calculates the Cauchy-Schwarz screening matrix for a pair of "
                 "basis sets");
-    satisfies_property_type<cs_approx_type<element_type>>();
+    satisfies_property_type<simde::ShellNorms>();
 
     add_input<element_type>("Threshold")
       .set_description("Convergence threshold of integrals")
@@ -37,9 +34,8 @@ TEMPLATED_MODULE_RUN(ShellNorms, element_type, op) {
     using basis_vec  = std::vector<basis_type>;
 
     // Get inputs
-    auto [space1, space2, deriv] =
-      cs_approx_type<element_type>::unwrap_inputs(inputs);
-    auto thresh = inputs.at("Threshold").value<element_type>();
+    auto [space1, space2, deriv] = simde::ShellNorms::unwrap_inputs(inputs);
+    auto thresh                  = inputs.at("Threshold").value<element_type>();
 
     // Set up
     auto bs1           = nwx_libint::make_basis(space1.basis_set());
@@ -50,9 +46,9 @@ TEMPLATED_MODULE_RUN(ShellNorms, element_type, op) {
     factory.thresh     = thresh;
     factory.deriv      = deriv;
 
-    if constexpr (op == libint2::Operator::stg ||
-                  op == libint2::Operator::yukawa) {
-        auto stg_exponent = inputs.at("STG Exponent").value<element_type>();
+    if constexpr(op == libint2::Operator::stg ||
+                 op == libint2::Operator::yukawa) {
+        auto stg_exponent    = inputs.at("STG Exponent").value<element_type>();
         factory.stg_exponent = stg_exponent;
     }
 
@@ -94,14 +90,14 @@ TEMPLATED_MODULE_RUN(ShellNorms, element_type, op) {
     for(int i = 0; i < bs1.size(); ++i) {
         auto len =
           (same_bs) ?
-          i :
-          bs2.size() - 1; // only do lower triangle, since it's mirrored
+            i :
+            bs2.size() - 1; // only do lower triangle, since it's mirrored
         for(int j = 0; j <= len; ++j) { world.taskq.add(into_mat, i, j); }
     }
     world.gop.fence();
 
     auto rv = results();
-    return cs_approx_type<element_type>::wrap_results(rv, mat);
+    return simde::ShellNorms::wrap_results(rv, mat);
 }
 
 template class ShellNorms<double, libint2::Operator::coulomb>;

@@ -1,34 +1,25 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/ta_helpers/ta_helpers.hpp>
-#include <testing/testing.hpp>
-
-using namespace testing;
+#include <libchemist/tensor/allclose.hpp>
+#include <mokup/mokup.hpp>
 
 TEST_CASE("Yukawa3C") {
-    using integral_type = integrals::pt::yukawa3c<double>;
-    using size_vector   = integrals::type::size_vector;
-    const auto key1     = "Yukawa3";
-    const auto key2     = "Yukawa3 CS";
+    using op_type       = simde::type::el_el_yukawa;
+    using integral_type = simde::AOTensorRepresentation<3, op_type>;
 
     auto& world = TA::get_default_world();
-    sde::ModuleManager mm;
+    pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
-    const auto name = molecule::h2o;
-    const auto bs   = basis_set::sto3g;
-    auto mol        = testing::get_molecules().at(name);
-    auto aos        = testing::get_bases().at(name).at(bs);
+    auto name = mokup::molecule::h2o;
+    auto bs   = mokup::basis_set::sto3g;
+    auto aos  = mokup::get_bases().at(name).at(bs);
     std::vector bases{bs, bs, bs};
-    auto tensors      = testing::get_ao_data(world).at(name).at(bases);
-    auto stg_exponent = 1.0;
+    auto corr = mokup::get_ao_data(world).at(name).at(bases);
 
-    auto [X]    = mm.run_as<integral_type>(key1, stg_exponent, aos, aos, aos);
-    auto corr_R = TA::retile(tensors.at(property::yukawa), X.trange());
-    REQUIRE(libchemist::ta_helpers::allclose(X, corr_R));
+    libchemist::Electron e;
+    op_type gr(libchemist::STG(1.0, 1.0), e, e);
 
-    mm.change_input(key2, "Screening Threshold", 0.000001);
-    mm.change_input(key2, "Tile size", size_vector{7});
-    auto [X2] = mm.run_as<integral_type>(key2, stg_exponent, aos, aos, aos);
-    REQUIRE(libchemist::ta_helpers::allclose(X2, corr_R));
+    auto [X] = mm.at("Yukawa3").run_as<integral_type>(aos, gr, aos, aos);
+    REQUIRE(libchemist::tensor::allclose(X, corr.at(mokup::property::yukawa)));
 }

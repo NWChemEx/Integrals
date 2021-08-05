@@ -1,6 +1,6 @@
 #pragma once
 #include <libint2.hpp>
-#include <sde/module_base.hpp>
+#include <pluginplay/module_base.hpp>
 
 namespace integrals {
 
@@ -11,7 +11,7 @@ template<typename T>
 using ShellNormCoulomb = ShellNorms<T, libint2::Operator::coulomb>;
 
 template<typename T>
-using ShellNormSTG    = ShellNorms<T, libint2::Operator::stg>;
+using ShellNormSTG = ShellNorms<T, libint2::Operator::stg>;
 
 template<typename T>
 using ShellNormYukawa = ShellNorms<T, libint2::Operator::yukawa>;

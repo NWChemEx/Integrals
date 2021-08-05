@@ -1,27 +1,25 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/ta_helpers/ta_helpers.hpp>
-#include <testing/testing.hpp>
-
-using namespace testing;
+#include <libchemist/tensor/allclose.hpp>
+#include <mokup/mokup.hpp>
 
 TEST_CASE("ERI2C") {
-    using integral_type = integrals::pt::eri2c<double>;
-    using size_vector   = integrals::type::size_vector;
+    using op            = simde::type::el_el_coulomb;
+    using integral_type = simde::AOTensorRepresentation<2, op>;
+    using size_vector   = std::vector<std::size_t>;
 
     auto& world = TA::get_default_world();
-    sde::ModuleManager mm;
+    pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
-    auto name = molecule::h2o;
-    auto bs   = basis_set::sto3g;
-    auto mol  = testing::get_molecules().at(name);
-    auto aos  = testing::get_bases().at(name).at(bs);
+    auto name = mokup::molecule::h2o;
+    auto bs   = mokup::basis_set::sto3g;
+    auto mol  = mokup::get_molecules().at(name);
+    auto aos  = mokup::get_bases().at(name).at(bs);
     std::vector bases{bs, bs};
-    auto corr = testing::get_ao_data(world).at(name).at(bases);
+    auto corr = mokup::get_ao_data(world).at(name).at(bases);
 
-    mm.at("ERI2").change_input("Tile size", size_vector{1});
-    auto [X]    = mm.at("ERI2").run_as<integral_type>(aos, aos);
-    auto X_corr = TA::retile(corr.at(property::eris), X.trange());
-
-    REQUIRE(libchemist::ta_helpers::allclose(X, X_corr));
+    // mm.at("ERI2").change_input("Tile size", size_vector{1});
+    simde::type::el_el_coulomb r12;
+    auto [X] = mm.at("ERI2").run_as<integral_type>(aos, r12, aos);
+    REQUIRE(libchemist::tensor::allclose(X, corr.at(mokup::property::eris)));
 }

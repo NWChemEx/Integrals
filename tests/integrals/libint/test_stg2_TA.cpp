@@ -1,25 +1,24 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/ta_helpers/ta_helpers.hpp>
-#include <testing/testing.hpp>
-
-using namespace testing;
+#include <libchemist/tensor/allclose.hpp>
+#include <mokup/mokup.hpp>
 
 TEST_CASE("STG2C") {
-    using integral_type = integrals::pt::stg2c<double>;
-    using size_vector   = integrals::type::size_vector;
+    using op_type       = simde::type::el_el_stg;
+    using integral_type = simde::AOTensorRepresentation<2, op_type>;
 
     auto& world = TA::get_default_world();
-    sde::ModuleManager mm;
+    pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
-    auto name = molecule::h2o;
-    auto bs   = basis_set::sto3g;
-    auto aos  = testing::get_bases().at(name).at(bs);
+
+    auto name = mokup::molecule::h2o;
+    auto bs   = mokup::basis_set::sto3g;
+    auto aos  = mokup::get_bases().at(name).at(bs);
     std::vector bases{bs, bs};
-    auto corr         = testing::get_ao_data(world).at(name).at(bases);
-    auto stg_exponent = 1.0;
-    mm.at("STG2").change_input("Tile size", size_vector{3});
-    auto [X]    = mm.at("STG2").run_as<integral_type>(stg_exponent, aos, aos);
-    auto corr_R = TA::retile(corr.at(property::stg), X.trange());
-    REQUIRE(libchemist::ta_helpers::allclose(X, corr_R));
+    auto corr = mokup::get_ao_data(world).at(name).at(bases);
+
+    libchemist::Electron e;
+    op_type stg(libchemist::STG(1.0, 1.0), e, e);
+    auto [X] = mm.at("STG2").run_as<integral_type>(aos, stg, aos);
+    REQUIRE(libchemist::tensor::allclose(X, corr.at(mokup::property::stg)));
 }

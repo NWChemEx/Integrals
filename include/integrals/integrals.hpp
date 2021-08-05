@@ -7,6 +7,5 @@
  */
 #pragma once
 #include "integrals/integralsmm.hpp"
-#include "integrals/property_types.hpp"
-#include "integrals/transformed.hpp"
-#include "integrals/types.hpp"
+#include "simde/tensor_representation/tensor_representation.hpp"
+#include "simde/types.hpp"
