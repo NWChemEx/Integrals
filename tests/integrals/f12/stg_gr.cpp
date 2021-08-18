@@ -14,7 +14,7 @@ TEST_CASE("STG 4 Center GR") {
 
     const auto name = mokup::molecule::h2;
     libchemist::Electron e;
-    op_type gr(libchemist::STG(), e, e);
+    op_type gr(libchemist::operators::STG(), e, e);
 
     for(const auto& bs : {mokup::basis_set::sto3g, mokup::basis_set::ccpvdz}) {
         std::vector<mokup::basis_set> bs_key(4, bs);

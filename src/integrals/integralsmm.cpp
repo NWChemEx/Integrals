@@ -4,8 +4,18 @@
 #include "libint/emultipole.hpp"
 #include "libint/libint.hpp"
 #include "libint/shellnorms.hpp"
+#include "transforms/transforms.hpp"
 
 namespace integrals {
+
+template<std::size_t N, typename OpType>
+void register_transformed_integral(pluginplay::ModuleManager& mm,
+                                   std::string key) {
+    using module_t = StandardTransform<N, OpType>;
+    auto new_key   = "Transformed " + key;
+    mm.add_module<module_t>(new_key);
+    mm.change_submod(new_key, "integral kernel", key);
+}
 
 void load_libint_integrals(pluginplay::ModuleManager& mm) {
     mm.add_module<LibintDOI>("DOI");
@@ -47,7 +57,7 @@ void load_transformed_libint_integrals(pluginplay::ModuleManager& mm) {
     // register_transformed_integral<pt::eoctopole<T>>(mm, "EOctopole");
     // register_transformed_integral<pt::eri2c<T>>(mm, "ERI2");
     // register_transformed_integral<pt::eri3c<T>>(mm, "ERI3");
-    // register_transformed_integral<pt::eri4c<T>>(mm, "ERI4");
+    register_transformed_integral<4, simde::type::el_el_coulomb>(mm, "ERI4");
     // register_transformed_integral<pt::kinetic<T>>(mm, "Kinetic");
     // register_transformed_integral<pt::nuclear<T>>(mm, "Nuclear");
     // register_transformed_integral<pt::overlap<T>>(mm, "Overlap");

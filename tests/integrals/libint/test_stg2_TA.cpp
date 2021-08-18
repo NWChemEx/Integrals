@@ -18,7 +18,7 @@ TEST_CASE("STG2C") {
     auto corr = mokup::get_ao_data(world).at(name).at(bases);
 
     libchemist::Electron e;
-    op_type stg(libchemist::STG(1.0, 1.0), e, e);
+    op_type stg(libchemist::operators::STG(1.0, 1.0));
     auto [X] = mm.at("STG2").run_as<integral_type>(aos, stg, aos);
     REQUIRE(libchemist::tensor::allclose(X, corr.at(mokup::property::stg)));
 }

@@ -14,8 +14,8 @@ TEST_CASE("STG 4 Center Correlation Factor Squared") {
 
     const auto name = mokup::molecule::h2;
     libchemist::Electron e;
-    libchemist::STG stg;
-    op_type f12(stg * stg, e, e);
+    libchemist::operators::STG stg;
+    op_type f12(stg * stg);
 
     for(const auto& bs : {mokup::basis_set::sto3g, mokup::basis_set::ccpvdz}) {
         std::vector<mokup::basis_set> bs_key(4, bs);
