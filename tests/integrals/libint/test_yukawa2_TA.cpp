@@ -18,7 +18,7 @@ TEST_CASE("Yukawa2C") {
     auto corr = mokup::get_ao_data(world).at(name).at(bases);
 
     libchemist::Electron e;
-    op_type gr(libchemist::STG(1.0, 1.0), e, e);
+    op_type gr(libchemist::operators::STG(1.0, 1.0), e, e);
 
     auto [X] = mm.at("Yukawa2").run_as<integral_type>(aos, gr, aos);
     REQUIRE(libchemist::tensor::allclose(X, corr.at(mokup::property::yukawa)));
