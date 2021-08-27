@@ -61,12 +61,6 @@ void load_transformed_libint_integrals(pluginplay::ModuleManager& mm) {
     // register_transformed_integral<pt::kinetic<T>>(mm, "Kinetic");
     // register_transformed_integral<pt::nuclear<T>>(mm, "Nuclear");
     // register_transformed_integral<pt::overlap<T>>(mm, "Overlap");
-    // register_transformed_integral<pt::stg2c<T>>(mm, "STG2");
-    // register_transformed_integral<pt::stg3c<T>>(mm, "STG3");
-    // register_transformed_integral<pt::stg4c<T>>(mm, "STG4");
-    // register_transformed_integral<pt::yukawa2c<T>>(mm, "Yukawa2");
-    // register_transformed_integral<pt::yukawa3c<T>>(mm, "Yukawa3");
-    // register_transformed_integral<pt::yukawa4c<T>>(mm, "Yukawa4");
 }
 
 void load_f12_integrals(pluginplay::ModuleManager& mm) {
@@ -75,12 +69,15 @@ void load_f12_integrals(pluginplay::ModuleManager& mm) {
 }
 
 void load_transformed_f12_integrals(pluginplay::ModuleManager& mm) {
-    // register_transformed_integral<pt::dfdr_squared_4c<T>>(
-    //   mm, "STG 4 Center dfdr Squared");
+    register_transformed_integral<4, simde::type::el_el_f12_commutator>(
+      mm, "STG 4 Center dfdr Squared");
+    register_transformed_integral<4, simde::type::el_el_stg>(mm, "STG4");
+    register_transformed_integral<4, simde::type::el_el_yukawa>(mm, "Yukawa4");
 }
 
-void set_f12_integral_defaults(pluginplay::ModuleManager& mm) {
-    // mm.change_submod("STG 4 Center dfdr Squared", "STG Kernel", "STG4");
+void load_misc_transforms(pluginplay::ModuleManager& mm) {
+    mm.add_module<StandardTransform<2, simde::type::el_scf_k>>("Transformed K");
+    mm.add_module<StandardTransform<2, simde::type::fock>>("Transformed Fock");
 }
 
 void load_modules(pluginplay::ModuleManager& mm) {
@@ -88,7 +85,7 @@ void load_modules(pluginplay::ModuleManager& mm) {
     load_transformed_libint_integrals(mm);
     load_f12_integrals(mm);
     load_transformed_f12_integrals(mm);
-    set_f12_integral_defaults(mm);
+    load_misc_transforms(mm);
 }
 
 } // namespace integrals
