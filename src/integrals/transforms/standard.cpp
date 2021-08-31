@@ -56,6 +56,11 @@ TEMPLATED_MODULE_RUN(StandardTransform, N, OpType) {
     return pt::wrap_results(rv, t);
 }
 
+template class StandardTransform<2, simde::type::el_scf_k>;
+template class StandardTransform<2, simde::type::fock>;
 template class StandardTransform<4, simde::type::el_el_coulomb>;
+template class StandardTransform<4, simde::type::el_el_f12_commutator>;
+template class StandardTransform<4, simde::type::el_el_stg>;
+template class StandardTransform<4, simde::type::el_el_yukawa>;
 
 } // namespace integrals
