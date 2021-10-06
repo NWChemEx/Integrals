@@ -132,7 +132,8 @@ void FillNDFunctor<val_type, op, NBases>::_index_shells(
                                   int_i, 0);
             } else {
                 // Deal with the additional dimension of the tile for multipoles
-                size_vec indexer = {range.lobound()[0]};
+                using size_type = size_vec::value_type;
+                size_vec indexer = {size_type(range.lobound()[0])};
                 indexer.insert(indexer.end(), offsets.begin(), offsets.end());
 
                 // Loop over multipoles to fill in values

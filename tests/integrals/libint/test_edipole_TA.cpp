@@ -4,6 +4,8 @@
 #include <mokup/mokup.hpp>
 
 using namespace integrals;
+using namespace mokup;
+
 
 TEST_CASE("Dipole") {
     using i_op   = simde::type::el_identity;
@@ -15,12 +17,12 @@ TEST_CASE("Dipole") {
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
-    const auto name = mokup::molecule::h2o;
-    const auto bs   = mokup::basis_set::sto3g;
-    auto mol        = mokup::get_molecules().at(name);
-    auto aos        = mokup::get_bases().at(name).at(bs);
+    const auto name = molecule::h2o;
+    const auto bs   = basis_set::sto3g;
+    auto mol        = get_molecule(name);
+    auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs};
-    auto tensors = mokup::get_ao_data(world).at(name).at(bases);
+    //auto tensors = get_ao_data(name, bases, property::dipole, world);
     d_op r;
 
     // SECTION("overlap matrix") {

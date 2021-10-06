@@ -5,6 +5,8 @@
 #include <mokup/mokup.hpp>
 #include <simde/cauchy_schwarz_approximation.hpp>
 
+using namespace mokup;
+
 std::vector<std::vector<double>> eri_check{
   {2.1874792352627042, 0.3699640325144978, 0.1564525878919850,
    0.0606886000006391, 0.0606886000006391},
@@ -54,10 +56,10 @@ TEST_CASE("Cauchy-Schwarz") {
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
-    auto name         = mokup::molecule::h2o;
-    auto bs           = mokup::basis_set::sto3g;
-    auto mol          = mokup::get_molecules().at(name);
-    auto aos          = mokup::get_bases().at(name).at(bs);
+    auto name         = molecule::h2o;
+    auto bs           = basis_set::sto3g;
+    auto mol          = get_molecule(name);
+    auto aos          = get_bases(name, bs);
     std::size_t deriv = 0;
 
     // Check Shell Norm modules
