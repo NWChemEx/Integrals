@@ -3,6 +3,8 @@
 #include <libchemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
 
+using namespace mokup;
+
 TEST_CASE("Kinetic") {
     using op_type       = simde::type::el_kinetic;
     using integral_type = simde::AOTensorRepresentation<2, op_type>;
@@ -12,14 +14,14 @@ TEST_CASE("Kinetic") {
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
-    auto name = mokup::molecule::h2o;
-    auto bs   = mokup::basis_set::sto3g;
-    auto aos  = mokup::get_bases().at(name).at(bs);
+    auto name = molecule::h2o;
+    auto bs   = basis_set::sto3g;
+    auto aos  = get_bases(name, bs);
     std::vector bases{bs, bs};
-    auto corr = mokup::get_ao_data(world).at(name).at(bases);
+    auto corr = get_ao_data(name, bases, property::kinetic, world);
 
     // mm.at("Kinetic").change_input("Tile size", size_vector{1, 2});
     op_type t;
     auto [T] = mm.at("Kinetic").run_as<integral_type>(aos, t, aos);
-    REQUIRE(libchemist::tensor::allclose(T, corr.at(mokup::property::kinetic)));
+    REQUIRE(libchemist::tensor::allclose(T, corr));
 }

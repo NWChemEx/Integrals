@@ -2,6 +2,8 @@
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
 
+using namespace mokup;
+
 TEST_CASE("Transformed") {
     using op_type  = simde::type::el_el_coulomb;
     using submod_t = simde::AOTensorRepresentation<4, op_type>;
@@ -14,15 +16,14 @@ TEST_CASE("Transformed") {
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
-    auto name = mokup::molecule::h2;
-    auto bs   = mokup::basis_set::sto3g;
-    auto aos  = mokup::get_bases().at(name).at(bs);
-    auto mos  = mokup::get_space(mokup::property::occupied, name, bs, world);
+    auto name = molecule::h2;
+    auto bs   = basis_set::sto3g;
+    auto aos  = get_bases(name, bs);
+    auto mos  = get_space(property::occupied, name, bs, world);
     std::vector bases{bs, bs, bs, bs};
-    auto tensors = mokup::get_ao_data(world).at(name).at(bases);
+    auto G = get_ao_data(name, bases, property::eris, world);
 
     auto& mod     = mm.at("Transformed ERI4");
-    const auto& G = tensors.at(mokup::property::eris);
     const auto& C = mos.C();
     op_type r12;
 

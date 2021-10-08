@@ -3,6 +3,8 @@
 #include <libchemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
 
+using namespace mokup;
+
 TEST_CASE("Overlap") {
     using op_type       = simde::type::el_identity;
     using integral_type = simde::AOTensorRepresentation<2, op_type>;
@@ -12,13 +14,12 @@ TEST_CASE("Overlap") {
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
-    const auto name = mokup::molecule::h2o;
-    const auto bs   = mokup::basis_set::sto3g;
-    auto mol        = mokup::get_molecules().at(name);
-    auto aos        = mokup::get_bases().at(name).at(bs);
+    const auto name = molecule::h2o;
+    const auto bs   = basis_set::sto3g;
+    auto mol        = get_molecule(name);
+    auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs};
-    auto tensors = mokup::get_ao_data(world).at(name).at(bases);
-    auto corr_S  = tensors.at(mokup::property::overlap);
+    auto corr_S = get_ao_data(name, bases, property::overlap, world);
 
     SECTION("Run 1") {
         // mm.at("Overlap").change_input("Tile size", size_vector{3, 1, 1});
