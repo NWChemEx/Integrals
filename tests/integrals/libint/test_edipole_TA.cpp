@@ -6,7 +6,6 @@
 using namespace integrals;
 using namespace mokup;
 
-
 TEST_CASE("Dipole") {
     using i_op   = simde::type::el_identity;
     using d_op   = simde::type::el_dipole;
@@ -21,7 +20,7 @@ TEST_CASE("Dipole") {
     const auto bs   = basis_set::sto3g;
     auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs};
-    //auto tensors = get_ao_data(name, bases, property::dipole, world);
+    // auto tensors = get_ao_data(name, bases, property::dipole, world);
     d_op r;
 
     // SECTION("overlap matrix") {
