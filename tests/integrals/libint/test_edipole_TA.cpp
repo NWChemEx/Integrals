@@ -19,7 +19,6 @@ TEST_CASE("Dipole") {
 
     const auto name = molecule::h2o;
     const auto bs   = basis_set::sto3g;
-    auto mol        = get_molecule(name);
     auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs};
     //auto tensors = get_ao_data(name, bases, property::dipole, world);
