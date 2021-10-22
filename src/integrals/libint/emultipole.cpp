@@ -31,8 +31,8 @@ MODULE_CTOR(LibintDipole) {
 
     identity_op I;
     dipole_op r;
-    change_input(I.as_string()).change(I);
-    change_input(r.as_string()).change(r);
+    change_input(I.as_string()).change(std::move(I));
+    change_input(r.as_string()).change(std::move(r));
 
     add_input<double>("Threshold").set_default(1.0E-16);
     add_input<size_vector>("Tile Size").set_default(size_vector{180});
