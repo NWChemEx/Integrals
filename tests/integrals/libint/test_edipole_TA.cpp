@@ -20,7 +20,7 @@ TEST_CASE("Dipole") {
     const auto bs   = basis_set::sto3g;
     auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs};
-    // auto tensors = get_ao_data(name, bases, property::dipole, world);
+    auto corr = get_ao_data(name, bases, property::dipole, world);
     d_op r;
 
     // SECTION("overlap matrix") {
@@ -30,8 +30,7 @@ TEST_CASE("Dipole") {
     // }
 
     SECTION("dipole matrix") {
-        // auto [D]  = mm.at("EDipole").run_as<d_type>(aos, r, aos);
-        // auto corr = tensors.at(mokup::property::dipole);
-        // REQUIRE(libchemist::tensor::allclose(D, corr));
+        auto [D] = mm.at("EDipole").run_as<d_type>(aos, r, aos);
+        REQUIRE(libchemist::tensor::allclose(D, corr));
     }
 }
