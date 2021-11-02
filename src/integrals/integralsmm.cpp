@@ -56,7 +56,7 @@ void load_transformed_libint_integrals(pluginplay::ModuleManager& mm) {
     // register_transformed_integral<pt::equadrupole<T>>(mm, "EQuadrupole");
     // register_transformed_integral<pt::eoctopole<T>>(mm, "EOctopole");
     // register_transformed_integral<pt::eri2c<T>>(mm, "ERI2");
-    // register_transformed_integral<pt::eri3c<T>>(mm, "ERI3");
+    register_transformed_integral<3, simde::type::el_el_coulomb>(mm, "ERI3");
     register_transformed_integral<4, simde::type::el_el_coulomb>(mm, "ERI4");
     // register_transformed_integral<pt::kinetic<T>>(mm, "Kinetic");
     // register_transformed_integral<pt::nuclear<T>>(mm, "Nuclear");
