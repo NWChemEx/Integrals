@@ -1,6 +1,6 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/tensor/allclose.hpp>
+#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
 
 using namespace mokup;
@@ -17,8 +17,8 @@ TEST_CASE("STG 4 Center Correlation Factor Squared") {
     const auto name = molecule::h2;
     const auto prop = property::stg_correlation_factor_squared;
 
-    libchemist::Electron e;
-    libchemist::operators::STG stg;
+    chemist::Electron e;
+    chemist::operators::STG stg;
     op_type f12(stg * stg);
 
     for(const auto& bs : {basis_set::sto3g, basis_set::ccpvdz}) {
@@ -28,7 +28,7 @@ TEST_CASE("STG 4 Center Correlation Factor Squared") {
             auto X_corr = get_ao_data(name, bs_key, prop, world);
             auto [X] =
               mm.at(key).run_as<integral_type>(aos, aos, f12, aos, aos);
-            REQUIRE(libchemist::tensor::allclose(X, X_corr));
+            REQUIRE(chemist::tensor::allclose(X, X_corr));
         }
     }
 }

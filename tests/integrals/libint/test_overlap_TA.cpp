@@ -1,6 +1,6 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/tensor/allclose.hpp>
+#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
 
 using namespace mokup;
@@ -25,7 +25,7 @@ TEST_CASE("Overlap") {
         // mm.at("Overlap").change_input("Tile size", size_vector{3, 1, 1});
         op_type I;
         auto [S] = mm.at("Overlap").run_as<integral_type>(aos, I, aos);
-        REQUIRE(libchemist::tensor::allclose(S, corr_S));
+        REQUIRE(chemist::tensor::allclose(S, corr_S));
     }
 
     // SECTION("Run 2") {
@@ -34,6 +34,6 @@ TEST_CASE("Overlap") {
     //     mm.at("Overlap").change_input("Atom Tile Groups", atom_groups);
     //     auto [S] = mm.at("Overlap").run_as<integral_type>(aos, aos);
     //     auto X   = TA::retile(corr_S, S.trange());
-    //     REQUIRE(libchemist::ta_helpers::allclose(S, X));
+    //     REQUIRE(chemist::ta_helpers::allclose(S, X));
     // }
 }

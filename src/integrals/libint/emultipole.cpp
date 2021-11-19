@@ -161,7 +161,7 @@ MODULE_RUN(LibintQuadrupole) {
     // S("i,j,k") = X("i,j,k").block(lo_S, hi_S);
     // auto I = TA::diagonal_array<tensor_type, element_type>(
     //   world, TA::TiledRange{S.trange().dim(0)});
-    // S = libchemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
+    // S = chemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
 
     auto rv = results();
     // rv      = overlap_pt::wrap_results(rv, S);
@@ -243,7 +243,7 @@ MODULE_RUN(LibintOctupole) {
     // S("i,j,k") = X("i,j,k").block(lo_S, hi_S);
     // auto I = TA::diagonal_array<tensor_type, element_type>(
     //   world, TA::TiledRange{S.trange().dim(0)});
-    // S = libchemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
+    // S = chemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
 
     auto rv = results();
     // rv      = overlap_pt::wrap_results(rv, S);

@@ -1,6 +1,6 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/tensor/allclose.hpp>
+#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
 
 using namespace mokup;
@@ -23,5 +23,5 @@ TEST_CASE("ERI2C") {
     // mm.at("ERI2").change_input("Tile size", size_vector{1});
     simde::type::el_el_coulomb r12;
     auto [X] = mm.at("ERI2").run_as<integral_type>(aos, r12, aos);
-    REQUIRE(libchemist::tensor::allclose(X, corr));
+    REQUIRE(chemist::tensor::allclose(X, corr));
 }

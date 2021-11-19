@@ -12,7 +12,7 @@ TEST_CASE("Testing Libint's integrals over Slater-type geminals") {
     sde::ModuleManager mm;
     load_modules(mm);
     auto[molecule, bs]                          = make_molecule();
-    std::array<libchemist::AOBasisSet, 4> bases = {bs, bs, bs, bs};
+    std::array<chemist::AOBasisSet, 4> bases = {bs, bs, bs, bs};
     auto[STG4_Ints] = mm.at("STG4").run_as<integral_type>(molecule, bases, std::size_t{0});
     compare_integrals(STG4_Ints, stg1ref, 0.0, 1e-12);
     auto[Yukawa4_Ints] = mm.at("Yukawa4").run_as<integral_type>(molecule, bases, std::size_t{0});

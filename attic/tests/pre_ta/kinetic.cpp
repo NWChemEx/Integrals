@@ -33,7 +33,7 @@ static BlockTensor corr{
 
 TEST_CASE("Testing Libint's Kinetic Energy Integrals class") {
     auto[molecule, bs]                          = make_molecule();
-    std::array<libchemist::AOBasisSet, 2> bases = {bs, bs};
+    std::array<chemist::AOBasisSet, 2> bases = {bs, bs};
     using integral_type = property_types::AOIntegral<2, double>;
     sde::ModuleManager mm;
     SECTION("Direct implementation") {

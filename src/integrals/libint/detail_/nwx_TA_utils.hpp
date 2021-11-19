@@ -1,12 +1,12 @@
 #pragma once
 #include "integrals/types.hpp"
-#include <libchemist/basis_set/ao_basis_set.hpp>
+#include <chemist/basis_set/ao_basis_set.hpp>
 #include <tiledarray.h>
 
 namespace nwx_TA {
 
 template<typename T>
-using basis = libchemist::AOBasisSet<T>;
+using basis = chemist::AOBasisSet<T>;
 using size  = std::size_t;
 
 /** @brief Make a TA TiledRange from basis set information

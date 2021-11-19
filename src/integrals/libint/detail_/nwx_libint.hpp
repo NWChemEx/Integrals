@@ -1,28 +1,28 @@
 #pragma once
 #include "integrals/types.hpp"
-#include <libchemist/basis_set/ao_basis_set.hpp>
+#include <chemist/basis_set/ao_basis_set.hpp>
 #include <libint2.hpp>
 
 namespace nwx_libint {
 
 template<typename T>
-using NWX_basis = libchemist::AOBasisSet<T>;
+using NWX_basis = chemist::AOBasisSet<T>;
 using LI_basis  = libint2::BasisSet;
 using size      = std::size_t;
 
-/** @brief Converts a libchemist::AOBasisSet object @p bs to a LibInt2 BasisSet
+/** @brief Converts a chemist::AOBasisSet object @p bs to a LibInt2 BasisSet
  *         object
  *
- *  @param[in] bs The libchemist BasisSet to be converted
+ *  @param[in] bs The chemist BasisSet to be converted
  *  @returns The basis set as a LibInt2 BasisSet object
  */
 LI_basis make_basis(const NWX_basis<double>& bs);
 LI_basis make_basis(const NWX_basis<float>& bs);
 
-/** @brief Converts a std::vector of libchemist::AOBasisSet objects @p sets to a
+/** @brief Converts a std::vector of chemist::AOBasisSet objects @p sets to a
  *         std::vector of LibInt2 BasisSet objects
  *
- *  @param[in] sets The vector of libchemist basis sets to be converted
+ *  @param[in] sets The vector of chemist basis sets to be converted
  *  @returns The vector of basis sets as a LibInt2 BasisSet objects
  */
 std::vector<LI_basis> make_basis_sets(

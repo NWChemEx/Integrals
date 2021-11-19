@@ -1,5 +1,5 @@
 #pragma once
-#include <libchemist/molecule.hpp>
+#include <chemist/molecule.hpp>
 #include <libint2.hpp>
 #include <sde/types.hpp>
 #include <sde/detail_/sde_any.hpp>
@@ -61,7 +61,7 @@ private:
 // Factors out the building of a Libint2 engine.
 template<libint2::Operator op, std::size_t NBases>
 static auto make_engine(
-  const libchemist::Molecule& molecule,
+  const chemist::Molecule& molecule,
   const typename LibintFunctor<NBases>::size_type max_prims,
   const typename LibintFunctor<NBases>::size_type max_l, const double thresh,
   const typename LibintFunctor<NBases>::size_type deriv,

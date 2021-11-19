@@ -1,7 +1,7 @@
 #include "integrals/integralpimpl.hpp"
 #include "integrals/libint_functor.hpp"
 #include "integrals/tamm_int_functor.hpp"
-#include <libchemist/basis_set_map.hpp>
+#include <chemist/basis_set_map.hpp>
 #include <sde/module_base.hpp>
 #include <tamm/tamm_utils.hpp>
 #include <utilities/iter_tools.hpp>
@@ -9,7 +9,7 @@
 namespace integrals::libint::detail_ {
 
 using size_type     = std::size_t;
-using molecule_type = libchemist::Molecule;
+using molecule_type = chemist::Molecule;
 
 /*******************************************************************************
  *   PIMPL Implementations.
@@ -115,7 +115,7 @@ sde::type::result_map Integral<op, NBases, element_type>::run_(
 
     for(size_type basis_i = 0; basis_i < NBases; ++basis_i) {
         const auto& basis = bases[basis_i];
-        libchemist::BasisSetMap map(basis);
+        chemist::BasisSetMap map(basis);
 
         AOs[basis_i] = tamm::IndexSpace{tamm::range(0, basis.nbf())};
 

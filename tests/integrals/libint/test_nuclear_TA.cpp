@@ -1,6 +1,6 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/tensor/allclose.hpp>
+#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
 
 using namespace mokup;
@@ -21,7 +21,7 @@ TEST_CASE("Nuclear") {
     auto corr = get_ao_data(name, bases, property::nuclear, world);
 
     // mm.at("Nuclear").change_input("Tile size", size_vector{6, 1});
-    op_type riA(libchemist::Electron{}, mol);
+    op_type riA(chemist::Electron{}, mol);
     auto [V] = mm.at("Nuclear").run_as<integral_type>(aos, riA, aos);
-    REQUIRE(libchemist::tensor::allclose(V, corr));
+    REQUIRE(chemist::tensor::allclose(V, corr));
 }
