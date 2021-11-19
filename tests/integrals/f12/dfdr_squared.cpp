@@ -1,7 +1,7 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/libchemist.hpp>
-#include <libchemist/tensor/allclose.hpp>
+#include <chemist/chemist.hpp>
+#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
 #include <simde/tensor_representation/tensor_representation.hpp>
 
@@ -27,7 +27,7 @@ TEST_CASE("STG 4 Center dfdr Squared") {
             auto X_corr = get_ao_data(name, bs_key, prop, world);
             auto [X] =
               mm.at(key).run_as<integral_type>(aos, aos, fTf, aos, aos);
-            REQUIRE(libchemist::tensor::allclose(X, X_corr));
+            REQUIRE(chemist::tensor::allclose(X, X_corr));
         }
     }
 }

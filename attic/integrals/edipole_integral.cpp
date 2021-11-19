@@ -3,7 +3,7 @@
 #include "nwx_TA/fill_ND_functor.hpp"
 #include "nwx_TA/nwx_TA_utils.hpp"
 #include "nwx_libint/nwx_libint.hpp"
-#include <libchemist/ta_helpers/einsum/einsum.hpp>
+#include <chemist/ta_helpers/einsum/einsum.hpp>
 #include <property_types/ao_integrals/emultipole.hpp>
 #include <property_types/ao_integrals/overlap.hpp>
 

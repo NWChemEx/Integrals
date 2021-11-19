@@ -1,5 +1,5 @@
 // #pragma once
-// #include <libchemist/basis_set/ao_basis_set.hpp>
+// #include <chemist/basis_set/ao_basis_set.hpp>
 // #include <property_types/types.hpp>
 // #include <sde/types.hpp>
 
@@ -10,7 +10,7 @@
 
 // /// Type of th object holding parameters for Gaussian AOs
 // template<typename T>
-// using basis_set = libchemist::AOBasisSet<T>;
+// using basis_set = chemist::AOBasisSet<T>;
 
 // // A vector whose elements are sizes
 // using size_vector = std::vector<type::size>;

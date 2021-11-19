@@ -14,7 +14,7 @@ TEST_CASE("Testing DF3C2E") {
     sde::ModuleManager mm;
     load_modules(mm);
     auto[molecule, bs]                          = make_molecule();
-    std::array<libchemist::AOBasisSet, 3> bases = {bs, bs, bs};
+    std::array<chemist::AOBasisSet, 3> bases = {bs, bs, bs};
     auto[Ints] =
       mm.at("ERI3").run_as<integral_type>(molecule, bases, std::size_t{0});
     compare_integrals(Ints, corr);

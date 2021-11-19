@@ -1,6 +1,6 @@
 #include "../test_common_TA.hpp"
 #include "integrals/integrals.hpp"
-#include <libchemist/ta_helpers/ta_helpers.hpp>
+#include <chemist/ta_helpers/ta_helpers.hpp>
 
 template<typename T>
 using tensor_type = integrals::type::tensor<T>;
@@ -12,7 +12,7 @@ auto make_transform(const integrals::type::ao_space_t<ElementType>& bs,
     std::initializer_list<ElementType> row{value, value, value, value,
                                            value, value, value};
     tensor_type<ElementType> C(world, {row, row, row, row, row, row, row});
-    return libchemist::orbital_space::DerivedSpace<ElementType>(C, bs);
+    return chemist::orbital_space::DerivedSpace<ElementType>(C, bs);
 }
 
 } // namespace
@@ -38,21 +38,21 @@ TEST_CASE("Two Center Integrals") {
         const auto tkey = std::string("Transformed ") + key;
         SECTION("No transform") {
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, origin, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             auto C2          = make_transform(bs, world, 2.0);
             corr("q, i, mu") = C2.C()("nu, i") * X_ao("q, nu, mu");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, bs, origin, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             auto C2          = make_transform(bs, world, 2.0);
             corr("q, nu, i") = C2.C()("mu, i") * X_ao("q, nu, mu");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2, origin, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             auto C2 = make_transform(bs, world, 2.0);
@@ -61,7 +61,7 @@ TEST_CASE("Two Center Integrals") {
               C2.C()("nu, i") * X_ao("q, nu, mu") * C3.C()("mu,j");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, C3, origin, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 
@@ -76,21 +76,21 @@ TEST_CASE("Two Center Integrals") {
         const auto tkey = std::string("Transformed ") + key;
         SECTION("No transform") {
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, origin, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             auto C2          = make_transform(bs, world, 2.0);
             corr("q, i, mu") = C2.C()("nu, i") * X_ao("q, nu, mu");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, bs, origin, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             auto C2          = make_transform(bs, world, 2.0);
             corr("q, nu, i") = C2.C()("mu, i") * X_ao("q, nu, mu");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2, origin, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             auto C2 = make_transform(bs, world, 2.0);
@@ -99,7 +99,7 @@ TEST_CASE("Two Center Integrals") {
               C2.C()("nu, i") * X_ao("q, nu, mu") * C3.C()("mu,j");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, C3, origin, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 
@@ -114,21 +114,21 @@ TEST_CASE("Two Center Integrals") {
         const auto tkey = std::string("Transformed ") + key;
         SECTION("No transform") {
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, origin, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             auto C2          = make_transform(bs, world, 2.0);
             corr("q, i, mu") = C2.C()("nu, i") * X_ao("q, nu, mu");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, bs, origin, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             auto C2          = make_transform(bs, world, 2.0);
             corr("q, nu, i") = C2.C()("mu, i") * X_ao("q, nu, mu");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2, origin, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             auto C2 = make_transform(bs, world, 2.0);
@@ -137,7 +137,7 @@ TEST_CASE("Two Center Integrals") {
               C2.C()("nu, i") * X_ao("q, nu, mu") * C3.C()("mu,j");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, C3, origin, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 
@@ -152,20 +152,20 @@ TEST_CASE("Two Center Integrals") {
 
         SECTION("No transform") {
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             auto C2       = make_transform(bs, world, 2.0);
             corr("i, mu") = C2.C()("nu, i") * X_ao("nu, mu");
             auto [X]      = mm.at(tkey).run_as<prop_type>(C2, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             auto C2       = make_transform(bs, world, 2.0);
             corr("nu, i") = C2.C()("mu, i") * X_ao("nu, mu");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             auto C2      = make_transform(bs, world, 2.0);
@@ -173,7 +173,7 @@ TEST_CASE("Two Center Integrals") {
             corr("i, j") = C2.C()("nu, i") * X_ao("nu, mu") * C3.C()("mu,j");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, C3, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 
@@ -188,20 +188,20 @@ TEST_CASE("Two Center Integrals") {
 
         SECTION("No transform") {
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             auto C2       = make_transform(bs, world, 2.0);
             corr("i, mu") = C2.C()("nu, i") * X_ao("nu, mu");
             auto [X]      = mm.at(tkey).run_as<prop_type>(C2, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             auto C2       = make_transform(bs, world, 2.0);
             corr("nu, i") = C2.C()("mu, i") * X_ao("nu, mu");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             auto C2      = make_transform(bs, world, 2.0);
@@ -209,7 +209,7 @@ TEST_CASE("Two Center Integrals") {
             corr("i, j") = C2.C()("nu, i") * X_ao("nu, mu") * C3.C()("mu,j");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, C3, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 
@@ -224,20 +224,20 @@ TEST_CASE("Two Center Integrals") {
 
         SECTION("No transform") {
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, mol, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             auto C2       = make_transform(bs, world, 2.0);
             corr("i, mu") = C2.C()("nu, i") * X_ao("nu, mu");
             auto [X]      = mm.at(tkey).run_as<prop_type>(C2, bs, mol, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             auto C2       = make_transform(bs, world, 2.0);
             corr("nu, i") = C2.C()("mu, i") * X_ao("nu, mu");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2, mol, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             auto C2      = make_transform(bs, world, 2.0);
@@ -245,7 +245,7 @@ TEST_CASE("Two Center Integrals") {
             corr("i, j") = C2.C()("nu, i") * X_ao("nu, mu") * C3.C()("mu,j");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, C3, mol, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 
@@ -260,20 +260,20 @@ TEST_CASE("Two Center Integrals") {
 
         SECTION("No transform") {
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             auto C2       = make_transform(bs, world, 2.0);
             corr("i, mu") = C2.C()("nu, i") * X_ao("nu, mu");
             auto [X]      = mm.at(tkey).run_as<prop_type>(C2, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             auto C2       = make_transform(bs, world, 2.0);
             corr("nu, i") = C2.C()("mu, i") * X_ao("nu, mu");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             auto C2      = make_transform(bs, world, 2.0);
@@ -281,7 +281,7 @@ TEST_CASE("Two Center Integrals") {
             corr("i, j") = C2.C()("nu, i") * X_ao("nu, mu") * C3.C()("mu,j");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, C3, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 
@@ -297,20 +297,20 @@ TEST_CASE("Two Center Integrals") {
 
         SECTION("No transform") {
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, gamma, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             auto C2       = make_transform(bs, world, 2.0);
             corr("i, mu") = C2.C()("nu, i") * X_ao("nu, mu");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, bs, gamma, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             auto C2       = make_transform(bs, world, 2.0);
             corr("nu, i") = C2.C()("mu, i") * X_ao("nu, mu");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2, gamma, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             auto C2      = make_transform(bs, world, 2.0);
@@ -318,7 +318,7 @@ TEST_CASE("Two Center Integrals") {
             corr("i, j") = C2.C()("nu, i") * X_ao("nu, mu") * C3.C()("mu,j");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, C3, gamma, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 
@@ -334,20 +334,20 @@ TEST_CASE("Two Center Integrals") {
 
         SECTION("No transform") {
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, gamma, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             auto C2       = make_transform(bs, world, 2.0);
             corr("i, mu") = C2.C()("nu, i") * X_ao("nu, mu");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, bs, gamma, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             auto C2       = make_transform(bs, world, 2.0);
             corr("nu, i") = C2.C()("mu, i") * X_ao("nu, mu");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2, gamma, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             auto C2      = make_transform(bs, world, 2.0);
@@ -355,7 +355,7 @@ TEST_CASE("Two Center Integrals") {
             corr("i, j") = C2.C()("nu, i") * X_ao("nu, mu") * C3.C()("mu,j");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, C3, gamma, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 }
@@ -381,27 +381,27 @@ TEST_CASE("Three Center Integrals") {
 
         SECTION("No transform") {
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             auto C2               = make_transform(bs, world, 2.0);
             corr("i, mu, lambda") = C2.C()("nu, i") * X_ao("nu, mu, lambda");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, bs, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             auto C2               = make_transform(bs, world, 2.0);
             corr("nu, i, lambda") = C2.C()("mu, i") * X_ao("nu, mu, lambda");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 2") {
             auto C2           = make_transform(bs, world, 2.0);
             corr("nu, mu, i") = C2.C()("lambda, i") * X_ao("nu, mu, lambda");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, C2, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 1") {
             auto C2 = make_transform(bs, world, 2.0);
@@ -410,7 +410,7 @@ TEST_CASE("Three Center Integrals") {
               C2.C()("nu, i") * X_ao("nu, mu, lambda") * C3.C()("mu,j");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, C3, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 2") {
             auto C2 = make_transform(bs, world, 2.0);
@@ -419,7 +419,7 @@ TEST_CASE("Three Center Integrals") {
               C2.C()("nu, i") * X_ao("nu, mu, lambda") * C3.C()("lambda,j");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, bs, C3, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 1 and 2") {
             auto C2 = make_transform(bs, world, 2.0);
@@ -428,7 +428,7 @@ TEST_CASE("Three Center Integrals") {
               C2.C()("mu, i") * X_ao("nu, mu, lambda") * C3.C()("lambda,j");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2, C3, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             auto C2         = make_transform(bs, world, 2.0);
@@ -438,7 +438,7 @@ TEST_CASE("Three Center Integrals") {
                               C3.C()("mu,j") * C4.C()("lambda,k");
 
             auto [X] = mm.at(tkey).run_as<prop_type>(C2, C3, C4, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 
@@ -455,14 +455,14 @@ TEST_CASE("Three Center Integrals") {
         SECTION("No transform") {
             auto [X] =
               mm.at(tkey).run_as<prop_type>(bs, bs, bs, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             auto C2               = make_transform(bs, world, 2.0);
             corr("i, mu, lambda") = C2.C()("nu, i") * X_ao("nu, mu, lambda");
             auto [X] =
               mm.at(tkey).run_as<prop_type>(C2, bs, bs, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             auto C2               = make_transform(bs, world, 2.0);
@@ -470,7 +470,7 @@ TEST_CASE("Three Center Integrals") {
 
             auto [X] =
               mm.at(tkey).run_as<prop_type>(bs, C2, bs, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 2") {
             auto C2           = make_transform(bs, world, 2.0);
@@ -478,7 +478,7 @@ TEST_CASE("Three Center Integrals") {
 
             auto [X] =
               mm.at(tkey).run_as<prop_type>(bs, bs, C2, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 1") {
             auto C2 = make_transform(bs, world, 2.0);
@@ -488,7 +488,7 @@ TEST_CASE("Three Center Integrals") {
 
             auto [X] =
               mm.at(tkey).run_as<prop_type>(C2, C3, bs, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 2") {
             auto C2 = make_transform(bs, world, 2.0);
@@ -498,7 +498,7 @@ TEST_CASE("Three Center Integrals") {
 
             auto [X] =
               mm.at(tkey).run_as<prop_type>(C2, bs, C3, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 1 and 2") {
             auto C2 = make_transform(bs, world, 2.0);
@@ -508,7 +508,7 @@ TEST_CASE("Three Center Integrals") {
 
             auto [X] =
               mm.at(tkey).run_as<prop_type>(bs, C2, C3, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             auto C2         = make_transform(bs, world, 2.0);
@@ -519,7 +519,7 @@ TEST_CASE("Three Center Integrals") {
 
             auto [X] =
               mm.at(tkey).run_as<prop_type>(C2, C3, C4, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 
@@ -536,14 +536,14 @@ TEST_CASE("Three Center Integrals") {
         SECTION("No transform") {
             auto [X] =
               mm.at(tkey).run_as<prop_type>(bs, bs, bs, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             auto C2               = make_transform(bs, world, 2.0);
             corr("i, mu, lambda") = C2.C()("nu, i") * X_ao("nu, mu, lambda");
             auto [X] =
               mm.at(tkey).run_as<prop_type>(C2, bs, bs, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             auto C2               = make_transform(bs, world, 2.0);
@@ -551,7 +551,7 @@ TEST_CASE("Three Center Integrals") {
 
             auto [X] =
               mm.at(tkey).run_as<prop_type>(bs, C2, bs, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 2") {
             auto C2           = make_transform(bs, world, 2.0);
@@ -559,7 +559,7 @@ TEST_CASE("Three Center Integrals") {
 
             auto [X] =
               mm.at(tkey).run_as<prop_type>(bs, bs, C2, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 1") {
             auto C2 = make_transform(bs, world, 2.0);
@@ -569,7 +569,7 @@ TEST_CASE("Three Center Integrals") {
 
             auto [X] =
               mm.at(tkey).run_as<prop_type>(C2, C3, bs, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 2") {
             auto C2 = make_transform(bs, world, 2.0);
@@ -579,7 +579,7 @@ TEST_CASE("Three Center Integrals") {
 
             auto [X] =
               mm.at(tkey).run_as<prop_type>(C2, bs, C3, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 1 and 2") {
             auto C2 = make_transform(bs, world, 2.0);
@@ -589,7 +589,7 @@ TEST_CASE("Three Center Integrals") {
 
             auto [X] =
               mm.at(tkey).run_as<prop_type>(bs, C2, C3, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             auto C2         = make_transform(bs, world, 2.0);
@@ -600,7 +600,7 @@ TEST_CASE("Three Center Integrals") {
 
             auto [X] =
               mm.at(tkey).run_as<prop_type>(C2, C3, C4, gamma, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 }
@@ -634,102 +634,102 @@ TEST_CASE("Four Center Integrals") {
         SECTION("No transform") {
             auto [X] =
               mm.at(tkey).run_as<prop_type>(bs, bs, bs, bs, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             corr("i, m, l, s") = C2("n, i") * X_ao("n, m, l, s");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, bs, bs, bs, bs,
                                                      bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             corr("n, i, l, s") = C2("m, i") * X_ao("n, m, l, s");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2_space, bs, bs, bs,
                                                      bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 2") {
             corr("n, m, i, s") = C2("l, i") * X_ao("n, m, l, s");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, C2_space, bs, bs,
                                                      bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 3") {
             corr("n, m, l, i") = C2("s, i") * X_ao("n, m, l, s");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, bs, C2_space, bs,
                                                      bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 1") {
             corr("i, j, l, s") = C2("n, i") * X_ao("n, m, l, s") * C3("m, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, C3_space, bs, bs,
                                                      bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 2") {
             corr("i, m, j, s") = C2("n, i") * X_ao("n, m, l, s") * C3("l, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, bs, C3_space, bs,
                                                      bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 3") {
             corr("i, m, l, j") = C2("n, i") * X_ao("n, m, l, s") * C3("s, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, bs, bs, C3_space,
                                                      bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 1 and 2") {
             corr("n, i, j, s") = C2("m, i") * X_ao("n, m, l, s") * C3("l, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2_space, C3_space, bs,
                                                      bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 1 and 3") {
             corr("n, i, l, j") = C2("m, i") * X_ao("n, m, l, s") * C3("s, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2_space, bs, C3_space,
                                                      bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 2 and 3") {
             corr("n, m, i, j") = C2("l, i") * X_ao("n, m, l, s") * C3("s, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, C2_space, C3_space,
                                                      bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0, 1, and 2") {
             corr("i, j, k, s") =
               C2("n, i") * X_ao("n, m, l, s") * C3("m,j") * C4("l,k");
             auto [X] = mm.at(tkey).run_as<prop_type>(
               C2_space, C3_space, C4_space, bs, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0, 1, and 3") {
             corr("i, j, l, k") =
               C2("n, i") * X_ao("n, m, l, s") * C3("m,j") * C4("s,k");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, C3_space, bs,
                                                      C4_space, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0, 2, and 3") {
             corr("i, m, j, k") =
               C2("n, i") * X_ao("n, m, l, s") * C3("l,j") * C4("s,k");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, bs, C3_space,
                                                      C4_space, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 1, 2, and 3") {
             corr("n, i, j, k") =
               C2("m, i") * X_ao("n, m, l, s") * C3("l,j") * C4("s,k");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2_space, C3_space,
                                                      C4_space, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             corr("i, j, k, l") = C2("n, i") * X_ao("n, m, la, s") * C3("m,j") *
                                  C4("la,k") * C5("s, l");
             auto [X] = mm.at(tkey).run_as<prop_type>(
               C2_space, C3_space, C4_space, C5_space, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 
@@ -753,102 +753,102 @@ TEST_CASE("Four Center Integrals") {
         SECTION("No transform") {
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, bs, bs, gamma, bs,
                                                      bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             corr("i, m, l, s") = C2("n, i") * X_ao("n, m, l, s");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, bs, bs, bs,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             corr("n, i, l, s") = C2("m, i") * X_ao("n, m, l, s");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2_space, bs, bs,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 2") {
             corr("n, m, i, s") = C2("l, i") * X_ao("n, m, l, s");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, C2_space, bs,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 3") {
             corr("n, m, l, i") = C2("s, i") * X_ao("n, m, l, s");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, bs, C2_space,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 1") {
             corr("i, j, l, s") = C2("n, i") * X_ao("n, m, l, s") * C3("m, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, C3_space, bs, bs,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 2") {
             corr("i, m, j, s") = C2("n, i") * X_ao("n, m, l, s") * C3("l, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, bs, C3_space, bs,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 3") {
             corr("i, m, l, j") = C2("n, i") * X_ao("n, m, l, s") * C3("s, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, bs, bs, C3_space,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 1 and 2") {
             corr("n, i, j, s") = C2("m, i") * X_ao("n, m, l, s") * C3("l, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2_space, C3_space, bs,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 1 and 3") {
             corr("n, i, l, j") = C2("m, i") * X_ao("n, m, l, s") * C3("s, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2_space, bs, C3_space,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 2 and 3") {
             corr("n, m, i, j") = C2("l, i") * X_ao("n, m, l, s") * C3("s, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, C2_space, C3_space,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0, 1, and 2") {
             corr("i, j, k, s") =
               C2("n, i") * X_ao("n, m, l, s") * C3("m,j") * C4("l,k");
             auto [X] = mm.at(tkey).run_as<prop_type>(
               C2_space, C3_space, C4_space, bs, gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0, 1, and 3") {
             corr("i, j, l, k") =
               C2("n, i") * X_ao("n, m, l, s") * C3("m,j") * C4("s,k");
             auto [X] = mm.at(tkey).run_as<prop_type>(
               C2_space, C3_space, bs, C4_space, gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0, 2, and 3") {
             corr("i, m, j, k") =
               C2("n, i") * X_ao("n, m, l, s") * C3("l,j") * C4("s,k");
             auto [X] = mm.at(tkey).run_as<prop_type>(
               C2_space, bs, C3_space, C4_space, gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 1, 2, and 3") {
             corr("n, i, j, k") =
               C2("m, i") * X_ao("n, m, l, s") * C3("l,j") * C4("s,k");
             auto [X] = mm.at(tkey).run_as<prop_type>(
               bs, C2_space, C3_space, C4_space, gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             corr("i, j, k, l") = C2("n, i") * X_ao("n, m, la, s") * C3("m,j") *
                                  C4("la,k") * C5("s, l");
             auto [X] = mm.at(tkey).run_as<prop_type>(
               C2_space, C3_space, C4_space, C5_space, gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 
@@ -872,102 +872,102 @@ TEST_CASE("Four Center Integrals") {
         SECTION("No transform") {
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, bs, bs, gamma, bs,
                                                      bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, X_ao));
+            REQUIRE(chemist::ta_helpers::allclose(X, X_ao));
         }
         SECTION("Mode 0") {
             corr("i, m, l, s") = C2("n, i") * X_ao("n, m, l, s");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, bs, bs, bs,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 1") {
             corr("n, i, l, s") = C2("m, i") * X_ao("n, m, l, s");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2_space, bs, bs,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 2") {
             corr("n, m, i, s") = C2("l, i") * X_ao("n, m, l, s");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, C2_space, bs,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Mode 3") {
             corr("n, m, l, i") = C2("s, i") * X_ao("n, m, l, s");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, bs, C2_space,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 1") {
             corr("i, j, l, s") = C2("n, i") * X_ao("n, m, l, s") * C3("m, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, C3_space, bs, bs,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 2") {
             corr("i, m, j, s") = C2("n, i") * X_ao("n, m, l, s") * C3("l, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, bs, C3_space, bs,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0 and 3") {
             corr("i, m, l, j") = C2("n, i") * X_ao("n, m, l, s") * C3("s, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(C2_space, bs, bs, C3_space,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 1 and 2") {
             corr("n, i, j, s") = C2("m, i") * X_ao("n, m, l, s") * C3("l, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2_space, C3_space, bs,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 1 and 3") {
             corr("n, i, l, j") = C2("m, i") * X_ao("n, m, l, s") * C3("s, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, C2_space, bs, C3_space,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 2 and 3") {
             corr("n, m, i, j") = C2("l, i") * X_ao("n, m, l, s") * C3("s, j");
             auto [X] = mm.at(tkey).run_as<prop_type>(bs, bs, C2_space, C3_space,
                                                      gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0, 1, and 2") {
             corr("i, j, k, s") =
               C2("n, i") * X_ao("n, m, l, s") * C3("m,j") * C4("l,k");
             auto [X] = mm.at(tkey).run_as<prop_type>(
               C2_space, C3_space, C4_space, bs, gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0, 1, and 3") {
             corr("i, j, l, k") =
               C2("n, i") * X_ao("n, m, l, s") * C3("m,j") * C4("s,k");
             auto [X] = mm.at(tkey).run_as<prop_type>(
               C2_space, C3_space, bs, C4_space, gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 0, 2, and 3") {
             corr("i, m, j, k") =
               C2("n, i") * X_ao("n, m, l, s") * C3("l,j") * C4("s,k");
             auto [X] = mm.at(tkey).run_as<prop_type>(
               C2_space, bs, C3_space, C4_space, gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("Modes 1, 2, and 3") {
             corr("n, i, j, k") =
               C2("m, i") * X_ao("n, m, l, s") * C3("l,j") * C4("s,k");
             auto [X] = mm.at(tkey).run_as<prop_type>(
               bs, C2_space, C3_space, C4_space, gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
         SECTION("All modes") {
             corr("i, j, k, l") = C2("n, i") * X_ao("n, m, la, s") * C3("m,j") *
                                  C4("la,k") * C5("s, l");
             auto [X] = mm.at(tkey).run_as<prop_type>(
               C2_space, C3_space, C4_space, C5_space, gamma, bs, bs, bs, bs);
-            REQUIRE(libchemist::ta_helpers::allclose(X, corr));
+            REQUIRE(chemist::ta_helpers::allclose(X, corr));
         }
     }
 }

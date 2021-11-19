@@ -14,7 +14,7 @@ LI_basis _make_basis(const NWX_basis<T>& bs) {
         const auto first_prim = shelli.unique_primitive(0);
         const auto last_prim  = shelli.unique_primitive(nprims - 1);
         const int l           = shelli.l();
-        const bool pure       = shelli.pure() == libchemist::ShellType::pure;
+        const bool pure       = shelli.pure() == chemist::ShellType::pure;
 
         coord_type center = {shelli.x(), shelli.y(), shelli.z()};
 

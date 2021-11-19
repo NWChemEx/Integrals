@@ -1,7 +1,7 @@
 #pragma once
 #include "integrals/integralpimpl.hpp"
 #include "integrals/libint_integral.hpp"
-#include <libchemist/basis_set_map.hpp>
+#include <chemist/basis_set_map.hpp>
 
 namespace integrals::libint::detail_ {
 
@@ -24,7 +24,7 @@ struct TAMMIntFunctor {
     const tiled_AO tAO; // tiled index spaces
     const std::array<std::vector<size_type>, NBases> atom_blocks; // atom indices for the start of each tile
     const basis_array_type bases; // basis sets
-    std::array<libchemist::BasisSetMap, NBases> maps;
+    std::array<chemist::BasisSetMap, NBases> maps;
     size_type iopers; // index to libint buffer for multicomponent (i.e. x,y,z) integrals
     const element_type schwarz_thresh; // integral screening theshold
     matrix_type Scr; // Scr(i,j) = <ij|op|ij>
@@ -33,7 +33,7 @@ struct TAMMIntFunctor {
     std::array<size_type, NBases> idx; // tensor blockid with multicomponent index removed
     typename fxn_type::shell_index shells;
     std::array<size_type, NBases> ao_off; //
-    std::array<typename libchemist::BasisSetMap::range, NBases> ao_ranges; // The corresponding AO ranges for shells
+    std::array<typename chemist::BasisSetMap::range, NBases> ao_ranges; // The corresponding AO ranges for shells
     size_type x_libint; // libint buffer index
     tamm::span<element_type> tamm_buf; // the tamm::Tensor buffer for a block
 

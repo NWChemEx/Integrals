@@ -1,6 +1,6 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/tensor/allclose.hpp>
+#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
 
 using namespace mokup;
@@ -17,8 +17,8 @@ TEST_CASE("STG 4 Center GR") {
     const auto name = mokup::molecule::h2;
     const auto prop = property::stg_gr;
 
-    libchemist::Electron e;
-    op_type gr(libchemist::operators::STG(), e, e);
+    chemist::Electron e;
+    op_type gr(chemist::operators::STG(), e, e);
 
     for(const auto& bs : {basis_set::sto3g, basis_set::ccpvdz}) {
         std::vector<basis_set> bs_key(4, bs);
@@ -26,7 +26,7 @@ TEST_CASE("STG 4 Center GR") {
             auto aos    = get_bases(name, bs);
             auto X_corr = get_ao_data(name, bs_key, prop, world);
             auto [X] = mm.at(key).run_as<integral_type>(aos, aos, gr, aos, aos);
-            REQUIRE(libchemist::tensor::allclose(X, X_corr));
+            REQUIRE(chemist::tensor::allclose(X, X_corr));
         }
     }
 }

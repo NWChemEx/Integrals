@@ -1,6 +1,6 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/tensor/allclose.hpp>
+#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
 
 using namespace mokup;
@@ -21,5 +21,5 @@ TEST_CASE("DOI") {
     auto corr = get_ao_data(name, bases, property::dois, world);
     op_type d;
     auto [X] = mm.at("DOI").run_as<integral_type>(aos, d, aos);
-    REQUIRE(libchemist::tensor::allclose(X, corr));
+    REQUIRE(chemist::tensor::allclose(X, corr));
 }

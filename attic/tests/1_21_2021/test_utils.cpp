@@ -4,7 +4,7 @@
 
 TEST_CASE("Test Utilities") {
     auto [molecule, sto] = make_molecule("sto-3g");
-    auto adz = libchemist::apply_basis("aug-cc-pvdz", molecule);
+    auto adz = chemist::apply_basis("aug-cc-pvdz", molecule);
 
     auto atoms = std::vector<libint2::Atom>{
         {8, 0.000000000000000, -0.143222342980786, 0.000000000000000},

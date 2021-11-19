@@ -1,6 +1,6 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/tensor/allclose.hpp>
+#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
 #include <simde/tensor_representation/tensor_representation.hpp>
 
@@ -31,18 +31,18 @@ TEST_CASE("Quadrupole") {
     // SECTION("overlap matrix") {
     //     mm.change_input("EDipole", "Origin", origin);
     //     auto [S] = mm.at("EDipole").run_as<s_type>(aos, aos);
-    //     REQUIRE(libchemist::ta_helpers::allclose(S, X));
+    //     REQUIRE(chemist::ta_helpers::allclose(S, X));
     // }
 
     SECTION("dipole matrix") {
         // auto [D]  = mm.at("EQuadrupole").run_as<d_type>(aos, r, aos);
         // auto corr = tensors.at(mokup::property::dipole);
-        // REQUIRE(libchemist::tensor::allclose(D, corr));
+        // REQUIRE(chemist::tensor::allclose(D, corr));
     }
 
     SECTION("Quadrupole") {
         // auto [Q]  = mm.at("EQuadrupole").run_as<q_type>(aos, r2, aos);
         // auto corr = tensors.at(mokup::property::quadrupole);
-        // REQUIRE(libchemist::tensor::allclose(Q, corr));
+        // REQUIRE(chemist::tensor::allclose(Q, corr));
     }
 }

@@ -1,6 +1,6 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/tensor/allclose.hpp>
+#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
 
 using namespace mokup;
@@ -18,8 +18,8 @@ TEST_CASE("STG3C") {
     auto aos  = get_bases(name, bs);
     std::vector bases{bs, bs, bs};
     auto corr = get_ao_data(name, bases, property::stg, world);
-    libchemist::Electron e;
-    op_type stg(libchemist::operators::STG(1.0, 1.0));
+    chemist::Electron e;
+    op_type stg(chemist::operators::STG(1.0, 1.0));
     auto [X] = mm.at("STG3").run_as<integral_type>(aos, stg, aos, aos);
-    REQUIRE(libchemist::tensor::allclose(X, corr));
+    REQUIRE(chemist::tensor::allclose(X, corr));
 }

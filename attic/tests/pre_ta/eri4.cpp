@@ -11,7 +11,7 @@ TEST_CASE("Testing ERI4") {
     sde::ModuleManager mm;
     load_modules(mm);
     auto[molecule, bs]                          = make_molecule();
-    std::array<libchemist::AOBasisSet, 4> bases = {bs, bs, bs, bs};
+    std::array<chemist::AOBasisSet, 4> bases = {bs, bs, bs, bs};
     auto[Ints] =
     mm.at("ERI4").run_as<integral_type>(molecule, bases, std::size_t{0});
     compare_integrals(Ints, corr);
