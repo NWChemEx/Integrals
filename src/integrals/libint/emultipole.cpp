@@ -31,8 +31,8 @@ MODULE_CTOR(LibintDipole) {
 
     identity_op I;
     dipole_op r;
-    change_input(I.as_string()).change(I);
-    change_input(r.as_string()).change(r);
+    change_input(I.as_string()).change(std::move(I));
+    change_input(r.as_string()).change(std::move(r));
 
     add_input<double>("Threshold").set_default(1.0E-16);
     add_input<size_vector>("Tile Size").set_default(size_vector{180});
@@ -161,7 +161,7 @@ MODULE_RUN(LibintQuadrupole) {
     // S("i,j,k") = X("i,j,k").block(lo_S, hi_S);
     // auto I = TA::diagonal_array<tensor_type, element_type>(
     //   world, TA::TiledRange{S.trange().dim(0)});
-    // S = libchemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
+    // S = chemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
 
     auto rv = results();
     // rv      = overlap_pt::wrap_results(rv, S);
@@ -243,7 +243,7 @@ MODULE_RUN(LibintOctupole) {
     // S("i,j,k") = X("i,j,k").block(lo_S, hi_S);
     // auto I = TA::diagonal_array<tensor_type, element_type>(
     //   world, TA::TiledRange{S.trange().dim(0)});
-    // S = libchemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
+    // S = chemist::ta_helpers::einsum::einsum("j,k", "i,j,k", "i", S, I);
 
     auto rv = results();
     // rv      = overlap_pt::wrap_results(rv, S);

@@ -2,7 +2,7 @@
 #include <catch/catch.hpp>
 #include <iomanip>
 #include <iostream>
-#include <libchemist/libchemist.hpp>
+#include <chemist/chemist.hpp>
 #include <map>
 #include <tamm/tamm.hpp>
 
@@ -104,11 +104,11 @@ inline void print_integrals(const TensorType& calc) {
 }
 
 inline auto make_molecule() {
-    using libchemist::Atom;
+    using chemist::Atom;
     using c_t = typename Atom::coord_type;
     Atom H1{1ul, c_t{1.638033502034240, 1.136556880358410, 0.000000000000000}};
     Atom O{8ul, c_t{0.000000000000000, -0.143222342980786, 0.000000000000000}};
     Atom H2{1ul, c_t{-1.638033502034240, 1.136556880358410, 0.000000000000000}};
-    libchemist::Molecule water(O, H1, H2);
-    return std::make_tuple(water, libchemist::apply_basis("sto-3g", water));
+    chemist::Molecule water(O, H1, H2);
+    return std::make_tuple(water, chemist::apply_basis("sto-3g", water));
 }

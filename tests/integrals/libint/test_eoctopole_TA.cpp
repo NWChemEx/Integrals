@@ -1,10 +1,11 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/tensor/allclose.hpp>
+#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
 #include <simde/tensor_representation/tensor_representation.hpp>
 
 using namespace integrals;
+using namespace mokup;
 
 TEST_CASE("Octupole") {
     using i_op   = simde::type::el_identity;
@@ -20,12 +21,12 @@ TEST_CASE("Octupole") {
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
-    const auto name = mokup::molecule::h2o;
-    const auto bs   = mokup::basis_set::sto3g;
-    auto mol        = mokup::get_molecules().at(name);
-    auto aos        = mokup::get_bases().at(name).at(bs);
+    const auto name = molecule::h2o;
+    const auto bs   = basis_set::sto3g;
+    auto mol        = get_molecule(name);
+    auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs};
-    auto tensors = mokup::get_ao_data(world).at(name).at(bases);
+    // auto corr = get_ao_data(name, bases, property::octopole, world);
     d_op r;
     q_op r2;
     o_op r3;
@@ -33,24 +34,24 @@ TEST_CASE("Octupole") {
     // SECTION("overlap matrix") {
     //     mm.change_input("EDipole", "Origin", origin);
     //     auto [S] = mm.at("EDipole").run_as<s_type>(aos, aos);
-    //     REQUIRE(libchemist::ta_helpers::allclose(S, X));
+    //     REQUIRE(chemist::ta_helpers::allclose(S, X));
     // }
 
     SECTION("dipole matrix") {
         // auto [D]  = mm.at("EOctupole").run_as<d_type>(aos, r, aos);
         // auto corr = tensors.at(mokup::property::dipole);
-        // REQUIRE(libchemist::tensor::allclose(D, corr));
+        // REQUIRE(chemist::tensor::allclose(D, corr));
     }
 
     SECTION("Quadrupole") {
         // auto [Q]  = mm.at("EOctupole").run_as<q_type>(aos, r2, aos);
         // auto corr = tensors.at(mokup::property::quadrupole);
-        // REQUIRE(libchemist::tensor::allclose(Q, corr));
+        // REQUIRE(chemist::tensor::allclose(Q, corr));
     }
 
     SECTION("Octupole") {
         // auto [O]  = mm.at("EOctupole").run_as<o_type>(aos, r3, aos);
         // auto corr = tensors.at(mokup::property::octopole);
-        // REQUIRE(libchemist::tensor::allclose(O, corr));
+        // REQUIRE(chemist::tensor::allclose(O, corr));
     }
 }

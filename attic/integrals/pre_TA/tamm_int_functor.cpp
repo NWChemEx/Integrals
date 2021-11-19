@@ -35,7 +35,7 @@ void TAMMIntFunctor<op, NBases, element_type>::operator()(
 
     for(size_type i = 0; i < NBases; ++i) {
         idx[i]    = blockid[i + off_nopers];
-        maps[i]   = libchemist::BasisSetMap{bases[i]};
+        maps[i]   = chemist::BasisSetMap{bases[i]};
         ao_off[i] = maps[i].atom_to_ao(atom_blocks[i][(idx[i])]).first;
     }
 

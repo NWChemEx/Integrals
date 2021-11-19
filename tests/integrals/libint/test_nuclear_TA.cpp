@@ -1,7 +1,9 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/tensor/allclose.hpp>
+#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
+
+using namespace mokup;
 
 TEST_CASE("Nuclear") {
     using op_type       = simde::type::el_nuc_coulomb;
@@ -11,15 +13,15 @@ TEST_CASE("Nuclear") {
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
-    auto name = mokup::molecule::h2o;
-    auto bs   = mokup::basis_set::sto3g;
-    auto mol  = mokup::get_molecules().at(name);
-    auto aos  = mokup::get_bases().at(name).at(bs);
+    auto name = molecule::h2o;
+    auto bs   = basis_set::sto3g;
+    auto mol  = get_molecule(name);
+    auto aos  = get_bases(name, bs);
     std::vector bases{bs, bs};
-    auto corr = mokup::get_ao_data(world).at(name).at(bases);
+    auto corr = get_ao_data(name, bases, property::nuclear, world);
 
     // mm.at("Nuclear").change_input("Tile size", size_vector{6, 1});
-    op_type riA(libchemist::Electron{}, mol);
+    op_type riA(chemist::Electron{}, mol);
     auto [V] = mm.at("Nuclear").run_as<integral_type>(aos, riA, aos);
-    REQUIRE(libchemist::tensor::allclose(V, corr.at(mokup::property::nuclear)));
+    REQUIRE(chemist::tensor::allclose(V, corr));
 }

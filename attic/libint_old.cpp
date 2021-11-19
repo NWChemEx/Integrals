@@ -5,7 +5,7 @@
 #include "nwx_TA_utils.hpp"
 #include "nwx_libint.hpp"
 #include "traits.hpp"
-#include <libchemist/ta_helpers/ta_hashers.hpp>
+#include <chemist/ta_helpers/ta_hashers.hpp>
 #include <property_types/ao_integrals/type_traits.hpp>
 #include <stdexcept>
 
@@ -55,7 +55,7 @@ TEMPLATED_MODULE_RUN(Libint, PropType) {
     // Take care of any special parameters the fill function needs
     // (should probably we done inside FillNDFunctor to encapsulate the setup)
     if constexpr(property_types::ao_integrals::is_nuclear_v<PropType>) {
-        using mol_type  = const libchemist::Molecule&;
+        using mol_type  = const chemist::Molecule&;
         const auto& mol = inputs.at("Molecule").value<mol_type>();
         std::vector<std::pair<double, std::array<double, 3>>> qs;
         for(const auto& ai : mol)

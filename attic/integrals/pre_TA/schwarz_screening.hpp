@@ -5,8 +5,8 @@
 namespace integrals::libint::detail_ {
 
 template<libint2::Operator op>
-auto schwarz_screening(const libchemist::AOBasisSet& bs1,
-                       const libchemist::AOBasisSet& bs2) {
+auto schwarz_screening(const chemist::AOBasisSet& bs1,
+                       const chemist::AOBasisSet& bs2) {
     using matrix_type =
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
@@ -26,7 +26,7 @@ auto schwarz_screening(const libchemist::AOBasisSet& bs1,
             std::max(fxn.bs[0].max_l(fxn.bs[0]), fxn.bs[1].max_l(fxn.bs[1]));
 
     fxn.engine =
-            make_engine<op, 4>(libchemist::Molecule{}, max_prims, max_l, 0.0, 0);
+            make_engine<op, 4>(chemist::Molecule{}, max_prims, max_l, 0.0, 0);
 
     const auto& buf = fxn.engine.results();
 

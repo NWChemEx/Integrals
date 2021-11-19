@@ -1,7 +1,9 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <libchemist/tensor/allclose.hpp>
+#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
+
+using namespace mokup;
 
 TEST_CASE("ERI2C") {
     using op            = simde::type::el_el_coulomb;
@@ -11,15 +13,15 @@ TEST_CASE("ERI2C") {
     auto& world = TA::get_default_world();
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
-    auto name = mokup::molecule::h2o;
-    auto bs   = mokup::basis_set::sto3g;
-    auto mol  = mokup::get_molecules().at(name);
-    auto aos  = mokup::get_bases().at(name).at(bs);
+    auto name = molecule::h2o;
+    auto bs   = basis_set::sto3g;
+    auto mol  = get_molecule(name);
+    auto aos  = get_bases(name, bs);
     std::vector bases{bs, bs};
-    auto corr = mokup::get_ao_data(world).at(name).at(bases);
+    auto corr = get_ao_data(name, bases, property::eris, world);
 
     // mm.at("ERI2").change_input("Tile size", size_vector{1});
     simde::type::el_el_coulomb r12;
     auto [X] = mm.at("ERI2").run_as<integral_type>(aos, r12, aos);
-    REQUIRE(libchemist::tensor::allclose(X, corr.at(mokup::property::eris)));
+    REQUIRE(chemist::tensor::allclose(X, corr));
 }
