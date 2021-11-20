@@ -44,6 +44,9 @@ cpp_add_library(
         DEPENDS Libint2::int2 nwx::simde
 )
 
+include(nwx_python_mods)
+cppyy_make_python_package(PACKAGE integrals NAMESPACES integrals DEPPACKAGES simde )
+
 if("${BUILD_TESTING}")
     cpp_find_or_build_dependency(
             Catch2
