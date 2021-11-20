@@ -30,7 +30,7 @@ cmake --build . --target install
 ```
 The build process is not capable of building MPI so you will have to provide a
 path to a known installation via the `MPI_ROOT` variable. The GitHub token is
-necessary because, at the moment, LibChemist, TAMM, SDE, and Utilities are 
+necessary because, at the moment, Chemist, TAMM, SDE, and Utilities are 
 private repositories (instructions for generating a token are 
 [here](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)).
 
@@ -46,7 +46,7 @@ and note that Integrals depends on several other projects:
   - [pybind11](https://github.com/pybind/pybind11)
     - Requires a development version of Python
   - [cereal](https://github.com/USCiLab/cereal)
-- [LibChemist](https://github.com/NWChemEx-Project/LibChemist)  
+- [Chemist](https://github.com/NWChemEx-Project/Chemist)  
 - [TAMM](https://github.com/NWChemEx-Project/TAMM)
   - [HPTT](https://github.com/ajaypanyala/hptt)
   - [MSGSL](https://github.com/Microsoft/GSL)
