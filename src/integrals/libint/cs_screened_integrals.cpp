@@ -57,21 +57,20 @@ TEMPLATED_MODULE_RUN(CauchySchwarzScreened, PropType) {
     fill.initialize(nwx_libint::make_basis_sets(bs), 0, thresh, cs_thresh);
 
     SpecialSetup<op_type>::setup(fill, op);
-    std::size_t deriv = 0;
 
     if(cs_thresh > 0.0) {
         if constexpr(n_centers == 4) {
             auto bra1      = inputs.at("bra 1").value<aospace>();
             auto bra2      = inputs.at("bra 1").value<aospace>();
             auto [cs_mat1] = submods.at("Shell Norms")
-                               .run_as<cs_approx_type>(bra1, bra2, deriv);
+                               .run_as<cs_approx_type>(bra1, bra2);
             fill.screen.cs_mat1 = cs_mat1;
         }
 
         auto ket1 = inputs.at("ket 1").value<aospace>();
         auto ket2 = inputs.at("ket 1").value<aospace>();
         auto [cs_mat2] =
-          submods.at("Shell Norms").run_as<cs_approx_type>(ket1, ket2, deriv);
+          submods.at("Shell Norms").run_as<cs_approx_type>(ket1, ket2);
         fill.screen.cs_mat2 = cs_mat2;
     }
 

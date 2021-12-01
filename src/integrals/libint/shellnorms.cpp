@@ -34,7 +34,7 @@ TEMPLATED_MODULE_RUN(ShellNorms, element_type, op) {
     using basis_vec  = std::vector<basis_type>;
 
     // Get inputs
-    auto [space1, space2, deriv] = simde::ShellNorms::unwrap_inputs(inputs);
+    auto [space1, space2] = simde::ShellNorms::unwrap_inputs(inputs);
     auto thresh                  = inputs.at("Threshold").value<element_type>();
 
     // Set up
@@ -44,7 +44,7 @@ TEMPLATED_MODULE_RUN(ShellNorms, element_type, op) {
     factory.max_nprims = nwx_libint::sets_max_nprims({bs1, bs2});
     factory.max_l      = nwx_libint::sets_max_l({bs1, bs2});
     factory.thresh     = thresh;
-    factory.deriv      = deriv;
+    factory.deriv      = 0;
 
     if constexpr(op == libint2::Operator::stg ||
                  op == libint2::Operator::yukawa) {
