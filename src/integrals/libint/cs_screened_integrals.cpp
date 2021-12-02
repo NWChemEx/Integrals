@@ -60,10 +60,10 @@ TEMPLATED_MODULE_RUN(CauchySchwarzScreened, PropType) {
 
     if(cs_thresh > 0.0) {
         if constexpr(n_centers == 4) {
-            auto bra1      = inputs.at("bra 1").value<aospace>();
-            auto bra2      = inputs.at("bra 1").value<aospace>();
-            auto [cs_mat1] = submods.at("Shell Norms")
-                               .run_as<cs_approx_type>(bra1, bra2);
+            auto bra1 = inputs.at("bra 1").value<aospace>();
+            auto bra2 = inputs.at("bra 1").value<aospace>();
+            auto [cs_mat1] =
+              submods.at("Shell Norms").run_as<cs_approx_type>(bra1, bra2);
             fill.screen.cs_mat1 = cs_mat1;
         }
 

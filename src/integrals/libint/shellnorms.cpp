@@ -35,7 +35,7 @@ TEMPLATED_MODULE_RUN(ShellNorms, element_type, op) {
 
     // Get inputs
     auto [space1, space2] = simde::ShellNorms::unwrap_inputs(inputs);
-    auto thresh                  = inputs.at("Threshold").value<element_type>();
+    auto thresh           = inputs.at("Threshold").value<element_type>();
 
     // Set up
     auto bs1           = nwx_libint::make_basis(space1.basis_set());
