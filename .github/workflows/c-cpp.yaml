@@ -28,6 +28,7 @@ jobs:
           .github/workflows/scripts/get_dependencies.sh gcc gcovr
           openblas cblas lapacke scalapack boost eigen3 openmpi
       - name: cache-libint
+        id: cache
         uses: actions/cache@v2
         with:
           path: install
