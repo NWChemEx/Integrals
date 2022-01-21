@@ -1,7 +1,7 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
+#include <tensorwrapper/tensor/allclose.hpp>
 
 using namespace mokup;
 
@@ -23,5 +23,5 @@ TEST_CASE("Kinetic") {
     // mm.at("Kinetic").change_input("Tile size", size_vector{1, 2});
     op_type t;
     auto [T] = mm.at("Kinetic").run_as<integral_type>(aos, t, aos);
-    REQUIRE(chemist::tensor::allclose(T, corr));
+    REQUIRE(tensorwrapper::tensor::allclose(T, corr));
 }

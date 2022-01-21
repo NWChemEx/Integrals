@@ -1,7 +1,7 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
+#include <tensorwrapper/tensor/allclose.hpp>
 
 using namespace mokup;
 
@@ -28,7 +28,7 @@ TEST_CASE("STG 4 Center Correlation Factor Squared") {
             auto X_corr = get_ao_data(name, bs_key, prop, world);
             auto [X] =
               mm.at(key).run_as<integral_type>(aos, aos, f12, aos, aos);
-            REQUIRE(chemist::tensor::allclose(X, X_corr));
+            REQUIRE(tensorwrapper::tensor::allclose(X, X_corr));
         }
     }
 }

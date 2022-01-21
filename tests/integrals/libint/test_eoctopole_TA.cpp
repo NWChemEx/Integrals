@@ -1,8 +1,8 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
 #include <simde/tensor_representation/tensor_representation.hpp>
+#include <tensorwrapper/tensor/allclose.hpp>
 
 using namespace integrals;
 using namespace mokup;
@@ -34,24 +34,24 @@ TEST_CASE("Octupole") {
     // SECTION("overlap matrix") {
     //     mm.change_input("EDipole", "Origin", origin);
     //     auto [S] = mm.at("EDipole").run_as<s_type>(aos, aos);
-    //     REQUIRE(chemist::ta_helpers::allclose(S, X));
+    //     REQUIRE(tensorwrapper::ta_helpers::allclose(S, X));
     // }
 
     SECTION("dipole matrix") {
         // auto [D]  = mm.at("EOctupole").run_as<d_type>(aos, r, aos);
         // auto corr = tensors.at(mokup::property::dipole);
-        // REQUIRE(chemist::tensor::allclose(D, corr));
+        // REQUIRE(tensorwrapper::tensor::allclose(D, corr));
     }
 
     SECTION("Quadrupole") {
         // auto [Q]  = mm.at("EOctupole").run_as<q_type>(aos, r2, aos);
         // auto corr = tensors.at(mokup::property::quadrupole);
-        // REQUIRE(chemist::tensor::allclose(Q, corr));
+        // REQUIRE(tensorwrapper::tensor::allclose(Q, corr));
     }
 
     SECTION("Octupole") {
         // auto [O]  = mm.at("EOctupole").run_as<o_type>(aos, r3, aos);
         // auto corr = tensors.at(mokup::property::octopole);
-        // REQUIRE(chemist::tensor::allclose(O, corr));
+        // REQUIRE(tensorwrapper::tensor::allclose(O, corr));
     }
 }

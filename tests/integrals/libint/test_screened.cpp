@@ -1,7 +1,7 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
+#include <tensorwrapper/tensor/allclose.hpp>
 
 using namespace mokup;
 
@@ -22,5 +22,5 @@ TEST_CASE("ERI4C CS") {
     simde::type::el_el_coulomb r12;
     auto [X] = mm.at("ERI4 CS").run_as<integral_type>(aos, aos, r12, aos, aos);
 
-    REQUIRE(chemist::tensor::allclose(X, corr_S));
+    REQUIRE(tensorwrapper::tensor::allclose(X, corr_S));
 }

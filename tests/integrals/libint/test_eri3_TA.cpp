@@ -1,7 +1,7 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
+#include <tensorwrapper/tensor/allclose.hpp>
 
 using namespace mokup;
 
@@ -23,5 +23,5 @@ TEST_CASE("ERI3C") {
     auto corr = get_ao_data(name, bases, property::eris, world);
     op_type r12;
     auto [X] = mm.run_as<integral_type>(key1, aos, r12, aos, aos);
-    REQUIRE(chemist::tensor::allclose(X, corr));
+    REQUIRE(tensorwrapper::tensor::allclose(X, corr));
 }
