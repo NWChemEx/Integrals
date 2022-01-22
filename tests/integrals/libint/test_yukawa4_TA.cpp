@@ -1,7 +1,7 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
+#include <tensorwrapper/tensor/allclose.hpp>
 
 using namespace mokup;
 
@@ -23,5 +23,5 @@ TEST_CASE("Yukawa4C") {
     op_type gr(chemist::operators::STG(1.0, 1.0), e, e);
 
     auto [X] = mm.at("Yukawa4").run_as<integral_type>(aos, aos, gr, aos, aos);
-    REQUIRE(chemist::tensor::allclose(X, corr));
+    REQUIRE(tensorwrapper::tensor::allclose(X, corr));
 }

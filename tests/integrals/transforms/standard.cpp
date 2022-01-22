@@ -1,6 +1,7 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
+#include <tensorwrapper/tensor/allclose.hpp>
 
 using namespace mokup;
 
@@ -48,7 +49,7 @@ TEST_CASE("Transformed") {
         auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor corr;
         corr("i,b,c,d") = C("a,i") * G("a,b,c,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform mode 1") {
@@ -61,7 +62,7 @@ TEST_CASE("Transformed") {
         auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor corr;
         corr("a,i,c,d") = C("b,i") * G("a,b,c,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform mode 2") {
@@ -74,7 +75,7 @@ TEST_CASE("Transformed") {
         auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor corr;
         corr("a,b,i,d") = C("c,i") * G("a,b,c,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform mode 3") {
@@ -87,7 +88,7 @@ TEST_CASE("Transformed") {
         auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor corr;
         corr("a,b,c,i") = C("d,i") * G("a,b,c,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform modes 0 and 1") {
@@ -101,7 +102,7 @@ TEST_CASE("Transformed") {
         simde::type::tensor temp, corr;
         temp("i,b,c,d") = C("a,i") * G("a,b,c,d");
         corr("i,j,c,d") = C("b,j") * temp("i,b,c,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform modes 0 and 2") {
@@ -115,7 +116,7 @@ TEST_CASE("Transformed") {
         simde::type::tensor temp, corr;
         temp("i,b,c,d") = C("a,i") * G("a,b,c,d");
         corr("i,b,j,d") = C("c,j") * temp("i,b,c,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform modes 0 and 3") {
@@ -129,7 +130,7 @@ TEST_CASE("Transformed") {
         simde::type::tensor temp, corr;
         temp("i,b,c,d") = C("a,i") * G("a,b,c,d");
         corr("i,b,c,j") = C("d,j") * temp("i,b,c,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform modes 1 and 2") {
@@ -143,7 +144,7 @@ TEST_CASE("Transformed") {
         simde::type::tensor temp, corr;
         temp("a,i,c,d") = C("b,i") * G("a,b,c,d");
         corr("a,i,j,d") = C("c,j") * temp("a,i,c,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform modes 1 and 3") {
@@ -157,7 +158,7 @@ TEST_CASE("Transformed") {
         simde::type::tensor temp, corr;
         temp("a,i,c,d") = C("b,i") * G("a,b,c,d");
         corr("a,i,c,j") = C("d,j") * temp("a,i,c,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform modes 2 and 3") {
@@ -171,7 +172,7 @@ TEST_CASE("Transformed") {
         simde::type::tensor temp, corr;
         temp("a,b,i,d") = C("c,i") * G("a,b,c,d");
         corr("a,b,i,j") = C("d,j") * temp("a,b,i,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform modes 0, 1, and 2") {
@@ -186,7 +187,7 @@ TEST_CASE("Transformed") {
         corr("i,b,c,d") = C("a,i") * G("a,b,c,d");
         temp("i,j,c,d") = C("b,j") * corr("i,b,c,d");
         corr("i,j,k,d") = C("c,k") * temp("i,j,c,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform modes 0, 1, and 3") {
@@ -201,7 +202,7 @@ TEST_CASE("Transformed") {
         corr("i,b,c,d") = C("a,i") * G("a,b,c,d");
         temp("i,j,c,d") = C("b,j") * corr("i,b,c,d");
         corr("i,j,c,k") = C("d,k") * temp("i,j,c,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform modes 0, 2, and 3") {
@@ -216,7 +217,7 @@ TEST_CASE("Transformed") {
         corr("i,b,c,d") = C("a,i") * G("a,b,c,d");
         temp("i,b,j,d") = C("c,j") * corr("i,b,c,d");
         corr("i,b,j,k") = C("d,k") * temp("i,b,j,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform modes 1, 2, and 3") {
@@ -231,7 +232,7 @@ TEST_CASE("Transformed") {
         corr("a,i,c,d") = C("b,i") * G("a,b,c,d");
         temp("a,i,j,d") = C("c,j") * corr("a,i,c,d");
         corr("a,i,j,k") = C("d,k") * temp("a,i,j,d");
-        REQUIRE(chemist::tensor::allclose(rv, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
     }
 
     SECTION("Transform all modes") {
@@ -247,6 +248,6 @@ TEST_CASE("Transformed") {
         temp("i,j,c,d") = C("b,j") * corr("i,b,c,d");
         corr("i,j,k,d") = C("c,k") * temp("i,j,c,d");
         temp("i,j,k,l") = C("d,l") * corr("i,j,k,d");
-        REQUIRE(chemist::tensor::allclose(rv, temp));
+        REQUIRE(tensorwrapper::tensor::allclose(rv, temp));
     }
 }

@@ -1,7 +1,7 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <chemist/tensor/allclose.hpp>
 #include <mokup/mokup.hpp>
+#include <tensorwrapper/tensor/allclose.hpp>
 
 using namespace integrals;
 using namespace mokup;
@@ -26,11 +26,11 @@ TEST_CASE("Dipole") {
     // SECTION("overlap matrix") {
     //     mm.change_input("EDipole", "Origin", origin);
     //     auto [S] = mm.at("EDipole").run_as<s_type>(aos, aos);
-    //     REQUIRE(chemist::ta_helpers::allclose(S, X));
+    //     REQUIRE(tensorwrapper::ta_helpers::allclose(S, X));
     // }
 
     SECTION("dipole matrix") {
         auto [D] = mm.at("EDipole").run_as<d_type>(aos, r, aos);
-        REQUIRE(chemist::tensor::allclose(D, corr));
+        REQUIRE(tensorwrapper::tensor::allclose(D, corr));
     }
 }
