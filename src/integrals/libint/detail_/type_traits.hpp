@@ -22,6 +22,11 @@ struct LibintOp<simde::type::el_kinetic> {
     static constexpr auto value = libint2::Operator::kinetic;
 };
 
+template<> // HvD: Use libint2 kinetic type for now. We need a way to pass the order of the derivative to Libint::Engine.
+struct LibintOp<simde::type::el_kinetic_nuc> {
+    static constexpr auto value = libint2::Operator::kinetic;
+};
+
 template<>
 struct LibintOp<simde::type::el_identity> {
     static constexpr auto value = libint2::Operator::overlap;
