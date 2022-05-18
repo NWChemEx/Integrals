@@ -20,7 +20,7 @@ TEST_CASE("Dipole") {
     const auto bs   = basis_set::sto3g;
     auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs};
-    auto corr = get_ao_data(name, bases, property::dipole, world);
+    auto corr = get_ao_data(name, bases, mokup::property::dipole, world);
     d_op r;
 
     // SECTION("overlap matrix") {

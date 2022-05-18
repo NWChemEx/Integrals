@@ -1,7 +1,7 @@
 #include "libint/detail_/nwx_libint.hpp"
 #include <integrals/factory.hpp>
 
-size_t integrals::Factory::instances;
+size_t integrals::Factory::instances = 0;
 
 integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis bs1,
                             integrals::NWX_basis bs2, integrals::NWX_basis bs3,
@@ -30,7 +30,7 @@ integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis bs1,
     auto max_l      = nwx_libint::sets_max_l({lbs1, lbs2, lbs3, lbs4});
     double thresh   = 1.0e-16;
     size_t deriv    = 1;
-    engine.reset(new libint2::Engine(op, max_nprims, max_l, thresh, deriv));
+    engine.reset(new libint2::Engine(op, max_nprims, max_l, deriv, thresh));
 };
 
 integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis bs1,
