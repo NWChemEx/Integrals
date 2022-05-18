@@ -76,13 +76,24 @@ TEST_CASE("Kinetic Nuclear") {
                     for(size_t jbf = 0; jbf < jbf_size; jbf++) {
                         auto idx_tile =
                           jbf_tile + nbf * (ibf_tile + nbf * (icrd + 3 * iatm));
-                        tile[idx_tile] = res[idx];
+                        tile[idx_tile] += res[idx];
+                        //DEBUG
+                        /*
+                        std::cerr << ibf_tile+1 << " "
+                                  << jbf_tile+1 << " "
+                                  << icrd+1     << " "
+                                  << iatm+1     << "   "
+                                  << ibf+1      << " "
+                                  << jbf+1      << " "
+                                  << res[idx] << std::endl;
+                        */
+                        //DEBUG
                         idx++;
                         jbf_tile++;
-                    }
+                    } // for-jbf
                     ibf_tile++;
-                }
-            }
+                } // for-ibf
+            } // for-icrd
             for(size_t icrd = 0; icrd < 3; icrd++) {
                 size_t ibf_tile = ibf_begin;
                 for(size_t ibf = 0; ibf < ibf_size; ibf++) {
@@ -90,19 +101,50 @@ TEST_CASE("Kinetic Nuclear") {
                     for(size_t jbf = 0; jbf < jbf_size; jbf++) {
                         auto idx_tile =
                           jbf_tile + nbf * (ibf_tile + nbf * (icrd + 3 * jatm));
-                        tile[idx_tile] = res[idx];
+                        tile[idx_tile] += res[idx];
+                        //DEBUG
+                        std::cerr << ibf_tile+1 << " "
+                                  << jbf_tile+1 << " "
+                                  << icrd+1     << " "
+                                  << jatm+1     << "   "
+                                  << ibf+1      << " "
+                                  << jbf+1      << " "
+                                  << res[idx] << std::endl;
+                        //DEBUG
                         idx++;
                         jbf_tile++;
-                    }
+                    } // for-jbf
                     ibf_tile++;
-                }
-            }
+                } // for-ibf
+            } // for-icrd
             jbf_begin += jbf_size;
             jsh++;
         };
         ibf_begin += ibf_size;
         ish++;
     }
+    *(ekin.begin()) = tile;
+    // DEBUG
+    idx=0;
+    for (auto iat = 0; iat<nat; iat++) {
+        for (auto icrd = 0; icrd < 3; icrd++) {
+            for (auto jao = 0; jao < nbf; jao++) {
+                for (auto iao = 0; iao < nbf; iao++) {
+                    std::cerr << std::setiosflags(std::ios::fixed)
+                              << std::setprecision(16)
+                              << tile[idx]
+                              << ", // iao,jao,icrd,iat="
+                              << std::setw(3) << (iao+1)
+                              << std::setw(3) << (jao+1)
+                              << std::setw(2) << (icrd+1)
+                              << std::setw(3) << (iat+1)
+                              << std::endl;
+                    idx++;
+                }
+            }
+        }
+    }
+    // DEBUG
     delete[] shell2atom;
     simde::type::tensor simde_ekin = simde::type::tensor(ekin);
     simde::type::tensor simde_corr = simde::type::tensor(corr);
