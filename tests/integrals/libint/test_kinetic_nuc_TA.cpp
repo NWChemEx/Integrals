@@ -7,13 +7,9 @@
 // using namespace mokup;
 
 TEST_CASE("Kinetic Nuclear") {
-    // using op_type       = simde::type::el_kinetic_nuc;
-    // using integral_type = simde::AO_NuclearTensorRepresentation<2, op_type>;
     using size_vector = std::vector<std::size_t>;
 
     auto& world = TA::get_default_world();
-    // pluginplay::ModuleManager mm;
-    // integrals::load_modules(mm);
 
     auto op_i = integrals::property::kinetic;
     auto op_m = mokup::property::kinetic_nuc_int;
@@ -78,7 +74,7 @@ TEST_CASE("Kinetic Nuclear") {
                     } // for-jbf
                     ibf_tile++;
                 } // for-ibf
-            } // for-icrd
+            }     // for-icrd
             for(size_t icrd = 0; icrd < 3; icrd++) {
                 size_t ibf_tile = ibf_begin;
                 for(size_t ibf = 0; ibf < ibf_size; ibf++) {
@@ -92,7 +88,7 @@ TEST_CASE("Kinetic Nuclear") {
                     } // for-jbf
                     ibf_tile++;
                 } // for-ibf
-            } // for-icrd
+            }     // for-icrd
             jbf_begin += jbf_size;
             jsh++;
         };
