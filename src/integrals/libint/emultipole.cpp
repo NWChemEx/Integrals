@@ -104,9 +104,9 @@ MODULE_CTOR(LibintQuadrupole) {
     dipole_op r;
     quadrupole_op r2;
 
-    change_input(I.as_string()).change(I);
-    change_input(r.as_string()).change(r);
-    change_input(r2.as_string()).change(r2);
+    change_input(I.as_string()).change(std::move(I));
+    change_input(r.as_string()).change(std::move(r));
+    change_input(r2.as_string()).change(std::move(r2));
 
     add_input<double>("Threshold").set_default(1.0E-16);
     add_input<size_vector>("Tile Size").set_default(size_vector{180});
@@ -182,10 +182,10 @@ MODULE_CTOR(LibintOctupole) {
     quadrupole_op r2;
     octupole_op r3;
 
-    change_input(I.as_string()).change(I);
-    change_input(r.as_string()).change(r);
-    change_input(r2.as_string()).change(r2);
-    change_input(r3.as_string()).change(r3);
+    change_input(I.as_string()).change(std::move(I));
+    change_input(r.as_string()).change(std::move(r));
+    change_input(r2.as_string()).change(std::move(r2));
+    change_input(r3.as_string()).change(std::move(r3));
 
     add_input<double>("Threshold").set_default(1.0E-16);
     add_input<size_vector>("Tile Size").set_default(size_vector{180});
