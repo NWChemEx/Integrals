@@ -12,7 +12,6 @@ TEST_CASE("STG 4 Center dfdr Squared") {
     using integral_type = simde::AOTensorRepresentation<4, op_type>;
     const auto key      = "STG 4 Center dfdr Squared";
 
-    auto& world = TA::get_default_world();
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
@@ -24,7 +23,7 @@ TEST_CASE("STG 4 Center dfdr Squared") {
         std::vector<basis_set> bs_key(4, bs);
         SECTION(as_string(name, bs)) {
             auto aos    = get_bases(name, bs);
-            auto X_corr = get_ao_data(name, bs_key, prop, world);
+            auto X_corr = get_ao_data(name, bs_key, prop);
             auto [X] =
               mm.at(key).run_as<integral_type>(aos, aos, fTf, aos, aos);
             REQUIRE(tensorwrapper::tensor::allclose(X, X_corr));

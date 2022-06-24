@@ -12,7 +12,6 @@ TEST_CASE("Dipole") {
     using s_type = simde::AOTensorRepresentation<2, i_op>;
     using d_type = simde::AOTensorRepresentation<2, d_op>;
 
-    auto& world = TA::get_default_world();
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
@@ -20,7 +19,7 @@ TEST_CASE("Dipole") {
     const auto bs   = basis_set::sto3g;
     auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs};
-    auto corr = get_ao_data(name, bases, property::dipole, world);
+    auto corr = get_ao_data(name, bases, property::dipole);
     d_op r;
 
     // SECTION("overlap matrix") {

@@ -13,16 +13,15 @@ TEST_CASE("Transformed") {
     using ao_map = simde::space_map_t<simde::type::ao_space>;
     using mo_map = simde::space_map_t<simde::type::derived_space>;
 
-    auto& world = TA::get_default_world();
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
     auto name = molecule::h2;
     auto bs   = basis_set::sto3g;
     auto aos  = get_bases(name, bs);
-    auto mos  = get_space(property::occupied, name, bs, world);
+    auto mos  = get_space(property::occupied, name, bs);
     std::vector bases{bs, bs, bs, bs};
-    auto G = get_ao_data(name, bases, property::eris, world);
+    auto G = get_ao_data(name, bases, property::eris);
 
     auto& mod     = mm.at("Transformed ERI4");
     const auto& C = mos.C();

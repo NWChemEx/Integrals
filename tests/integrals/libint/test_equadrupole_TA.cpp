@@ -15,7 +15,6 @@ TEST_CASE("Quadrupole") {
     using d_type = simde::AOTensorRepresentation<2, d_op>;
     using q_type = simde::AOTensorRepresentation<2, q_op>;
 
-    auto& world = TA::get_default_world();
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
@@ -24,10 +23,10 @@ TEST_CASE("Quadrupole") {
     auto mol        = get_molecule(name);
     auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs};
-    // auto tensors = mokup::get_ao_data(world).at(name).at(bases);
     d_op r;
     q_op r2;
 
+    /// TODO: this needs to actually test something.
     // SECTION("overlap matrix") {
     //     mm.change_input("EDipole", "Origin", origin);
     //     auto [S] = mm.at("EDipole").run_as<s_type>(aos, aos);

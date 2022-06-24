@@ -10,7 +10,6 @@ TEST_CASE("ERI2C") {
     using integral_type = simde::AOTensorRepresentation<2, op>;
     using size_vector   = std::vector<std::size_t>;
 
-    auto& world = TA::get_default_world();
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
     auto name = molecule::h2o;
@@ -18,7 +17,7 @@ TEST_CASE("ERI2C") {
     auto mol  = get_molecule(name);
     auto aos  = get_bases(name, bs);
     std::vector bases{bs, bs};
-    auto corr = get_ao_data(name, bases, property::eris, world);
+    auto corr = get_ao_data(name, bases, property::eris);
 
     // mm.at("ERI2").change_input("Tile size", size_vector{1});
     simde::type::el_el_coulomb r12;

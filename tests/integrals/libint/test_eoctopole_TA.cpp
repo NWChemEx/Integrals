@@ -17,7 +17,6 @@ TEST_CASE("Octupole") {
     using q_type = simde::AOTensorRepresentation<2, q_op>;
     using o_type = simde::AOTensorRepresentation<2, o_op>;
 
-    auto& world = TA::get_default_world();
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
@@ -26,11 +25,12 @@ TEST_CASE("Octupole") {
     auto mol        = get_molecule(name);
     auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs};
-    // auto corr = get_ao_data(name, bases, property::octopole, world);
+    // auto corr = get_ao_data(name, bases, property::octopole);
     d_op r;
     q_op r2;
     o_op r3;
 
+    /// TODO: this needs to actually test something.
     // SECTION("overlap matrix") {
     //     mm.change_input("EDipole", "Origin", origin);
     //     auto [S] = mm.at("EDipole").run_as<s_type>(aos, aos);
