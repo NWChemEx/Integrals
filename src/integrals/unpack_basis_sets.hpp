@@ -1,5 +1,4 @@
 #pragma once
-#include "integrals/types.hpp"
 #include <property_types/ao_integrals/type_traits.hpp>
 #include <property_types/ao_integrals/utilities/unpack_spaces.hpp>
 

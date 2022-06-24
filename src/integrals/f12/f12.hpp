@@ -1,5 +1,4 @@
 // #pragma once
-// #include "integrals/property_types.hpp"
 // #include <sde/module_base.hpp>
 
 // #define DECLARE_MULTICENTER_STG(TYPEDEF, PROP_TYPE)                    \

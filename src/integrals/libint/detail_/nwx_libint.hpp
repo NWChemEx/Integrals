@@ -1,5 +1,4 @@
 #pragma once
-#include "integrals/types.hpp"
 #include <chemist/basis_set/ao_basis_set.hpp>
 #include <libint2.hpp>
 

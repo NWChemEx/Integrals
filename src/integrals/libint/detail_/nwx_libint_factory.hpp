@@ -1,5 +1,4 @@
 #pragma once
-#include "integrals/types.hpp"
 #include <libint2.hpp>
 
 namespace nwx_libint {

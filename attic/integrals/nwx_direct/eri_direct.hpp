@@ -1,5 +1,4 @@
 #pragma once
-#include "integrals/types.hpp"
 #include <sde/module_base.hpp>
 
 namespace integrals {

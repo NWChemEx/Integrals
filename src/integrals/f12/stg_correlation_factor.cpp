@@ -1,5 +1,4 @@
 // #include "f12.hpp"
-// #include "integrals/types.hpp"
 // #include <property_types/ao_integrals/type_traits.hpp>
 
 // using namespace property_types::ao_integrals;

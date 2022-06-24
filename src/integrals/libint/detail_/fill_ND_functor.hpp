@@ -1,7 +1,6 @@
 #pragma once
 #include "basis_set_serialize.hpp"
 #include "cauchy_schwarz_screener.hpp"
-#include "integrals/types.hpp"
 #include "nwx_libint_factory.hpp"
 #include <libint2.hpp>
 #include <tiledarray.h>
