@@ -47,12 +47,14 @@ LI_basis make_basis(const NWX_basis<float>& bs) { return _make_basis(bs); }
  *  @param[in] mol  The chemist Molecule object to be converted
  *  @returns        The molecule as a LibInt object
  */
-LI_molecule make_molecule (const NWX_molecule& NWX_mol) {
+LI_molecule make_molecule(const NWX_molecule& NWX_mol) {
     LI_molecule LI_mol{};
-    for(auto NWX_atom = NWX_mol.begin(); NWX_atom != NWX_mol.end(); NWX_atom++) {
+    for(auto NWX_atom = NWX_mol.begin(); NWX_atom != NWX_mol.end();
+        NWX_atom++) {
         auto charge = double(NWX_atom->Z());
         auto coords = NWX_atom->coords();
-        auto LI_atom = std::pair<double,std::array<double,3ul>>(charge,coords);
+        auto LI_atom =
+          std::pair<double, std::array<double, 3ul>>(charge, coords);
         LI_mol.push_back(LI_atom);
     }
     return LI_mol;

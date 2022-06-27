@@ -10,9 +10,10 @@ template<typename T>
 using NWX_basis    = chemist::AOBasisSet<T>;
 using LI_basis     = libint2::BasisSet;
 using NWX_molecule = chemist::Molecule;
-using LI_molecule  = std::vector<std::pair<double,std::array<double,3ul>>,
-                     std::allocator<std::pair<double, std::array<double, 3ul>>>>;
-using size         = std::size_t;
+using LI_molecule =
+  std::vector<std::pair<double, std::array<double, 3ul>>,
+              std::allocator<std::pair<double, std::array<double, 3ul>>>>;
+using size = std::size_t;
 
 /** @brief Converts a chemist::AOBasisSet object @p bs to a LibInt2 BasisSet
  *         object
