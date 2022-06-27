@@ -35,6 +35,29 @@ LI_basis make_basis(const NWX_basis<double>& bs) { return _make_basis(bs); }
 
 LI_basis make_basis(const NWX_basis<float>& bs) { return _make_basis(bs); }
 
+/** @brief Converts a chemist::Molecule object to a LibInt2 object
+ *
+ *  The LibInt2 molecule structure is store as a vector of pairs.
+ *  Each pair consists of a double for the charge, and a double array
+ *  of length 3 for the nuclear coordinates.
+ *
+ *  The chemist Molecule is a class holding a vector of atoms. The class
+ *  provides an iterator for accessing the atoms.
+ *
+ *  @param[in] mol  The chemist Molecule object to be converted
+ *  @returns        The molecule as a LibInt object
+ */
+LI_molecule make_molecule (const NWX_molecule& NWX_mol) {
+    LI_molecule LI_mol{};
+    for(auto NWX_atom = NWX_mol.begin(); NWX_atom != NWX_mol.end(); NWX_atom++) {
+        auto charge = double(NWX_atom->Z());
+        auto coords = NWX_atom->coords();
+        auto LI_atom = std::pair<double,std::array<double,3ul>>(charge,coords);
+        LI_mol.push_back(LI_atom);
+    }
+    return LI_mol;
+}
+
 template<typename T>
 std::vector<LI_basis> _make_basis_sets(const std::vector<NWX_basis<T>>& sets) {
     std::vector<LI_basis> LI_basis_sets{};

@@ -3,8 +3,9 @@
 #include <libint2.hpp>
 
 namespace integrals {
-using NWX_basis = chemist::AOBasisSet<double>;
-using LI_basis  = libint2::BasisSet;
+using NWX_basis    = chemist::AOBasisSet<double>;
+using NWX_molecule = chemist::Molecule;
+using LI_basis     = libint2::BasisSet;
 /** @brief The property integrals we currently support
  */
 enum class property {
@@ -28,6 +29,7 @@ enum class property {
 class Factory {
 private:
     static size_t instances;
+    static NWX_molecule mol_null;
     std::unique_ptr<libint2::Engine> engine;
     LI_basis lbs1;
     LI_basis lbs2;
@@ -35,6 +37,11 @@ private:
     LI_basis lbs4;
 
 public:
+    Factory(property prop, NWX_basis bs1, NWX_basis bs2, NWX_basis bs3,
+            NWX_basis bs4, NWX_molecule mol);
+    Factory(property prop, NWX_basis bs1, NWX_basis bs2, NWX_basis bs3,
+            NWX_molecule mol);
+    Factory(property prop, NWX_basis bs1, NWX_basis bs2, NWX_molecule mol);
     Factory(property prop, NWX_basis bs1, NWX_basis bs2, NWX_basis bs3,
             NWX_basis bs4);
     Factory(property prop, NWX_basis bs1, NWX_basis bs2, NWX_basis bs3);

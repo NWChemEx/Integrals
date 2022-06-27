@@ -1,14 +1,18 @@
 #pragma once
 #include "integrals/types.hpp"
 #include <chemist/basis_set/ao_basis_set.hpp>
+#include <chemist/molecule/molecule.hpp>
 #include <libint2.hpp>
 
 namespace nwx_libint {
 
 template<typename T>
-using NWX_basis = chemist::AOBasisSet<T>;
-using LI_basis  = libint2::BasisSet;
-using size      = std::size_t;
+using NWX_basis    = chemist::AOBasisSet<T>;
+using LI_basis     = libint2::BasisSet;
+using NWX_molecule = chemist::Molecule;
+using LI_molecule  = std::vector<std::pair<double,std::array<double,3ul>>,
+                     std::allocator<std::pair<double, std::array<double, 3ul>>>>;
+using size         = std::size_t;
 
 /** @brief Converts a chemist::AOBasisSet object @p bs to a LibInt2 BasisSet
  *         object
@@ -18,6 +22,13 @@ using size      = std::size_t;
  */
 LI_basis make_basis(const NWX_basis<double>& bs);
 LI_basis make_basis(const NWX_basis<float>& bs);
+
+/** @brief Converts a chemist::Molecule object to a LibInt2 object
+ *
+ *  @param[in] mol  The chemist Molecule object to be converted
+ *  @returns        The molecule as a LibInt object
+ */
+LI_molecule make_molecule(const NWX_molecule& mol);
 
 /** @brief Converts a std::vector of chemist::AOBasisSet objects @p sets to a
  *         std::vector of LibInt2 BasisSet objects

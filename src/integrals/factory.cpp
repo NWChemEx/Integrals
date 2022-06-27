@@ -5,7 +5,7 @@ size_t integrals::Factory::instances = 0;
 
 integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis bs1,
                             integrals::NWX_basis bs2, integrals::NWX_basis bs3,
-                            integrals::NWX_basis bs4) {
+                            integrals::NWX_basis bs4, integrals::NWX_molecule mol) {
     if(instances == 0 && not libint2::initialized()) { libint2::initialize(); };
     instances++;
     libint2::Operator op;
@@ -30,8 +30,28 @@ integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis bs1,
     auto max_l      = nwx_libint::sets_max_l({lbs1, lbs2, lbs3, lbs4});
     double thresh   = 1.0e-16;
     size_t deriv    = 1;
-    engine.reset(new libint2::Engine(op, max_nprims, max_l, deriv, thresh));
+    auto engine_    = new libint2::Engine(op, max_nprims, max_l, deriv, thresh);
+    if (prop == integrals::property::nuclear) {
+        engine_->set_params(nwx_libint::make_molecule(mol));
+    }
+    engine.reset(engine_);
 };
+
+integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis bs1,
+                            integrals::NWX_basis bs2, integrals::NWX_basis bs3,
+                            integrals::NWX_molecule mol) :
+  Factory(prop, bs1, bs2, bs3, bs3, mol){};
+
+integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis bs1,
+                            integrals::NWX_basis bs2, integrals::NWX_molecule mol) :
+  Factory(prop, bs1, bs2, bs2, mol){};
+
+integrals::NWX_molecule integrals::Factory::mol_null{};
+
+integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis bs1,
+                            integrals::NWX_basis bs2, integrals::NWX_basis bs3,
+                            integrals::NWX_basis bs4) :
+  Factory(prop, bs1, bs2, bs3, bs4, mol_null){};
 
 integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis bs1,
                             integrals::NWX_basis bs2,
