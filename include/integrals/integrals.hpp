@@ -6,6 +6,5 @@
  *  your unit test also needs most of the headers included by it).
  */
 #pragma once
-#include "integrals/integralsmm.hpp"
-#include "simde/tensor_representation/tensor_representation.hpp"
-#include "simde/types.hpp"
+#include "integrals/integrals_mm.hpp"
+#include <simde/simde.hpp>

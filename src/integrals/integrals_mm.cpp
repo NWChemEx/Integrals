@@ -1,7 +1,5 @@
-#include "f12/f12.hpp"
-#include "integrals/integralsmm.hpp"
+#include "integrals/integrals_mm.hpp"
 #include "libint/cs_screened_integrals.hpp"
-#include "libint/emultipole.hpp"
 #include "libint/libint.hpp"
 #include "libint/shellnorms.hpp"
 #include "transforms/transforms.hpp"
