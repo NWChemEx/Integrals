@@ -1,56 +1,36 @@
-#include "detail_/fill_ND_functor.hpp"
-#include "detail_/nwx_TA_utils.hpp"
-#include "detail_/nwx_libint.hpp"
-#include "detail_/special_setup.hpp"
-#include "detail_/type_traits.hpp"
-#include "detail_/unpack_bases.hpp"
+#include "detail_/bases_helper.hpp"
 #include "libint.hpp"
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
-
-using ao_space_t  = simde::type::ao_space;
-using ao_ref_wrap = std::reference_wrapper<const ao_space_t>;
-using size_type   = std::size_t;
-using size_vector = std::vector<size_type>;
-using pair_vector = std::vector<std::pair<size_type, size_type>>;
 
 namespace integrals {
 
 template<std::size_t N, typename OperatorType>
 TEMPLATED_MODULE_CTOR(Libint, N, OperatorType) {
+    description("Computes integrals with Libint");
     using my_pt = simde::AOTensorRepresentation<N, OperatorType>;
 
     satisfies_property_type<my_pt>();
 
-    add_input<double>("Threshold").set_default(1.0E-16);
-    add_input<size_vector>("Tile Size").set_default(size_vector{180});
-    add_input<pair_vector>("Atom Tile Groups").set_default(pair_vector{});
+    add_input<double>("Threshold")
+      .set_default(1.0E-16)
+      .set_description(
+        "The target precision with which the integrals will be computed");
 }
 
 template<std::size_t N, typename OperatorType>
 TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
     using my_pt = simde::AOTensorRepresentation<N, OperatorType>;
 
-    auto& world      = TA::get_default_world(); // TODO: Get from runtime
-    auto thresh      = inputs.at("Threshold").value<double>();
-    auto tile_size   = inputs.at("Tile Size").value<size_vector>();
-    auto atom_ranges = inputs.at("Atom Tile Groups").value<pair_vector>();
-
-    auto aos    = detail_::unpack_bases<N>(inputs);
+    auto bases  = detail_::unpack_bases<N>(inputs);
     auto op_str = OperatorType().as_string();
     auto op     = inputs.at(op_str).template value<const OperatorType&>();
-    constexpr auto libint_op = integrals::op_v<OperatorType>;
-    auto trange            = nwx_TA::select_tiling(aos, tile_size, atom_ranges);
-    using tensor_type      = TA::TSpArrayD;
-    using value_type       = typename tensor_type::value_type;
-    auto fill              = nwx_TA::FillNDFunctor<value_type, libint_op, N>();
-    const double cs_thresh = 0.0; // Just to satisfy initialize
-    fill.initialize(nwx_libint::make_basis_sets(aos), 0, thresh, cs_thresh);
+    auto thresh = inputs.at("Threshold").value<double>();
 
-    SpecialSetup<OperatorType>::setup(fill, op);
+    /// Fill in here
 
-    auto I_ta = TiledArray::make_array<tensor_type>(world, trange, fill);
-    simde::type::tensor I(I_ta);
+    simde::type::tensor I;
 
+    /// Geminal exponent handling
     constexpr auto is_stg =
       std::is_same_v<OperatorType, simde::type::el_el_stg>;
     constexpr auto is_yukawa =
@@ -59,6 +39,7 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
         auto I_ann = I(I.make_annotation());
         I_ann      = op.template at<0>().coefficient * I_ann;
     }
+
     auto rv = results();
     return my_pt::wrap_results(rv, I);
 }

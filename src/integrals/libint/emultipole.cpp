@@ -1,6 +1,5 @@
 #include "detail_/fill_ND_functor.hpp"
-#include "detail_/nwx_TA_utils.hpp"
-#include "detail_/nwx_libint.hpp"
+#include "detail_/libint_bases.hpp"
 #include "libint.hpp"
 #include <simde/tensor_representation/tensor_representation.hpp>
 

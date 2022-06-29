@@ -1,7 +1,6 @@
 #include "cs_screened_integrals.hpp"
 #include "detail_/fill_ND_functor.hpp"
-#include "detail_/nwx_TA_utils.hpp"
-#include "detail_/nwx_libint.hpp"
+#include "detail_/libint_bases.hpp"
 #include "detail_/special_setup.hpp"
 #include "detail_/type_traits.hpp"
 #include "detail_/unpack_bases.hpp"

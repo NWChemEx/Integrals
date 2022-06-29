@@ -1,8 +1,7 @@
 #pragma once
 #include <libint2.hpp>
-#include <tiledarray.h>
 
-namespace nwx_TA {
+namespace integrals::detail_ {
 
 /** @brief Serialization of a Libint Contraction
  *
@@ -135,4 +134,4 @@ serialize_basis_sets(Archive& ar, std::vector<libint2::BasisSet>& sets) {
     }
 }
 
-} // namespace nwx_TA
+} // integrals::detail_
