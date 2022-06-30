@@ -38,9 +38,9 @@ void load_libint_integrals(pluginplay::ModuleManager& mm) {
     // mm.add_module<CauchySchwarzScreened<simde::STG4>>("STG4 CS");
     // mm.add_module<CauchySchwarzScreened<simde::Yukawa3>>("Yukawa3 CS");
     // mm.add_module<CauchySchwarzScreened<simde::Yukawa4>>("Yukawa4 CS");
-    // mm.add_module<ShellNormCoulomb<double>>("Shell Norms Coulomb");
-    // mm.add_module<ShellNormSTG<double>>("Shell Norms STG");
-    // mm.add_module<ShellNormYukawa<double>>("Shell Norms Yukawa");
+    mm.add_module<ShellNormCoulomb>("Shell Norms Coulomb");
+    mm.add_module<ShellNormSTG>("Shell Norms STG");
+    mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
     // mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
     // mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
     // mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");

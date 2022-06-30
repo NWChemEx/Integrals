@@ -1,4 +1,5 @@
 #pragma once
+#include <libint2.hpp>
 #include <simde/types.hpp>
 
 namespace integrals {

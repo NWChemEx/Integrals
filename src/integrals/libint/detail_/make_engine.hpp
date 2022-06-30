@@ -18,8 +18,8 @@ auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
                  double thresh) {
     /// Variables for engine construction
     constexpr auto libint_op = integrals::op_v<OpType>;
-    std::size_t max_nprims   = 0;
-    std::size_t max_l        = 0;
+    auto max_nprims          = libint2::max_nprim(bases[0]);
+    auto max_l               = libint2::max_l(bases[0]);
     std::size_t deriv        = 0;
 
     /// Find max_nprims and max_l in bases
@@ -29,6 +29,7 @@ auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
     }
 
     /// Construct engine and handl specialized settings
+    if(!libint2::initialized()) libint2::initialize();
     libint2::Engine engine(libint_op, max_nprims, max_l, deriv, thresh);
 
     if(libint2::rank(libint_op) == 2) {
@@ -37,27 +38,27 @@ auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
     }
 
     if constexpr(std::is_same_v<OpType, simde::type::el_nuc_coulomb>) {
-        const auto& nuclei = op.at<1>();
+        const auto& nuclei = op.template at<1>();
         std::vector<std::pair<double, std::array<double, 3>>> qs;
         for(const auto& ai : nuclei)
             qs.emplace_back(static_cast<const double&>(ai.Z()), ai.coords());
         engine.set_params(qs);
     } else if constexpr(std::is_same_v<OpType, simde::type::el_el_stg> ||
                         std::is_same_v<OpType, simde::type::el_el_yukawa>) {
-        const auto& stg = op.at<0>();
+        const auto& stg = op.template at<0>();
         engine.set_params(stg.exponent);
     } else if constexpr(std::is_same_v<OpType,
                                        simde::type::el_el_f12_commutator>) {
-        const auto& stg = op.at<0>();
+        const auto& stg = op.template at<0>();
         engine.set_params(2.0 * stg.exponent);
-    } else if(constexpr(std::is_same_v<OpType, simde::type::el_dipole> ||
+    } else if constexpr(std::is_same_v<OpType, simde::type::el_dipole> ||
                         std::is_same_v<OpType, simde::type::el_quadrupole> ||
                         std::is_same_v<OpType, simde::type::el_octupole>) {
         std::array<double, 3> origin{0, 0, 0};
         engine.set_params(origin);
     }
 
-    return engine
+    return engine;
 }
 
 } // namespace integrals::detail_
