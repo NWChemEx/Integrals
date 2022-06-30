@@ -8,7 +8,8 @@
 
 // template<typename element_type, libint2::Operator op>
 // TEMPLATED_MODULE_CTOR(ShellNorms, element_type, op) {
-//     description("Calculates the Cauchy-Schwarz screening matrix for a pair of "
+//     description("Calculates the Cauchy-Schwarz screening matrix for a pair of
+//     "
 //                 "basis sets");
 //     satisfies_property_type<simde::ShellNorms>();
 
@@ -48,8 +49,9 @@
 
 //     if constexpr(op == libint2::Operator::stg ||
 //                  op == libint2::Operator::yukawa) {
-//         auto stg_exponent    = inputs.at("STG Exponent").value<element_type>();
-//         factory.stg_exponent = stg_exponent;
+//         auto stg_exponent    = inputs.at("STG
+//         Exponent").value<element_type>(); factory.stg_exponent =
+//         stg_exponent;
 //     }
 
 //     // In case it was finalized
@@ -82,7 +84,8 @@
 //             }
 //         }
 //         mat[i][j] = std::sqrt(infinity_norm);
-//         if(same_bs && (i != j)) { mat[j][i] = mat[i][j]; } // cut down on work
+//         if(same_bs && (i != j)) { mat[j][i] = mat[i][j]; } // cut down on
+//         work
 //     };
 
 //     // Calculate values

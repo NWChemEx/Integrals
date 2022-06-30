@@ -84,7 +84,8 @@
 
 //     // Make overlap 2D
 //     // auto I_trange = TA::TiledRange{S.trange().dim(0)};
-//     // auto I        = TA::diagonal_array<tensor_type, double>(world, I_trange);
+//     // auto I        = TA::diagonal_array<tensor_type, double>(world,
+//     I_trange);
 //     // S("j,k")      = S("i,j,k") * I("i");
 
 //     auto rv = results();

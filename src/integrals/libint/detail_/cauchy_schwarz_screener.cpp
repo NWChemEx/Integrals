@@ -57,7 +57,8 @@
 //     } else if constexpr(NBases == 3) {
 //         return cs_mat2[shells[1]][shells[2]] < cs_thresh;
 //     } else if constexpr(NBases == 4) {
-//         return (cs_mat1[shells[0]][shells[1]] * cs_mat2[shells[2]][shells[3]]) <
+//         return (cs_mat1[shells[0]][shells[1]] *
+//         cs_mat2[shells[2]][shells[3]]) <
 //                cs_thresh;
 //     }
 //     return false;
@@ -65,8 +66,8 @@
 
 // template<std::size_t NBases>
 // void CauchySchwarzScreener<NBases>::set_sub_screen(
-//   const basis_vec& basis_sets, const TiledArray::Range& range, approx_vec& mat1,
-//   approx_vec& mat2) const {
+//   const basis_vec& basis_sets, const TiledArray::Range& range, approx_vec&
+//   mat1, approx_vec& mat2) const {
 //     if(cs_mat2.empty()) {
 //         // Default out if cs_mats aren't set to anything
 //         mat1 = {}, mat2 = {};
