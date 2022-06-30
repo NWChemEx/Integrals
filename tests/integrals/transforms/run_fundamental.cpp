@@ -17,7 +17,8 @@
 //     simde::type::tensor t;
 
 //     auto mod2 =
-//       pluginplay::make_lambda<simde::ERI2>([&](auto&& b, auto&& op, auto&& k) {
+//       pluginplay::make_lambda<simde::ERI2>([&](auto&& b, auto&& op, auto&& k)
+//       {
 //           REQUIRE(b == aos);
 //           REQUIRE(op == r12);
 //           REQUIRE(k == aos);

@@ -134,4 +134,4 @@ serialize_basis_sets(Archive& ar, std::vector<libint2::BasisSet>& sets) {
     }
 }
 
-} // integrals::detail_
+} // namespace integrals::detail_

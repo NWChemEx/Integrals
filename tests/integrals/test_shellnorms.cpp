@@ -70,8 +70,8 @@
 //     auto [cs_mat_eri] =
 //       mm.at("Shell Norms Coulomb").run_as<cs_approx>(aos, aos);
 //     auto [cs_mat_stg] = mm.at("Shell Norms STG").run_as<cs_approx>(aos, aos);
-//     auto [cs_mat_yuk] = mm.at("Shell Norms Yukawa").run_as<cs_approx>(aos, aos);
-//     for(int i = 0; i < 5; ++i) {
+//     auto [cs_mat_yuk] = mm.at("Shell Norms Yukawa").run_as<cs_approx>(aos,
+//     aos); for(int i = 0; i < 5; ++i) {
 //         for(int j = 0; j < 5; ++j) {
 //             REQUIRE(cs_mat_eri[i][j] ==
 //                     Approx(eri_check[i][j]).epsilon(eps).margin(marg));
