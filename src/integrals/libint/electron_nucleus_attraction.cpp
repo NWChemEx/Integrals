@@ -37,11 +37,12 @@
 //     constexpr auto libint_op = libint2::Operator::delta;
 //     const auto& bra_bs       = bra.basis_set();
 //     const auto& ket_bs       = ket.basis_set();
-//     std::vector<simde::type::ao_basis_set> bs{bra_bs, bra_bs, ket_bs, ket_bs};
-//     auto trange            = nwx_TA::select_tiling(bs, tile_size, atom_ranges);
-//     auto fill              = nwx_TA::FillNDFunctor<value_type, libint_op, 4>();
-//     const double cs_thresh = 0.0; // Just to satisfy initialize
-//     fill.initialize(nwx_libint::make_basis_sets(bs), 0, thresh, cs_thresh);
+//     std::vector<simde::type::ao_basis_set> bs{bra_bs, bra_bs, ket_bs,
+//     ket_bs}; auto trange            = nwx_TA::select_tiling(bs, tile_size,
+//     atom_ranges); auto fill              = nwx_TA::FillNDFunctor<value_type,
+//     libint_op, 4>(); const double cs_thresh = 0.0; // Just to satisfy
+//     initialize fill.initialize(nwx_libint::make_basis_sets(bs), 0, thresh,
+//     cs_thresh);
 
 //     auto I  = TiledArray::make_array<tensor_type>(world, trange, fill);
 //     auto rv = results();
