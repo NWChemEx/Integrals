@@ -48,6 +48,21 @@ struct LibintOp<simde::type::el_el_yukawa> {
     static constexpr auto value = libint2::Operator::yukawa;
 };
 
+template<>
+struct LibintOp<simde::type::el_dipole> {
+    static constexpr auto value = libint2::Operator::emultipole1;
+};
+
+template<>
+struct LibintOp<simde::type::el_quadrupole> {
+    static constexpr auto value = libint2::Operator::emultipole2;
+};
+
+template<>
+struct LibintOp<simde::type::el_octupole> {
+    static constexpr auto value = libint2::Operator::emultipole3;
+};
+
 } // namespace detail_
 
 template<typename T>

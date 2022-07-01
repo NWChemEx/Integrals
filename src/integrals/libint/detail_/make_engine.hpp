@@ -31,6 +31,8 @@ auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
     /// Construct engine and handl specialized settings
     if(!libint2::initialized()) libint2::initialize();
     libint2::Engine engine(libint_op, max_nprims, max_l, deriv, thresh);
+    /// Libint not acknowleding max_nprim in ctor?
+    engine.set_max_nprim(max_nprims);
 
     if(libint2::rank(libint_op) == 2) {
         if(bases.size() == 2) engine.set(libint2::BraKet::xs_xs);
