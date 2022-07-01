@@ -7,7 +7,7 @@ namespace integrals {
 
 template<std::size_t N, typename OpType>
 TEMPLATED_MODULE_CTOR(StandardTransform, N, OpType) {
-    using pt = simde::TransformedTensorRepresentation<N, OpType>;
+    using pt     = simde::TransformedTensorRepresentation<N, OpType>;
     using sub_pt = simde::AOTensorRepresentation<N, OpType>;
 
     satisfies_property_type<pt>();
