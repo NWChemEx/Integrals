@@ -36,9 +36,10 @@ TEMPLATED_MODULE_RUN(ShellNorms, OperatorType) {
     // Lambda to fill in the values
     return_vec mat(bases[0].size(), elem_vec(bases[1].size(), 0.0));
     auto into_mat = [&](int i, int j) {
-        auto engine     = detail_::make_engine(bases, op, thresh);
-        const auto& buf = engine.results();
+        auto engine = detail_::make_engine(bases, op, thresh);
+        engine.set(libint2::BraKet::xx_xx);
 
+        const auto& buf = engine.results();
         engine.compute(bases[0][i], bases[1][j], bases[0][i], bases[1][j]);
         auto vals = buf[0];
 
