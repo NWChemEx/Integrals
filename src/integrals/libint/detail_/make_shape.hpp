@@ -12,9 +12,7 @@ auto make_shape(const std::vector<libint2::BasisSet>& bases) {
     extents_t extents{};
     for(auto& set : bases) {
         std::size_t set_extent = 0;
-        for(auto& shell : set) {
-            set_extent += shell.size();
-        }
+        for(auto& shell : set) { set_extent += shell.size(); }
         extents.push_back(set_extent);
     }
 
