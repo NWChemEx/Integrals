@@ -1,17 +1,17 @@
-// #pragma once
-// #include <pluginplay/module_base.hpp>
-// #include <simde/tensor_representation/tensor_representation.hpp>
+#pragma once
+#include <pluginplay/module_base.hpp>
+#include <simde/types.hpp>
 
-// namespace integrals {
+namespace integrals {
 
-// template<typename PropType>
-// DECLARE_MODULE(CauchySchwarzScreened);
+template<std::size_t N, typename OperatorType>
+DECLARE_MODULE(CSLibint);
 
-// extern template class CauchySchwarzScreened<simde::ERI3>;
-// extern template class CauchySchwarzScreened<simde::ERI4>;
-// extern template class CauchySchwarzScreened<simde::STG3>;
-// extern template class CauchySchwarzScreened<simde::STG4>;
-// extern template class CauchySchwarzScreened<simde::Yukawa3>;
-// extern template class CauchySchwarzScreened<simde::Yukawa4>;
+extern template class CSLibint<3, simde::type::el_el_coulomb>;
+extern template class CSLibint<4, simde::type::el_el_coulomb>;
+extern template class CSLibint<3, simde::type::el_el_stg>;
+extern template class CSLibint<4, simde::type::el_el_stg>;
+extern template class CSLibint<3, simde::type::el_el_yukawa>;
+extern template class CSLibint<4, simde::type::el_el_yukawa>;
 
-// } // namespace integrals
+} // namespace integrals

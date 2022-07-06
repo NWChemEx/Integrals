@@ -19,7 +19,7 @@ inline auto shells2ord(const std::vector<libint2::BasisSet>& bases,
     size_vector_t extents;
     size_vector_t lo_ao;
     size_vector_t up_ao;
-    for(auto i = 0; i < bases.size(); ++i) {
+    for(auto i = 0; i < N; ++i) {
         std::size_t set_extent = 0;
         for(auto j = 0; j < bases[i].size(); ++j) {
             if(j == shells[i]) {

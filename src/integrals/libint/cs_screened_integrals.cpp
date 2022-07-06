@@ -1,89 +1,124 @@
-// #include "cs_screened_integrals.hpp"
-// #include "detail_/fill_ND_functor.hpp"
-// #include "detail_/libint_bases.hpp"
-// #include "detail_/special_setup.hpp"
-// #include "detail_/type_traits.hpp"
-// #include "detail_/unpack_bases.hpp"
-// #include <simde/cauchy_schwarz_approximation.hpp>
+#include "cs_screened_integrals.hpp"
+#include "detail_/aos2shells.hpp"
+#include "detail_/bases_helper.hpp"
+#include "detail_/make_engine.hpp"
+#include "detail_/make_shape.hpp"
+#include "detail_/shells2ord.hpp"
+#include <simde/cauchy_schwarz_approximation.hpp>
+#include <simde/tensor_representation/ao_tensor_representation.hpp>
 
-// namespace integrals {
+namespace integrals {
 
-// using size_type   = std::size_t;
-// using size_vector = std::vector<size_type>;
-// using pair_vector = std::vector<std::pair<size_type, size_type>>;
+/// Grab the various detail_ functions
+using namespace detail_;
 
-// template<typename PropType>
-// TEMPLATED_MODULE_CTOR(CauchySchwarzScreened, PropType) {
-//     using element_type   = double; // TODO: Get from PropType
-//     using cs_approx_type = simde::ShellNorms;
+template<std::size_t N, typename OperatorType>
+TEMPLATED_MODULE_CTOR(CSLibint, N, OperatorType) {
+    description("Computes an in-core integral with libint");
+    using my_pt = simde::AOTensorRepresentation<N, OperatorType>;
 
-//     description("Computes an in-core integral with libint");
-//     satisfies_property_type<PropType>();
+    satisfies_property_type<my_pt>();
 
-//     add_input<double>("Threshold").set_default(1.0E-16);
-//     add_input<size_vector>("Tile Size").set_default(size_vector{180});
-//     add_input<double>("Screening Threshold").set_default(0.0);
-//     add_input<pair_vector>("Atom Tile Groups").set_default(pair_vector{});
+    add_input<double>("Threshold")
+      .set_default(1.0E-16)
+      .set_description(
+        "The target precision with which the integrals will be computed");
 
-//     add_submodule<cs_approx_type>("Shell Norms")
-//       .set_description(
-//         "Computes the Cauchy-Schwarz Matrix for a pair of basis sets");
-// }
+    add_input<double>("Screening Threshold")
+      .set_default(0.0)
+      .set_description("Cauchy-Schwarz Screening Threshold");
 
-// template<typename PropType>
-// TEMPLATED_MODULE_RUN(CauchySchwarzScreened, PropType) {
-//     using element_type   = double; // TODO: Get from PropType
-//     using tensor_type    = TA::TSpArrayD;
-//     using value_type     = typename tensor_type::value_type;
-//     using cs_approx_type = simde::ShellNorms;
-//     using aospace        = simde::type::ao_space;
+    using cs_approx_pt = simde::ShellNorms<OperatorType>;
+    add_submodule<cs_approx_pt>("Shell Norms")
+      .set_description(
+        "Computes the Cauchy-Schwarz Matrix for a pair of basis sets");
+}
 
-//     auto& world      = TA::get_default_world(); // TODO: Get from runtime
-//     auto thresh      = inputs.at("Threshold").value<element_type>();
-//     auto tile_size   = inputs.at("Tile Size").value<size_vector>();
-//     auto cs_thresh   = inputs.at("Screening
-//     Threshold").value<element_type>(); auto atom_ranges = inputs.at("Atom
-//     Tile Groups").value<pair_vector>();
+template<std::size_t N, typename OperatorType>
+TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType) {
+    /// Typedefs
+    using my_pt         = simde::AOTensorRepresentation<N, OperatorType>;
+    using size_vector_t = std::vector<std::size_t>;
+    using tensor_t      = simde::type::tensor;
+    using field_t       = typename tensor_t::field_type;
 
-//     constexpr auto n_centers = simde::n_centers_v<PropType>;
-//     using op_type            = simde::operator_t<PropType>;
-//     auto op_str              = op_type{}.as_string();
-//     auto op = inputs.at(op_str).template value<const op_type&>();
-//     constexpr auto libint_op = op_v<op_type>;
+    /// Grab input information
+    auto bases     = unpack_bases<N>(inputs);
+    auto op_str    = OperatorType().as_string();
+    auto op        = inputs.at(op_str).template value<const OperatorType&>();
+    auto thresh    = inputs.at("Threshold").value<double>();
+    auto cs_thresh = inputs.at("Screening Threshold").value<double>();
 
-//     auto bs     = detail_::unpack_bases<n_centers>(inputs);
-//     auto trange = nwx_TA::select_tiling(bs, tile_size, atom_ranges);
-//     auto fill   = nwx_TA::FillNDFunctor<value_type, libint_op, n_centers>();
-//     fill.initialize(nwx_libint::make_basis_sets(bs), 0, thresh, cs_thresh);
+    /// Calculate Shell Norms for screening
+    auto& cs_screen = submods.at("Shell Norms");
 
-//     SpecialSetup<op_type>::setup(fill, op);
+    /// Lambda to calculate values
+    auto l = [&](const auto& lo, const auto& up, auto* data) {
+        /// Convert index values from AOs to shells
+        size_vector_t lo_shells, up_shells;
+        for(auto i = 0; i < N; ++i) {
+            auto shells_in_tile = aos2shells(bases[i], lo[i], up[i]);
+            lo_shells.push_back(shells_in_tile.front());
+            up_shells.push_back(shells_in_tile.back());
+        }
 
-//     if(cs_thresh > 0.0) {
-//         if constexpr(n_centers == 4) {
-//             auto bra1 = inputs.at("bra 1").value<aospace>();
-//             auto bra2 = inputs.at("bra 1").value<aospace>();
-//             auto [cs_mat1] =
-//               submods.at("Shell Norms").run_as<cs_approx_type>(bra1, bra2);
-//             fill.screen.cs_mat1 = cs_mat1;
-//         }
+        /// Make the libint engine to calculate integrals
+        auto engine     = make_engine(bases, op, thresh);
+        const auto& buf = engine.results();
 
-//         auto ket1 = inputs.at("ket 1").value<aospace>();
-//         auto ket2 = inputs.at("ket 1").value<aospace>();
-//         auto [cs_mat2] =
-//           submods.at("Shell Norms").run_as<cs_approx_type>(ket1, ket2);
-//         fill.screen.cs_mat2 = cs_mat2;
-//     }
+        /// Loop through shell combinations
+        size_vector_t curr_shells = lo_shells;
+        while(curr_shells[0] <= up_shells[0]) {
+            /// Check if current shells screen out
 
-//     auto I  = TiledArray::make_array<tensor_type>(world, trange, fill);
-//     auto rv = results();
-//     return PropType::wrap_results(rv, simde::type::tensor(I));
-// }
+            /// Determine which values will be computed this time
+            auto ord_pos = shells2ord(bases, curr_shells);
 
-// template class CauchySchwarzScreened<simde::ERI3>;
-// template class CauchySchwarzScreened<simde::ERI4>;
-// template class CauchySchwarzScreened<simde::STG3>;
-// template class CauchySchwarzScreened<simde::STG4>;
-// template class CauchySchwarzScreened<simde::Yukawa3>;
-// template class CauchySchwarzScreened<simde::Yukawa4>;
+            /// Compute values
+            run_engine_(engine, bases, curr_shells,
+                        std::make_index_sequence<N>());
+            auto vals = buf[0];
 
-// } // namespace integrals
+            /// Copy libint values into tile data;
+            for(auto i = 0; i < ord_pos.size(); ++i) {
+                data[ord_pos[i]] = vals[i];
+            }
+
+            /// Increment curr_shells
+            curr_shells[N - 1] += 1;
+            for(auto i = 1; i < N; ++i) {
+                if(curr_shells[N - i] > up_shells[N - i]) {
+                    /// Reset this dimension and increment the next one
+                    /// curr_shells[0] accumulates until we reach the end
+                    curr_shells[N - i] = lo_shells[N - i];
+                    curr_shells[N - i - 1] += 1;
+                }
+            }
+        }
+    };
+    tensor_t I(l, make_shape(bases),
+               tensorwrapper::tensor::default_allocator<field_t>());
+
+    /// Geminal exponent handling
+    constexpr auto is_stg =
+      std::is_same_v<OperatorType, simde::type::el_el_stg>;
+    constexpr auto is_yukawa =
+      std::is_same_v<OperatorType, simde::type::el_el_yukawa>;
+    if constexpr(is_stg || is_yukawa) {
+        auto I_ann = I(I.make_annotation());
+        I_ann      = op.template at<0>().coefficient * I_ann;
+    }
+
+    /// Finish
+    auto rv = results();
+    return my_pt::wrap_results(rv, I);
+}
+
+template class CSLibint<3, simde::type::el_el_coulomb>;
+template class CSLibint<4, simde::type::el_el_coulomb>;
+template class CSLibint<3, simde::type::el_el_stg>;
+template class CSLibint<4, simde::type::el_el_stg>;
+template class CSLibint<3, simde::type::el_el_yukawa>;
+template class CSLibint<4, simde::type::el_el_yukawa>;
+
+} // namespace integrals
