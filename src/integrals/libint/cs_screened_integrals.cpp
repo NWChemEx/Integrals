@@ -38,9 +38,12 @@ template<std::size_t N, typename OperatorType>
 TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType) {
     /// Typedefs
     using my_pt         = simde::AOTensorRepresentation<N, OperatorType>;
+    using cs_approx_pt  = simde::ShellNorms<OperatorType>;
     using size_vector_t = std::vector<std::size_t>;
     using tensor_t      = simde::type::tensor;
     using field_t       = typename tensor_t::field_type;
+    using ao_space_t    = simde::type::ao_space;
+    using shell_norm_t  = std::vector<std::vector<double>>;
 
     /// Grab input information
     auto bases     = unpack_bases<N>(inputs);
@@ -50,7 +53,16 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType) {
     auto cs_thresh = inputs.at("Screening Threshold").value<double>();
 
     /// Calculate Shell Norms for screening
+    shell_norm_t mat1, mat2;
     auto& cs_screen = submods.at("Shell Norms");
+    if constexpr(N == 4) {
+        auto bra1      = inputs.at("bra 1").template value<ao_space_t>();
+        auto bra2      = inputs.at("bra 2").template value<ao_space_t>();
+        std::tie(mat1) = cs_screen.run_as<cs_approx_pt>(bra1, op, bra2);
+    }
+    auto ket1      = inputs.at("ket 1").template value<ao_space_t>();
+    auto ket2      = inputs.at("ket 2").template value<ao_space_t>();
+    std::tie(mat2) = cs_screen.run_as<cs_approx_pt>(ket1, op, ket2);
 
     /// Lambda to calculate values
     auto l = [&](const auto& lo, const auto& up, auto* data) {
@@ -69,19 +81,29 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType) {
         /// Loop through shell combinations
         size_vector_t curr_shells = lo_shells;
         while(curr_shells[0] <= up_shells[0]) {
-            /// Check if current shells screen out
-
             /// Determine which values will be computed this time
             auto ord_pos = shells2ord(bases, curr_shells);
 
-            /// Compute values
-            run_engine_(engine, bases, curr_shells,
-                        std::make_index_sequence<N>());
-            auto vals = buf[0];
+            /// Check if current shells screen out
+            auto screen_value = mat2[curr_shells[N - 2]][curr_shells[N - 1]];
+            if constexpr(N == 4) {
+                screen_value *= mat1[curr_shells[N - 4]][curr_shells[N - 3]];
+            }
 
-            /// Copy libint values into tile data;
-            for(auto i = 0; i < ord_pos.size(); ++i) {
-                data[ord_pos[i]] = vals[i];
+            if(screen_value > cs_thresh) {
+                /// Compute values
+                run_engine_(engine, bases, curr_shells,
+                            std::make_index_sequence<N>());
+                auto vals = buf[0];
+
+                /// Copy libint values into tile data;
+                for(auto i = 0; i < ord_pos.size(); ++i) {
+                    data[ord_pos[i]] = vals[i];
+                }
+            } else {
+                for(auto i = 0; i < ord_pos.size(); ++i) {
+                    data[ord_pos[i]] = 0.0;
+                }
             }
 
             /// Increment curr_shells
