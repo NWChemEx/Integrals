@@ -1,52 +1,95 @@
-// #include "detail_/fill_ND_functor.hpp"
-// #include "detail_/nwx_TA_utils.hpp"
-// #include "detail_/nwx_libint.hpp"
-// #include "detail_/type_traits.hpp"
-// #include "libint.hpp"
-// #include <simde/tensor_representation/tensor_representation.hpp>
+#include "detail_/aos2shells.hpp"
+#include "detail_/bases_helper.hpp"
+#include "detail_/make_engine.hpp"
+#include "detail_/make_shape.hpp"
+#include "detail_/shells2ord.hpp"
+#include "libint.hpp"
+#include <simde/tensor_representation/ao_tensor_representation.hpp>
 
-// using ao_space_t  = simde::type::ao_space;
-// using ao_ref_wrap = std::reference_wrapper<const ao_space_t>;
-// using size_type   = std::size_t;
-// using size_vector = std::vector<size_type>;
-// using pair_vector = std::vector<std::pair<size_type, size_type>>;
-// using tensor_type = TA::TSpArrayD;
-// using value_type  = typename tensor_type::value_type;
+namespace integrals {
 
-// namespace integrals {
+/// Grab the various detail_ functions
+using namespace detail_;
 
-// MODULE_CTOR(LibintDOI) {
-//     using my_pt = simde::AOTensorRepresentation<2, simde::type::el_el_delta>;
+MODULE_CTOR(LibintDOI) {
+    description("Computes DOI integrals with Libint");
+    using my_pt = simde::AOTensorRepresentation<2, simde::type::el_el_delta>;
 
-//     satisfies_property_type<my_pt>();
+    satisfies_property_type<my_pt>();
 
-//     add_input<double>("Threshold").set_default(1.0E-16);
-//     add_input<size_vector>("Tile Size").set_default(size_vector{180});
-//     add_input<pair_vector>("Atom Tile Groups").set_default(pair_vector{});
-// }
+    add_input<double>("Threshold")
+      .set_default(1.0E-16)
+      .set_description(
+        "The target precision with which the integrals will be computed");
+}
 
-// MODULE_RUN(LibintDOI) {
-//     using my_pt = simde::AOTensorRepresentation<2, simde::type::el_el_delta>;
+MODULE_RUN(LibintDOI) {
+    using op_t          = simde::type::el_el_delta;
+    using my_pt         = simde::AOTensorRepresentation<2, op_t>;
+    using size_vector_t = std::vector<std::size_t>;
+    using tensor_t      = simde::type::tensor;
+    using field_t       = typename tensor_t::field_type;
 
-//     auto& world      = TA::get_default_world(); // TODO: Get from runtime
-//     auto thresh      = inputs.at("Threshold").value<double>();
-//     auto tile_size   = inputs.at("Tile Size").value<size_vector>();
-//     auto atom_ranges = inputs.at("Atom Tile Groups").value<pair_vector>();
+    auto init_bases = unpack_bases<2>(inputs);
+    auto op_str     = op_t().as_string();
+    auto op         = inputs.at(op_str).template value<const op_t&>();
+    auto thresh     = inputs.at("Threshold").value<double>();
 
-//     auto [bra, op, ket]      = my_pt::unwrap_inputs(inputs);
-//     constexpr auto libint_op = libint2::Operator::delta;
-//     const auto& bra_bs       = bra.basis_set();
-//     const auto& ket_bs       = ket.basis_set();
-//     std::vector<simde::type::ao_basis_set> bs{bra_bs, bra_bs, ket_bs,
-//     ket_bs}; auto trange            = nwx_TA::select_tiling(bs, tile_size,
-//     atom_ranges); auto fill              = nwx_TA::FillNDFunctor<value_type,
-//     libint_op, 4>(); const double cs_thresh = 0.0; // Just to satisfy
-//     initialize fill.initialize(nwx_libint::make_basis_sets(bs), 0, thresh,
-//     cs_thresh);
+    /// Have to double up the basis sets
+    std::vector<libint2::BasisSet> bases;
+    for(auto& set : init_bases) {
+        for(auto i = 0; i < 2; ++i) bases.push_back(set);
+    }
 
-//     auto I  = TiledArray::make_array<tensor_type>(world, trange, fill);
-//     auto rv = results();
-//     return my_pt::wrap_results(rv, simde::type::tensor(I));
-// }
+    /// Lambda to calculate values
+    auto l = [&](const auto& lo, const auto& up, auto* data) {
+        /// Convert index values from AOs to shells
+        constexpr std::size_t N = 4;
+        size_vector_t lo_shells, up_shells;
+        for(auto i = 0; i < N; ++i) {
+            auto shells_in_tile = aos2shells(bases[i], lo[i], up[i]);
+            lo_shells.push_back(shells_in_tile.front());
+            up_shells.push_back(shells_in_tile.back());
+        }
 
-// } // namespace integrals
+        /// Make the libint engine to calculate integrals
+        auto engine     = make_engine(bases, op, thresh);
+        const auto& buf = engine.results();
+
+        /// Loop through shell combinations
+        size_vector_t curr_shells = lo_shells;
+        while(curr_shells[0] <= up_shells[0]) {
+            /// Determine which values will be computed this time
+            auto ord_pos = shells2ord(bases, curr_shells);
+
+            /// Compute values
+            run_engine_(engine, bases, curr_shells,
+                        std::make_index_sequence<N>());
+            auto vals = buf[0];
+
+            /// Copy libint values into tile data;
+            for(auto i = 0; i < ord_pos.size(); ++i) {
+                data[ord_pos[i]] = vals[i];
+            }
+
+            /// Increment curr_shells
+            curr_shells[N - 1] += 1;
+            for(auto i = 1; i < N; ++i) {
+                if(curr_shells[N - i] > up_shells[N - i]) {
+                    /// Reset this dimension and increment the next one
+                    /// curr_shells[0] accumulates until we reach the end
+                    curr_shells[N - i] = lo_shells[N - i];
+                    curr_shells[N - i - 1] += 1;
+                }
+            }
+        }
+    };
+    tensor_t I(l, make_shape(bases),
+               tensorwrapper::tensor::default_allocator<field_t>());
+
+    /// Finish
+    auto rv = results();
+    return my_pt::wrap_results(rv, I);
+}
+
+} // namespace integrals

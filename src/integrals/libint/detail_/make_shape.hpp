@@ -10,7 +10,7 @@ namespace integrals::detail_ {
  *  @param[in] bases A vector of LibInt2 BasisSets
  *  @returns A unique_ptr for the resulting shape
  */
-auto make_shape(const std::vector<libint2::BasisSet>& bases) {
+inline auto make_shape(const std::vector<libint2::BasisSet>& bases) {
     using shape_t   = typename simde::type::tensor::shape_type;
     using extents_t = typename shape_t::extents_type;
 

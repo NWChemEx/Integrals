@@ -16,7 +16,7 @@ void register_transformed_integral(pluginplay::ModuleManager& mm,
 }
 
 void load_libint_integrals(pluginplay::ModuleManager& mm) {
-    // mm.add_module<LibintDOI>("DOI");
+    mm.add_module<LibintDOI>("DOI");
     // mm.add_module<LibintDipole>("EDipole");
     // mm.add_module<LibintQuadrupole>("EQuadrupole");
     // mm.add_module<LibintOctupole>("EOctupole");

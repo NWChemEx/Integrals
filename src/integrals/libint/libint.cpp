@@ -8,25 +8,8 @@
 
 namespace integrals {
 
-using size_vector_t  = std::vector<std::size_t>;
-using bases_vector_t = std::vector<libint2::BasisSet>;
-using tensor_t       = simde::type::tensor;
-using field_t        = typename tensor_t::field_type;
-
-/** @brief Wrap the call of LibInt2 engine so it can take a variable number
- * of shell inputs.
- *
- * @tparam Is A variadic parameter pack of integers from [0,NBases) to
- * expand.
- * @param engine The LibInt2 engine that computes integrals
- * @param bases The bases sets that hold the shells
- * @param shells The index of the requested shell block
- */
-template<std::size_t... Is>
-void run_engine_(libint2::Engine& engine, bases_vector_t& bases,
-                 size_vector_t& shells, std::index_sequence<Is...>) {
-    engine.compute(bases[Is][shells[Is]]...);
-}
+/// Grab the various detail_ functions
+using namespace detail_;
 
 template<std::size_t N, typename OperatorType>
 TEMPLATED_MODULE_CTOR(Libint, N, OperatorType) {
@@ -43,31 +26,37 @@ TEMPLATED_MODULE_CTOR(Libint, N, OperatorType) {
 
 template<std::size_t N, typename OperatorType>
 TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
-    using my_pt = simde::AOTensorRepresentation<N, OperatorType>;
+    /// Typedefs
+    using my_pt         = simde::AOTensorRepresentation<N, OperatorType>;
+    using size_vector_t = std::vector<std::size_t>;
+    using tensor_t      = simde::type::tensor;
+    using field_t       = typename tensor_t::field_type;
 
-    auto bases  = detail_::unpack_bases<N>(inputs);
+    /// Grab input information
+    auto bases  = unpack_bases<N>(inputs);
     auto op_str = OperatorType().as_string();
     auto op     = inputs.at(op_str).template value<const OperatorType&>();
     auto thresh = inputs.at("Threshold").value<double>();
 
+    /// Lambda to calculate values
     auto l = [&](const auto& lo, const auto& up, auto* data) {
         /// Convert index values from AOs to shells
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
-            auto shells_in_tile = detail_::aos2shells(bases[i], lo[i], up[i]);
+            auto shells_in_tile = aos2shells(bases[i], lo[i], up[i]);
             lo_shells.push_back(shells_in_tile.front());
             up_shells.push_back(shells_in_tile.back());
         }
 
         /// Make the libint engine to calculate integrals
-        auto engine     = detail_::make_engine(bases, op, thresh);
+        auto engine     = make_engine(bases, op, thresh);
         const auto& buf = engine.results();
 
         /// Loop through shell combinations
         size_vector_t curr_shells = lo_shells;
         while(curr_shells[0] <= up_shells[0]) {
             /// Determine which values will be computed this time
-            auto ord_pos = detail_::shells2ord(bases, curr_shells);
+            auto ord_pos = shells2ord(bases, curr_shells);
 
             /// Compute values
             run_engine_(engine, bases, curr_shells,
@@ -91,7 +80,7 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
             }
         }
     };
-    tensor_t I(l, detail_::make_shape(bases),
+    tensor_t I(l, make_shape(bases),
                tensorwrapper::tensor::default_allocator<field_t>());
 
     /// Geminal exponent handling
@@ -104,6 +93,7 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
         I_ann      = op.template at<0>().coefficient * I_ann;
     }
 
+    /// Finish
     auto rv = results();
     return my_pt::wrap_results(rv, I);
 }
