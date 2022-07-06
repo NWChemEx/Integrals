@@ -5,12 +5,14 @@
 TEST_CASE("aos2shells") {
     auto bset = testing::water_basis_set();
 
+    /// Run with different inputs
     auto all     = integrals::detail_::aos2shells(bset, 0, 7);
     auto only_o  = integrals::detail_::aos2shells(bset, 0, 5);
     auto only_h1 = integrals::detail_::aos2shells(bset, 5, 6);
     auto only_h2 = integrals::detail_::aos2shells(bset, 6, 7);
     auto both_hs = integrals::detail_::aos2shells(bset, 5, 7);
 
+    /// Check outputs
     REQUIRE(all == std::vector<std::size_t>{0, 1, 2, 3, 4});
     REQUIRE(only_o == std::vector<std::size_t>{0, 1, 2});
     REQUIRE(only_h1 == std::vector<std::size_t>{3});

@@ -120,5 +120,8 @@ template class Libint<4, simde::type::el_el_stg>;
 template class Libint<2, simde::type::el_el_yukawa>;
 template class Libint<3, simde::type::el_el_yukawa>;
 template class Libint<4, simde::type::el_el_yukawa>;
+template class Libint<2, simde::type::el_el_f12_commutator>;
+template class Libint<3, simde::type::el_el_f12_commutator>;
 template class Libint<4, simde::type::el_el_f12_commutator>;
+
 } // namespace integrals

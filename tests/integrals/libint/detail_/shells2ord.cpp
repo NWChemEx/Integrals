@@ -6,8 +6,10 @@ TEST_CASE("shell2ord") {
     using size_vector_t  = std::vector<std::size_t>;
     using basis_vector_t = std::vector<libint2::BasisSet>;
 
+    /// Common basis set
     auto bset = testing::water_basis_set();
 
+    /// Check different dimensionalities
     SECTION("2D") {
         auto ord_pos = integrals::detail_::shells2ord(
           basis_vector_t{bset, bset}, size_vector_t{2, 0});

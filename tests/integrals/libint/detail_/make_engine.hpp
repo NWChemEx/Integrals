@@ -5,6 +5,7 @@
 
 namespace testing {
 
+/// Checks the common parts of the test engines
 template<typename OpType>
 void test_engine_standard(libint2::Engine& engine) {
     REQUIRE(engine.oper() == integrals::op_v<OpType>);

@@ -22,8 +22,5 @@ TEST_CASE("Overlap") {
 
     op_type I;
     auto [S] = mm.at("Overlap").run_as<integral_type>(aos, I, aos);
-    std::cout << std::setprecision(6) << std::fixed;
-    std::cout << S << std::endl;
-    std::cout << corr_S << std::endl;
     REQUIRE(tensorwrapper::tensor::allclose(S, corr_S));
 }

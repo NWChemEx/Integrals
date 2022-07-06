@@ -3,6 +3,7 @@
 
 namespace testing {
 
+/// Water STO-3G basis set in Libint Format
 inline libint2::BasisSet water_basis_set() {
     libint2::BasisSet bset{};
     bset.push_back(

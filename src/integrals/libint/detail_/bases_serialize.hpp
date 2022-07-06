@@ -1,6 +1,8 @@
 #pragma once
 #include <libint2.hpp>
 
+/// TODO: Is this needed anymore? Is it used anywhere?
+
 namespace integrals::detail_ {
 
 /** @brief Serialization of a Libint Contraction
