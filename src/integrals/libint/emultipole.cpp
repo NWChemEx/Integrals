@@ -98,7 +98,6 @@
 //     tensor_t I(l, make_shape(bases),
 //                tensorwrapper::tensor::default_allocator<field_t>());
 
-
 //     auto rv = results();
 //     // rv      = overlap_pt::wrap_results(rv, simde::type::tensor(S));
 //     rv = dipole_pt::wrap_results(rv, simde::type::tensor(D));
@@ -107,7 +106,7 @@
 
 // MODULE_CTOR(LibintQuadrupole) {
 //     description("Computes an in-core integral with libint");
-    
+
 //     satisfies_property_type<overlap_pt>();
 //     identity_op I;
 //     change_input(I.as_string()).change(std::move(I));
