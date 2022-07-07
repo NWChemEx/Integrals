@@ -7,10 +7,14 @@ namespace integrals::detail_ {
  *
  *  @param[in] bases A vector of libint basis sets.
  *  @param[in] shell A vector of indices for shells in the basis sets.
+ *  @param[in] lo_shell The lower most shell index in the span.
+ *  @param[in] up_shell The upper most shell index in the span.
  *  @returns An std::vector of the ordinal indices associated with the shells.
  */
 inline auto shells2ord(const std::vector<libint2::BasisSet>& bases,
-                       std::vector<std::size_t> shells) {
+                       std::vector<std::size_t> shells,
+                       std::vector<std::size_t> lo_shells,
+                       std::vector<std::size_t> up_shells) {
     using size_vector_t = std::vector<std::size_t>;
 
     /// Need bases extents and the AO span of the shells
@@ -21,7 +25,7 @@ inline auto shells2ord(const std::vector<libint2::BasisSet>& bases,
     size_vector_t up_ao;
     for(auto i = 0; i < N; ++i) {
         std::size_t set_extent = 0;
-        for(auto j = 0; j < bases[i].size(); ++j) {
+        for(auto j = lo_shells[i]; j <= up_shells[i]; ++j) {
             if(j == shells[i]) {
                 lo_ao.push_back(set_extent);
                 up_ao.push_back(set_extent + bases[i][j].size() - 1);

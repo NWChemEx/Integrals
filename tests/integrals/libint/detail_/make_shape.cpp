@@ -10,6 +10,15 @@ TEST_CASE("make_shape") {
     std::vector<libint2::BasisSet> bsets{bset, bset};
 
     /// Check output
-    auto shape_ptr = integrals::detail_::make_shape(bsets);
-    REQUIRE(shape_ptr->extents() == extents_t{7, 7});
+    SECTION("standard usage") {
+        auto shape_ptr = integrals::detail_::make_shape(bsets);
+        REQUIRE(shape_ptr->extents() == extents_t{7, 7});
+    }
+
+    /// Check leading extent option
+    SECTION("with leading extent") {
+        std::size_t extra = 3;
+        auto shape_ptr = integrals::detail_::make_shape(bsets, extra);
+        REQUIRE(shape_ptr->extents() == extents_t{3, 7, 7});
+    }
 }

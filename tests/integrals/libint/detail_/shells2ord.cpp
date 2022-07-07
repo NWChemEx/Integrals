@@ -11,20 +11,36 @@ TEST_CASE("shell2ord") {
 
     /// Check different dimensionalities
     SECTION("2D") {
-        auto ord_pos = integrals::detail_::shells2ord(
-          basis_vector_t{bset, bset}, size_vector_t{2, 0});
+        basis_vector_t sets{bset, bset};
+        size_vector_t curr{2, 0}, lo{0, 0}, up{4, 4};
+        auto ord_pos = integrals::detail_::shells2ord(sets, curr, lo, up);
         REQUIRE(ord_pos == size_vector_t{14, 21, 28});
     }
 
     SECTION("3D") {
-        auto ord_pos = integrals::detail_::shells2ord(
-          basis_vector_t{bset, bset, bset}, size_vector_t{2, 0, 0});
+        basis_vector_t sets{bset, bset, bset};
+        size_vector_t curr{2, 0, 0}, lo{0, 0, 0}, up{4, 4, 4};
+        auto ord_pos = integrals::detail_::shells2ord(sets, curr, lo, up);
         REQUIRE(ord_pos == size_vector_t{98, 147, 196});
     }
 
     SECTION("4D") {
-        auto ord_pos = integrals::detail_::shells2ord(
-          basis_vector_t{bset, bset, bset, bset}, size_vector_t{2, 0, 0, 0});
+        basis_vector_t sets{bset, bset, bset, bset};
+        size_vector_t curr{2, 0, 0, 0}, lo{0, 0, 0, 0}, up{4, 4, 4, 4};
+        auto ord_pos = integrals::detail_::shells2ord(sets, curr, lo, up);
         REQUIRE(ord_pos == size_vector_t{686, 1029, 1372});
+    }
+
+    SECTION("specific tile") {
+        basis_vector_t sets{bset, bset};
+        size_vector_t lo{2, 0}, up{3, 0};
+        SECTION("lower") {
+            auto ord_pos = integrals::detail_::shells2ord(sets, lo, lo, up);
+            REQUIRE(ord_pos == size_vector_t{0, 1, 2});
+        }
+        SECTION("upper") {
+            auto ord_pos = integrals::detail_::shells2ord(sets, up, lo, up);
+            REQUIRE(ord_pos == size_vector_t{3});
+        }
     }
 }

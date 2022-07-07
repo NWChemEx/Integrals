@@ -82,7 +82,7 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType) {
         size_vector_t curr_shells = lo_shells;
         while(curr_shells[0] <= up_shells[0]) {
             /// Determine which values will be computed this time
-            auto ord_pos = shells2ord(bases, curr_shells);
+            auto ord_pos = shells2ord(bases, curr_shells, lo_shells, up_shells);
 
             /// Check if current shells screen out
             auto screen_value = mat2[curr_shells[N - 2]][curr_shells[N - 1]];

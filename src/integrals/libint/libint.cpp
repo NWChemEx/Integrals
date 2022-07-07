@@ -56,7 +56,7 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
         size_vector_t curr_shells = lo_shells;
         while(curr_shells[0] <= up_shells[0]) {
             /// Determine which values will be computed this time
-            auto ord_pos = shells2ord(bases, curr_shells);
+            auto ord_pos = shells2ord(bases, curr_shells, lo_shells, up_shells);
 
             /// Compute values
             run_engine_(engine, bases, curr_shells,
