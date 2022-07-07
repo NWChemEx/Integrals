@@ -12,9 +12,9 @@ namespace integrals::detail_ {
  *  @returns An std::vector of the ordinal indices associated with the shells.
  */
 inline auto shells2ord(const std::vector<libint2::BasisSet>& bases,
-                       std::vector<std::size_t> shells,
-                       std::vector<std::size_t> lo_shells,
-                       std::vector<std::size_t> up_shells) {
+                       std::vector<std::size_t>& shells,
+                       std::vector<std::size_t>& lo_shells,
+                       std::vector<std::size_t>& up_shells) {
     using size_vector_t = std::vector<std::size_t>;
 
     /// Need bases extents and the AO span of the shells
