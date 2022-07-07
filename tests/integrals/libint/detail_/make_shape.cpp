@@ -18,7 +18,7 @@ TEST_CASE("make_shape") {
     /// Check leading extent option
     SECTION("with leading extent") {
         std::size_t extra = 3;
-        auto shape_ptr = integrals::detail_::make_shape(bsets, extra);
+        auto shape_ptr    = integrals::detail_::make_shape(bsets, extra);
         REQUIRE(shape_ptr->extents() == extents_t{3, 7, 7});
     }
 }
