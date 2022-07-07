@@ -77,7 +77,7 @@ MODULE_RUN(LibintDipole) {
                 leading_step += bases[0][i].size() * bases[1][j].size();
             }
         }
-        ///std::cout << leading_step << std::endl;
+        /// std::cout << leading_step << std::endl;
 
         /// Make the libint engine to calculate integrals
         auto engine     = make_engine(bases, op, thresh);
@@ -179,7 +179,7 @@ MODULE_RUN(LibintQuadrupole) {
                 leading_step += bases[0][i].size() * bases[1][j].size();
             }
         }
-        ///std::cout << leading_step << std::endl;
+        /// std::cout << leading_step << std::endl;
 
         /// Make the libint engine to calculate integrals
         auto engine     = make_engine(bases, op, thresh);
@@ -287,7 +287,7 @@ MODULE_RUN(LibintOctupole) {
                 leading_step += bases[0][i].size() * bases[1][j].size();
             }
         }
-        ///std::cout << leading_step << std::endl;
+        /// std::cout << leading_step << std::endl;
 
         /// Make the libint engine to calculate integrals
         auto engine     = make_engine(bases, op, thresh);
