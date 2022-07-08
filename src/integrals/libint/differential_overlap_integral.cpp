@@ -11,10 +11,9 @@ namespace integrals {
 /// Grab the various detail_ functions
 using namespace detail_;
 
-template<std::size_t N, typename OperatorType>
-TEMPLATED_MODULE_CTOR(Libint, N, OperatorType) {
-    description("Computes integrals with Libint");
-    using my_pt = simde::AOTensorRepresentation<N, OperatorType>;
+MODULE_CTOR(LibintDOI) {
+    description("Computes DOI integrals with Libint");
+    using my_pt = simde::AOTensorRepresentation<2, simde::type::el_el_delta>;
 
     satisfies_property_type<my_pt>();
 
@@ -24,23 +23,28 @@ TEMPLATED_MODULE_CTOR(Libint, N, OperatorType) {
         "The target precision with which the integrals will be computed");
 }
 
-template<std::size_t N, typename OperatorType>
-TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
-    /// Typedefs
-    using my_pt         = simde::AOTensorRepresentation<N, OperatorType>;
+MODULE_RUN(LibintDOI) {
+    using op_t          = simde::type::el_el_delta;
+    using my_pt         = simde::AOTensorRepresentation<2, op_t>;
     using size_vector_t = std::vector<std::size_t>;
     using tensor_t      = simde::type::tensor;
     using field_t       = typename tensor_t::field_type;
 
-    /// Grab input information
-    auto bases  = unpack_bases<N>(inputs);
-    auto op_str = OperatorType().as_string();
-    auto op     = inputs.at(op_str).template value<const OperatorType&>();
-    auto thresh = inputs.at("Threshold").value<double>();
+    auto init_bases = unpack_bases<2>(inputs);
+    auto op_str     = op_t().as_string();
+    auto op         = inputs.at(op_str).template value<const op_t&>();
+    auto thresh     = inputs.at("Threshold").value<double>();
+
+    /// Have to double up the basis sets
+    std::vector<libint2::BasisSet> bases;
+    for(auto& set : init_bases) {
+        for(auto i = 0; i < 2; ++i) bases.push_back(set);
+    }
 
     /// Lambda to calculate values
     auto l = [&](const auto& lo, const auto& up, auto* data) {
         /// Convert index values from AOs to shells
+        constexpr std::size_t N = 4;
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
             auto shells_in_tile = aos2shells(bases[i], lo[i], up[i]);
@@ -83,35 +87,9 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
     tensor_t I(l, make_shape(bases),
                tensorwrapper::tensor::default_allocator<field_t>());
 
-    /// Geminal exponent handling
-    constexpr auto is_stg =
-      std::is_same_v<OperatorType, simde::type::el_el_stg>;
-    constexpr auto is_yukawa =
-      std::is_same_v<OperatorType, simde::type::el_el_yukawa>;
-    if constexpr(is_stg || is_yukawa) {
-        auto I_ann = I(I.make_annotation());
-        I_ann      = op.template at<0>().coefficient * I_ann;
-    }
-
     /// Finish
     auto rv = results();
     return my_pt::wrap_results(rv, I);
 }
-
-template class Libint<2, simde::type::el_el_coulomb>;
-template class Libint<3, simde::type::el_el_coulomb>;
-template class Libint<4, simde::type::el_el_coulomb>;
-template class Libint<2, simde::type::el_kinetic>;
-template class Libint<2, simde::type::el_nuc_coulomb>;
-template class Libint<2, simde::type::el_identity>;
-template class Libint<2, simde::type::el_el_stg>;
-template class Libint<3, simde::type::el_el_stg>;
-template class Libint<4, simde::type::el_el_stg>;
-template class Libint<2, simde::type::el_el_yukawa>;
-template class Libint<3, simde::type::el_el_yukawa>;
-template class Libint<4, simde::type::el_el_yukawa>;
-template class Libint<2, simde::type::el_el_f12_commutator>;
-template class Libint<3, simde::type::el_el_f12_commutator>;
-template class Libint<4, simde::type::el_el_f12_commutator>;
 
 } // namespace integrals

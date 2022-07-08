@@ -9,7 +9,6 @@ TEST_CASE("Nuclear") {
     using op_type       = simde::type::el_nuc_coulomb;
     using integral_type = simde::AOTensorRepresentation<2, op_type>;
 
-    auto& world = TA::get_default_world();
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
@@ -18,7 +17,7 @@ TEST_CASE("Nuclear") {
     auto mol  = get_molecule(name);
     auto aos  = get_bases(name, bs);
     std::vector bases{bs, bs};
-    auto corr = get_ao_data(name, bases, property::nuclear, world);
+    auto corr = get_ao_data(name, bases, property::nuclear);
 
     // mm.at("Nuclear").change_input("Tile size", size_vector{6, 1});
     op_type riA(chemist::Electron{}, mol);

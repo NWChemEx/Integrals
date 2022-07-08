@@ -11,7 +11,6 @@ TEST_CASE("ERI3C") {
     const auto key1     = "ERI3";
     const auto key2     = "ERI3 CS";
 
-    auto& world = TA::get_default_world();
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
@@ -20,7 +19,7 @@ TEST_CASE("ERI3C") {
     auto mol        = get_molecule(name);
     auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs, bs};
-    auto corr = get_ao_data(name, bases, property::eris, world);
+    auto corr = get_ao_data(name, bases, property::eris);
     op_type r12;
     auto [X] = mm.run_as<integral_type>(key1, aos, r12, aos, aos);
     REQUIRE(tensorwrapper::tensor::allclose(X, corr));

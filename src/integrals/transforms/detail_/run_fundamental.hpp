@@ -1,3 +1,4 @@
+#pragma once
 #include <simde/simde.hpp>
 
 namespace integrals::detail_ {

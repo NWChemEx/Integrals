@@ -9,7 +9,6 @@ TEST_CASE("STG2C") {
     using op_type       = simde::type::el_el_stg;
     using integral_type = simde::AOTensorRepresentation<2, op_type>;
 
-    auto& world = TA::get_default_world();
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
@@ -17,7 +16,7 @@ TEST_CASE("STG2C") {
     auto bs   = basis_set::sto3g;
     auto aos  = get_bases(name, bs);
     std::vector bases{bs, bs};
-    auto corr = get_ao_data(name, bases, property::stg, world);
+    auto corr = get_ao_data(name, bases, property::stg);
 
     chemist::Electron e;
     op_type stg(chemist::operators::STG(1.0, 1.0));
