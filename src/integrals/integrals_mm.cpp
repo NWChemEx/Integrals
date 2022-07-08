@@ -17,9 +17,10 @@ void register_transformed_integral(pluginplay::ModuleManager& mm,
 
 void load_libint_integrals(pluginplay::ModuleManager& mm) {
     mm.add_module<LibintDOI>("DOI");
-    mm.add_module<LibintXpole<0, simde::type::el_dipole>>("EDipole");
-    mm.add_module<LibintXpole<1, simde::type::el_quadrupole>>("EQuadrupole");
-    mm.add_module<LibintXpole<2, simde::type::el_octupole>>("EOctupole");
+    mm.add_module<LibintMultipole<0, simde::type::el_dipole>>("EDipole");
+    mm.add_module<LibintMultipole<1, simde::type::el_quadrupole>>(
+      "EQuadrupole");
+    mm.add_module<LibintMultipole<2, simde::type::el_octupole>>("EOctupole");
     mm.add_module<Libint<2, simde::type::el_el_coulomb>>("ERI2");
     mm.add_module<Libint<3, simde::type::el_el_coulomb>>("ERI3");
     mm.add_module<Libint<4, simde::type::el_el_coulomb>>("ERI4");

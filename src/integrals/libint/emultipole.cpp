@@ -24,7 +24,7 @@ using octupole_pt   = simde::AOTensorRepresentation<2, octupole_op>;
 using namespace detail_;
 
 template<std::size_t L, typename OperatorType>
-TEMPLATED_MODULE_CTOR(LibintXpole, L, OperatorType) {
+TEMPLATED_MODULE_CTOR(LibintMultipole, L, OperatorType) {
     description("Computes an in-core integral with libint");
 
     /// This should satisfy overlap, but we can't reduce the dimensionality
@@ -56,7 +56,7 @@ TEMPLATED_MODULE_CTOR(LibintXpole, L, OperatorType) {
 }
 
 template<std::size_t L, typename OperatorType>
-TEMPLATED_MODULE_RUN(LibintXpole, L, OperatorType) {
+TEMPLATED_MODULE_RUN(LibintMultipole, L, OperatorType) {
     /// Typedefs
     using size_vector_t = std::vector<std::size_t>;
     using tensor_t      = simde::type::tensor;
@@ -150,8 +150,8 @@ TEMPLATED_MODULE_RUN(LibintXpole, L, OperatorType) {
     return rv;
 }
 
-template class LibintXpole<0, simde::type::el_dipole>;
-template class LibintXpole<1, simde::type::el_quadrupole>;
-template class LibintXpole<2, simde::type::el_octupole>;
+template class LibintMultipole<0, simde::type::el_dipole>;
+template class LibintMultipole<1, simde::type::el_quadrupole>;
+template class LibintMultipole<2, simde::type::el_octupole>;
 
 } // namespace integrals

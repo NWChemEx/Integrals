@@ -26,10 +26,10 @@ extern template class Libint<4, simde::type::el_el_f12_commutator>;
 DECLARE_MODULE(LibintDOI);
 
 template<std::size_t L, typename OperatorType>
-DECLARE_MODULE(LibintXpole);
+DECLARE_MODULE(LibintMultipole);
 
-extern template class LibintXpole<0, simde::type::el_dipole>;
-extern template class LibintXpole<1, simde::type::el_quadrupole>;
-extern template class LibintXpole<2, simde::type::el_octupole>;
+extern template class LibintMultipole<0, simde::type::el_dipole>;
+extern template class LibintMultipole<1, simde::type::el_quadrupole>;
+extern template class LibintMultipole<2, simde::type::el_octupole>;
 
 } // namespace integrals
