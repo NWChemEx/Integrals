@@ -1,7 +1,5 @@
-#include "f12/f12.hpp"
-#include "integrals/integralsmm.hpp"
+#include "integrals/integrals_mm.hpp"
 #include "libint/cs_screened_integrals.hpp"
-#include "libint/emultipole.hpp"
 #include "libint/libint.hpp"
 #include "libint/shellnorms.hpp"
 #include "transforms/transforms.hpp"
@@ -19,9 +17,10 @@ void register_transformed_integral(pluginplay::ModuleManager& mm,
 
 void load_libint_integrals(pluginplay::ModuleManager& mm) {
     mm.add_module<LibintDOI>("DOI");
-    mm.add_module<LibintDipole>("EDipole");
-    mm.add_module<LibintQuadrupole>("EQuadrupole");
-    mm.add_module<LibintOctupole>("EOctupole");
+    mm.add_module<LibintMultipole<0, simde::type::el_dipole>>("EDipole");
+    mm.add_module<LibintMultipole<1, simde::type::el_quadrupole>>(
+      "EQuadrupole");
+    mm.add_module<LibintMultipole<2, simde::type::el_octupole>>("EOctupole");
     mm.add_module<Libint<2, simde::type::el_el_coulomb>>("ERI2");
     mm.add_module<Libint<3, simde::type::el_el_coulomb>>("ERI3");
     mm.add_module<Libint<4, simde::type::el_el_coulomb>>("ERI4");
@@ -34,15 +33,15 @@ void load_libint_integrals(pluginplay::ModuleManager& mm) {
     mm.add_module<Libint<2, simde::type::el_el_yukawa>>("Yukawa2");
     mm.add_module<Libint<3, simde::type::el_el_yukawa>>("Yukawa3");
     mm.add_module<Libint<4, simde::type::el_el_yukawa>>("Yukawa4");
-    mm.add_module<CauchySchwarzScreened<simde::ERI3>>("ERI3 CS");
-    mm.add_module<CauchySchwarzScreened<simde::ERI4>>("ERI4 CS");
-    mm.add_module<CauchySchwarzScreened<simde::STG3>>("STG3 CS");
-    mm.add_module<CauchySchwarzScreened<simde::STG4>>("STG4 CS");
-    mm.add_module<CauchySchwarzScreened<simde::Yukawa3>>("Yukawa3 CS");
-    mm.add_module<CauchySchwarzScreened<simde::Yukawa4>>("Yukawa4 CS");
-    mm.add_module<ShellNormCoulomb<double>>("Shell Norms Coulomb");
-    mm.add_module<ShellNormSTG<double>>("Shell Norms STG");
-    mm.add_module<ShellNormYukawa<double>>("Shell Norms Yukawa");
+    mm.add_module<CSLibint<3, simde::type::el_el_coulomb>>("ERI3 CS");
+    mm.add_module<CSLibint<4, simde::type::el_el_coulomb>>("ERI4 CS");
+    mm.add_module<CSLibint<3, simde::type::el_el_stg>>("STG3 CS");
+    mm.add_module<CSLibint<4, simde::type::el_el_stg>>("STG4 CS");
+    mm.add_module<CSLibint<3, simde::type::el_el_yukawa>>("Yukawa3 CS");
+    mm.add_module<CSLibint<4, simde::type::el_el_yukawa>>("Yukawa4 CS");
+    mm.add_module<ShellNormCoulomb>("Shell Norms Coulomb");
+    mm.add_module<ShellNormSTG>("Shell Norms STG");
+    mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
     mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
     mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
     mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");

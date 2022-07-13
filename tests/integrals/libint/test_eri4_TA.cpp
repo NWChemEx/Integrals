@@ -9,7 +9,6 @@ TEST_CASE("ERI4C") {
     using op_type       = simde::type::el_el_coulomb;
     using integral_type = simde::AOTensorRepresentation<4, op_type>;
 
-    auto& world = TA::get_default_world();
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
@@ -18,7 +17,7 @@ TEST_CASE("ERI4C") {
     auto mol        = get_molecule(name);
     auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs, bs, bs};
-    auto corr = get_ao_data(name, bases, property::eris, world);
+    auto corr = get_ao_data(name, bases, property::eris);
 
     op_type r12;
     auto [X] = mm.at("ERI4").run_as<integral_type>(aos, aos, r12, aos, aos);

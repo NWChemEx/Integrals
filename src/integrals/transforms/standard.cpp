@@ -17,8 +17,7 @@ TEMPLATED_MODULE_CTOR(StandardTransform, N, OpType) {
 
 template<std::size_t N, typename OpType>
 TEMPLATED_MODULE_RUN(StandardTransform, N, OpType) {
-    using pt     = simde::TransformedTensorRepresentation<N, OpType>;
-    using sub_pt = simde::AOTensorRepresentation<N, OpType>;
+    using pt = simde::TransformedTensorRepresentation<N, OpType>;
 
     const auto& [ao_spaces, derived_spaces, op] = pt::unwrap_inputs(inputs);
 
@@ -43,13 +42,19 @@ TEMPLATED_MODULE_RUN(StandardTransform, N, OpType) {
 
     // Do the transforms
     simde::type::tensor temp;
-    const auto out_idx = t.make_annotation();
+    const auto out_idx = t.make_annotation(); /// (e.g. "i0,i1,i2,i3")
     for(const auto& [size, mode] : size2mode) {
-        const auto& C          = derived_spaces.at(mode).get().C();
+        /// Get the current coefficients
+        const auto& C = derived_spaces.at(mode).get().C();
+        /// Identify the mode to contract (e.g. "i2")
         std::string mode2trans = "i" + std::to_string(mode);
-        auto in_idx   = utilities::strings::replace(mode2trans, "mu", out_idx);
+        /// Label the targeted mode from out_idx as "mu" (e.g. "i0,i1,mu,i3")
+        auto in_idx = utilities::strings::replace(mode2trans, "mu", out_idx);
+        /// Contract the targeted mode with the current coefficients
+        /// (e.g. temp("i0,i1,i2,i3") = C("mu,i2") * t("i0,i1,mu,i3"))
         temp(out_idx) = C("mu," + mode2trans) * t(in_idx);
-        t             = temp;
+        /// Overwrite t
+        t = temp;
     }
 
     auto rv = results();

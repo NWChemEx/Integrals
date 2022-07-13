@@ -1,6 +1,4 @@
 #include "integrals/integrals.hpp"
-#include "integrals/libint/detail_/cauchy_schwarz_screener.hpp"
-#include "integrals/libint/detail_/nwx_libint.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
 #include <simde/cauchy_schwarz_approximation.hpp>
@@ -50,52 +48,51 @@ const double eps  = 100000000 * std::numeric_limits<double>::epsilon();
 const double marg = 1000000 * std::numeric_limits<double>::epsilon();
 
 TEST_CASE("Cauchy-Schwarz") {
-    using integral_type = simde::ERI4;
-    using cs_approx     = simde::ShellNorms;
-
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
-    auto name         = molecule::h2o;
-    auto bs           = basis_set::sto3g;
-    auto mol          = get_molecule(name);
-    auto aos          = get_bases(name, bs);
-    std::size_t deriv = 0;
+    auto name = molecule::h2o;
+    auto bs   = basis_set::sto3g;
+    auto mol  = get_molecule(name);
+    auto aos  = get_bases(name, bs);
 
-    // Check Shell Norm modules
-    mm.at("Shell Norms STG").change_input("STG Exponent", 1.0);
-    mm.at("Shell Norms Yukawa").change_input("STG Exponent", 1.0);
-
-    // Check Cauchy-Schwarz Module
-    auto [cs_mat_eri] =
-      mm.at("Shell Norms Coulomb").run_as<cs_approx>(aos, aos);
-    auto [cs_mat_stg] = mm.at("Shell Norms STG").run_as<cs_approx>(aos, aos);
-    auto [cs_mat_yuk] = mm.at("Shell Norms Yukawa").run_as<cs_approx>(aos, aos);
-    for(int i = 0; i < 5; ++i) {
-        for(int j = 0; j < 5; ++j) {
-            REQUIRE(cs_mat_eri[i][j] ==
-                    Approx(eri_check[i][j]).epsilon(eps).margin(marg));
-            REQUIRE(cs_mat_stg[i][j] ==
-                    Approx(stg_check[i][j]).epsilon(eps).margin(marg));
-            REQUIRE(cs_mat_yuk[i][j] ==
-                    Approx(yuk_check[i][j]).epsilon(eps).margin(marg));
+    SECTION("Coulomb") {
+        using op_t  = simde::type::el_el_coulomb;
+        using cs_pt = simde::ShellNorms<op_t>;
+        op_t op;
+        auto [rv] = mm.at("Shell Norms Coulomb").run_as<cs_pt>(aos, op, aos);
+        for(int i = 0; i < 5; ++i) {
+            for(int j = 0; j < 5; ++j) {
+                REQUIRE(rv[i][j] ==
+                        Approx(eri_check[i][j]).epsilon(eps).margin(marg));
+            }
         }
     }
 
-    // Check Screener Class
-    auto li_bs = nwx_libint::make_basis(aos.basis_set());
-    std::vector<libint2::BasisSet> sets = {li_bs, li_bs, li_bs, li_bs};
-    TA::TiledRange1 rng{0, 5, 6, 7};
+    SECTION("STG") {
+        using op_t  = simde::type::el_el_stg;
+        using cs_pt = simde::ShellNorms<op_t>;
+        op_t op(chemist::operators::STG(1.0, 1.0));
+        auto [rv] = mm.at("Shell Norms STG").run_as<cs_pt>(aos, op, aos);
+        for(int i = 0; i < 5; ++i) {
+            for(int j = 0; j < 5; ++j) {
+                REQUIRE(rv[i][j] ==
+                        Approx(stg_check[i][j]).epsilon(eps).margin(marg));
+            }
+        }
+    }
 
-    auto cs_screener_2c    = nwx_libint::CauchySchwarzScreener<2>();
-    auto cs_screener_3c    = nwx_libint::CauchySchwarzScreener<3>();
-    auto cs_screener_4c    = nwx_libint::CauchySchwarzScreener<4>();
-    cs_screener_3c.cs_mat2 = cs_mat_eri;
-    cs_screener_4c.cs_mat1 = cs_mat_eri;
-    cs_screener_4c.cs_mat2 = cs_mat_eri;
-    REQUIRE(!cs_screener_2c.shellset({0, 0}, 0.0));
-    REQUIRE(!cs_screener_3c.shellset({0, 0, 0}, 0.0));
-    REQUIRE(!cs_screener_4c.shellset({0, 0, 0, 0}, 0.0));
-    REQUIRE(cs_screener_3c.shellset({0, 0, 0}, 5.0));
-    REQUIRE(cs_screener_4c.shellset({0, 0, 0, 0}, 5.0));
+    SECTION("Yukawa") {
+        using op_t  = simde::type::el_el_yukawa;
+        using cs_pt = simde::ShellNorms<op_t>;
+        chemist::Electron e;
+        op_t op(chemist::operators::STG(1.0, 1.0), e, e);
+        auto [rv] = mm.at("Shell Norms Yukawa").run_as<cs_pt>(aos, op, aos);
+        for(int i = 0; i < 5; ++i) {
+            for(int j = 0; j < 5; ++j) {
+                REQUIRE(rv[i][j] ==
+                        Approx(yuk_check[i][j]).epsilon(eps).margin(marg));
+            }
+        }
+    }
 }
