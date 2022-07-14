@@ -60,6 +60,9 @@ void load_transformed_libint_integrals(pluginplay::ModuleManager& mm) {
     // register_transformed_integral<pt::kinetic<T>>(mm, "Kinetic");
     // register_transformed_integral<pt::nuclear<T>>(mm, "Nuclear");
     // register_transformed_integral<pt::overlap<T>>(mm, "Overlap");
+    register_transformed_integral<2, simde::type::el_kinetic>(mm, "Kinetic");
+    register_transformed_integral<2, simde::type::el_nuc_coulomb>(mm,
+                                                                  "Nuclear");
 }
 
 void load_f12_integrals(pluginplay::ModuleManager& mm) {
