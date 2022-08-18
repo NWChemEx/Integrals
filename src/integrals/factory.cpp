@@ -26,8 +26,7 @@ integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis bs1,
             // Electron repulsion energy integrals
             op = libint2::Operator::coulomb;
             break;
-        default:
-            assert(false && "invalid property integral case in switch");
+        default: assert(false && "invalid property integral case in switch");
     };
     lbs1            = nwx_libint::make_basis(bs1);
     lbs2            = nwx_libint::make_basis(bs2);
@@ -76,13 +75,16 @@ integrals::Factory::~Factory() {
     if(instances == 0 && libint2::initialized()) { libint2::finalize(); };
 };
 
-const libint2::Engine::target_ptr_vec integrals::Factory::compute(size_t s1, size_t s2) {
+const libint2::Engine::target_ptr_vec integrals::Factory::compute(size_t s1,
+                                                                  size_t s2) {
     engine->compute(lbs1[s1], lbs2[s2]);
     return engine->results();
 };
 
-const libint2::Engine::target_ptr_vec integrals::Factory::compute(size_t s1, size_t s2, size_t s3,
-                                                size_t s4) {
+const libint2::Engine::target_ptr_vec integrals::Factory::compute(size_t s1,
+                                                                  size_t s2,
+                                                                  size_t s3,
+                                                                  size_t s4) {
     engine->compute(lbs1[s1], lbs2[s2], lbs3[s3], lbs4[s4]);
     return engine->results();
 };
