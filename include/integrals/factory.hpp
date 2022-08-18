@@ -35,6 +35,7 @@ private:
     LI_basis lbs2;
     LI_basis lbs3;
     LI_basis lbs4;
+    libint2::Operator op;
 
 public:
     Factory(property prop, NWX_basis bs1, NWX_basis bs2, NWX_basis bs3,
@@ -46,8 +47,8 @@ public:
             NWX_basis bs4);
     Factory(property prop, NWX_basis bs1, NWX_basis bs2, NWX_basis bs3);
     Factory(property prop, NWX_basis bs1, NWX_basis bs2);
-    const double* const compute(size_t s1, size_t s2);
-    const double* const compute(size_t s1, size_t s2, size_t s3, size_t s4);
+    const libint2::Engine::target_ptr_vec compute(size_t s1, size_t s2);
+    const libint2::Engine::target_ptr_vec compute(size_t s1, size_t s2, size_t s3, size_t s4);
     ~Factory();
 };
 } // namespace integrals
