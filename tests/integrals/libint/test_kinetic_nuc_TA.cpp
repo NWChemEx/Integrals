@@ -1,3 +1,5 @@
+#include "../../../src/integrals/libint/detail_/make_shape.hpp"
+#include "../../../src/integrals/libint/detail_/bases_helper.hpp"
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
@@ -5,6 +7,7 @@
 #include <tensorwrapper/tensor/allclose.hpp>
 
 // using namespace mokup;
+using namespace integrals::detail_;
 
 TEST_CASE("Kinetic Nuclear") {
     using size_vector = std::vector<std::size_t>;
@@ -17,36 +20,36 @@ TEST_CASE("Kinetic Nuclear") {
     auto bs   = mokup::basis_set::sto3g;
     auto aos  = mokup::get_bases(name, bs);
     auto aob  = aos.basis_set();
+    auto aol  = make_libint_basis_set(aob); // libint version of the basis set
     std::vector bases{bs, bs};
-    auto corr = mokup::get_ao_data(name, bases, op_m, world);
+    std::vector basao{aol, aol};
+    auto corr = mokup::get_ao_data(name, bases, op_m);
     auto mol  = mokup::get_molecule(name);
     auto shl  = aob.shells();
     auto nsh  = aob.n_shells();
     auto nbf  = aob.n_aos();
     auto nat  = mol.size();
-
-    // Make table from shells to atoms
-
-    size_t* shell2atom = new size_t[nsh];
-    auto atom2shell    = aob.shell_offsets();
-    size_t idx         = 0;
-    for(size_t iatm = 0; iatm < nat; iatm++) {
-        for(; idx < atom2shell[iatm + 1]; idx++) shell2atom[idx] = iatm;
-    }
+    auto ncrd = 3ul;
 
     // Make a dense tensor (this is just for testing)
 
-    TA::TiledRange1 TR_at{0, nat};
-    TA::TiledRange1 TR_crd{0, 3};
-    TA::TiledRange1 TR_bf{0, nbf};
-    TA::TiledRange trange{TR_at, TR_crd, TR_bf, TR_bf};
-    TA::Tensor<float> tile_norm(trange.tiles_range());
-    tile_norm[0] = 1.0;
-    TA::SparseShape<float> shape(world, tile_norm, trange);
-    TA::TSpArrayD ekin(world, trange, shape);
-    TA::TSpArrayD::value_type tile(
-      ekin.trange().make_tile_range(ekin.begin().index()));
-    for(size_t idx = 0; idx < nat * 3 * nbf * nbf; idx++) tile[idx] = 0.0;
+    std::vector<std::size_t> leading_extents{nat,ncrd};
+
+    // Lambda to calculate gradients 
+    auto l = [&](const auto& lo, const auto& up, auto* tile) {
+    size_t n_element = 1;
+    for(size_t idx = 0; idx < lo.size(); idx++) {
+        n_element *= up[idx] - lo[idx];
+    }
+    for(size_t idx = 0; idx < n_element; idx++) tile[idx] = 0.0;
+
+    // Make table from shells to atoms
+    std::vector<size_t> shell2atom{};
+    auto atom2shell = aob.shell_offsets();
+    size_t idx      = 0;
+    for(size_t iatm = 0; iatm < nat; iatm++) {
+        for(; idx < atom2shell[iatm + 1]; idx++) shell2atom.push_back(iatm);
+    }
 
     auto integral_factory = integrals::Factory(op_i, aob, aob);
     size_t ish            = 0;
@@ -60,29 +63,32 @@ TEST_CASE("Kinetic Nuclear") {
             auto res      = integral_factory.compute(ish, jsh);
             size_t jatm   = shell2atom[jsh];
             auto jbf_size = jshell.size();
-            size_t idx    = 0;
-            for(size_t icrd = 0; icrd < 3; icrd++) {
+            for(size_t icrd = 0; icrd < ncrd; icrd++) {
+                auto resc       = res[icrd];
+                size_t idx      = 0;
                 size_t ibf_tile = ibf_begin;
                 for(size_t ibf = 0; ibf < ibf_size; ibf++) {
                     size_t jbf_tile = jbf_begin;
                     for(size_t jbf = 0; jbf < jbf_size; jbf++) {
                         auto idx_tile =
-                          jbf_tile + nbf * (ibf_tile + nbf * (icrd + 3 * iatm));
-                        tile[idx_tile] += res[idx];
+                          jbf_tile + nbf * (ibf_tile + nbf * (icrd + ncrd * iatm));
+                        tile[idx_tile] += resc[idx];
                         idx++;
                         jbf_tile++;
                     } // for-jbf
                     ibf_tile++;
                 } // for-ibf
             }     // for-icrd
-            for(size_t icrd = 0; icrd < 3; icrd++) {
+            for(size_t icrd = 0; icrd < ncrd; icrd++) {
+                auto resc       = res[ncrd+icrd];
+                size_t idx      = 0;
                 size_t ibf_tile = ibf_begin;
                 for(size_t ibf = 0; ibf < ibf_size; ibf++) {
                     size_t jbf_tile = jbf_begin;
                     for(size_t jbf = 0; jbf < jbf_size; jbf++) {
                         auto idx_tile =
-                          jbf_tile + nbf * (ibf_tile + nbf * (icrd + 3 * jatm));
-                        tile[idx_tile] += res[idx];
+                          jbf_tile + nbf * (ibf_tile + nbf * (icrd + ncrd * jatm));
+                        tile[idx_tile] += resc[idx];
                         idx++;
                         jbf_tile++;
                     } // for-jbf
@@ -95,9 +101,11 @@ TEST_CASE("Kinetic Nuclear") {
         ibf_begin += ibf_size;
         ish++;
     }
-    *(ekin.begin()) = tile;
-    delete[] shell2atom;
-    simde::type::tensor simde_ekin = simde::type::tensor(ekin);
+    };
+    using field_t = typename simde::type::tensor::field_type;
+    simde::type::tensor simde_ekin(l,
+        integrals::detail_::make_shape(basao,leading_extents),
+        tensorwrapper::tensor::default_allocator<field_t>());
     simde::type::tensor simde_corr = simde::type::tensor(corr);
     REQUIRE(tensorwrapper::tensor::allclose(simde_ekin, simde_corr));
 }
