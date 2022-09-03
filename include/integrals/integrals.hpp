@@ -8,6 +8,6 @@
 #pragma once
 #include "integrals/factory.hpp"
 #include "integrals/integrals_mm.hpp"
-//TEST: do we need this here? #include "simde/tensor_representation/tensor_representation.hpp"
+// TEST: do we need this here? #include
+// "simde/tensor_representation/tensor_representation.hpp"
 #include <simde/types.hpp>
-

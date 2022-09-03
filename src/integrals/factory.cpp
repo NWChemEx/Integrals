@@ -6,8 +6,9 @@ using namespace integrals::detail_;
 
 size_t integrals::Factory::instances = 0;
 
-integrals::Factory::Factory(integrals::property prop,  integrals::NWX_basis& bs1,
-                            integrals::NWX_basis& bs2, integrals::NWX_basis& bs3,
+integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis& bs1,
+                            integrals::NWX_basis& bs2,
+                            integrals::NWX_basis& bs3,
                             integrals::NWX_basis& bs4,
                             integrals::NWX_molecule& mol) {
     if(instances == 0 && not libint2::initialized()) { libint2::initialize(); };
@@ -36,13 +37,13 @@ integrals::Factory::Factory(integrals::property prop,  integrals::NWX_basis& bs1
     lbs3            = make_libint_basis_set(bs3);
     lbs4            = make_libint_basis_set(bs4);
     auto max_nprims = libint2::max_nprim(lbs1);
-    max_nprims      = std::max(max_nprims,libint2::max_nprim(lbs2));
-    max_nprims      = std::max(max_nprims,libint2::max_nprim(lbs3));
-    max_nprims      = std::max(max_nprims,libint2::max_nprim(lbs4));
+    max_nprims      = std::max(max_nprims, libint2::max_nprim(lbs2));
+    max_nprims      = std::max(max_nprims, libint2::max_nprim(lbs3));
+    max_nprims      = std::max(max_nprims, libint2::max_nprim(lbs4));
     auto max_l      = libint2::max_l(lbs1);
-    max_l           = std::max(max_l,libint2::max_l(lbs2));
-    max_l           = std::max(max_l,libint2::max_l(lbs3));
-    max_l           = std::max(max_l,libint2::max_l(lbs4));
+    max_l           = std::max(max_l, libint2::max_l(lbs2));
+    max_l           = std::max(max_l, libint2::max_l(lbs3));
+    max_l           = std::max(max_l, libint2::max_l(lbs4));
     double thresh   = 1.0e-16;
     size_t deriv    = 1;
     auto engine_    = new libint2::Engine(op, max_nprims, max_l, deriv, thresh);
@@ -52,8 +53,9 @@ integrals::Factory::Factory(integrals::property prop,  integrals::NWX_basis& bs1
     engine.reset(engine_);
 };
 
-integrals::Factory::Factory(integrals::property prop,  integrals::NWX_basis& bs1,
-                            integrals::NWX_basis& bs2, integrals::NWX_basis& bs3,
+integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis& bs1,
+                            integrals::NWX_basis& bs2,
+                            integrals::NWX_basis& bs3,
                             integrals::NWX_molecule& mol) :
   Factory(prop, bs1, bs2, bs3, bs3, mol){};
 
@@ -64,8 +66,9 @@ integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis& bs1,
 
 integrals::NWX_molecule integrals::Factory::mol_null{};
 
-integrals::Factory::Factory(integrals::property prop,  integrals::NWX_basis& bs1,
-                            integrals::NWX_basis& bs2, integrals::NWX_basis& bs3,
+integrals::Factory::Factory(integrals::property prop, integrals::NWX_basis& bs1,
+                            integrals::NWX_basis& bs2,
+                            integrals::NWX_basis& bs3,
                             integrals::NWX_basis& bs4) :
   Factory(prop, bs1, bs2, bs3, bs4, mol_null){};
 
