@@ -38,20 +38,24 @@ private:
     libint2::Operator op;
 
 public:
-    Factory(const property prop,  const NWX_basis& bs1, const NWX_basis& bs2,
-            const NWX_basis& bs3, const NWX_basis& bs4, const NWX_molecule& mol);
-    Factory(const property prop,  const NWX_basis& bs1, const NWX_basis& bs2,
-            const NWX_basis& bs3, const NWX_molecule& mol);
-    Factory(const property prop,  const NWX_basis& bs1, const NWX_basis& bs2,
+    Factory(const property prop, const NWX_basis& bs1, const NWX_basis& bs2,
+            const NWX_basis& bs3, const NWX_basis& bs4,
             const NWX_molecule& mol);
-    Factory(const property prop,  const NWX_basis& bs1, const NWX_basis& bs2,
+    Factory(const property prop, const NWX_basis& bs1, const NWX_basis& bs2,
+            const NWX_basis& bs3, const NWX_molecule& mol);
+    Factory(const property prop, const NWX_basis& bs1, const NWX_basis& bs2,
+            const NWX_molecule& mol);
+    Factory(const property prop, const NWX_basis& bs1, const NWX_basis& bs2,
             const NWX_basis& bs3, const NWX_basis& bs4);
-    Factory(const property prop,  const NWX_basis& bs1, const NWX_basis& bs2,
+    Factory(const property prop, const NWX_basis& bs1, const NWX_basis& bs2,
             const NWX_basis& bs3);
     Factory(const property prop, const NWX_basis& bs1, const NWX_basis& bs2);
-    const libint2::Engine::target_ptr_vec compute(const size_t s1, const size_t s2);
-    const libint2::Engine::target_ptr_vec compute(const size_t s1, const size_t s2,
-                                                  const size_t s3, const size_t s4);
+    const libint2::Engine::target_ptr_vec compute(const size_t s1,
+                                                  const size_t s2);
+    const libint2::Engine::target_ptr_vec compute(const size_t s1,
+                                                  const size_t s2,
+                                                  const size_t s3,
+                                                  const size_t s4);
     ~Factory();
 };
 } // namespace integrals
