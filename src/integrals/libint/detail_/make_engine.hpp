@@ -31,12 +31,11 @@ namespace integrals::detail_ {
  */
 template<typename OpType>
 auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
-                 double thresh) {
+                 double thresh, std::size_t deriv = 0) {
     /// Variables for engine construction
     constexpr auto libint_op = integrals::op_v<OpType>;
     auto max_nprims          = libint2::max_nprim(bases[0]);
     auto max_l               = libint2::max_l(bases[0]);
-    std::size_t deriv        = 0;
 
     /// Find max_nprims and max_l in bases
     for(auto set : bases) {

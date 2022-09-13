@@ -29,24 +29,61 @@ namespace integrals::detail_ {
  *  @returns The basis set as a LibInt2 basis set
  */
 inline auto make_libint_basis_set(const simde::type::ao_basis_set& bs) {
-    using svec_d_t = libint2::svector<double>;
-    using cont_t   = libint2::Shell::Contraction;
+    /// Typedefs for everything
+    using atom_t          = libint2::Atom;
+    using shell_t         = libint2::Shell;
+    using basis_t         = libint2::BasisSet;
+    using cont_t          = libint2::Shell::Contraction;
+    using svec_d_t        = libint2::svector<double>;
+    using conts_t         = libint2::svector<cont_t>;
+    using centers_t       = std::vector<atom_t>;
+    using atom_bases_t    = std::vector<shell_t>;
+    using element_bases_t = std::vector<atom_bases_t>;
 
-    libint2::BasisSet shells;
-    for(const auto&& shelli : bs.shells()) {
-        const auto nprims     = shelli.n_unique_primitives();
-        const auto first_prim = shelli.unique_primitive(0);
-        const auto last_prim  = shelli.unique_primitive(nprims - 1);
-        const bool pure       = shelli.pure() == chemist::ShellType::pure;
-        const int l           = shelli.l();
+    /// Inputs for BasisSet constructor
+    centers_t centers{};
+    element_bases_t element_bases{};
 
-        svec_d_t alphas(&first_prim.exponent(), &last_prim.exponent() + 1);
-        svec_d_t coefs(&first_prim.coefficient(), &last_prim.coefficient() + 1);
-        libint2::svector<cont_t> conts{cont_t{l, pure, coefs}};
-        std::array<double, 3> center = {shelli.x(), shelli.y(), shelli.z()};
-        shells.push_back(libint2::Shell(alphas, conts, center));
+    /// Atom doesn't have a value ctor, so here's a stand in
+    auto atom_ctor = [](int Z, double x, double y, double z) {
+        atom_t atom{};
+        atom.atomic_number = Z;
+        atom.x             = x;
+        atom.y             = y;
+        atom.z             = z;
+        return atom;
+    };
+
+    /// Origin for shell construction
+    std::array<double, 3> origin = {0.0, 0.0, 0.0};
+
+    /// Convert centers and their shells to libint equivalents.
+    for(auto center_i = 0; center_i < bs.size(); ++center_i) {
+        /// Add current center to atoms list
+        auto& center = bs[center_i];
+        centers.push_back(
+          atom_ctor(center_i, center.x(), center.y(), center.z()));
+
+        /// Gather shells for this center and add them to element_bases
+        atom_bases_t atom_bases{};
+        for(const auto&& shelli : center) {
+            const auto nprims = shelli.n_unique_primitives();
+            const auto prim0  = shelli.unique_primitive(0);
+            const auto primN  = shelli.unique_primitive(nprims - 1);
+            const bool pure   = shelli.pure() == chemist::ShellType::pure;
+            const int l       = shelli.l();
+
+            svec_d_t alphas(&prim0.exponent(), &primN.exponent() + 1);
+            svec_d_t coefs(&prim0.coefficient(), &primN.coefficient() + 1);
+            conts_t conts{cont_t{l, pure, coefs}};
+            /// Use origin for position, because BasisSet moves shells to center
+            atom_bases.push_back(shell_t(alphas, conts, origin));
+        }
+        element_bases.push_back(atom_bases);
     }
-    return shells;
+
+    /// Return the new basis set
+    return basis_t(centers, element_bases);
 }
 
 /** @brief Unpacks the basis sets from the inputs and converts them to Libint.
