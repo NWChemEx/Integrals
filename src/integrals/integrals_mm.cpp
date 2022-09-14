@@ -64,6 +64,20 @@ void load_libint_integrals(pluginplay::ModuleManager& mm) {
     mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
     mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
     mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
+
+    mm.add_module<LibintDirect<2, simde::type::el_el_coulomb>>("Direct ERI2");
+    mm.add_module<LibintDirect<3, simde::type::el_el_coulomb>>("Direct ERI3");
+    mm.add_module<LibintDirect<4, simde::type::el_el_coulomb>>("Direct ERI4");
+    mm.add_module<LibintDirect<2, simde::type::el_kinetic>>("Direct Kinetic");
+    mm.add_module<LibintDirect<2, simde::type::el_nuc_coulomb>>(
+      "Direct Nuclear");
+    mm.add_module<LibintDirect<2, simde::type::el_identity>>("Direct Overlap");
+    mm.add_module<LibintDirect<2, simde::type::el_el_stg>>("Direct STG2");
+    mm.add_module<LibintDirect<3, simde::type::el_el_stg>>("Direct STG3");
+    mm.add_module<LibintDirect<4, simde::type::el_el_stg>>("Direct STG4");
+    mm.add_module<LibintDirect<2, simde::type::el_el_yukawa>>("Direct Yukawa2");
+    mm.add_module<LibintDirect<3, simde::type::el_el_yukawa>>("Direct Yukawa3");
+    mm.add_module<LibintDirect<4, simde::type::el_el_yukawa>>("Direct Yukawa4");
 }
 
 void load_transformed_libint_integrals(pluginplay::ModuleManager& mm) {

@@ -48,4 +48,23 @@ extern template class LibintMultipole<0, simde::type::el_dipole>;
 extern template class LibintMultipole<1, simde::type::el_quadrupole>;
 extern template class LibintMultipole<2, simde::type::el_octupole>;
 
+template<std::size_t N, typename OperatorType>
+DECLARE_MODULE(LibintDirect);
+
+extern template class LibintDirect<2, simde::type::el_el_coulomb>;
+extern template class LibintDirect<3, simde::type::el_el_coulomb>;
+extern template class LibintDirect<4, simde::type::el_el_coulomb>;
+extern template class LibintDirect<2, simde::type::el_kinetic>;
+extern template class LibintDirect<2, simde::type::el_nuc_coulomb>;
+extern template class LibintDirect<2, simde::type::el_identity>;
+extern template class LibintDirect<2, simde::type::el_el_stg>;
+extern template class LibintDirect<3, simde::type::el_el_stg>;
+extern template class LibintDirect<4, simde::type::el_el_stg>;
+extern template class LibintDirect<2, simde::type::el_el_yukawa>;
+extern template class LibintDirect<3, simde::type::el_el_yukawa>;
+extern template class LibintDirect<4, simde::type::el_el_yukawa>;
+extern template class LibintDirect<2, simde::type::el_el_f12_commutator>;
+extern template class LibintDirect<3, simde::type::el_el_f12_commutator>;
+extern template class LibintDirect<4, simde::type::el_el_f12_commutator>;
+
 } // namespace integrals

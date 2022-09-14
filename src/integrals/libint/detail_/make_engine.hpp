@@ -88,8 +88,10 @@ auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
  * @param shells The index of the requested shell block
  */
 template<std::size_t... Is>
-void run_engine_(libint2::Engine& engine, std::vector<libint2::BasisSet>& bases,
-                 std::vector<std::size_t>& shells, std::index_sequence<Is...>) {
+void run_engine_(libint2::Engine& engine,
+                 const std::vector<libint2::BasisSet>& bases,
+                 const std::vector<std::size_t>& shells,
+                 std::index_sequence<Is...>) {
     engine.compute(bases[Is][shells[Is]]...);
 }
 
