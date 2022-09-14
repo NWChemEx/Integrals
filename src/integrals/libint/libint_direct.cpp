@@ -131,5 +131,4 @@ template class LibintDirect<2, simde::type::el_el_f12_commutator>;
 template class LibintDirect<3, simde::type::el_el_f12_commutator>;
 template class LibintDirect<4, simde::type::el_el_f12_commutator>;
 
-
 } // namespace integrals
