@@ -16,6 +16,7 @@
 
 #include "detail_/aos2shells.hpp"
 #include "detail_/bases_helper.hpp"
+#include "detail_/hash_inputs.hpp"
 #include "detail_/make_engine.hpp"
 #include "detail_/make_shape.hpp"
 #include "detail_/shells2ord.hpp"
@@ -96,9 +97,13 @@ TEMPLATED_MODULE_RUN(LibintDirect, N, OperatorType) {
             }
         }
     };
+
+    /// TODO: Replace this with something more integrated into Chemist
+    auto fxn_id = hash_inputs(bases, op, thresh);
+
     tensor_t I(
       l, make_shape(bases),
-      tensorwrapper::tensor::allocator::direct_ta_allocator<field_t>(op_str));
+      tensorwrapper::tensor::allocator::direct_ta_allocator<field_t>(fxn_id));
 
     /// Geminal exponent handling
     constexpr auto is_stg =

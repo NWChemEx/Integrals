@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "direct_allclose.hpp"
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
@@ -37,6 +38,14 @@ TEST_CASE("Yukawa3C") {
     chemist::Electron e;
     op_type gr(chemist::operators::STG(1.0, 1.0), e, e);
 
-    auto [X] = mm.at("Yukawa3").run_as<integral_type>(aos, gr, aos, aos);
-    REQUIRE(tensorwrapper::tensor::allclose(X, corr));
+    SECTION("Explicit") {
+        auto [X] = mm.at("Yukawa3").run_as<integral_type>(aos, gr, aos, aos);
+        REQUIRE(tensorwrapper::tensor::allclose(X, corr));
+    }
+
+    SECTION("Direct") {
+        auto [X] =
+          mm.at("Direct Yukawa3").run_as<integral_type>(aos, gr, aos, aos);
+        REQUIRE(direct_allclose(X, corr));
+    }
 }
