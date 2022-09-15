@@ -55,6 +55,17 @@ TEMPLATED_MODULE_RUN(LibintDirect, N, OperatorType) {
     auto op     = inputs.at(op_str).template value<const OperatorType&>();
     auto thresh = inputs.at("Threshold").value<double>();
 
+    /// Geminal exponent handling
+    constexpr auto is_stg =
+      std::is_same_v<OperatorType, simde::type::el_el_stg>;
+    constexpr auto is_yukawa =
+      std::is_same_v<OperatorType, simde::type::el_el_yukawa>;
+
+    double coeff = 1.0;
+    if constexpr(is_stg || is_yukawa) {
+        coeff = op.template at<0>().coefficient;
+    }
+
     /// Lambda to calculate values
     auto l = [=](const auto& lo, const auto& up, auto* data) {
         /// Convert index values from AOs to shells
@@ -82,7 +93,7 @@ TEMPLATED_MODULE_RUN(LibintDirect, N, OperatorType) {
 
             /// Copy libint values into tile data;
             for(auto i = 0; i < ord_pos.size(); ++i) {
-                data[ord_pos[i]] = vals[i];
+                data[ord_pos[i]] = vals[i] * coeff;
             }
 
             /// Increment curr_shells
@@ -104,16 +115,6 @@ TEMPLATED_MODULE_RUN(LibintDirect, N, OperatorType) {
     tensor_t I(
       l, make_shape(bases),
       tensorwrapper::tensor::allocator::direct_ta_allocator<field_t>(fxn_id));
-
-    /// Geminal exponent handling
-    constexpr auto is_stg =
-      std::is_same_v<OperatorType, simde::type::el_el_stg>;
-    constexpr auto is_yukawa =
-      std::is_same_v<OperatorType, simde::type::el_el_yukawa>;
-    if constexpr(is_stg || is_yukawa) {
-        auto I_ann = I(I.make_annotation());
-        I_ann      = op.template at<0>().coefficient * I_ann;
-    }
 
     /// Finish
     auto rv = results();
