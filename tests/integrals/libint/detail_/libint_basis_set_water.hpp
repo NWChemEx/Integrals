@@ -19,29 +19,29 @@
 
 namespace testing {
 
+/// Constructor for Atom
+inline libint2::Atom make_atom(int Z, double x, double y, double z) {
+    libint2::Atom atom{};
+    atom.atomic_number = Z;
+    atom.x             = x;
+    atom.y             = y;
+    atom.z             = z;
+    return atom;
+}
+
 /// Water STO-3G basis set in Libint Format
 inline libint2::BasisSet water_basis_set() {
     using atom_t  = libint2::Atom;
     using shell_t = libint2::Shell;
     using basis_t = libint2::BasisSet;
 
-    /// Constructor for atom_t
-    auto atom_ctor = [](int Z, double x, double y, double z) {
-        atom_t atom{};
-        atom.atomic_number = Z;
-        atom.x             = x;
-        atom.y             = y;
-        atom.z             = z;
-        return atom;
-    };
-
     /// Fill out atoms in water
     /// Z corresponds to Shells position in vector below,
     /// not actual Atomic number
     std::vector<atom_t> atoms{};
-    atoms.push_back(atom_ctor(0, 0.0, -0.143222342980786, 0.0));
-    atoms.push_back(atom_ctor(1, 1.638033502034240, 1.136556880358410, 0.0));
-    atoms.push_back(atom_ctor(2, -1.638033502034240, 1.136556880358410, 0.0));
+    atoms.push_back(make_atom(0, 0.0, -0.143222342980786, 0.0));
+    atoms.push_back(make_atom(1, 1.638033502034240, 1.136556880358410, 0.0));
+    atoms.push_back(make_atom(2, -1.638033502034240, 1.136556880358410, 0.0));
 
     /// Construct STO-3G shells, then group appropriately
     shell_t O_s1{{130.7093200, 23.8088610, 6.4436083},

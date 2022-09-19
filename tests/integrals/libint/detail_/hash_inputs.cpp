@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "integrals/libint/detail_/bases_helper.hpp"
 #include "integrals/libint/detail_/hash_inputs.hpp"
 #include "libint_basis_set_water.hpp"
 #include <catch2/catch.hpp>
@@ -55,32 +56,111 @@ TEST_CASE("Combining hashes") {
 }
 
 TEST_CASE("Hashing Operators") {
-    simde::type::el_el_coulomb op;
+    SECTION("el_el_coulomb") {
+        simde::type::el_el_coulomb op;
+        simde::type::el_el_delta other_op;
+        auto op_hash = hash_operator(op);
 
-    auto hash = hash_operator(op);
-    /// TODO: Validate the output
+        auto corr             = std::hash<int>{}(10);
+        std::string op_string = "(r\u0302₁₂)⁻¹";
+        combine_hash(corr, op_string);
+
+        /// Check correctness of hash
+        REQUIRE(op_hash == corr);
+        /// Check differentiation of hashes
+        REQUIRE(op_hash != hash_operator(other_op));
+    }
+
+    SECTION("el_nuc_coulomb") {
+        using e_t      = chemist::Electron;
+        using coords_t = std::array<double, 3>;
+        using atom_t   = chemist::Atom;
+        using nuc_t    = chemist::Nuclei;
+        using op_t     = simde::type::el_nuc_coulomb;
+
+        atom_t a1{std::size_t{1}, coords_t{0.0, 0.0, 0.0}};
+        atom_t a2{std::size_t{2}, coords_t{1.0, 0.0, 0.0}};
+        op_t op(e_t{}, nuc_t{a1});
+        op_t other_op1(e_t{}, nuc_t{a2});
+        op_t other_op2(e_t{}, nuc_t{a1, a2});
+        auto op_hash = hash_operator(op);
+
+        auto corr             = std::hash<int>{}(2);
+        std::string op_string = "(r\u0302₁₂)⁻¹";
+        combine_hash(corr, op_string, std::size_t{1}, 0.0, 0.0, 0.0);
+
+        /// Check correctness of hash
+        REQUIRE(op_hash == corr);
+        /// Check differentiation of hashes
+        REQUIRE(op_hash != hash_operator(other_op1));
+        REQUIRE(op_hash != hash_operator(other_op2));
+    }
+
+    SECTION("el_el_stg") {
+        using stg_t = chemist::operators::STG;
+        using op_t  = simde::type::el_el_stg;
+
+        op_t op(stg_t{1.0, 1.0});
+        op_t other_op1(stg_t{2.0, 1.0});
+        op_t other_op2(stg_t{1.0, 2.0});
+        auto op_hash = hash_operator(op);
+
+        auto corr             = std::hash<int>{}(17);
+        std::string op_string = "f\u0302₁₂";
+        combine_hash(corr, op_string, 1.0, 1.0);
+
+        /// Check correctness of hash
+        REQUIRE(op_hash == corr);
+        /// Check differentiation of hashes
+        REQUIRE(op_hash != hash_operator(other_op1));
+        REQUIRE(op_hash != hash_operator(other_op2));
+    }
 }
 
 TEST_CASE("Hashing Bases") {
-    auto bset = testing::water_basis_set();
-    bases_vector_t two_sets{bset, bset};
-    auto hash = std::hash<bases_vector_t>{}(two_sets);
-    /// TODO: Validate the output
+    const auto name = molecule::h2o;
+    auto sto3g_nwx  = get_bases(name, basis_set::sto3g);
+    auto ccpvdz_nwx = get_bases(name, basis_set::ccpvdz);
+
+    auto sto3g  = make_libint_basis_set(sto3g_nwx.basis_set());
+    auto ccpvdz = make_libint_basis_set(ccpvdz_nwx.basis_set());
+
+    bases_vector_t set1{sto3g};
+    bases_vector_t set2{ccpvdz};
+    bases_vector_t set3{sto3g, sto3g};
+    bases_vector_t set4{sto3g, ccpvdz};
+    bases_vector_t set5{ccpvdz, sto3g};
+
+    std::hash<bases_vector_t> hasher;
+    auto hash1 = hasher(set1);
+    auto hash2 = hasher(set2);
+    auto hash3 = hasher(set3);
+    auto hash4 = hasher(set4);
+    auto hash5 = hasher(set5);
+
+    /// Checking the absolute correctness of the hash is overly involved,
+    /// so I'm just checking for differentiation between instances.
+    REQUIRE(hash1 != hash2); // Same number, different contents
+    REQUIRE(hash1 != hash3); // Different number of the same set
+    REQUIRE(hash4 != hash5); // Check asymetry of hashing
 }
 
+/// Everything else is tested by this point, so just make sure that this
+/// is consistent with expectation.
 TEST_CASE("hash_inputs") {
+    /// Inputs
+    simde::type::el_el_coulomb op;
     auto bset = testing::water_basis_set();
-
-    bases_vector_t two_sets{bset, bset};
-    bases_vector_t three_sets{bset, bset, bset};
-    bases_vector_t four_sets{bset, bset, bset, bset};
-
+    bases_vector_t bases{bset};
     double t = 1.23456;
 
-    simde::type::el_el_coulomb op;
+    /// Hash inputs
+    auto hash = hash_inputs(bases, op, t);
 
-    auto hash1 = hash_inputs(two_sets, op, t);
-    auto hash2 = hash_inputs(three_sets, op, t);
-    auto hash3 = hash_inputs(four_sets, op, t);
-    /// TODO: Validate the output
+    /// Correct value
+    auto corr = hash_operator(op);
+    combine_hash(corr, bases, t);
+
+    /// Check correctness of hash
+    REQUIRE(hash == std::to_string(corr));
 }

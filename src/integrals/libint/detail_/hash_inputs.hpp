@@ -6,15 +6,6 @@
 #include <string>
 #include <vector>
 
-template<>
-struct std::hash<std::vector<libint2::BasisSet>> {
-    std::size_t operator()(
-      const std::vector<libint2::BasisSet>& b) const noexcept {
-        /// TODO: Expand this
-        return std::hash<std::size_t>{}(b.size());
-    }
-};
-
 namespace integrals::detail_ {
 
 /** @brief Combines hashes in the same way as boost::hash_combine (apparently)
@@ -53,11 +44,42 @@ inline void combine_hash(std::size_t& seed, const T& v, Rest... rest) {
     combine_hash(seed, rest...);
 }
 
+/** @brief Produces a hash of the input operator
+ *
+ *  The libint_op and as_string should handle differentiating the operator
+ *  types, but any additional information that can differentiate instances of
+ *  an operator needs to be hashed as well.
+ *
+ *  This should eventually be replaced with std::hash specializations for the
+ *  different operator types.
+ *
+ *  @tparam OpType The type of the operator we want to hash
+ *  @param[in] op The operator that is being hashed
+ *  @returns A hash of the operator
+ */
 template<typename OpType>
 inline std::size_t hash_operator(const OpType& op) {
-    /// TODO: Expand this
+    /// LibInt operator enum
     constexpr auto libint_op = integrals::op_v<OpType>;
-    return std::hash<int>{}(int(libint_op));
+    auto hash                = std::hash<int>{}(int(libint_op));
+    /// NWX operator string
+    combine_hash(hash, op.as_string());
+    /// Additional information from op
+    if constexpr(std::is_same_v<OpType, simde::type::el_nuc_coulomb>) {
+        const auto& nuclei = op.template at<1>();
+        for(const auto& ai : nuclei) {
+            combine_hash(hash, ai.Z());
+            for(const auto& coord : ai.coords()) combine_hash(hash, coord);
+        }
+    } else if constexpr(std::is_same_v<OpType, simde::type::el_el_stg> ||
+                        std::is_same_v<OpType, simde::type::el_el_yukawa> ||
+                        std::is_same_v<OpType,
+                                       simde::type::el_el_f12_commutator>) {
+        const auto& stg = op.template at<0>();
+        combine_hash(hash, stg.coefficient);
+        combine_hash(hash, stg.exponent);
+    }
+    return hash;
 }
 
 /** @brief Hashes the inputs to an integral module to produce a fxn_id
@@ -77,3 +99,33 @@ std::string hash_inputs(const std::vector<libint2::BasisSet>& bases,
 }
 
 } // namespace integrals::detail_
+
+/** @brief std::hash specializaton for a vector of LibInt basis sets */
+template<>
+struct std::hash<std::vector<libint2::BasisSet>> {
+    /** @brief Hashes the input vector
+     *
+     *  @param[in] b A vector of libint basis sets
+     *  @returns A hash of the vector
+     */
+    std::size_t operator()(
+      const std::vector<libint2::BasisSet>& b) const noexcept {
+        using integrals::detail_::combine_hash;
+        /// Start with the number of basis sets
+        auto hash = std::hash<std::size_t>{}(b.size());
+        /// Set through the sets and hash the info
+        for(const auto& set : b) {
+            for(const auto& shell : set) {
+                for(const auto& coord : shell.O) combine_hash(hash, coord);
+                for(const auto& alpha : shell.alpha) combine_hash(hash, alpha);
+                for(const auto& cont : shell.contr) {
+                    combine_hash(hash, cont.l);
+                    combine_hash(hash, cont.pure);
+                    for(const auto& coeff : cont.coeff)
+                        combine_hash(hash, coeff);
+                }
+            }
+        }
+        return hash;
+    }
+};
