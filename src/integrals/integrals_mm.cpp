@@ -65,6 +65,8 @@ void load_libint_integrals(pluginplay::ModuleManager& mm) {
     mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
     mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
 
+    /// Direct Integrals
+    mm.add_module<LibintDirectDOI>("Direct DOI");
     mm.add_module<LibintDirect<2, simde::type::el_el_coulomb>>("Direct ERI2");
     mm.add_module<LibintDirect<3, simde::type::el_el_coulomb>>("Direct ERI3");
     mm.add_module<LibintDirect<4, simde::type::el_el_coulomb>>("Direct ERI4");
