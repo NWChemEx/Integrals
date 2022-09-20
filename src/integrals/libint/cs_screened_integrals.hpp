@@ -20,14 +20,21 @@
 
 namespace integrals {
 
-template<std::size_t N, typename OperatorType>
+template<std::size_t N, typename OperatorType, bool direct>
 DECLARE_MODULE(CSLibint);
-
-extern template class CSLibint<3, simde::type::el_el_coulomb>;
-extern template class CSLibint<4, simde::type::el_el_coulomb>;
-extern template class CSLibint<3, simde::type::el_el_stg>;
-extern template class CSLibint<4, simde::type::el_el_stg>;
-extern template class CSLibint<3, simde::type::el_el_yukawa>;
-extern template class CSLibint<4, simde::type::el_el_yukawa>;
+// Non-direct
+extern template class CSLibint<3, simde::type::el_el_coulomb, false>;
+extern template class CSLibint<4, simde::type::el_el_coulomb, false>;
+extern template class CSLibint<3, simde::type::el_el_stg, false>;
+extern template class CSLibint<4, simde::type::el_el_stg, false>;
+extern template class CSLibint<3, simde::type::el_el_yukawa, false>;
+extern template class CSLibint<4, simde::type::el_el_yukawa, false>;
+// Direct
+extern template class CSLibint<3, simde::type::el_el_coulomb, true>;
+extern template class CSLibint<4, simde::type::el_el_coulomb, true>;
+extern template class CSLibint<3, simde::type::el_el_stg, true>;
+extern template class CSLibint<4, simde::type::el_el_stg, true>;
+extern template class CSLibint<3, simde::type::el_el_yukawa, true>;
+extern template class CSLibint<4, simde::type::el_el_yukawa, true>;
 
 } // namespace integrals

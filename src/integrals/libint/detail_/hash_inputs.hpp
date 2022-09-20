@@ -87,14 +87,16 @@ inline std::size_t hash_operator(const OpType& op) {
  *  @tparam OpType The type of the operator
  *  @param[in] bases The basis sets as a vector of libint basis sets
  *  @param[in] op The operator associated with the integral
- *  @param[in] thresh The threshold ofr integral precision
+ *  @param[in] thresh The threshold for integral precision
+ *  @param[in] cs_thresh The Cauchy-Schwarz screening threshold
  *  @returns A hash as a string
  */
 template<typename OpType>
 std::string hash_inputs(const std::vector<libint2::BasisSet>& bases,
-                        const OpType& op, double thresh) {
+                        const OpType& op, double thresh,
+                        double cs_thresh = -1.0) {
     std::size_t hash = hash_operator(op);
-    combine_hash(hash, bases, thresh);
+    combine_hash(hash, bases, thresh, cs_thresh);
     return std::to_string(hash);
 }
 
