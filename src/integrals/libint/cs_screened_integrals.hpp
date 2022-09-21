@@ -18,23 +18,21 @@
 #include <pluginplay/module_base.hpp>
 #include <simde/types.hpp>
 
+#define EXTERN_INT_AND_DIRECT(N, op)              \
+    extern template class CSLibint<N, op, false>; \
+    extern template class CSLibint<N, op, true>
+
 namespace integrals {
 
 template<std::size_t N, typename OperatorType, bool direct>
 DECLARE_MODULE(CSLibint);
-// Non-direct
-extern template class CSLibint<3, simde::type::el_el_coulomb, false>;
-extern template class CSLibint<4, simde::type::el_el_coulomb, false>;
-extern template class CSLibint<3, simde::type::el_el_stg, false>;
-extern template class CSLibint<4, simde::type::el_el_stg, false>;
-extern template class CSLibint<3, simde::type::el_el_yukawa, false>;
-extern template class CSLibint<4, simde::type::el_el_yukawa, false>;
-// Direct
-extern template class CSLibint<3, simde::type::el_el_coulomb, true>;
-extern template class CSLibint<4, simde::type::el_el_coulomb, true>;
-extern template class CSLibint<3, simde::type::el_el_stg, true>;
-extern template class CSLibint<4, simde::type::el_el_stg, true>;
-extern template class CSLibint<3, simde::type::el_el_yukawa, true>;
-extern template class CSLibint<4, simde::type::el_el_yukawa, true>;
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_stg);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_stg);
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
 
 } // namespace integrals
+
+#undef EXTERN_INT_AND_DIRECT

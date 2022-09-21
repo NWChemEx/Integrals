@@ -164,19 +164,17 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
     return my_pt::wrap_results(rv, I);
 }
 
-// Non-direct
-template class CSLibint<3, simde::type::el_el_coulomb, false>;
-template class CSLibint<4, simde::type::el_el_coulomb, false>;
-template class CSLibint<3, simde::type::el_el_stg, false>;
-template class CSLibint<4, simde::type::el_el_stg, false>;
-template class CSLibint<3, simde::type::el_el_yukawa, false>;
-template class CSLibint<4, simde::type::el_el_yukawa, false>;
-// Direct
-template class CSLibint<3, simde::type::el_el_coulomb, true>;
-template class CSLibint<4, simde::type::el_el_coulomb, true>;
-template class CSLibint<3, simde::type::el_el_stg, true>;
-template class CSLibint<4, simde::type::el_el_stg, true>;
-template class CSLibint<3, simde::type::el_el_yukawa, true>;
-template class CSLibint<4, simde::type::el_el_yukawa, true>;
+#define TEMPLATE_INT_AND_DIRECT(N, op)     \
+    template class CSLibint<N, op, false>; \
+    template class CSLibint<N, op, true>
+
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_stg);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_stg);
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
+
+#undef TEMPLATE_INT_AND_DIRECT
 
 } // namespace integrals

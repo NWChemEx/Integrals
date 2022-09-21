@@ -18,42 +18,29 @@
 #include <pluginplay/module_base.hpp>
 #include <simde/types.hpp>
 
+#define EXTERN_INT_AND_DIRECT(N, op)            \
+    extern template class Libint<N, op, false>; \
+    extern template class Libint<N, op, true>
+
 namespace integrals {
 
 template<std::size_t N, typename OperatorType, bool direct>
 DECLARE_MODULE(Libint);
-// Non-direct
-extern template class Libint<2, simde::type::el_el_coulomb, false>;
-extern template class Libint<3, simde::type::el_el_coulomb, false>;
-extern template class Libint<4, simde::type::el_el_coulomb, false>;
-extern template class Libint<2, simde::type::el_kinetic, false>;
-extern template class Libint<2, simde::type::el_nuc_coulomb, false>;
-extern template class Libint<2, simde::type::el_identity, false>;
-extern template class Libint<2, simde::type::el_el_stg, false>;
-extern template class Libint<3, simde::type::el_el_stg, false>;
-extern template class Libint<4, simde::type::el_el_stg, false>;
-extern template class Libint<2, simde::type::el_el_yukawa, false>;
-extern template class Libint<3, simde::type::el_el_yukawa, false>;
-extern template class Libint<4, simde::type::el_el_yukawa, false>;
-extern template class Libint<2, simde::type::el_el_f12_commutator, false>;
-extern template class Libint<3, simde::type::el_el_f12_commutator, false>;
-extern template class Libint<4, simde::type::el_el_f12_commutator, false>;
-// Direct
-extern template class Libint<2, simde::type::el_el_coulomb, true>;
-extern template class Libint<3, simde::type::el_el_coulomb, true>;
-extern template class Libint<4, simde::type::el_el_coulomb, true>;
-extern template class Libint<2, simde::type::el_kinetic, true>;
-extern template class Libint<2, simde::type::el_nuc_coulomb, true>;
-extern template class Libint<2, simde::type::el_identity, true>;
-extern template class Libint<2, simde::type::el_el_stg, true>;
-extern template class Libint<3, simde::type::el_el_stg, true>;
-extern template class Libint<4, simde::type::el_el_stg, true>;
-extern template class Libint<2, simde::type::el_el_yukawa, true>;
-extern template class Libint<3, simde::type::el_el_yukawa, true>;
-extern template class Libint<4, simde::type::el_el_yukawa, true>;
-extern template class Libint<2, simde::type::el_el_f12_commutator, true>;
-extern template class Libint<3, simde::type::el_el_f12_commutator, true>;
-extern template class Libint<4, simde::type::el_el_f12_commutator, true>;
+EXTERN_INT_AND_DIRECT(2, simde::type::el_el_coulomb);
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_kinetic);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_identity);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_el_stg);
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_stg);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_stg);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_el_yukawa);
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_el_f12_commutator);
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_f12_commutator);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
 
 template<bool direct>
 DECLARE_MODULE(LibintDOI);
@@ -68,3 +55,5 @@ extern template class LibintMultipole<1, simde::type::el_quadrupole>;
 extern template class LibintMultipole<2, simde::type::el_octupole>;
 
 } // namespace integrals
+
+#undef EXTERN_INT_AND_DIRECT

@@ -20,6 +20,14 @@
 #include "libint/shellnorms.hpp"
 #include "transforms/transforms.hpp"
 
+#define ADD_INT_WITH_DIRECT(N, op, key_base)       \
+    mm.add_module<Libint<N, op, false>>(key_base); \
+    mm.add_module<Libint<N, op, true>>("Direct " key_base)
+
+#define ADD_CS_INT_WITH_DIRECT(N, op, key_base)      \
+    mm.add_module<CSLibint<N, op, false>>(key_base); \
+    mm.add_module<CSLibint<N, op, true>>("Direct " key_base)
+
 using namespace simde::type;
 
 namespace integrals {
@@ -35,57 +43,39 @@ void register_transformed_integral(pluginplay::ModuleManager& mm,
 
 void load_libint_integrals(pluginplay::ModuleManager& mm) {
     mm.add_module<LibintDOI<false>>("DOI");
+    mm.add_module<LibintDOI<true>>("Direct DOI");
     mm.add_module<LibintMultipole<0, el_dipole>>("EDipole");
     mm.add_module<LibintMultipole<1, el_quadrupole>>("EQuadrupole");
     mm.add_module<LibintMultipole<2, el_octupole>>("EOctupole");
-    mm.add_module<Libint<2, el_el_coulomb, false>>("ERI2");
-    mm.add_module<Libint<3, el_el_coulomb, false>>("ERI3");
-    mm.add_module<Libint<4, el_el_coulomb, false>>("ERI4");
-    mm.add_module<Libint<2, el_kinetic, false>>("Kinetic");
-    mm.add_module<Libint<2, el_nuc_coulomb, false>>("Nuclear");
-    mm.add_module<Libint<2, el_identity, false>>("Overlap");
-    mm.add_module<Libint<2, el_el_stg, false>>("STG2");
-    mm.add_module<Libint<3, el_el_stg, false>>("STG3");
-    mm.add_module<Libint<4, el_el_stg, false>>("STG4");
-    mm.add_module<Libint<2, el_el_yukawa, false>>("Yukawa2");
-    mm.add_module<Libint<3, el_el_yukawa, false>>("Yukawa3");
-    mm.add_module<Libint<4, el_el_yukawa, false>>("Yukawa4");
-    mm.add_module<CSLibint<3, el_el_coulomb, false>>("ERI3 CS");
-    mm.add_module<CSLibint<4, el_el_coulomb, false>>("ERI4 CS");
-    mm.add_module<CSLibint<3, el_el_stg, false>>("STG3 CS");
-    mm.add_module<CSLibint<4, el_el_stg, false>>("STG4 CS");
-    mm.add_module<CSLibint<3, el_el_yukawa, false>>("Yukawa3 CS");
-    mm.add_module<CSLibint<4, el_el_yukawa, false>>("Yukawa4 CS");
+    ADD_INT_WITH_DIRECT(2, el_el_coulomb, "ERI2");
+    ADD_INT_WITH_DIRECT(3, el_el_coulomb, "ERI3");
+    ADD_INT_WITH_DIRECT(4, el_el_coulomb, "ERI4");
+    ADD_INT_WITH_DIRECT(2, el_kinetic, "Kinetic");
+    ADD_INT_WITH_DIRECT(2, el_nuc_coulomb, "Nuclear");
+    ADD_INT_WITH_DIRECT(2, el_identity, "Overlap");
+    ADD_INT_WITH_DIRECT(2, el_el_stg, "STG2");
+    ADD_INT_WITH_DIRECT(3, el_el_stg, "STG3");
+    ADD_INT_WITH_DIRECT(4, el_el_stg, "STG4");
+    ADD_INT_WITH_DIRECT(2, el_el_yukawa, "Yukawa2");
+    ADD_INT_WITH_DIRECT(3, el_el_yukawa, "Yukawa3");
+    ADD_INT_WITH_DIRECT(4, el_el_yukawa, "Yukawa4");
+    ADD_CS_INT_WITH_DIRECT(3, el_el_coulomb, "ERI3 CS");
+    ADD_CS_INT_WITH_DIRECT(4, el_el_coulomb, "ERI4 CS");
+    ADD_CS_INT_WITH_DIRECT(3, el_el_stg, "STG3 CS");
+    ADD_CS_INT_WITH_DIRECT(4, el_el_stg, "STG4 CS");
+    ADD_CS_INT_WITH_DIRECT(3, el_el_yukawa, "Yukawa3 CS");
+    ADD_CS_INT_WITH_DIRECT(4, el_el_yukawa, "Yukawa4 CS");
+
     mm.add_module<ShellNormCoulomb>("Shell Norms Coulomb");
     mm.add_module<ShellNormSTG>("Shell Norms STG");
     mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
+
     mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
     mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
     mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
     mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
     mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
     mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
-
-    /// Direct Integrals
-    mm.add_module<LibintDOI<true>>("Direct DOI");
-    mm.add_module<Libint<2, el_el_coulomb, true>>("Direct ERI2");
-    mm.add_module<Libint<3, el_el_coulomb, true>>("Direct ERI3");
-    mm.add_module<Libint<4, el_el_coulomb, true>>("Direct ERI4");
-    mm.add_module<Libint<2, el_kinetic, true>>("Direct Kinetic");
-    mm.add_module<Libint<2, el_nuc_coulomb, true>>("Direct Nuclear");
-    mm.add_module<Libint<2, el_identity, true>>("Direct Overlap");
-    mm.add_module<Libint<2, el_el_stg, true>>("Direct STG2");
-    mm.add_module<Libint<3, el_el_stg, true>>("Direct STG3");
-    mm.add_module<Libint<4, el_el_stg, true>>("Direct STG4");
-    mm.add_module<Libint<2, el_el_yukawa, true>>("Direct Yukawa2");
-    mm.add_module<Libint<3, el_el_yukawa, true>>("Direct Yukawa3");
-    mm.add_module<Libint<4, el_el_yukawa, true>>("Direct Yukawa4");
-    mm.add_module<CSLibint<3, el_el_coulomb, true>>("Direct ERI3 CS");
-    mm.add_module<CSLibint<4, el_el_coulomb, true>>("Direct ERI4 CS");
-    mm.add_module<CSLibint<3, el_el_stg, true>>("Direct STG3 CS");
-    mm.add_module<CSLibint<4, el_el_stg, true>>("Direct STG4 CS");
-    mm.add_module<CSLibint<3, el_el_yukawa, true>>("Direct Yukawa3 CS");
-    mm.add_module<CSLibint<4, el_el_yukawa, true>>("Direct Yukawa4 CS");
     mm.change_submod("Direct ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
     mm.change_submod("Direct ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
     mm.change_submod("Direct STG3 CS", "Shell Norms", "Shell Norms STG");
@@ -134,3 +124,6 @@ void load_modules(pluginplay::ModuleManager& mm) {
 }
 
 } // namespace integrals
+
+#undef ADD_INT_WITH_DIRECT
+#undef ADD_CS_INT_WITH_DIRECT

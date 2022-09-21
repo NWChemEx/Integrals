@@ -126,37 +126,27 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType, direct) {
     return my_pt::wrap_results(rv, I);
 }
 
+#define TEMPLATE_INT_AND_DIRECT(N, op)   \
+    template class Libint<N, op, false>; \
+    template class Libint<N, op, true>
+
 // Non-direct
-template class Libint<2, simde::type::el_el_coulomb, false>;
-template class Libint<3, simde::type::el_el_coulomb, false>;
-template class Libint<4, simde::type::el_el_coulomb, false>;
-template class Libint<2, simde::type::el_kinetic, false>;
-template class Libint<2, simde::type::el_nuc_coulomb, false>;
-template class Libint<2, simde::type::el_identity, false>;
-template class Libint<2, simde::type::el_el_stg, false>;
-template class Libint<3, simde::type::el_el_stg, false>;
-template class Libint<4, simde::type::el_el_stg, false>;
-template class Libint<2, simde::type::el_el_yukawa, false>;
-template class Libint<3, simde::type::el_el_yukawa, false>;
-template class Libint<4, simde::type::el_el_yukawa, false>;
-template class Libint<2, simde::type::el_el_f12_commutator, false>;
-template class Libint<3, simde::type::el_el_f12_commutator, false>;
-template class Libint<4, simde::type::el_el_f12_commutator, false>;
-// Direct
-template class Libint<2, simde::type::el_el_coulomb, true>;
-template class Libint<3, simde::type::el_el_coulomb, true>;
-template class Libint<4, simde::type::el_el_coulomb, true>;
-template class Libint<2, simde::type::el_kinetic, true>;
-template class Libint<2, simde::type::el_nuc_coulomb, true>;
-template class Libint<2, simde::type::el_identity, true>;
-template class Libint<2, simde::type::el_el_stg, true>;
-template class Libint<3, simde::type::el_el_stg, true>;
-template class Libint<4, simde::type::el_el_stg, true>;
-template class Libint<2, simde::type::el_el_yukawa, true>;
-template class Libint<3, simde::type::el_el_yukawa, true>;
-template class Libint<4, simde::type::el_el_yukawa, true>;
-template class Libint<2, simde::type::el_el_f12_commutator, true>;
-template class Libint<3, simde::type::el_el_f12_commutator, true>;
-template class Libint<4, simde::type::el_el_f12_commutator, true>;
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_coulomb);
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_kinetic);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_identity);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_stg);
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_stg);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_stg);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_yukawa);
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_f12_commutator);
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_f12_commutator);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
+
+#undef TEMPLATE_INT_AND_DIRECT
 
 } // namespace integrals
