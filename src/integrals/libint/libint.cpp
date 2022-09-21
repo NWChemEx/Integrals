@@ -18,6 +18,7 @@
 #include "detail_/bases_helper.hpp"
 #include "detail_/make_engine.hpp"
 #include "detail_/make_shape.hpp"
+#include "detail_/select_allocator.hpp"
 #include "detail_/shells2ord.hpp"
 #include "libint.hpp"
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
@@ -27,8 +28,8 @@ namespace integrals {
 /// Grab the various detail_ functions
 using namespace detail_;
 
-template<std::size_t N, typename OperatorType>
-TEMPLATED_MODULE_CTOR(Libint, N, OperatorType) {
+template<std::size_t N, typename OperatorType, bool direct>
+TEMPLATED_MODULE_CTOR(Libint, N, OperatorType, direct) {
     description("Computes integrals with Libint");
     using my_pt = simde::AOTensorRepresentation<N, OperatorType>;
 
@@ -40,8 +41,8 @@ TEMPLATED_MODULE_CTOR(Libint, N, OperatorType) {
         "The target precision with which the integrals will be computed");
 }
 
-template<std::size_t N, typename OperatorType>
-TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
+template<std::size_t N, typename OperatorType, bool direct>
+TEMPLATED_MODULE_RUN(Libint, N, OperatorType, direct) {
     /// Typedefs
     using my_pt         = simde::AOTensorRepresentation<N, OperatorType>;
     using size_vector_t = std::vector<std::size_t>;
@@ -54,8 +55,19 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
     auto op     = inputs.at(op_str).template value<const OperatorType&>();
     auto thresh = inputs.at("Threshold").value<double>();
 
+    /// Geminal exponent handling
+    constexpr auto is_stg =
+      std::is_same_v<OperatorType, simde::type::el_el_stg>;
+    constexpr auto is_yukawa =
+      std::is_same_v<OperatorType, simde::type::el_el_yukawa>;
+
+    double coeff = 1.0;
+    if constexpr(is_stg || is_yukawa) {
+        coeff = op.template at<0>().coefficient;
+    }
+
     /// Lambda to calculate values
-    auto l = [&](const auto& lo, const auto& up, auto* data) {
+    auto l = [=](const auto& lo, const auto& up, auto* data) {
         /// Convert index values from AOs to shells
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
@@ -81,7 +93,7 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
 
             /// Copy libint values into tile data;
             for(auto i = 0; i < ord_pos.size(); ++i) {
-                data[ord_pos[i]] = vals[i];
+                data[ord_pos[i]] = vals[i] * coeff;
             }
 
             /// Increment curr_shells
@@ -96,38 +108,36 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType) {
             }
         }
     };
-    tensor_t I(l, make_shape(bases),
-               tensorwrapper::tensor::default_allocator<field_t>());
 
-    /// Geminal exponent handling
-    constexpr auto is_stg =
-      std::is_same_v<OperatorType, simde::type::el_el_stg>;
-    constexpr auto is_yukawa =
-      std::is_same_v<OperatorType, simde::type::el_el_yukawa>;
-    if constexpr(is_stg || is_yukawa) {
-        auto I_ann = I(I.make_annotation());
-        I_ann      = op.template at<0>().coefficient * I_ann;
-    }
+    tensor_t I(l, make_shape(bases),
+               select_allocator<direct, field_t>(bases, op, thresh));
 
     /// Finish
     auto rv = results();
     return my_pt::wrap_results(rv, I);
 }
 
-template class Libint<2, simde::type::el_el_coulomb>;
-template class Libint<3, simde::type::el_el_coulomb>;
-template class Libint<4, simde::type::el_el_coulomb>;
-template class Libint<2, simde::type::el_kinetic>;
-template class Libint<2, simde::type::el_nuc_coulomb>;
-template class Libint<2, simde::type::el_identity>;
-template class Libint<2, simde::type::el_el_stg>;
-template class Libint<3, simde::type::el_el_stg>;
-template class Libint<4, simde::type::el_el_stg>;
-template class Libint<2, simde::type::el_el_yukawa>;
-template class Libint<3, simde::type::el_el_yukawa>;
-template class Libint<4, simde::type::el_el_yukawa>;
-template class Libint<2, simde::type::el_el_f12_commutator>;
-template class Libint<3, simde::type::el_el_f12_commutator>;
-template class Libint<4, simde::type::el_el_f12_commutator>;
+#define TEMPLATE_INT_AND_DIRECT(N, op)   \
+    template class Libint<N, op, false>; \
+    template class Libint<N, op, true>
+
+// Non-direct
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_coulomb);
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_kinetic);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_identity);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_stg);
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_stg);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_stg);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_yukawa);
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_f12_commutator);
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_f12_commutator);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
+
+#undef TEMPLATE_INT_AND_DIRECT
 
 } // namespace integrals

@@ -18,6 +18,7 @@
 #include "detail_/bases_helper.hpp"
 #include "detail_/make_engine.hpp"
 #include "detail_/make_shape.hpp"
+#include "detail_/select_allocator.hpp"
 #include "detail_/shells2ord.hpp"
 #include "libint.hpp"
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
@@ -27,7 +28,8 @@ namespace integrals {
 /// Grab the various detail_ functions
 using namespace detail_;
 
-MODULE_CTOR(LibintDOI) {
+template<bool direct>
+TEMPLATED_MODULE_CTOR(LibintDOI, direct) {
     description("Computes DOI integrals with Libint");
     using my_pt = simde::AOTensorRepresentation<2, simde::type::el_el_delta>;
 
@@ -39,7 +41,8 @@ MODULE_CTOR(LibintDOI) {
         "The target precision with which the integrals will be computed");
 }
 
-MODULE_RUN(LibintDOI) {
+template<bool direct>
+TEMPLATED_MODULE_RUN(LibintDOI, direct) {
     using op_t          = simde::type::el_el_delta;
     using my_pt         = simde::AOTensorRepresentation<2, op_t>;
     using size_vector_t = std::vector<std::size_t>;
@@ -58,7 +61,7 @@ MODULE_RUN(LibintDOI) {
     }
 
     /// Lambda to calculate values
-    auto l = [&](const auto& lo, const auto& up, auto* data) {
+    auto l = [=](const auto& lo, const auto& up, auto* data) {
         /// Convert index values from AOs to shells
         constexpr std::size_t N = 4;
         size_vector_t lo_shells, up_shells;
@@ -100,12 +103,16 @@ MODULE_RUN(LibintDOI) {
             }
         }
     };
+
     tensor_t I(l, make_shape(bases),
-               tensorwrapper::tensor::default_allocator<field_t>());
+               select_allocator<direct, field_t>(bases, op, thresh));
 
     /// Finish
     auto rv = results();
     return my_pt::wrap_results(rv, I);
 }
+
+template class LibintDOI<false>;
+template class LibintDOI<true>;
 
 } // namespace integrals

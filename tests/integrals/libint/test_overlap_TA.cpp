@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "direct_allclose.hpp"
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
@@ -31,12 +32,19 @@ TEST_CASE("Overlap") {
 
     const auto name = molecule::h2o;
     const auto bs   = basis_set::sto3g;
-    auto mol        = get_molecule(name);
     auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs};
     auto corr_S = get_ao_data(name, bases, property::overlap);
 
     op_type I;
-    auto [S] = mm.at("Overlap").run_as<integral_type>(aos, I, aos);
-    REQUIRE(tensorwrapper::tensor::allclose(S, corr_S));
+
+    SECTION("Explicit") {
+        auto [S] = mm.at("Overlap").run_as<integral_type>(aos, I, aos);
+        REQUIRE(tensorwrapper::tensor::allclose(S, corr_S));
+    }
+
+    SECTION("Direct") {
+        auto [S] = mm.at("Direct Overlap").run_as<integral_type>(aos, I, aos);
+        REQUIRE(direct_allclose(S, corr_S));
+    }
 }

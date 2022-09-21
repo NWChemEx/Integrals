@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "direct_allclose.hpp"
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
@@ -33,8 +34,18 @@ TEST_CASE("STG3C") {
     auto aos  = get_bases(name, bs);
     std::vector bases{bs, bs, bs};
     auto corr = get_ao_data(name, bases, property::stg);
+
     chemist::Electron e;
     op_type stg(chemist::operators::STG(1.0, 1.0));
-    auto [X] = mm.at("STG3").run_as<integral_type>(aos, stg, aos, aos);
-    REQUIRE(tensorwrapper::tensor::allclose(X, corr));
+
+    SECTION("Explicit") {
+        auto [X] = mm.at("STG3").run_as<integral_type>(aos, stg, aos, aos);
+        REQUIRE(tensorwrapper::tensor::allclose(X, corr));
+    }
+
+    SECTION("Direct") {
+        auto [X] =
+          mm.at("Direct STG3").run_as<integral_type>(aos, stg, aos, aos);
+        REQUIRE(direct_allclose(X, corr));
+    }
 }

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "direct_allclose.hpp"
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
@@ -28,15 +29,22 @@ TEST_CASE("Nuclear") {
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
 
-    auto name = molecule::h2o;
-    auto bs   = basis_set::sto3g;
-    auto mol  = get_molecule(name);
-    auto aos  = get_bases(name, bs);
+    const auto name = molecule::h2o;
+    const auto bs   = basis_set::sto3g;
+    auto mol        = get_molecule(name);
+    auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs};
     auto corr = get_ao_data(name, bases, property::nuclear);
 
-    // mm.at("Nuclear").change_input("Tile size", size_vector{6, 1});
     op_type riA(chemist::Electron{}, mol);
-    auto [V] = mm.at("Nuclear").run_as<integral_type>(aos, riA, aos);
-    REQUIRE(tensorwrapper::tensor::allclose(V, corr));
+
+    SECTION("Explicit") {
+        auto [V] = mm.at("Nuclear").run_as<integral_type>(aos, riA, aos);
+        REQUIRE(tensorwrapper::tensor::allclose(V, corr));
+    }
+
+    SECTION("Direct") {
+        auto [V] = mm.at("Direct Nuclear").run_as<integral_type>(aos, riA, aos);
+        REQUIRE(direct_allclose(V, corr));
+    }
 }

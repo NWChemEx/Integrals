@@ -19,6 +19,7 @@
 #include "detail_/bases_helper.hpp"
 #include "detail_/make_engine.hpp"
 #include "detail_/make_shape.hpp"
+#include "detail_/select_allocator.hpp"
 #include "detail_/shells2ord.hpp"
 #include <simde/cauchy_schwarz_approximation.hpp>
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
@@ -28,8 +29,8 @@ namespace integrals {
 /// Grab the various detail_ functions
 using namespace detail_;
 
-template<std::size_t N, typename OperatorType>
-TEMPLATED_MODULE_CTOR(CSLibint, N, OperatorType) {
+template<std::size_t N, typename OperatorType, bool direct>
+TEMPLATED_MODULE_CTOR(CSLibint, N, OperatorType, direct) {
     description("Computes an in-core integral with libint");
     using my_pt = simde::AOTensorRepresentation<N, OperatorType>;
 
@@ -50,8 +51,8 @@ TEMPLATED_MODULE_CTOR(CSLibint, N, OperatorType) {
         "Computes the Cauchy-Schwarz Matrix for a pair of basis sets");
 }
 
-template<std::size_t N, typename OperatorType>
-TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType) {
+template<std::size_t N, typename OperatorType, bool direct>
+TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
     /// Typedefs
     using my_pt         = simde::AOTensorRepresentation<N, OperatorType>;
     using cs_approx_pt  = simde::ShellNorms<OperatorType>;
@@ -80,8 +81,19 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType) {
     auto ket2      = inputs.at("ket 2").template value<ao_space_t>();
     std::tie(mat2) = cs_screen.run_as<cs_approx_pt>(ket1, op, ket2);
 
+    /// Geminal exponent handling
+    constexpr auto is_stg =
+      std::is_same_v<OperatorType, simde::type::el_el_stg>;
+    constexpr auto is_yukawa =
+      std::is_same_v<OperatorType, simde::type::el_el_yukawa>;
+
+    double coeff = 1.0;
+    if constexpr(is_stg || is_yukawa) {
+        coeff = op.template at<0>().coefficient;
+    }
+
     /// Lambda to calculate values
-    auto l = [&](const auto& lo, const auto& up, auto* data) {
+    auto l = [=](const auto& lo, const auto& up, auto* data) {
         /// Convert index values from AOs to shells
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
@@ -114,7 +126,7 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType) {
 
                 /// Copy libint values into tile data;
                 for(auto i = 0; i < ord_pos.size(); ++i) {
-                    data[ord_pos[i]] = vals[i];
+                    data[ord_pos[i]] = vals[i] * coeff;
                 }
             } else {
                 for(auto i = 0; i < ord_pos.size(); ++i) {
@@ -134,29 +146,26 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType) {
             }
         }
     };
-    tensor_t I(l, make_shape(bases),
-               tensorwrapper::tensor::default_allocator<field_t>());
 
-    /// Geminal exponent handling
-    constexpr auto is_stg =
-      std::is_same_v<OperatorType, simde::type::el_el_stg>;
-    constexpr auto is_yukawa =
-      std::is_same_v<OperatorType, simde::type::el_el_yukawa>;
-    if constexpr(is_stg || is_yukawa) {
-        auto I_ann = I(I.make_annotation());
-        I_ann      = op.template at<0>().coefficient * I_ann;
-    }
+    tensor_t I(l, make_shape(bases),
+               select_allocator<direct, field_t>(bases, op, thresh, cs_thresh));
 
     /// Finish
     auto rv = results();
     return my_pt::wrap_results(rv, I);
 }
 
-template class CSLibint<3, simde::type::el_el_coulomb>;
-template class CSLibint<4, simde::type::el_el_coulomb>;
-template class CSLibint<3, simde::type::el_el_stg>;
-template class CSLibint<4, simde::type::el_el_stg>;
-template class CSLibint<3, simde::type::el_el_yukawa>;
-template class CSLibint<4, simde::type::el_el_yukawa>;
+#define TEMPLATE_INT_AND_DIRECT(N, op)     \
+    template class CSLibint<N, op, false>; \
+    template class CSLibint<N, op, true>
+
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_stg);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_stg);
+TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
+TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
+
+#undef TEMPLATE_INT_AND_DIRECT
 
 } // namespace integrals

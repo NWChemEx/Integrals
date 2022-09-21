@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "direct_allclose.hpp"
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
@@ -30,11 +31,19 @@ TEST_CASE("DOI") {
 
     const auto name = molecule::h2o;
     const auto bs   = basis_set::sto3g;
-    auto mol        = get_molecule(name);
     auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs};
     auto corr = get_ao_data(name, bases, property::dois);
+
     op_type d;
-    auto [X] = mm.at("DOI").run_as<integral_type>(aos, d, aos);
-    REQUIRE(tensorwrapper::tensor::allclose(X, corr));
+
+    SECTION("Explicit") {
+        auto [X] = mm.at("DOI").run_as<integral_type>(aos, d, aos);
+        REQUIRE(tensorwrapper::tensor::allclose(X, corr));
+    }
+
+    SECTION("Direct") {
+        auto [X] = mm.at("Direct DOI").run_as<integral_type>(aos, d, aos);
+        REQUIRE(direct_allclose(X, corr));
+    }
 }

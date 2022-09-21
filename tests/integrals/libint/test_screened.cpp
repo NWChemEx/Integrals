@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "direct_allclose.hpp"
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
@@ -27,15 +28,25 @@ TEST_CASE("ERI4C CS") {
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
     mm.change_input("ERI4 CS", "Screening Threshold", 0.005);
+    mm.change_input("Direct ERI4 CS", "Screening Threshold", 0.005);
 
     const auto name = molecule::h2o;
     const auto bs   = basis_set::sto3g;
-    auto mol        = get_molecule(name);
     auto aos        = get_bases(name, bs);
     std::vector bases{bs, bs, bs, bs};
     auto corr_X = get_ao_data(name, bases, property::screened_eris);
-    simde::type::el_el_coulomb r12;
-    auto [X] = mm.at("ERI4 CS").run_as<integral_type>(aos, aos, r12, aos, aos);
 
-    REQUIRE(tensorwrapper::tensor::allclose(X, corr_X));
+    simde::type::el_el_coulomb r12;
+
+    SECTION("Explicit") {
+        auto [X] =
+          mm.at("ERI4 CS").run_as<integral_type>(aos, aos, r12, aos, aos);
+        REQUIRE(tensorwrapper::tensor::allclose(X, corr_X));
+    }
+
+    SECTION("Direct") {
+        auto [X] = mm.at("Direct ERI4 CS")
+                     .run_as<integral_type>(aos, aos, r12, aos, aos);
+        REQUIRE(direct_allclose(X, corr_X));
+    }
 }
