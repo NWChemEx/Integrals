@@ -16,9 +16,9 @@
 
 #include "detail_/aos2shells.hpp"
 #include "detail_/bases_helper.hpp"
-#include "detail_/hash_inputs.hpp"
 #include "detail_/make_engine.hpp"
 #include "detail_/make_shape.hpp"
+#include "detail_/select_allocator.hpp"
 #include "detail_/shells2ord.hpp"
 #include "libint.hpp"
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
@@ -109,17 +109,8 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType, direct) {
         }
     };
 
-    auto make_allocator = [&](bool d) {
-        if(d) {
-            auto fxn_id = hash_inputs(bases, op, thresh);
-            return tensorwrapper::tensor::allocator::direct_ta_allocator<
-              field_t>(fxn_id);
-        } else {
-            return tensorwrapper::tensor::default_allocator<field_t>();
-        }
-    };
-
-    tensor_t I(l, make_shape(bases), make_allocator(direct));
+    tensor_t I(l, make_shape(bases),
+               select_allocator<direct, field_t>(bases, op, thresh));
 
     /// Finish
     auto rv = results();
