@@ -27,19 +27,19 @@ jobs:
         with:
           dependencies: gcc gcovr openblas cblas lapacke scalapack boost eigen3 openmpi
       - name: Get current time before build cache-libint
-          uses: josStorer/get-current-time@v2.0.1
-          id: current-time
-          with:
-            format: YYYYMMDD-HH
-            utcOffset: "+08:00"
-            - name: Use current time
-              env:
-                TIME: "${{ steps.current-time.outputs.time }}"
-                R_TIME: "${{ steps.current-time.outputs.readableTime }}"
-                F_TIME: "${{ steps.current-time.outputs.formattedTime }}"
-                YEAR: "${{ steps.current-time.outputs.year }}"
-                DAY: "${{ steps.current-time.outputs.day }}"
-              run: echo "before cache libint" $TIME $R_TIME $F_TIME $YEAR $DAY
+        uses: josStorer/get-current-time@v2.0.1
+        id: current-time
+        with:
+          format: YYYYMMDD-HH
+          utcOffset: "+08:00"
+          - name: Use current time
+            env:
+              TIME: "${{ steps.current-time.outputs.time }}"
+              R_TIME: "${{ steps.current-time.outputs.readableTime }}"
+              F_TIME: "${{ steps.current-time.outputs.formattedTime }}"
+              YEAR: "${{ steps.current-time.outputs.year }}"
+              DAY: "${{ steps.current-time.outputs.day }}"
+            run: echo "before cache libint" $TIME $R_TIME $F_TIME $YEAR $DAY
       - name: cache-libint
         id: cache
         uses: actions/cache@v2
@@ -63,19 +63,19 @@ jobs:
           make
           make install
       - name: Get current time after build cache-libint
-          uses: josStorer/get-current-time@v2.0.1
-          id: current-time
-          with:
-            format: YYYYMMDD-HH
-            utcOffset: "+08:00"
-              - name: Use current time
-                env:
-                  TIME: "${{ steps.current-time.outputs.time }}"
-                  R_TIME: "${{ steps.current-time.outputs.readableTime }}"
-                  F_TIME: "${{ steps.current-time.outputs.formattedTime }}"
-                  YEAR: "${{ steps.current-time.outputs.year }}"
-                  DAY: "${{ steps.current-time.outputs.day }}"
-                run: echo "after cache libint" $TIME $R_TIME $F_TIME $YEAR $DAY
+        uses: josStorer/get-current-time@v2.0.1
+        id: current-time
+        with:
+          format: YYYYMMDD-HH
+          utcOffset: "+08:00"
+            - name: Use current time
+              env:
+                TIME: "${{ steps.current-time.outputs.time }}"
+                R_TIME: "${{ steps.current-time.outputs.readableTime }}"
+                F_TIME: "${{ steps.current-time.outputs.formattedTime }}"
+                YEAR: "${{ steps.current-time.outputs.year }}"
+                DAY: "${{ steps.current-time.outputs.day }}"
+              run: echo "after cache libint" $TIME $R_TIME $F_TIME $YEAR $DAY
       - name: Build and test
         env:
           cmake_version: ${{ matrix.cmake_version }}
