@@ -15,18 +15,47 @@ jobs:
         gcc_version: [9]
 
     steps:
-      - name: Get current time
-        uses: josStorer/get-current-time@v2.0.1
-        id: current-time
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
         with:
-          format: YYYYMMDD-HH
-          utcOffset: "+08:00"
-      - name: Use current time
+          python-version: '3.x'
+      - uses: lukka/get-cmake@v3.20.1
+      - name: Get dependencies
         env:
-          TIME: "${{ steps.current-time.outputs.time }}"
-          R_TIME: "${{ steps.current-time.outputs.readableTime }}"
-          F_TIME: "${{ steps.current-time.outputs.formattedTime }}"
-          YEAR: "${{ steps.current-time.outputs.year }}"
-          DAY: "${{ steps.current-time.outputs.day }}"
-        run: echo "add current time" $TIME $R_TIME $F_TIME $YEAR $DAY
-      
+          cmake_version: ${{ matrix.cmake_version }}
+          gcc_version: ${{ matrix.gcc_version }}
+        uses: NWChemEx-Project/.github/actions/get_dependencies@master
+        with:
+          dependencies: gcc gcovr openblas cblas lapacke scalapack boost eigen3 openmpi
+      - name: cache-libint
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: install
+          key: libint-gcc${{ matrix.gcc_version }}
+      - name: build-libint
+        env:
+          CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          export INSTALL_PATH=`pwd`/install
+          # check code out
+          wget https://github.com/evaleev/libint/releases/download/v2.6.0/libint-2.6.0.tgz
+          tar -zxf libint-2.6.0.tgz
+          cd libint-2.6.0
+          export CXX=`which g++`
+          export CC=`which gcc`
+          cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_FLAGS="-std=c++17" -DBUILD_SHARED_LIBS=ON -DCPP_GITHUB_TOKEN=$CPP_GITHUB_TOKEN
+          cd build
+          make
+          make install
+      - name: Build and test
+        env:
+          cmake_version: ${{ matrix.cmake_version }}
+          gcc_version: ${{ matrix.gcc_version }}
+          CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
+        run: .github/workflows/scripts/build_and_test.sh
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
