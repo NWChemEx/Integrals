@@ -91,9 +91,15 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType, direct) {
                         std::make_index_sequence<N>());
             auto vals = buf[0];
 
-            /// Copy libint values into tile data;
-            for(auto i = 0; i < ord_pos.size(); ++i) {
-                data[ord_pos[i]] = vals[i] * coeff;
+            if(vals) {
+                /// Copy libint values into tile data;
+                for(auto i = 0; i < ord_pos.size(); ++i) {
+                    data[ord_pos[i]] = vals[i] * coeff;
+                }
+            } else {
+                for(auto i = 0; i < ord_pos.size(); ++i) {
+                    data[ord_pos[i]] = 0.0;
+                }
             }
 
             /// Increment curr_shells
