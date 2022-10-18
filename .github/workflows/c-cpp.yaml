@@ -68,7 +68,7 @@ jobs:
         with:
           format: YYYYMMDD-HH
           utcOffset: "+08:00"
-      - name: Use current time
+      - name: Use current time 2
         env:
           TIME: "${{ steps.current-time.outputs.time }}"
           R_TIME: "${{ steps.current-time.outputs.readableTime }}"
@@ -76,13 +76,13 @@ jobs:
           YEAR: "${{ steps.current-time.outputs.year }}"
           DAY: "${{ steps.current-time.outputs.day }}"
         run: echo "after cache libint" $TIME $R_TIME $F_TIME $YEAR $DAY
-#      - name: Build and test
-#        env:
-#          cmake_version: ${{ matrix.cmake_version }}
-#          gcc_version: ${{ matrix.gcc_version }}
-#          CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
-#        run: .github/workflows/scripts/build_and_test.sh
-#      - uses: codecov/codecov-action@v1
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          file: ./coverage.xml
+      - name: Build and test
+        env:
+          cmake_version: ${{ matrix.cmake_version }}
+          gcc_version: ${{ matrix.gcc_version }}
+          CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
+        run: .github/workflows/scripts/build_and_test.sh
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
