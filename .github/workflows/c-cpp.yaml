@@ -68,7 +68,7 @@ jobs:
         with:
           format: YYYYMMDD-HH
           utcOffset: "+08:00"
-      - name: Use current time 2
+      - name: Use current time 3
         env:
           TIME: "${{ steps.current-time-2.outputs.time }}"
           R_TIME: "${{ steps.current-time-2.outputs.readableTime }}"
