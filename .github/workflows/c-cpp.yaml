@@ -64,17 +64,17 @@ jobs:
           make install
       - name: Get current time after build cache-libint
         uses: josStorer/get-current-time@v2.0.1
-        id: current-time
+        id: current-time-2
         with:
           format: YYYYMMDD-HH
           utcOffset: "+08:00"
       - name: Use current time 2
         env:
-          TIME: "${{ steps.current-time.outputs.time }}"
-          R_TIME: "${{ steps.current-time.outputs.readableTime }}"
-          F_TIME: "${{ steps.current-time.outputs.formattedTime }}"
-          YEAR: "${{ steps.current-time.outputs.year }}"
-          DAY: "${{ steps.current-time.outputs.day }}"
+          TIME: "${{ steps.current-time-2.outputs.time }}"
+          R_TIME: "${{ steps.current-time-2.outputs.readableTime }}"
+          F_TIME: "${{ steps.current-time-2.outputs.formattedTime }}"
+          YEAR: "${{ steps.current-time-2.outputs.year }}"
+          DAY: "${{ steps.current-time-2.outputs.day }}"
         run: echo "after cache libint" $TIME $R_TIME $F_TIME $YEAR $DAY
       - name: Build and test
         env:
