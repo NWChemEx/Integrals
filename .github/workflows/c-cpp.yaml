@@ -57,19 +57,20 @@ jobs:
           if $CACHE_HIT;
           then
             echo "no need building cache libint"
-            export INSTALL_PATH=`pwd`/install
+
           else
-              echo "build cache libint"
-              # check code out
-              wget https://github.com/evaleev/libint/releases/download/v2.6.0/libint-2.6.0.tgz
-              tar -zxf libint-2.6.0.tgz
-              cd libint-2.6.0
-              export CXX=`which g++`
-              export CC=`which gcc`
-              cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_FLAGS="-std=c++17" -DBUILD_SHARED_LIBS=ON -DCPP_GITHUB_TOKEN=$CPP_GITHUB_TOKEN
-              cd build
-              make
-              make install
+            echo "build cache libint"
+            export INSTALL_PATH=`pwd`/install
+            # check code out
+            wget https://github.com/evaleev/libint/releases/download/v2.6.0/libint-2.6.0.tgz
+            tar -zxf libint-2.6.0.tgz
+            cd libint-2.6.0
+            export CXX=`which g++`
+            export CC=`which gcc`
+            cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_FLAGS="-std=c++17" -DBUILD_SHARED_LIBS=ON -DCPP_GITHUB_TOKEN=$CPP_GITHUB_TOKEN
+            cd build
+            make
+            make install
           fi
       - name: Get current time after build cache-libint
         uses: josStorer/get-current-time@v2.0.1
