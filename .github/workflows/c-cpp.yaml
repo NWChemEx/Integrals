@@ -46,12 +46,14 @@ jobs:
         with:
           path: install
           key: libint-gcc${{ matrix.gcc_version }}
-#      - name: build-libint
-#        env:
-#          CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
+      - name: build-libint
+        env:
+          CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
+          CACHE_HIT: ${{steps.cache.outputs.cache-hit}}
 #        if: steps.cache.outputs.cache-hit != 'true'
-#        run: |
-#          export INSTALL_PATH=`pwd`/install
+        run: |
+          echo "check cache hit " $CACHE_HIT " hasta lavista"
+          export INSTALL_PATH=`pwd`/install
 #          # check code out
 #          wget https://github.com/evaleev/libint/releases/download/v2.6.0/libint-2.6.0.tgz
 #          tar -zxf libint-2.6.0.tgz
