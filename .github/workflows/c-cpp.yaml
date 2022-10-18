@@ -51,7 +51,7 @@ jobs:
           CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
           CACHE_HIT: ${{steps.cache.outputs.cache-hit}}
 #        if: steps.cache.outputs.cache-hit != true
-        ${{ if false }}:
+        ${{ if true }}:
           run: |
             echo "check cache hit " $CACHE_HIT " hasta lavista"
             export INSTALL_PATH=`pwd`/install
