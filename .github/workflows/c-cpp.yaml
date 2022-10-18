@@ -51,10 +51,16 @@ jobs:
           CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
           CACHE_HIT: ${{steps.cache.outputs.cache-hit}}
 #        if: steps.cache.outputs.cache-hit != true
-        ${{ if true }}:
-          run: |
-            echo "check cache hit " $CACHE_HIT " hasta lavista"
+#        ${{ if true }}:
+        run: |
+          echo "check cache hit " $CACHE_HIT " hasta lavista"
+          if $CACHE_HIT;
+          then
+            echo "true branch"
             export INSTALL_PATH=`pwd`/install
+          else
+              echo "false branch"
+          fi
   #          # check code out
   #          wget https://github.com/evaleev/libint/releases/download/v2.6.0/libint-2.6.0.tgz
   #          tar -zxf libint-2.6.0.tgz
@@ -65,6 +71,7 @@ jobs:
   #          cd build
   #          make
   #          make install
+
       - name: Get current time after build cache-libint
         uses: josStorer/get-current-time@v2.0.1
         id: current-time-2
