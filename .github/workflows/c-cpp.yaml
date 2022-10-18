@@ -32,14 +32,6 @@ jobs:
         with:
           format: YYYYMMDD-HH
           utcOffset: "+08:00"
-      - name: Use current time
-        env:
-          TIME: "${{ steps.current-time.outputs.time }}"
-          R_TIME: "${{ steps.current-time.outputs.readableTime }}"
-          F_TIME: "${{ steps.current-time.outputs.formattedTime }}"
-          YEAR: "${{ steps.current-time.outputs.year }}"
-          DAY: "${{ steps.current-time.outputs.day }}"
-        run: echo "before cache libint" $TIME $R_TIME $F_TIME $YEAR $DAY
       - name: cache-libint
         id: cache
         uses: actions/cache@v2
@@ -50,8 +42,10 @@ jobs:
         env:
           CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
           CACHE_HIT: ${{steps.cache.outputs.cache-hit}}
+
+#          this following line didn't work, which caused the issue of long running time
 #        if: steps.cache.outputs.cache-hit != true
-#        ${{ if true }}:
+
         run: |
           echo "check cache hit " $CACHE_HIT " hasta lavista"
           if $CACHE_HIT;
@@ -72,20 +66,6 @@ jobs:
             make
             make install
           fi
-      - name: Get current time after build cache-libint
-        uses: josStorer/get-current-time@v2.0.1
-        id: current-time-2
-        with:
-          format: YYYYMMDD-HH
-          utcOffset: "+08:00"
-      - name: Use current time 3
-        env:
-          TIME: "${{ steps.current-time-2.outputs.time }}"
-          R_TIME: "${{ steps.current-time-2.outputs.readableTime }}"
-          F_TIME: "${{ steps.current-time-2.outputs.formattedTime }}"
-          YEAR: "${{ steps.current-time-2.outputs.year }}"
-          DAY: "${{ steps.current-time-2.outputs.day }}"
-        run: echo "after cache libint" $TIME $R_TIME $F_TIME $YEAR $DAY
       - name: Build and test
         env:
           cmake_version: ${{ matrix.cmake_version }}
