@@ -26,12 +26,6 @@ jobs:
         uses: NWChemEx-Project/.github/actions/get_dependencies@master
         with:
           dependencies: gcc gcovr openblas cblas lapacke scalapack boost eigen3 openmpi
-      - name: Get current time before build cache-libint
-        uses: josStorer/get-current-time@v2.0.1
-        id: current-time
-        with:
-          format: YYYYMMDD-HH
-          utcOffset: "+08:00"
       - name: cache-libint
         id: cache
         uses: actions/cache@v2
