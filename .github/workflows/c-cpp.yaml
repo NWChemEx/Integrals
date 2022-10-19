@@ -26,20 +26,6 @@ jobs:
         uses: NWChemEx-Project/.github/actions/get_dependencies@master
         with:
           dependencies: gcc gcovr openblas cblas lapacke scalapack boost eigen3 openmpi
-      - name: Get current time before build cache-libint
-        uses: josStorer/get-current-time@v2.0.1
-        id: current-time
-        with:
-          format: YYYYMMDD-HH
-          utcOffset: "+08:00"
-      - name: Use current time
-        env:
-          TIME: "${{ steps.current-time.outputs.time }}"
-          R_TIME: "${{ steps.current-time.outputs.readableTime }}"
-          F_TIME: "${{ steps.current-time.outputs.formattedTime }}"
-          YEAR: "${{ steps.current-time.outputs.year }}"
-          DAY: "${{ steps.current-time.outputs.day }}"
-        run: echo "before cache libint" $TIME $R_TIME $F_TIME $YEAR $DAY
       - name: cache-libint
         id: cache
         uses: actions/cache@v2
@@ -49,40 +35,35 @@ jobs:
       - name: build-libint
         env:
           CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
-        if: steps.cache.outputs.cache-hit != 'true'
+          CACHE_HIT: ${{steps.cache.outputs.cache-hit}}
+#          this following line didn't work, which caused the issue of long running time
+#        if: steps.cache.outputs.cache-hit != true
         run: |
-          export INSTALL_PATH=`pwd`/install
-          # check code out
-          wget https://github.com/evaleev/libint/releases/download/v2.6.0/libint-2.6.0.tgz
-          tar -zxf libint-2.6.0.tgz
-          cd libint-2.6.0
-          export CXX=`which g++`
-          export CC=`which gcc`
-          cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_FLAGS="-std=c++17" -DBUILD_SHARED_LIBS=ON -DCPP_GITHUB_TOKEN=$CPP_GITHUB_TOKEN
-          cd build
-          make
-          make install
-      - name: Get current time after build cache-libint
-        uses: josStorer/get-current-time@v2.0.1
-        id: current-time
-        with:
-          format: YYYYMMDD-HH
-          utcOffset: "+08:00"
-      - name: Use current time
+          echo "check cache hit " $CACHE_HIT " hasta lavista"
+          if $CACHE_HIT;
+          then
+            echo "no need building cache libint"
+          else
+            echo "build cache libint"
+            export INSTALL_PATH=`pwd`/install
+            # check code out
+            wget https://github.com/evaleev/libint/releases/download/v2.6.0/libint-2.6.0.tgz
+            tar -zxf libint-2.6.0.tgz
+            cd libint-2.6.0
+            export CXX=`which g++`
+            export CC=`which gcc`
+            cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_FLAGS="-std=c++17" -DBUILD_SHARED_LIBS=ON -DCPP_GITHUB_TOKEN=$CPP_GITHUB_TOKEN
+            cd build
+            make
+            make install
+          fi
+      - name: Build and test
         env:
-          TIME: "${{ steps.current-time.outputs.time }}"
-          R_TIME: "${{ steps.current-time.outputs.readableTime }}"
-          F_TIME: "${{ steps.current-time.outputs.formattedTime }}"
-          YEAR: "${{ steps.current-time.outputs.year }}"
-          DAY: "${{ steps.current-time.outputs.day }}"
-        run: echo "after cache libint" $TIME $R_TIME $F_TIME $YEAR $DAY
-#      - name: Build and test
-#        env:
-#          cmake_version: ${{ matrix.cmake_version }}
-#          gcc_version: ${{ matrix.gcc_version }}
-#          CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
-#        run: .github/workflows/scripts/build_and_test.sh
-#      - uses: codecov/codecov-action@v1
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          file: ./coverage.xml
+          cmake_version: ${{ matrix.cmake_version }}
+          gcc_version: ${{ matrix.gcc_version }}
+          CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
+        run: .github/workflows/scripts/build_and_test.sh
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
