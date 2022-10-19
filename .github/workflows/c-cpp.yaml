@@ -39,7 +39,6 @@ jobs:
 #          this following line didn't work, which caused the issue of long running time
 #        if: steps.cache.outputs.cache-hit != true
         run: |
-          echo "check cache hit " $CACHE_HIT " hasta lavista"
           if $CACHE_HIT;
           then
             echo "no need building cache libint"
