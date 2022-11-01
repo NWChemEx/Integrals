@@ -32,8 +32,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            build
-            libint-2.6.0
+            libint-2.6.0/
+            build/
           key: libint-gcc${{ matrix.gcc_version }}
       - name: build-libint
         env:
