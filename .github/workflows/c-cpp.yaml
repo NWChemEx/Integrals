@@ -63,8 +63,8 @@ jobs:
           CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
         run: |
           export INSTALL_PATH=`pwd`/install
-          .github/workflows/scripts/build_and_test.sh
-          # ls -R libint-2.6.0
+          # .github/workflows/scripts/build_and_test.sh
+          # ls -R build/_deps/
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
