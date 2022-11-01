@@ -31,7 +31,7 @@ jobs:
         id: cache
         uses: actions/cache@v2
         with:
-          path: install
+          path: build
           key: libint-gcc${{ matrix.gcc_version }}
       - name: build-libint
         env:
@@ -40,7 +40,7 @@ jobs:
           CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          export INSTALL_PATH=`pwd`/install
+          export INSTALL_PATH=`pwd`/build
           # check code out
           wget https://github.com/evaleev/libint/releases/download/v2.6.0/libint-2.6.0.tgz
           tar -zxf libint-2.6.0.tgz
@@ -58,7 +58,6 @@ jobs:
           file: ./coverage.xml
       - name: post cache check
         run: |
-          ls install/
           ls build/
       
       
