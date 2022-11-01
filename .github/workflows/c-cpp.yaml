@@ -57,7 +57,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.xml
       - name: post cache check
-      run: |
+        run: |
         ls build/
         echo "hello kitty"
         ls install/
