@@ -56,3 +56,12 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.xml
+      - name: post cache check
+        run: |
+          ls install/
+          ls build/
+      
+      
+      
+      
+      
