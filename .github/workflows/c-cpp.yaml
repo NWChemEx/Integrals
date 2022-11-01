@@ -60,5 +60,5 @@ jobs:
           file: ./coverage.xml
       - name: post cache check
         run: |
-          # .github/workflows/scripts/build_and_test.sh
+          .github/workflows/scripts/build_and_test.sh
           ls
