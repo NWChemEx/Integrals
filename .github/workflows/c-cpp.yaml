@@ -54,7 +54,7 @@ jobs:
           cd build
           make
           make install
-          .github/workflows/scripts/build_and_test.sh
+          # .github/workflows/scripts/build_and_test.sh
       
       - name: Build and Test
         env:
@@ -63,7 +63,7 @@ jobs:
           CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
         run: |
           export INSTALL_PATH=`pwd`/install
-          # .github/workflows/scripts/build_and_test.sh
+          .github/workflows/scripts/build_and_test.sh
           ls
           pwd
       - uses: codecov/codecov-action@v1
