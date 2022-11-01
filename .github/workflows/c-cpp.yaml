@@ -51,8 +51,7 @@ jobs:
           cd build
           make
           make install
-          run: .github/workflows/scripts/build_and_test.sh
-      - name: After Build and test
+          .github/workflows/scripts/build_and_test.sh
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
