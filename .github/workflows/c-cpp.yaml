@@ -55,11 +55,8 @@ jobs:
           make
           make install
           # .github/workflows/scripts/build_and_test.sh
-      - uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.xml
-      - name: post cache check
+      
+      - name: Build and Test
         env:
           cmake_version: ${{ matrix.cmake_version }}
           gcc_version: ${{ matrix.gcc_version }}
@@ -67,4 +64,8 @@ jobs:
         run: |
           export INSTALL_PATH=`pwd`/install
           .github/workflows/scripts/build_and_test.sh
-          ls -R libint-2.6.0
+          # ls -R libint-2.6.0
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
