@@ -61,4 +61,4 @@ jobs:
       - name: post cache check
         run: |
           # .github/workflows/scripts/build_and_test.sh
-          ls -R
+          ls -R libint-2.6.0
