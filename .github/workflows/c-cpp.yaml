@@ -60,6 +60,11 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.xml
       - name: post cache check
+        env:
+          cmake_version: ${{ matrix.cmake_version }}
+          gcc_version: ${{ matrix.gcc_version }}
+          CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
         run: |
+          export INSTALL_PATH=`pwd`/install
           .github/workflows/scripts/build_and_test.sh
           ls -R libint-2.6.0
