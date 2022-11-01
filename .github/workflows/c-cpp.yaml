@@ -35,6 +35,8 @@ jobs:
           key: libint-gcc${{ matrix.gcc_version }}
       - name: build-libint
         env:
+          cmake_version: ${{ matrix.cmake_version }}
+          gcc_version: ${{ matrix.gcc_version }}
           CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -49,12 +51,8 @@ jobs:
           cd build
           make
           make install
-      - name: Build and test
-        env:
-          cmake_version: ${{ matrix.cmake_version }}
-          gcc_version: ${{ matrix.gcc_version }}
-          CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
-        run: .github/workflows/scripts/build_and_test.sh
+          run: .github/workflows/scripts/build_and_test.sh
+      - name: After Build and test
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
