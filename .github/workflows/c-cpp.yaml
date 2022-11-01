@@ -64,7 +64,8 @@ jobs:
         run: |
           export INSTALL_PATH=`pwd`/install
           # .github/workflows/scripts/build_and_test.sh
-          ls
+          ls -R libint-2.6.0
+          pwd
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
