@@ -61,12 +61,15 @@ jobs:
           cmake_version: ${{ matrix.cmake_version }}
           gcc_version: ${{ matrix.gcc_version }}
           CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           export INSTALL_PATH=`pwd`/install
           .github/workflows/scripts/build_and_test.sh
-          ls
-          pwd
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.xml
+      - name: Log files after build or cache
+        run: |
+          ls -R build/
+          ls -1 build/
