@@ -14,6 +14,7 @@ jobs:
     with: 
       dependencies: 'gcc cmake gcovr openblas cblas lapacke scalapack boost eigen3 openmpi libint'
       clang-build: false
+      gcc-build: true
     secrets:
       CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
   build-with-clang:
@@ -21,5 +22,6 @@ jobs:
     with: 
       dependencies: 'clang cmake gcovr openblas cblas lapacke scalapack boost eigen3 openmpi libint'
       clang-build: true
+      gcc-build: false
     secrets:
       CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
