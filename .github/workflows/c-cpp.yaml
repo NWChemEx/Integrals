@@ -8,6 +8,7 @@ on:
     branches:
       - parallel-build
 
+
 jobs:
   build-with-gcc:
     uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@parallel-template
