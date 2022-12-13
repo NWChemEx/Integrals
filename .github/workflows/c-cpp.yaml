@@ -4,9 +4,6 @@ on:
   pull_request:
     branches:
       - master
-  push:
-    branches:
-      - parallel-build
 jobs:
   build-with-gcc:
     uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@master
