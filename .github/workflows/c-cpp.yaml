@@ -9,7 +9,7 @@ on:
       - parallel-build
 jobs:
   build-with-gcc:
-    uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@parallel-build
+    uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@master
     with: 
       dependencies: 'gcc cmake gcovr openblas cblas lapacke scalapack boost eigen3 openmpi libint'
       clang-build: false
@@ -17,7 +17,7 @@ jobs:
     secrets:
       CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
   build-with-clang:
-    uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@parallel-build
+    uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@master
     with: 
       dependencies: 'clang cmake gcovr openblas cblas lapacke scalapack boost eigen3 openmpi libint'
       clang-build: true
