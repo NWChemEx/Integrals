@@ -13,13 +13,13 @@ jobs:
         gcc_version: [9]
     steps:
       - name: cache-libint
-          id: cache
-          uses: actions/cache@v2
-          with:
-            path: |
-              libint-2.6.0/
-              install/
-            key: libint-gcc${{ matrix.gcc_version }}
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            libint-2.6.0/
+            install/
+          key: libint-gcc${{ matrix.gcc_version }}
       - name: build-libint
         env:
           CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
