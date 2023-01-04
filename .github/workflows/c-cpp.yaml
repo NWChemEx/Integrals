@@ -5,7 +5,7 @@ on:
     branches:
       - master
 jobs:
-  cache-when-build:
+  cache-when-build
     runs-on: ubuntu-latest
     strategy:
       matrix:
