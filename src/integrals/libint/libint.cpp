@@ -127,7 +127,6 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType, direct) {
     template class Libint<N, op, false>; \
     template class Libint<N, op, true>
 
-// Non-direct
 TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_coulomb);
 TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
 TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_coulomb);

@@ -21,6 +21,19 @@
 
 using namespace mokup;
 
+std::vector<std::vector<double>> ovlp_check{
+  {1.0000000000000004, 0.2367039365108476, 0.0000000000000000,
+   0.0384055905375414, 0.0384055905375414},
+  {0.2367039365108476, 1.0000000000000002, 0.0000000000000000,
+   0.3861387808638141, 0.3861387808638141},
+  {0.0000000000000000, 0.0000000000000000, 1.7320508075688781,
+   0.3406529836379423, 0.3406529836379423},
+  {0.0384055905375414, 0.3861387808638141, 0.3406529836379423,
+   1.0000000000000000, 0.1817608634919521},
+  {0.0384055905375414, 0.3861387808638141, 0.3406529836379423,
+   0.1817608634919521, 1.0000000000000000},
+};
+
 std::vector<std::vector<double>> eri_check{
   {2.1874792352627042, 0.3699640325144978, 0.1564525878919850,
    0.0606886000006391, 0.0606886000006391},
@@ -71,6 +84,19 @@ TEST_CASE("Cauchy-Schwarz") {
     auto bs   = basis_set::sto3g;
     auto mol  = get_molecule(name);
     auto aos  = get_bases(name, bs);
+
+    SECTION("Coulomb") {
+        using op_t  = simde::type::el_identity;
+        using cs_pt = simde::ShellNorms<op_t>;
+        op_t op;
+        auto [rv] = mm.at("Shell Norms Overlap").run_as<cs_pt>(aos, op, aos);
+        for(int i = 0; i < 5; ++i) {
+            for(int j = 0; j < 5; ++j) {
+                REQUIRE(rv[i][j] ==
+                        Approx(ovlp_check[i][j]).epsilon(eps).margin(marg));
+            }
+        }
+    }
 
     SECTION("Coulomb") {
         using op_t  = simde::type::el_el_coulomb;
