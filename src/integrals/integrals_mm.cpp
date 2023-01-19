@@ -59,6 +59,9 @@ void load_libint_integrals(pluginplay::ModuleManager& mm) {
     ADD_INT_WITH_DIRECT(2, el_el_yukawa, "Yukawa2");
     ADD_INT_WITH_DIRECT(3, el_el_yukawa, "Yukawa3");
     ADD_INT_WITH_DIRECT(4, el_el_yukawa, "Yukawa4");
+    ADD_CS_INT_WITH_DIRECT(2, el_kinetic, "Kinetic CS");
+    ADD_CS_INT_WITH_DIRECT(2, el_nuc_coulomb, "Nuclear CS");
+    ADD_CS_INT_WITH_DIRECT(2, el_identity, "Overlap CS");
     ADD_CS_INT_WITH_DIRECT(3, el_el_coulomb, "ERI3 CS");
     ADD_CS_INT_WITH_DIRECT(4, el_el_coulomb, "ERI4 CS");
     ADD_CS_INT_WITH_DIRECT(3, el_el_stg, "STG3 CS");
@@ -71,12 +74,18 @@ void load_libint_integrals(pluginplay::ModuleManager& mm) {
     mm.add_module<ShellNormSTG>("Shell Norms STG");
     mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
 
+    mm.change_submod("Kinetic CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Nuclear CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Overlap CS", "Shell Norms", "Shell Norms Overlap");
     mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
     mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
     mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
     mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
     mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
     mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
+    mm.change_submod("Direct Kinetic CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Direct Nuclear CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Direct Overlap CS", "Shell Norms", "Shell Norms Overlap");
     mm.change_submod("Direct ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
     mm.change_submod("Direct ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
     mm.change_submod("Direct STG3 CS", "Shell Norms", "Shell Norms STG");
