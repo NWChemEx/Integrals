@@ -85,7 +85,7 @@ TEST_CASE("Cauchy-Schwarz") {
     auto mol  = get_molecule(name);
     auto aos  = get_bases(name, bs);
 
-    SECTION("Coulomb") {
+    SECTION("Overlap") {
         using op_t  = simde::type::el_identity;
         using cs_pt = simde::ShellNorms<op_t>;
         op_t op;
