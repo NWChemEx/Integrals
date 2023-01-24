@@ -54,11 +54,10 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
 
     // Lambda to fill in the values
     std::function<void(int, int)> into_mat;
+    auto engine = detail_::make_engine(bases, op, thresh);
     if constexpr(NBodies == 1) {
-        into_mat = [&](int i, int j) {
-            auto engine = detail_::make_engine(bases, op, thresh);
-            engine.set(libint2::BraKet::xs_xs);
-
+        engine.set(libint2::BraKet::xs_xs);
+        into_mat = [&, engine](int i, int j) mutable {
             const auto& buf = engine.results();
             engine.compute(bases[0][i], bases[1][j]);
             auto vals = buf[0];
@@ -79,10 +78,8 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
             } // cut down on work
         };
     } else if constexpr(NBodies == 2) {
-        into_mat = [&](int i, int j) {
-            auto engine = detail_::make_engine(bases, op, thresh);
-            engine.set(libint2::BraKet::xx_xx);
-
+        engine.set(libint2::BraKet::xx_xx);
+        into_mat = [&, engine](int i, int j) mutable {
             const auto& buf = engine.results();
             engine.compute(bases[0][i], bases[1][j], bases[0][i], bases[1][j]);
             auto vals = buf[0];
