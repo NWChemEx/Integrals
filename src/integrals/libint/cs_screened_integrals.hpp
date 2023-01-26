@@ -26,6 +26,9 @@ namespace integrals {
 
 template<std::size_t N, typename OperatorType, bool direct>
 DECLARE_MODULE(CSLibint);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_kinetic);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_identity);
 EXTERN_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
 EXTERN_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
 EXTERN_INT_AND_DIRECT(3, simde::type::el_el_stg);
