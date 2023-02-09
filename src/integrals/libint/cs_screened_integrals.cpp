@@ -29,6 +29,9 @@ namespace integrals {
 /// Grab the various detail_ functions
 using namespace detail_;
 
+/// For 1-body screening
+using identity_op_t = simde::type::el_identity;
+
 template<std::size_t N, typename OperatorType, bool direct>
 TEMPLATED_MODULE_CTOR(CSLibint, N, OperatorType, direct) {
     description("Computes an in-core integral with libint");
@@ -45,21 +48,27 @@ TEMPLATED_MODULE_CTOR(CSLibint, N, OperatorType, direct) {
       .set_default(0.0)
       .set_description("Cauchy-Schwarz Screening Threshold");
 
-    using cs_approx_pt = simde::ShellNorms<OperatorType>;
-    add_submodule<cs_approx_pt>("Shell Norms")
-      .set_description(
-        "Computes the Cauchy-Schwarz Matrix for a pair of basis sets");
+    if constexpr(N > 2) { /// Use operator based screening for 2-body integrals
+        add_submodule<simde::ShellNorms<OperatorType>>("Shell Norms")
+          .set_description(
+            "Computes the Cauchy-Schwarz Matrix for a pair of basis sets");
+    }
+
+    if constexpr(N == 2) { /// Use overlap based screening for 1-body integrals
+        add_submodule<simde::ShellNorms<identity_op_t>>("Shell Norms")
+          .set_description(
+            "Computes the Cauchy-Schwarz Matrix for a pair of basis sets");
+    }
 }
 
 template<std::size_t N, typename OperatorType, bool direct>
 TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
     /// Typedefs
     using my_pt         = simde::AOTensorRepresentation<N, OperatorType>;
-    using cs_approx_pt  = simde::ShellNorms<OperatorType>;
-    using size_vector_t = std::vector<std::size_t>;
+    using ao_space_t    = simde::type::ao_space;
     using tensor_t      = simde::type::tensor;
     using field_t       = typename tensor_t::field_type;
-    using ao_space_t    = simde::type::ao_space;
+    using size_vector_t = std::vector<std::size_t>;
     using shell_norm_t  = std::vector<std::vector<double>>;
 
     /// Grab input information
@@ -72,14 +81,25 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
     /// Calculate Shell Norms for screening
     shell_norm_t mat1, mat2;
     auto& cs_screen = submods.at("Shell Norms");
-    if constexpr(N == 4) {
-        auto bra1      = inputs.at("bra 1").template value<ao_space_t>();
-        auto bra2      = inputs.at("bra 2").template value<ao_space_t>();
-        std::tie(mat1) = cs_screen.run_as<cs_approx_pt>(bra1, op, bra2);
+    if constexpr(N == 2) {
+        auto bra = inputs.at("bra").template value<ao_space_t>();
+        auto ket = inputs.at("ket").template value<ao_space_t>();
+        identity_op_t I;
+        std::tie(mat1) =
+          cs_screen.run_as<simde::ShellNorms<identity_op_t>>(bra, I, ket);
     }
-    auto ket1      = inputs.at("ket 1").template value<ao_space_t>();
-    auto ket2      = inputs.at("ket 2").template value<ao_space_t>();
-    std::tie(mat2) = cs_screen.run_as<cs_approx_pt>(ket1, op, ket2);
+    if constexpr(N > 2) {
+        auto ket1 = inputs.at("ket 1").template value<ao_space_t>();
+        auto ket2 = inputs.at("ket 2").template value<ao_space_t>();
+        std::tie(mat1) =
+          cs_screen.run_as<simde::ShellNorms<OperatorType>>(ket1, op, ket2);
+    }
+    if constexpr(N == 4) {
+        auto bra1 = inputs.at("bra 1").template value<ao_space_t>();
+        auto bra2 = inputs.at("bra 2").template value<ao_space_t>();
+        std::tie(mat2) =
+          cs_screen.run_as<simde::ShellNorms<OperatorType>>(bra1, op, bra2);
+    }
 
     /// Geminal exponent handling
     constexpr auto is_stg =
@@ -112,12 +132,23 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
             /// Determine which values will be computed this time
             auto ord_pos = shells2ord(bases, curr_shells, lo_shells, up_shells);
 
-            /// Check if current shells screen out
-            auto screen_value = mat2[curr_shells[N - 2]][curr_shells[N - 1]];
+            /// Determine the screening value
+            auto screen_value = mat1[curr_shells[N - 2]][curr_shells[N - 1]];
             if constexpr(N == 4) {
-                screen_value *= mat1[curr_shells[N - 4]][curr_shells[N - 3]];
+                screen_value *= mat2[curr_shells[N - 4]][curr_shells[N - 3]];
             }
 
+            /// Ensure that shells on the same center aren't screened out
+            /// in 1-body integrals
+            if constexpr(N == 2) {
+                screen_value =
+                  (bases[0][curr_shells[0]].O == bases[1][curr_shells[1]].O) ?
+                    cs_thresh + 1 :
+                    screen_value;
+            }
+
+            /// If shell pair isn't screened out, calcuate the current values.
+            /// Otherwise, set the current values to 0.
             if(screen_value > cs_thresh) {
                 /// Compute values
                 run_engine_(engine, bases, curr_shells,
@@ -159,6 +190,9 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
     template class CSLibint<N, op, false>; \
     template class CSLibint<N, op, true>
 
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_kinetic);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
+TEMPLATE_INT_AND_DIRECT(2, simde::type::el_identity);
 TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
 TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
 TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_stg);

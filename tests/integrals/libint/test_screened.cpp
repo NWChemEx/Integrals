@@ -22,6 +22,34 @@
 
 using namespace mokup;
 
+TEST_CASE("Overlap CS") {
+    using integral_type = simde::EOverlap;
+
+    pluginplay::ModuleManager mm;
+    integrals::load_modules(mm);
+    mm.change_input("Overlap CS", "Screening Threshold", 0.5);
+    mm.change_input("Direct Overlap CS", "Screening Threshold", 0.5);
+
+    const auto name = molecule::h2o;
+    const auto bs   = basis_set::sto3g;
+    auto aos        = get_bases(name, bs);
+    std::vector bases{bs, bs};
+    auto corr_S = get_ao_data(name, bases, property::screened_overlap);
+
+    simde::type::el_identity I;
+
+    SECTION("Explicit") {
+        auto [S] = mm.at("Overlap CS").run_as<integral_type>(aos, I, aos);
+        REQUIRE(tensorwrapper::tensor::allclose(S, corr_S));
+    }
+
+    SECTION("Direct") {
+        auto [S] =
+          mm.at("Direct Overlap CS").run_as<integral_type>(aos, I, aos);
+        REQUIRE(direct_allclose(S, corr_S));
+    }
+}
+
 TEST_CASE("ERI4C CS") {
     using integral_type = simde::ERI4;
 
