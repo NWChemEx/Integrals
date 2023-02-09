@@ -5,47 +5,6 @@ on:
     branches:
       - master
 jobs:
-  cache-when-build
-    - name: cache-libint
-        id: cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            libint-2.6.0/
-            install/
-          key: libint-gcc${{ matrix.gcc_version }}
-      - name: build-libint
-        env:
-          CPP_GITHUB_TOKEN: ${{ secrets.CPP_GITHUB_TOKEN }}
-          CACHE_GCC: ${{steps.cache.outputs.cache-hit}}
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          export INSTALL_PATH=`pwd`/install
-          # check code out
-          wget https://github.com/evaleev/libint/releases/download/v2.6.0/libint-2.6.0.tgz
-          tar -zxf libint-2.6.0.tgz
-          cd libint-2.6.0
-          export CXX=`which g++`
-          export CC=`which gcc`
-          cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_FLAGS="-std=c++17" -DBUILD_SHARED_LIBS=ON -DCPP_GITHUB_TOKEN=$CPP_GITHUB_TOKEN
-          cd build
-          echo "hello" >> hello.txt
-          make
-          make install
-      - name: cache-build
-        id: cacheBuild
-        uses: actions/cache@v2
-        with:
-          path: |
-            build/_deps/tiledarray-build/
-            build/_deps/simde-build/
-          key: simde-build
-      - name: Check Caching Build
-        env:
-          CACHE_GCC: ${{steps.cache.outputs.cache-hit}}
-          CACHE_BUILD: ${{steps.cacheBuild.outputs.cache-hit}}
-        run:
-          echo "Check cacheBuild 2 222 " $CACHE_GCC $CACHE_BUILD
   build-with-gcc:
     uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@cache-build2
     with: 
@@ -58,7 +17,7 @@ jobs:
   build-with-clang:
     uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@cache-build2
     with: 
-      dependencies: 'ninja clang cmake gcovr openblas cblas lapacke scalapack boost eigen3 openmpi libint'
+      dependencies: 'ninja gcc cmake gcovr openblas cblas lapacke scalapack boost eigen3 openmpi libint'
       clang-build: true
       gcc-build: false
       ninja_build: true
