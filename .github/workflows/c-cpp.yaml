@@ -17,7 +17,7 @@ jobs:
   build-with-clang:
     uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@cache-build2
     with: 
-      dependencies: 'ninja gcc cmake gcovr openblas cblas lapacke scalapack boost eigen3 openmpi libint'
+      dependencies: 'ninja clang cmake gcovr openblas cblas lapacke scalapack boost eigen3 openmpi libint'
       clang-build: true
       gcc-build: false
       ninja_build: true
