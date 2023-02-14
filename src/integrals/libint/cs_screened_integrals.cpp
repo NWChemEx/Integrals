@@ -35,7 +35,8 @@ using identity_op_t = simde::type::el_identity;
 template<std::size_t N, typename OperatorType, bool direct>
 TEMPLATED_MODULE_CTOR(CSLibint, N, OperatorType, direct) {
     description("Computes an in-core integral with libint");
-    using my_pt = simde::AOTensorRepresentation<N, OperatorType>;
+    using my_pt       = simde::AOTensorRepresentation<N, OperatorType>;
+    using tiling_type = typename simde::type::tensor::shape_type::tiling_type;
 
     satisfies_property_type<my_pt>();
 
@@ -59,6 +60,8 @@ TEMPLATED_MODULE_CTOR(CSLibint, N, OperatorType, direct) {
           .set_description(
             "Computes the Cauchy-Schwarz Matrix for a pair of basis sets");
     }
+
+    add_input<tiling_type>("Explicit Tiling").set_default(tiling_type{});
 }
 
 template<std::size_t N, typename OperatorType, bool direct>
@@ -68,6 +71,8 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
     using ao_space_t    = simde::type::ao_space;
     using tensor_t      = simde::type::tensor;
     using field_t       = typename tensor_t::field_type;
+    using shape_t       = typename tensor_t::shape_type;
+    using tiling_t      = typename shape_t::tiling_type;
     using size_vector_t = std::vector<std::size_t>;
     using shell_norm_t  = std::vector<std::vector<double>>;
 
@@ -77,6 +82,7 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
     auto op        = inputs.at(op_str).template value<const OperatorType&>();
     auto thresh    = inputs.at("Threshold").value<double>();
     auto cs_thresh = inputs.at("Screening Threshold").value<double>();
+    auto tiling    = inputs.at("Explicit Tiling").value<tiling_t>();
 
     /// Calculate Shell Norms for screening
     shell_norm_t mat1, mat2;
@@ -113,7 +119,8 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
     }
 
     /// Lambda to calculate values
-    auto l = [=](const auto& lo, const auto& up, auto* data) {
+    auto l = [bases, op, thresh, cs_thresh, mat1, mat2,
+              coeff](const auto& lo, const auto& up, auto* data) {
         /// Convert index values from AOs to shells
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
@@ -178,7 +185,9 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
         }
     };
 
-    tensor_t I(l, make_shape(bases),
+    tensor_t I(l,
+               (tiling.empty()) ? make_shape(bases) :
+                                  std::make_unique<shape_t>(tiling),
                select_allocator<direct, field_t>(bases, op, thresh, cs_thresh));
 
     /// Finish
