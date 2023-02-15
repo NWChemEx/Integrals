@@ -86,6 +86,32 @@ inline auto make_libint_basis_set(const simde::type::ao_basis_set& bs) {
     return basis_t(centers, element_bases);
 }
 
+/** @brief Unpacks the basis sets from the inputs.
+ *
+ *  @param[in] inputs The module inputs containing the basis sets.
+ *  @returns A vector of the converted basis sets.
+ */
+template<std::size_t N, typename ModuleInputs>
+auto unpack_inputs(const ModuleInputs& inputs) {
+    using ao_space_t  = simde::type::ao_space;
+    using basis_set_t = simde::type::ao_basis_set;
+    std::vector<basis_set_t> rv(N);
+    if constexpr(N == 2) {
+        rv[0] = inputs.at("bra").template value<ao_space_t>().basis_set();
+        rv[1] = inputs.at("ket").template value<ao_space_t>().basis_set();
+    } else if constexpr(N == 3) {
+        rv[0] = inputs.at("bra").template value<ao_space_t>().basis_set();
+        rv[1] = inputs.at("ket 1").template value<ao_space_t>().basis_set();
+        rv[2] = inputs.at("ket 2").template value<ao_space_t>().basis_set();
+    } else if constexpr(N == 4) {
+        rv[0] = inputs.at("bra 1").template value<ao_space_t>().basis_set();
+        rv[1] = inputs.at("bra 2").template value<ao_space_t>().basis_set();
+        rv[2] = inputs.at("ket 1").template value<ao_space_t>().basis_set();
+        rv[3] = inputs.at("ket 2").template value<ao_space_t>().basis_set();
+    }
+    return rv;
+}
+
 /** @brief Unpacks the basis sets from the inputs and converts them to Libint.
  *
  *  @param[in] inputs The module inputs containing the basis sets.
@@ -93,24 +119,9 @@ inline auto make_libint_basis_set(const simde::type::ao_basis_set& bs) {
  */
 template<std::size_t N, typename ModuleInputs>
 auto unpack_bases(const ModuleInputs& inputs) {
-    using ao_space_t = simde::type::ao_space;
-    std::vector<ao_space_t> aos(N);
-    if constexpr(N == 2) {
-        aos[0] = inputs.at("bra").template value<ao_space_t>();
-        aos[1] = inputs.at("ket").template value<ao_space_t>();
-    } else if constexpr(N == 3) {
-        aos[0] = inputs.at("bra").template value<ao_space_t>();
-        aos[1] = inputs.at("ket 1").template value<ao_space_t>();
-        aos[2] = inputs.at("ket 2").template value<ao_space_t>();
-    } else if constexpr(N == 4) {
-        aos[0] = inputs.at("bra 1").template value<ao_space_t>();
-        aos[1] = inputs.at("bra 2").template value<ao_space_t>();
-        aos[2] = inputs.at("ket 1").template value<ao_space_t>();
-        aos[3] = inputs.at("ket 2").template value<ao_space_t>();
-    }
+    auto aos = unpack_inputs<N>(inputs);
     std::vector<libint2::BasisSet> rv;
-    for(auto i = 0u; i < N; ++i)
-        rv.emplace_back(make_libint_basis_set(aos[i].basis_set()));
+    for(auto i = 0u; i < N; ++i) rv.emplace_back(make_libint_basis_set(aos[i]));
     return rv;
 }
 

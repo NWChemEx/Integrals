@@ -21,6 +21,7 @@
 #include "detail_/make_shape.hpp"
 #include "detail_/select_allocator.hpp"
 #include "detail_/shells2ord.hpp"
+#include <integrals/property_types/integral_shape.hpp>
 #include <simde/cauchy_schwarz_approximation.hpp>
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
 
@@ -30,7 +31,8 @@ namespace integrals {
 using namespace detail_;
 
 /// For 1-body screening
-using identity_op_t = simde::type::el_identity;
+using identity_op_t    = simde::type::el_identity;
+using integral_shape_t = integrals::IntegralShape;
 
 template<std::size_t N, typename OperatorType, bool direct>
 TEMPLATED_MODULE_CTOR(CSLibint, N, OperatorType, direct) {
@@ -49,6 +51,9 @@ TEMPLATED_MODULE_CTOR(CSLibint, N, OperatorType, direct) {
       .set_default(0.0)
       .set_description("Cauchy-Schwarz Screening Threshold");
 
+    add_submodule<integral_shape_t>("Tensor Shape")
+      .set_description("Determines the shape of the resulting tensor");
+
     if constexpr(N > 2) { /// Use operator based screening for 2-body integrals
         add_submodule<simde::ShellNorms<OperatorType>>("Shell Norms")
           .set_description(
@@ -60,8 +65,6 @@ TEMPLATED_MODULE_CTOR(CSLibint, N, OperatorType, direct) {
           .set_description(
             "Computes the Cauchy-Schwarz Matrix for a pair of basis sets");
     }
-
-    add_input<tiling_type>("Explicit Tiling").set_default(tiling_type{});
 }
 
 template<std::size_t N, typename OperatorType, bool direct>
@@ -72,7 +75,6 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
     using tensor_t      = simde::type::tensor;
     using field_t       = typename tensor_t::field_type;
     using shape_t       = typename tensor_t::shape_type;
-    using tiling_t      = typename shape_t::tiling_type;
     using size_vector_t = std::vector<std::size_t>;
     using shell_norm_t  = std::vector<std::vector<double>>;
 
@@ -82,7 +84,6 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
     auto op        = inputs.at(op_str).template value<const OperatorType&>();
     auto thresh    = inputs.at("Threshold").value<double>();
     auto cs_thresh = inputs.at("Screening Threshold").value<double>();
-    auto tiling    = inputs.at("Explicit Tiling").value<tiling_t>();
 
     /// Calculate Shell Norms for screening
     shell_norm_t mat1, mat2;
@@ -185,9 +186,10 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
         }
     };
 
-    tensor_t I(l,
-               (tiling.empty()) ? make_shape(bases) :
-                                  std::make_unique<shape_t>(tiling),
+    auto [shape] = submods.at("Tensor Shape")
+                     .run_as<integral_shape_t>(unpack_inputs<N>(inputs));
+
+    tensor_t I(l, std::make_unique<shape_t>(shape),
                select_allocator<direct, field_t>(bases, op, thresh, cs_thresh));
 
     /// Finish

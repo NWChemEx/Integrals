@@ -21,9 +21,12 @@
 #include "detail_/select_allocator.hpp"
 #include "detail_/shells2ord.hpp"
 #include "libint.hpp"
+#include <integrals/property_types/integral_shape.hpp>
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
 
 namespace integrals {
+
+using integral_shape_t = integrals::IntegralShape;
 
 /// Grab the various detail_ functions
 using namespace detail_;
@@ -39,6 +42,9 @@ TEMPLATED_MODULE_CTOR(LibintDOI, direct) {
       .set_default(1.0E-16)
       .set_description(
         "The target precision with which the integrals will be computed");
+
+    add_submodule<integral_shape_t>("Tensor Shape")
+      .set_description("Determines the shape of the resulting tensor");
 }
 
 template<bool direct>
@@ -48,6 +54,7 @@ TEMPLATED_MODULE_RUN(LibintDOI, direct) {
     using size_vector_t = std::vector<std::size_t>;
     using tensor_t      = simde::type::tensor;
     using field_t       = typename tensor_t::field_type;
+    using shape_t       = typename tensor_t::shape_type;
 
     auto init_bases = unpack_bases<2>(inputs);
     auto op_str     = op_t().as_string();
@@ -104,7 +111,17 @@ TEMPLATED_MODULE_RUN(LibintDOI, direct) {
         }
     };
 
-    tensor_t I(l, make_shape(bases),
+    std::vector<simde::type::ao_basis_set> aos;
+    {
+        auto two_aos = unpack_inputs<2>(inputs);
+        for(auto& ao : two_aos) {
+            for(auto i = 0; i < 2; ++i) aos.push_back(ao);
+        }
+    }
+
+    auto [shape] = submods.at("Tensor Shape").run_as<integral_shape_t>(aos);
+
+    tensor_t I(l, std::make_unique<shape_t>(shape),
                select_allocator<direct, field_t>(bases, op, thresh));
 
     /// Finish

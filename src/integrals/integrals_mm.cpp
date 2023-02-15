@@ -17,6 +17,7 @@
 #include "integrals/integrals_mm.hpp"
 #include "libint/cs_screened_integrals.hpp"
 #include "libint/libint.hpp"
+#include "libint/shapes/shapes.hpp"
 #include "libint/shellnorms.hpp"
 #include "transforms/transforms.hpp"
 
@@ -73,25 +74,6 @@ void load_libint_integrals(pluginplay::ModuleManager& mm) {
     mm.add_module<ShellNormCoulomb>("Shell Norms Coulomb");
     mm.add_module<ShellNormSTG>("Shell Norms STG");
     mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
-
-    mm.change_submod("Kinetic CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Nuclear CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Overlap CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
-    mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
-    mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
-    mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
-    mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
-    mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
-    mm.change_submod("Direct Kinetic CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Direct Nuclear CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Direct Overlap CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Direct ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
-    mm.change_submod("Direct ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
-    mm.change_submod("Direct STG3 CS", "Shell Norms", "Shell Norms STG");
-    mm.change_submod("Direct STG4 CS", "Shell Norms", "Shell Norms STG");
-    mm.change_submod("Direct Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
-    mm.change_submod("Direct Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
 }
 
 void load_transformed_libint_integrals(pluginplay::ModuleManager& mm) {
@@ -125,12 +107,62 @@ void load_misc_transforms(pluginplay::ModuleManager& mm) {
     mm.add_module<StandardTransform<2, fock>>("Transformed Fock");
 }
 
+void set_defaults(pluginplay::ModuleManager& mm) {
+    /// Set the shape module of the unscreened integrals
+    /// and their direct versions
+    mm.change_submod("STG 4 Center dfdr Squared", "Tensor Shape",
+                     "OneTileShape");
+    {
+        std::vector<std::string> ints = {
+          "DOI",  "ERI2", "ERI3", "ERI4",    "Kinetic", "Nuclear", "Overlap",
+          "STG2", "STG3", "STG4", "Yukawa2", "Yukawa3", "Yukawa4",
+        };
+        for(auto& name : ints) {
+            mm.change_submod(name, "Tensor Shape", "OneTileShape");
+            mm.change_submod("Direct " + name, "Tensor Shape", "OneTileShape");
+        }
+    }
+
+    /// Set the shape and shell norm modules for the screened integrals
+    /// and their direct versions.
+    {
+        std::vector<std::string> ints = {
+          "ERI3 CS", "ERI4 CS", "Kinetic CS", "Nuclear CS", "Overlap CS",
+          "STG3 CS", "STG4 CS", "Yukawa3 CS", "Yukawa4 CS"};
+        for(auto& name : ints) {
+            mm.change_submod(name, "Tensor Shape", "OneTileShape");
+            mm.change_submod("Direct " + name, "Tensor Shape", "OneTileShape");
+
+            if(name.find("ERI") != std::string::npos) {
+                mm.change_submod(name, "Shell Norms", "Shell Norms Coulomb");
+                mm.change_submod("Direct " + name, "Shell Norms",
+                                 "Shell Norms Coulomb");
+            } else if(name.find("STG") != std::string::npos) {
+                mm.change_submod(name, "Shell Norms", "Shell Norms STG");
+                mm.change_submod("Direct " + name, "Shell Norms",
+                                 "Shell Norms STG");
+            } else if(name.find("Yukawa") != std::string::npos) {
+                mm.change_submod(name, "Shell Norms", "Shell Norms Yukawa");
+                mm.change_submod("Direct " + name, "Shell Norms",
+                                 "Shell Norms Yukawa");
+            } else {
+                mm.change_submod(name, "Shell Norms", "Shell Norms Overlap");
+                mm.change_submod("Direct " + name, "Shell Norms",
+                                 "Shell Norms Overlap");
+            }
+        }
+    }
+}
+
 void load_modules(pluginplay::ModuleManager& mm) {
     load_libint_integrals(mm);
     load_transformed_libint_integrals(mm);
     load_f12_integrals(mm);
     load_transformed_f12_integrals(mm);
     load_misc_transforms(mm);
+    shape_mods::load_modules(mm);
+
+    set_defaults(mm);
 }
 
 } // namespace integrals

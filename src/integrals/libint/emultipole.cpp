@@ -149,6 +149,7 @@ TEMPLATED_MODULE_RUN(LibintMultipole, L, OperatorType) {
     if constexpr(L == 2) { leading_extent = 20; }
 
     /// Make complete tensor and slice out return values
+    /// TODO: Switch out make_shape with an IntegralShape module
     tensor_t I(l, make_shape(bases, leading_extent),
                tensorwrapper::tensor::default_allocator<field_t>());
 
