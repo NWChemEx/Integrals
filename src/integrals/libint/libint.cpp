@@ -49,11 +49,10 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType, direct) {
     using tensor_t      = simde::type::tensor;
     using field_t       = typename tensor_t::field_type;
 
-    /// Grab input information
-    auto bases  = unpack_bases<N>(inputs);
-    auto op_str = OperatorType().as_string();
-    auto op     = inputs.at(op_str).template value<const OperatorType&>();
-    auto thresh = inputs.at("Threshold").value<double>();
+    auto factory = submod.at("AO Integral Factory")(inputs);
+    auto bases   = unpack_bases<N>(inputs);
+    auto op_str  = OperatorType().as_string();
+    auto op      = inputs.at(op_str).template value<const OperatorType&>();
 
     /// Geminal exponent handling
     constexpr auto is_stg =
@@ -76,20 +75,14 @@ TEMPLATED_MODULE_RUN(Libint, N, OperatorType, direct) {
             up_shells.push_back(shells_in_tile.back());
         }
 
-        /// Make the libint engine to calculate integrals
-        auto engine     = make_engine(bases, op, thresh);
-        const auto& buf = engine.results();
-
         /// Loop through shell combinations
         size_vector_t curr_shells = lo_shells;
         while(curr_shells[0] <= up_shells[0]) {
             /// Determine which values will be computed this time
             auto ord_pos = shells2ord(bases, curr_shells, lo_shells, up_shells);
 
-            /// Compute values
-            run_engine_(engine, bases, curr_shells,
-                        std::make_index_sequence<N>());
-            auto vals = buf[0];
+            const auto& buf = factory.compute(curr_shells);
+            auto vals       = buf[0];
 
             if(vals) {
                 /// Copy libint values into tile data;
