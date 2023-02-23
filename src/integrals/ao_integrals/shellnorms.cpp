@@ -19,7 +19,7 @@
 #include "shellnorms.hpp"
 #include <simde/cauchy_schwarz_approximation.hpp>
 
-namespace integrals {
+namespace integrals::ao_integrals {
 
 template<std::size_t NBodies, typename OperatorType>
 TEMPLATED_MODULE_CTOR(ShellNorms, NBodies, OperatorType) {
@@ -122,4 +122,4 @@ template class ShellNorms<2, simde::type::el_el_coulomb>;
 template class ShellNorms<2, simde::type::el_el_stg>;
 template class ShellNorms<2, simde::type::el_el_yukawa>;
 
-} // namespace integrals
+} // namespace integrals::ao_integrals

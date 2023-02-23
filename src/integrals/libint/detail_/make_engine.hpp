@@ -29,13 +29,13 @@ namespace integrals::detail_ {
  *  @param[in] thresh The precision threshold of the integrals
  *  @returns An engine to compute the values of the associated integrals
  */
-template<typename OpType>
-auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
-                 double thresh, std::size_t deriv = 0) {
+auto make_engine(const std::vector<libint2::BasisSet>& bases,
+                 const libint2::Operator& libint_op, double thresh,
+                 std::size_t deriv = 0) {
     /// Variables for engine construction
-    constexpr auto libint_op = integrals::op_v<OpType>;
-    auto max_nprims          = libint2::max_nprim(bases[0]);
-    auto max_l               = libint2::max_l(bases[0]);
+
+    auto max_nprims = libint2::max_nprim(bases[0]);
+    auto max_l      = libint2::max_l(bases[0]);
 
     /// Find max_nprims and max_l in bases
     for(auto set : bases) {
@@ -76,23 +76,6 @@ auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
     }
 
     return engine;
-}
-
-/** @brief Wrap the call of LibInt2 engine so it can take a variable number
- * of shell inputs.
- *
- * @tparam Is A variadic parameter pack of integers from [0,NBases) to
- * expand.
- * @param engine The LibInt2 engine that computes integrals
- * @param bases The bases sets that hold the shells
- * @param shells The index of the requested shell block
- */
-template<std::size_t... Is>
-void run_engine_(libint2::Engine& engine,
-                 const std::vector<libint2::BasisSet>& bases,
-                 const std::vector<std::size_t>& shells,
-                 std::index_sequence<Is...>) {
-    engine.compute(bases[Is][shells[Is]]...);
 }
 
 } // namespace integrals::detail_

@@ -15,10 +15,9 @@
  */
 
 #pragma once
-#include <libint2.hpp>
 #include <pluginplay/module_base.hpp>
 
-namespace integrals {
+namespace integrals::ao_integrals {
 
 template<std::size_t NBodies, typename OperatorType>
 DECLARE_MODULE(ShellNorms);
@@ -33,4 +32,4 @@ extern template class ShellNorms<2, simde::type::el_el_coulomb>;
 extern template class ShellNorms<2, simde::type::el_el_stg>;
 extern template class ShellNorms<2, simde::type::el_el_yukawa>;
 
-} // namespace integrals
+} // namespace integrals::ao_integrals

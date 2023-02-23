@@ -18,14 +18,14 @@
 #include <pluginplay/module_base.hpp>
 #include <simde/types.hpp>
 
-#define EXTERN_INT_AND_DIRECT(N, op)              \
-    extern template class CSLibint<N, op, false>; \
-    extern template class CSLibint<N, op, true>
+#define EXTERN_INT_AND_DIRECT(N, op)                  \
+    extern template class CSAOIntegral<N, op, false>; \
+    extern template class CSAOIntegral<N, op, true>
 
-namespace integrals {
+namespace integrals::ao_integrals {
 
 template<std::size_t N, typename OperatorType, bool direct>
-DECLARE_MODULE(CSLibint);
+DECLARE_MODULE(CSAOIntegral);
 EXTERN_INT_AND_DIRECT(2, simde::type::el_kinetic);
 EXTERN_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
 EXTERN_INT_AND_DIRECT(2, simde::type::el_identity);
@@ -36,6 +36,6 @@ EXTERN_INT_AND_DIRECT(4, simde::type::el_el_stg);
 EXTERN_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
 EXTERN_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
 
-} // namespace integrals
+} // namespace integrals::ao_integrals
 
 #undef EXTERN_INT_AND_DIRECT

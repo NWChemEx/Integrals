@@ -17,7 +17,7 @@
 #pragma once
 #include "hash_inputs.hpp"
 
-namespace integrals::detail_ {
+namespace integrals::ao_integrals::detail_ {
 
 /** @brief Choose type of and return an allocator
  *
@@ -42,4 +42,4 @@ auto select_allocator(const std::vector<libint2::BasisSet>& bases,
     }
 }
 
-} // namespace integrals::detail_
+} // namespace integrals::ao_integrals::detail_

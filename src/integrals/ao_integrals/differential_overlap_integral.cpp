@@ -15,47 +15,47 @@
  */
 
 #include "detail_/aos2shells.hpp"
-#include "detail_/bases_helper.hpp"
-#include "detail_/make_engine.hpp"
+#include "detail_/get_coeff.chpp"
 #include "detail_/make_shape.hpp"
 #include "detail_/select_allocator.hpp"
 #include "detail_/shells2ord.hpp"
-#include "libint.hpp"
+#include "detail_/unpack_bases.hpp"
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
 
-namespace integrals {
+namespace integrals::ao_integrals {
 
 /// Grab the various detail_ functions
 using namespace detail_;
 
+using factory_pt = simde::IntegralFactory;
+
 template<bool direct>
-TEMPLATED_MODULE_CTOR(LibintDOI, direct) {
-    description("Computes DOI integrals with Libint");
+TEMPLATED_MODULE_CTOR(AOIntegralDOI, direct) {
+    description("Computes DOI integrals");
     using my_pt = simde::AOTensorRepresentation<2, simde::type::el_el_delta>;
 
     satisfies_property_type<my_pt>();
 
-    add_input<double>("Threshold")
-      .set_default(1.0E-16)
-      .set_description(
-        "The target precision with which the integrals will be computed");
+    add_submodule<factory_pt>("AO Integral Factory")
+      .set_description("Used to generate the AO factory");
 }
 
 template<bool direct>
-TEMPLATED_MODULE_RUN(LibintDOI, direct) {
+TEMPLATED_MODULE_RUN(AOIntegralDOI, direct) {
     using op_t          = simde::type::el_el_delta;
     using my_pt         = simde::AOTensorRepresentation<2, op_t>;
     using size_vector_t = std::vector<std::size_t>;
     using tensor_t      = simde::type::tensor;
     using field_t       = typename tensor_t::field_type;
 
-    auto init_bases = unpack_bases<2>(inputs);
-    auto op_str     = op_t().as_string();
-    auto op         = inputs.at(op_str).template value<const op_t&>();
-    auto thresh     = inputs.at("Threshold").value<double>();
+    auto init_bases     = detail_::unpack_bases<2>(inputs);
+    auto op_str         = op_t().as_string();
+    const auto& fac_mod = submod.at("AO Integral Factory");
+
+    auto factory = fac_mod.run_as<factory_pt>(bases, op);
 
     /// Have to double up the basis sets
-    std::vector<libint2::BasisSet> bases;
+    std::vector<simde::type::ao_basis_set> bases;
     for(auto& set : init_bases) {
         for(auto i = 0; i < 2; ++i) bases.push_back(set);
     }
@@ -66,25 +66,20 @@ TEMPLATED_MODULE_RUN(LibintDOI, direct) {
         constexpr std::size_t N = 4;
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
-            auto shells_in_tile = aos2shells(bases[i], lo[i], up[i]);
+            auto shells_in_tile = detail_::aos2shells(bases[i], lo[i], up[i]);
             lo_shells.push_back(shells_in_tile.front());
             up_shells.push_back(shells_in_tile.back());
         }
-
-        /// Make the libint engine to calculate integrals
-        auto engine     = make_engine(bases, op, thresh);
-        const auto& buf = engine.results();
-
         /// Loop through shell combinations
         size_vector_t curr_shells = lo_shells;
         while(curr_shells[0] <= up_shells[0]) {
             /// Determine which values will be computed this time
-            auto ord_pos = shells2ord(bases, curr_shells, lo_shells, up_shells);
+            auto ord_pos =
+              detail_::shells2ord(bases, curr_shells, lo_shells, up_shells);
 
             /// Compute values
-            run_engine_(engine, bases, curr_shells,
-                        std::make_index_sequence<N>());
-            auto vals = buf[0];
+            const auto& buf = factory.compute(curr_shells);
+            auto vals       = buf[0];
 
             /// Copy libint values into tile data;
             for(auto i = 0; i < ord_pos.size(); ++i) {
@@ -112,7 +107,7 @@ TEMPLATED_MODULE_RUN(LibintDOI, direct) {
     return my_pt::wrap_results(rv, I);
 }
 
-template class LibintDOI<false>;
-template class LibintDOI<true>;
+template class AOIntegralDOI<false>;
+template class AOIntegralDOI<true>;
 
-} // namespace integrals
+} // namespace integrals::ao_integrals

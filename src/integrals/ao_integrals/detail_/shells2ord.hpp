@@ -15,9 +15,9 @@
  */
 
 #pragma once
-#include <libint2.hpp>
+#include <simde/types.hpp>
 
-namespace integrals::detail_ {
+namespace integrals::ao_integrals::detail_ {
 
 /** @brief Find the ordinal indices spanned by the shell indices
  *
@@ -86,4 +86,4 @@ inline auto shells2ord(const std::vector<libint2::BasisSet>& bases,
     return ord_pos;
 }
 
-} // namespace integrals::detail_
+} // namespace integrals::ao_integrals::detail_

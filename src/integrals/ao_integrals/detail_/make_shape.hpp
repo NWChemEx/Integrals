@@ -18,7 +18,7 @@
 #include <libint2.hpp>
 #include <simde/types.hpp>
 
-namespace integrals::detail_ {
+namespace integrals::ao_integrals::detail_ {
 
 /** @brief Given a vector of basis sets, compute the shape of the corresponding
  *         integral.
@@ -45,4 +45,4 @@ inline auto make_shape(const std::vector<libint2::BasisSet>& bases,
     return std::make_unique<shape_t>(extents);
 }
 
-} // namespace integrals::detail_
+} // namespace integrals::ao_integrals::detail_

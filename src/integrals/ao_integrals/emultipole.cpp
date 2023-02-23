@@ -22,9 +22,7 @@
 #include "libint.hpp"
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
 
-/// TODO: Unify implementations. Maybe with recursion?
-
-namespace integrals {
+namespace integrals::ao_integrals {
 
 using identity_op   = simde::type::el_identity;
 using dipole_op     = simde::type::el_dipole;
@@ -39,9 +37,11 @@ using octupole_pt   = simde::AOTensorRepresentation<2, octupole_op>;
 /// Grab the various detail_ functions
 using namespace detail_;
 
+using factory_pt = simde::IntegralFactory;
+
 template<std::size_t L, typename OperatorType>
-TEMPLATED_MODULE_CTOR(LibintMultipole, L, OperatorType) {
-    description("Computes an in-core integral with libint");
+TEMPLATED_MODULE_CTOR(AOIntegralMultipole, L, OperatorType) {
+    description("Computes an in-core multipole integral");
 
     /// This should satisfy overlap, but we can't reduce the dimensionality
     /// of the tensor at the moment.
@@ -65,10 +65,8 @@ TEMPLATED_MODULE_CTOR(LibintMultipole, L, OperatorType) {
         change_input(r3.as_string()).change(std::move(r3));
     }
 
-    add_input<double>("Threshold")
-      .set_default(1.0E-16)
-      .set_description(
-        "The target precision with which the integrals will be computed");
+    add_submodule<factory_pt>("AO Integral Factory")
+      .set_description("Used to generate the AO factory");
 }
 
 template<std::size_t L, typename OperatorType>
@@ -79,10 +77,12 @@ TEMPLATED_MODULE_RUN(LibintMultipole, L, OperatorType) {
     using field_t       = typename tensor_t::field_type;
 
     /// Grab input information
-    auto bases  = unpack_bases<2>(inputs);
+    auto bases  = detail_::unpack_bases<2>(inputs);
     auto op_str = OperatorType().as_string();
     auto op     = inputs.at(op_str).template value<const OperatorType&>();
-    auto thresh = inputs.at("Threshold").value<double>();
+    const auto& fac_mod = submod.at("AO Integral Factory");
+
+    auto factory = fac_mod.run_as<factory_pt>(bases, op);
 
     /// Lambda to calculate values
     auto l = [&](const auto& lo, const auto& up, auto* data) {
@@ -91,7 +91,8 @@ TEMPLATED_MODULE_RUN(LibintMultipole, L, OperatorType) {
         constexpr std::size_t N = 2;
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
-            auto shells_in_tile = aos2shells(bases[i], lo[i + 1], up[i + 1]);
+            auto shells_in_tile =
+              detail_::aos2shells(bases[i], lo[i + 1], up[i + 1]);
             lo_shells.push_back(shells_in_tile.front());
             up_shells.push_back(shells_in_tile.back());
         }
@@ -109,18 +110,17 @@ TEMPLATED_MODULE_RUN(LibintMultipole, L, OperatorType) {
         }
         /// std::cout << leading_step << std::endl;
 
-        /// Make the libint engine to calculate integrals
-        auto engine     = make_engine(bases, op, thresh);
-        const auto& buf = engine.results();
-
         /// Loop through shell combinations
         size_vector_t curr_shells = lo_shells;
         while(curr_shells[0] <= up_shells[0]) {
             /// Determine which values will be computed this time
-            auto ord_pos = shells2ord(bases, curr_shells, lo_shells, up_shells);
+            auto ord_pos =
+              detail_::shells2ord(bases, curr_shells, lo_shells, up_shells);
 
             /// Compute values
-            engine.compute(bases[0][curr_shells[0]], bases[1][curr_shells[1]]);
+            const auto shell0 = bases[0][curr_shells[0]];
+            const auto shell1 = bases[1][curr_shells[1]];
+            const auto& buf   = factory.compute(std::vector{shell0, shell1});
 
             /// Copy libint values into tile data;
             for(auto i = lo[0]; i < up[0]; ++i) {
@@ -166,8 +166,8 @@ TEMPLATED_MODULE_RUN(LibintMultipole, L, OperatorType) {
     return rv;
 }
 
-template class LibintMultipole<0, simde::type::el_dipole>;
-template class LibintMultipole<1, simde::type::el_quadrupole>;
-template class LibintMultipole<2, simde::type::el_octupole>;
+template class AOIntegralMultipole<0, simde::type::el_dipole>;
+template class AOIntegralMultipole<1, simde::type::el_quadrupole>;
+template class AOIntegralMultipole<2, simde::type::el_octupole>;
 
-} // namespace integrals
+} // namespace integrals::ao_integrals

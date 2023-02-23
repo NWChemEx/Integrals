@@ -18,7 +18,7 @@
 #include <libint2.hpp>
 #include <simde/types.hpp>
 
-namespace integrals {
+namespace integrals::libint {
 namespace detail_ {
 
 template<typename T>
@@ -84,4 +84,4 @@ struct LibintOp<simde::type::el_octupole> {
 template<typename T>
 static constexpr auto op_v = detail_::LibintOp<T>::value;
 
-} // namespace integrals
+} // namespace integrals::libint

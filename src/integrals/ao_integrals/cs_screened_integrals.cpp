@@ -24,25 +24,25 @@
 #include <simde/cauchy_schwarz_approximation.hpp>
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
 
-namespace integrals {
+namespace integrals::ao_integrals {
 
 /// Grab the various detail_ functions
 using namespace detail_;
+
+using factory_pt = simde::IntegralFactory;
 
 /// For 1-body screening
 using identity_op_t = simde::type::el_identity;
 
 template<std::size_t N, typename OperatorType, bool direct>
-TEMPLATED_MODULE_CTOR(CSLibint, N, OperatorType, direct) {
+TEMPLATED_MODULE_CTOR(CSAOIntegral, N, OperatorType, direct) {
     description("Computes an in-core integral with libint");
     using my_pt = simde::AOTensorRepresentation<N, OperatorType>;
 
     satisfies_property_type<my_pt>();
 
-    add_input<double>("Threshold")
-      .set_default(1.0E-16)
-      .set_description(
-        "The target precision with which the integrals will be computed");
+    add_submodule<factory_pt>("AO Integral Factory")
+      .set_description("Used to generate the AO factory");
 
     add_input<double>("Screening Threshold")
       .set_default(0.0)
@@ -62,7 +62,7 @@ TEMPLATED_MODULE_CTOR(CSLibint, N, OperatorType, direct) {
 }
 
 template<std::size_t N, typename OperatorType, bool direct>
-TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
+TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
     /// Typedefs
     using my_pt         = simde::AOTensorRepresentation<N, OperatorType>;
     using ao_space_t    = simde::type::ao_space;
@@ -72,15 +72,15 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
     using shell_norm_t  = std::vector<std::vector<double>>;
 
     /// Grab input information
-    auto bases     = unpack_bases<N>(inputs);
+    auto bases     = detail_::unpack_bases<N>(inputs);
     auto op_str    = OperatorType().as_string();
     auto op        = inputs.at(op_str).template value<const OperatorType&>();
-    auto thresh    = inputs.at("Threshold").value<double>();
     auto cs_thresh = inputs.at("Screening Threshold").value<double>();
 
     /// Calculate Shell Norms for screening
     shell_norm_t mat1, mat2;
     auto& cs_screen = submods.at("Shell Norms");
+
     if constexpr(N == 2) {
         auto bra = inputs.at("bra").template value<ao_space_t>();
         auto ket = inputs.at("ket").template value<ao_space_t>();
@@ -101,36 +101,27 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
           cs_screen.run_as<simde::ShellNorms<OperatorType>>(bra1, op, bra2);
     }
 
-    /// Geminal exponent handling
-    constexpr auto is_stg =
-      std::is_same_v<OperatorType, simde::type::el_el_stg>;
-    constexpr auto is_yukawa =
-      std::is_same_v<OperatorType, simde::type::el_el_yukawa>;
+    const auto& fac_mod = submod.at("AO Integral Factory");
 
-    double coeff = 1.0;
-    if constexpr(is_stg || is_yukawa) {
-        coeff = op.template at<0>().coefficient;
-    }
+    auto factory = fac_mod.run_as<factory_pt>(bases, op);
+    auto coeff   = detail_::get_coeff(op);
 
     /// Lambda to calculate values
     auto l = [=](const auto& lo, const auto& up, auto* data) {
         /// Convert index values from AOs to shells
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
-            auto shells_in_tile = aos2shells(bases[i], lo[i], up[i]);
+            auto shells_in_tile = detail_::aos2shells(bases[i], lo[i], up[i]);
             lo_shells.push_back(shells_in_tile.front());
             up_shells.push_back(shells_in_tile.back());
         }
-
-        /// Make the libint engine to calculate integrals
-        auto engine     = make_engine(bases, op, thresh);
-        const auto& buf = engine.results();
 
         /// Loop through shell combinations
         size_vector_t curr_shells = lo_shells;
         while(curr_shells[0] <= up_shells[0]) {
             /// Determine which values will be computed this time
-            auto ord_pos = shells2ord(bases, curr_shells, lo_shells, up_shells);
+            auto ord_pos =
+              detail_::shells2ord(bases, curr_shells, lo_shells, up_shells);
 
             /// Determine the screening value
             auto screen_value = mat1[curr_shells[N - 2]][curr_shells[N - 1]];
@@ -151,9 +142,8 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
             /// Otherwise, set the current values to 0.
             if(screen_value > cs_thresh) {
                 /// Compute values
-                run_engine_(engine, bases, curr_shells,
-                            std::make_index_sequence<N>());
-                auto vals = buf[0];
+                const auto& buf = factory.compute(curr_shells);
+                auto vals       = buf[0];
 
                 /// Copy libint values into tile data;
                 for(auto i = 0; i < ord_pos.size(); ++i) {
@@ -186,9 +176,9 @@ TEMPLATED_MODULE_RUN(CSLibint, N, OperatorType, direct) {
     return my_pt::wrap_results(rv, I);
 }
 
-#define TEMPLATE_INT_AND_DIRECT(N, op)     \
-    template class CSLibint<N, op, false>; \
-    template class CSLibint<N, op, true>
+#define TEMPLATE_INT_AND_DIRECT(N, op)         \
+    template class CSAOintegral<N, op, false>; \
+    template class CSAOIntegral<N, op, true>
 
 TEMPLATE_INT_AND_DIRECT(2, simde::type::el_kinetic);
 TEMPLATE_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
@@ -202,4 +192,4 @@ TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
 
 #undef TEMPLATE_INT_AND_DIRECT
 
-} // namespace integrals
+} // namespace integrals::ao_integrals

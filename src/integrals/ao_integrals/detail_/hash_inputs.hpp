@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-namespace integrals::detail_ {
+namespace integrals::ao_integrals::detail_ {
 
 /** @brief Combines hashes in the same way as boost::hash_combine (apparently)
  *
@@ -116,7 +116,7 @@ std::string hash_inputs(const std::vector<libint2::BasisSet>& bases,
     return std::to_string(hash);
 }
 
-} // namespace integrals::detail_
+} // namespace integrals::ao_integrals::detail_
 
 /** @brief std::hash specializaton for a vector of LibInt basis sets */
 template<>
