@@ -16,12 +16,13 @@
 
 #include "cs_screened_integrals.hpp"
 #include "detail_/aos2shells.hpp"
-#include "detail_/bases_helper.hpp"
-#include "detail_/make_engine.hpp"
+#include "detail_/get_coeff.hpp"
 #include "detail_/make_shape.hpp"
 #include "detail_/select_allocator.hpp"
 #include "detail_/shells2ord.hpp"
+#include "detail_/unpack_bases.hpp"
 #include <simde/cauchy_schwarz_approximation.hpp>
+#include <simde/integral_factory.hpp>
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
 
 namespace integrals::ao_integrals {
@@ -74,8 +75,12 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
     /// Grab input information
     auto bases     = detail_::unpack_bases<N>(inputs);
     auto op_str    = OperatorType().as_string();
-    auto op        = inputs.at(op_str).template value<const OperatorType&>();
     auto cs_thresh = inputs.at("Screening Threshold").value<double>();
+    const auto& op = inputs.at(op_str).template value<const OperatorType&>();
+    const auto& fac_mod = submod.at("AO Integral Factory");
+
+    auto factory = fac_mod.run_as<factory_pt>(bases, op);
+    auto coeff   = detail_::get_coeff(op);
 
     /// Calculate Shell Norms for screening
     shell_norm_t mat1, mat2;
@@ -100,11 +105,6 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
         std::tie(mat2) =
           cs_screen.run_as<simde::ShellNorms<OperatorType>>(bra1, op, bra2);
     }
-
-    const auto& fac_mod = submod.at("AO Integral Factory");
-
-    auto factory = fac_mod.run_as<factory_pt>(bases, op);
-    auto coeff   = detail_::get_coeff(op);
 
     /// Lambda to calculate values
     auto l = [=](const auto& lo, const auto& up, auto* data) {

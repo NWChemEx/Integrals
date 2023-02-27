@@ -27,7 +27,7 @@ namespace integrals::ao_integrals::detail_ {
  *  @param[in] up_shell The upper most shell index in the span.
  *  @returns An std::vector of the ordinal indices associated with the shells.
  */
-inline auto shells2ord(const std::vector<libint2::BasisSet>& bases,
+inline auto shells2ord(const std::vector<simde::type::ao_basis_set>& bases,
                        std::vector<std::size_t>& shells,
                        std::vector<std::size_t>& lo_shells,
                        std::vector<std::size_t>& up_shells) {

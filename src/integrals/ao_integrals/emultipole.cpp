@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+#include "ao_integrals.hpp"
 #include "detail_/aos2shells.hpp"
-#include "detail_/bases_helper.hpp"
-#include "detail_/make_engine.hpp"
 #include "detail_/make_shape.hpp"
+#include "detail_/select_allocator.hpp"
 #include "detail_/shells2ord.hpp"
-#include "libint.hpp"
+#include "detail_/unpack_bases.hpp"
+#include <simde/integral_factory.hpp>
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
 
 namespace integrals::ao_integrals {
@@ -96,10 +97,6 @@ TEMPLATED_MODULE_RUN(LibintMultipole, L, OperatorType) {
             lo_shells.push_back(shells_in_tile.front());
             up_shells.push_back(shells_in_tile.back());
         }
-        // for(auto& i : lo_shells) std::cout << i << " ";
-        // std::cout << std::endl;
-        // for(auto& i : up_shells) std::cout << i << " ";
-        // std::cout << std::endl;
 
         /// Calculate the number of values per leading index
         auto leading_step = 0;
@@ -108,7 +105,6 @@ TEMPLATED_MODULE_RUN(LibintMultipole, L, OperatorType) {
                 leading_step += bases[0][i].size() * bases[1][j].size();
             }
         }
-        /// std::cout << leading_step << std::endl;
 
         /// Loop through shell combinations
         size_vector_t curr_shells = lo_shells;
@@ -118,9 +114,7 @@ TEMPLATED_MODULE_RUN(LibintMultipole, L, OperatorType) {
               detail_::shells2ord(bases, curr_shells, lo_shells, up_shells);
 
             /// Compute values
-            const auto shell0 = bases[0][curr_shells[0]];
-            const auto shell1 = bases[1][curr_shells[1]];
-            const auto& buf   = factory.compute(std::vector{shell0, shell1});
+            const auto& buf = factory.compute(curr_shells);
 
             /// Copy libint values into tile data;
             for(auto i = lo[0]; i < up[0]; ++i) {

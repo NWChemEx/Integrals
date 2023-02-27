@@ -26,7 +26,7 @@ namespace integrals {
 void load_modules(pluginplay::ModuleManager& mm) {
     ao_integrals::load_ao_integrals(mm);
     libint::load_libint_modules(mm);
-    transforms::load_transformed_libint_integrals(mm);
+    transforms::load_transformed_integrals(mm);
 
     ao_integrals::ao_integrals_set_defaults(mm);
 }

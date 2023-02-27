@@ -1,4 +1,4 @@
-#include <chemist/integral_factory/pimpl.hpp>
+#include <chemist/integral_factory/integral_factory_pimpl.hpp>
 #include <libint2.hpp>
 
 namespace integrals::libint {

@@ -17,6 +17,7 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
+#include <simde/tensor_representation/tensor_representation.hpp>
 #include <tensorwrapper/tensor/allclose.hpp>
 
 using namespace integrals;

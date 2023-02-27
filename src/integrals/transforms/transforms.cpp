@@ -16,21 +16,22 @@ void load_transformed_integrals(pluginplay::ModuleManager& mm) {
     // register_transformed_integral<pt::equadrupole<T>>(mm, "EQuadrupole");
     // register_transformed_integral<pt::eoctopole<T>>(mm, "EOctopole");
     // register_transformed_integral<pt::eri2c<T>>(mm, "ERI2");
-    register_transformed_integral<3, el_el_coulomb>(mm, "ERI3");
-    register_transformed_integral<4, el_el_coulomb>(mm, "ERI4");
+    register_transformed_integral<3, simde::type::el_el_coulomb>(mm, "ERI3");
+    register_transformed_integral<4, simde::type::el_el_coulomb>(mm, "ERI4");
     // register_transformed_integral<pt::kinetic<T>>(mm, "Kinetic");
     // register_transformed_integral<pt::nuclear<T>>(mm, "Nuclear");
     // register_transformed_integral<pt::overlap<T>>(mm, "Overlap");
-    register_transformed_integral<2, el_kinetic>(mm, "Kinetic");
-    register_transformed_integral<2, el_nuc_coulomb>(mm, "Nuclear");
+    register_transformed_integral<2, simde::type::el_kinetic>(mm, "Kinetic");
+    register_transformed_integral<2, simde::type::el_nuc_coulomb>(mm,
+                                                                  "Nuclear");
 
-    register_transformed_integral<4, el_el_f12_commutator>(
+    register_transformed_integral<4, simde::type::el_el_f12_commutator>(
       mm, "STG 4 Center dfdr Squared");
-    register_transformed_integral<4, el_el_stg>(mm, "STG4");
-    register_transformed_integral<4, el_el_yukawa>(mm, "Yukawa4");
+    register_transformed_integral<4, simde::type::el_el_stg>(mm, "STG4");
+    register_transformed_integral<4, simde::type::el_el_yukawa>(mm, "Yukawa4");
 
-    mm.add_module<StandardTransform<2, el_scf_k>>("Transformed K");
-    mm.add_module<StandardTransform<2, fock>>("Transformed Fock");
+    mm.add_module<StandardTransform<2, simde::type::el_scf_k>>("Transformed K");
+    mm.add_module<StandardTransform<2, simde::type::fock>>("Transformed Fock");
 }
 
 } // namespace integrals::transforms

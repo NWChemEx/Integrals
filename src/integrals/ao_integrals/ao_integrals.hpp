@@ -16,7 +16,7 @@
 
 #pragma once
 #include <pluginplay/module_base.hpp>
-#include <simde/types.hpp>
+#include <simde/simde.hpp>
 
 namespace integrals::ao_integrals {
 

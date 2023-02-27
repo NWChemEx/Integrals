@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "integrals/libint/detail_/aos2shells.hpp"
+#include "integrals/ao_integrals/detail_/aos2shells.hpp"
 #include "libint_basis_set_water.hpp"
 #include <catch2/catch.hpp>
 

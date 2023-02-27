@@ -30,7 +30,7 @@ namespace integrals::ao_integrals::detail_ {
  *  @param[in] up The upper value of the AO range
  *  @returns An std::vector of the shell indices
  */
-inline auto aos2shells(const simde::ao_basis_set& bs, std::size_t lo,
+inline auto aos2shells(const simde::type::ao_basis_set& bs, std::size_t lo,
                        std::size_t up) {
     std::vector<std::size_t> return_vec;
     auto shells = bs.shells();

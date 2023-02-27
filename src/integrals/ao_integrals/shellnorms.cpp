@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-#include "detail_/bases_helper.hpp"
-#include "detail_/make_engine.hpp"
+#include "detail_/unpack_bases.hpp"
 #include "shellnorms.hpp"
 #include <simde/cauchy_schwarz_approximation.hpp>
+#include <simde/integral_factory.hpp>
 
 namespace integrals::ao_integrals {
+
+using factory_pt = simde::IntegralFactory;
 
 template<std::size_t NBodies, typename OperatorType>
 TEMPLATED_MODULE_CTOR(ShellNorms, NBodies, OperatorType) {
@@ -32,6 +34,9 @@ TEMPLATED_MODULE_CTOR(ShellNorms, NBodies, OperatorType) {
     add_input<double>("Threshold")
       .set_description("Convergence threshold of integrals")
       .set_default(1.0E-16);
+
+    add_submodule<factory_pt>("AO Integral Factory")
+      .set_description("Used to generate the AO factory");
 }
 
 template<std::size_t NBodies, typename OperatorType>
@@ -41,10 +46,11 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
     using return_vec = typename std::vector<elem_vec>;
 
     // Get inputs
-    auto bases  = detail_::unpack_bases<2>(inputs);
-    auto op_str = OperatorType().as_string();
-    auto op     = inputs.at(op_str).template value<const OperatorType&>();
-    auto thresh = inputs.at("Threshold").value<double>();
+    auto bases     = detail_::unpack_bases<2>(inputs);
+    auto thresh    = inputs.at("Threshold").value<double>();
+    auto op_str    = OperatorType().as_string();
+    const auto& op = inputs.at(op_str).template value<const OperatorType&>();
+    const auto& fac_mod = submod.at("AO Integral Factory");
 
     // Check if the basis sets are the same
     bool same_bs = (bases[0] == bases[1]);
@@ -54,13 +60,11 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
 
     // Lambda to fill in the values
     std::function<void(int, int)> into_mat;
-    auto engine = detail_::make_engine(bases, op, thresh);
+    auto factory = fac_mod.run_as<factory_pt>(bases, op);
     if constexpr(NBodies == 1) {
-        engine.set(libint2::BraKet::xs_xs);
         into_mat = [&, engine](int i, int j) mutable {
-            const auto& buf = engine.results();
-            engine.compute(bases[0][i], bases[1][j]);
-            auto vals = buf[0];
+            const auto& buf = factory.compute({i, j});
+            auto vals       = buf[0];
 
             // Determine the number of compute values
             std::size_t nvals = (bases[0][i].size() * bases[1][j].size());
@@ -78,11 +82,9 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
             } // cut down on work
         };
     } else if constexpr(NBodies == 2) {
-        engine.set(libint2::BraKet::xx_xx);
         into_mat = [&, engine](int i, int j) mutable {
-            const auto& buf = engine.results();
-            engine.compute(bases[0][i], bases[1][j], bases[0][i], bases[1][j]);
-            auto vals = buf[0];
+            const auto& buf = = factory.compute({i, i, j, j});
+            auto vals         = buf[0];
 
             // Determine the number of compute values
             std::size_t nvals = (bases[0][i].size() * bases[0][i].size());

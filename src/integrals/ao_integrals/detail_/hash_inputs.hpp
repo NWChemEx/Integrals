@@ -15,7 +15,7 @@
  */
 
 #pragma once
-#include "type_traits.hpp"
+#include "../../libint/libint_op.hpp"
 #include <functional>
 #include <libint2.hpp>
 #include <simde/types.hpp>

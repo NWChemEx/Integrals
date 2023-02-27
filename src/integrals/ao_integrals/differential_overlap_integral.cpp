@@ -15,7 +15,7 @@
  */
 
 #include "detail_/aos2shells.hpp"
-#include "detail_/get_coeff.chpp"
+#include "detail_/get_coeff.hpp"
 #include "detail_/make_shape.hpp"
 #include "detail_/select_allocator.hpp"
 #include "detail_/shells2ord.hpp"

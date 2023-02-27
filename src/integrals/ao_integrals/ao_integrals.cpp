@@ -116,9 +116,9 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
     mm.add_module<AOIntegral<N, op, false>>(key_base); \
     mm.add_module<AOIntegral<N, op, true>>("Direct " key_base)
 
-#define ADD_CS_INT_WITH_DIRECT(N, op, key_base)        \
-    mm.add_module<AOIntegral<N, op, false>>(key_base); \
-    mm.add_module<AOIntegral<N, op, true>>("Direct " key_base)
+#define ADD_CS_INT_WITH_DIRECT(N, op, key_base)          \
+    mm.add_module<CSAOIntegral<N, op, false>>(key_base); \
+    mm.add_module<CSAOIntegral<N, op, true>>("Direct " key_base)
 
 void load_ao_integrals(pluginplay::ModuleManager& mm) {
     mm.add_module<AOIntegralDOI<false>>("DOI");
@@ -181,9 +181,9 @@ void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
 #undef ADD_INT_WITH_DIRECT
 #undef ADD_CS_INT_WITH_DIRECT
 
-#define TEMPLATE_INT_AND_DIRECT(N, op)   \
-    template class Libint<N, op, false>; \
-    template class Libint<N, op, true>
+#define TEMPLATE_INT_AND_DIRECT(N, op)       \
+    template class AOIntegral<N, op, false>; \
+    template class AOIntegral<N, op, true>
 
 TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_coulomb);
 TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_coulomb);

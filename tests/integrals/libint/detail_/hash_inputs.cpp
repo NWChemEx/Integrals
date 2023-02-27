@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "integrals/libint/detail_/bases_helper.hpp"
-#include "integrals/libint/detail_/hash_inputs.hpp"
+#include "integrals/ao_integrals/detail_/hash_inputs.hpp"
+#include "integrals/libint/detail_/make_libint_basis_set.hpp"
 #include "libint_basis_set_water.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
