@@ -86,4 +86,4 @@ inline auto make_libint_basis_set(const simde::type::ao_basis_set& bs) {
     return basis_t(centers, element_bases);
 }
 
-}
+} // namespace integrals::libint::detail_

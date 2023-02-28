@@ -15,18 +15,25 @@
  */
 
 #include "integrals/ao_integrals/detail_/aos2shells.hpp"
-#include "libint_basis_set_water.hpp"
 #include <catch2/catch.hpp>
+#include <mokup/mokup.hpp>
+
+using namespace mokup;
+
+using integrals::ao_integrals::detail_::aos2shells;
 
 TEST_CASE("aos2shells") {
-    auto bset = testing::water_basis_set();
+    const auto name  = molecule::h2o;
+    const auto bs    = basis_set::sto3g;
+    auto aos         = get_bases(name, bs);
+    const auto& bset = aos.basis_set();
 
-    /// Run with different inputs
-    auto all     = integrals::detail_::aos2shells(bset, 0, 7);
-    auto only_o  = integrals::detail_::aos2shells(bset, 0, 5);
-    auto only_h1 = integrals::detail_::aos2shells(bset, 5, 6);
-    auto only_h2 = integrals::detail_::aos2shells(bset, 6, 7);
-    auto both_hs = integrals::detail_::aos2shells(bset, 5, 7);
+    // Run with different inputs
+    auto all     = aos2shells(bset, 0, 7);
+    auto only_o  = aos2shells(bset, 0, 5);
+    auto only_h1 = aos2shells(bset, 5, 6);
+    auto only_h2 = aos2shells(bset, 6, 7);
+    auto both_hs = aos2shells(bset, 5, 7);
 
     /// Check outputs
     REQUIRE(all == std::vector<std::size_t>{0, 1, 2, 3, 4});

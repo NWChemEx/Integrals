@@ -21,6 +21,8 @@
 
 using namespace mokup;
 
+using integrals::libint::detail_::make_libint_basis_set;
+
 TEST_CASE("make_libint_basis_set") {
     const auto name = molecule::h2o;
     const auto bs   = basis_set::sto3g;
@@ -30,6 +32,6 @@ TEST_CASE("make_libint_basis_set") {
     auto libint_corr = testing::water_basis_set();
 
     /// Check output
-    auto libint_bs = integrals::detail_::make_libint_basis_set(aos.basis_set());
+    auto libint_bs = make_libint_basis_set(aos.basis_set());
     REQUIRE(libint_bs == libint_corr);
 }

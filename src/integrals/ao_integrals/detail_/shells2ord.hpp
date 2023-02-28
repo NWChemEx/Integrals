@@ -44,9 +44,9 @@ inline auto shells2ord(const std::vector<simde::type::ao_basis_set>& bases,
         for(auto j = lo_shells[i]; j <= up_shells[i]; ++j) {
             if(j == shells[i]) {
                 lo_ao.push_back(set_extent);
-                up_ao.push_back(set_extent + bases[i][j].size() - 1);
+                up_ao.push_back(set_extent + bases[i].shell(j).size() - 1);
             }
-            set_extent += bases[i][j].size();
+            set_extent += bases[i].shell(j).size();
         }
         extents.push_back(set_extent);
     }

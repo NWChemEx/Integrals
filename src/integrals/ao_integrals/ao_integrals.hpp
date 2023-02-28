@@ -20,48 +20,48 @@
 
 namespace integrals::ao_integrals {
 
-template<std::size_t N, typename OperatorType, bool direct>
-DECLARE_MODULE(AOIntegral);
-
-template<std::size_t L, typename OperatorType>
-DECLARE_MODULE(AOIntegralMultipole);
-
-template<bool direct>
-DECLARE_MODULE(AOIntegralDOI);
-
 void load_ao_integrals(pluginplay::ModuleManager& mm);
 void ao_integrals_set_defaults(pluginplay::ModuleManager& mm);
 
-// -----------------------------------------------------------------------------
-// -- Forward External Template Declarations
-// -----------------------------------------------------------------------------
+// template<std::size_t N, typename OperatorType, bool direct>
+// DECLARE_MODULE(AOIntegral);
 
-#define EXTERN_INT_AND_DIRECT(N, op)                \
-    extern template class AOIntegral<N, op, false>; \
-    extern template class AOIntegral<N, op, true>
+// template<std::size_t L, typename OperatorType>
+// DECLARE_MODULE(AOIntegralMultipole);
 
-EXTERN_INT_AND_DIRECT(2, simde::type::el_el_coulomb);
-EXTERN_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
-EXTERN_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
-EXTERN_INT_AND_DIRECT(2, simde::type::el_kinetic);
-EXTERN_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
-EXTERN_INT_AND_DIRECT(2, simde::type::el_identity);
-EXTERN_INT_AND_DIRECT(2, simde::type::el_el_stg);
-EXTERN_INT_AND_DIRECT(3, simde::type::el_el_stg);
-EXTERN_INT_AND_DIRECT(4, simde::type::el_el_stg);
-EXTERN_INT_AND_DIRECT(2, simde::type::el_el_yukawa);
-EXTERN_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
-EXTERN_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
-EXTERN_INT_AND_DIRECT(2, simde::type::el_el_f12_commutator);
-EXTERN_INT_AND_DIRECT(3, simde::type::el_el_f12_commutator);
-EXTERN_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
-#undef EXTERN_INT_AND_DIRECT
+// template<bool direct>
+// DECLARE_MODULE(AOIntegralDOI);
 
-extern template class AOIntegralDOI<false>;
-extern template class AOIntegralDOI<true>;
+// // -----------------------------------------------------------------------------
+// // -- Forward External Template Declarations
+// // -----------------------------------------------------------------------------
 
-extern template class AOIntegralMultipole<0, simde::type::el_dipole>;
-extern template class AOIntegralMultipole<1, simde::type::el_quadrupole>;
-extern template class AOIntegralMultipole<2, simde::type::el_octupole>;
+// #define EXTERN_INT_AND_DIRECT(N, op)                \
+//     extern template class AOIntegral<N, op, false>; \
+//     extern template class AOIntegral<N, op, true>
+
+// EXTERN_INT_AND_DIRECT(2, simde::type::el_el_coulomb);
+// EXTERN_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
+// EXTERN_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
+// EXTERN_INT_AND_DIRECT(2, simde::type::el_kinetic);
+// EXTERN_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
+// EXTERN_INT_AND_DIRECT(2, simde::type::el_identity);
+// EXTERN_INT_AND_DIRECT(2, simde::type::el_el_stg);
+// EXTERN_INT_AND_DIRECT(3, simde::type::el_el_stg);
+// EXTERN_INT_AND_DIRECT(4, simde::type::el_el_stg);
+// EXTERN_INT_AND_DIRECT(2, simde::type::el_el_yukawa);
+// EXTERN_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
+// EXTERN_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
+// EXTERN_INT_AND_DIRECT(2, simde::type::el_el_f12_commutator);
+// EXTERN_INT_AND_DIRECT(3, simde::type::el_el_f12_commutator);
+// EXTERN_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
+// #undef EXTERN_INT_AND_DIRECT
+
+// extern template class AOIntegralDOI<false>;
+// extern template class AOIntegralDOI<true>;
+
+// extern template class AOIntegralMultipole<0, simde::type::el_dipole>;
+// extern template class AOIntegralMultipole<1, simde::type::el_quadrupole>;
+// extern template class AOIntegralMultipole<2, simde::type::el_octupole>;
 
 } // namespace integrals::ao_integrals

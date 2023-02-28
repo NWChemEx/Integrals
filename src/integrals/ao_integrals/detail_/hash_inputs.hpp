@@ -15,9 +15,7 @@
  */
 
 #pragma once
-#include "../../libint/libint_op.hpp"
 #include <functional>
-#include <libint2.hpp>
 #include <simde/types.hpp>
 #include <string>
 #include <vector>
@@ -75,11 +73,8 @@ inline void combine_hash(std::size_t& seed, const T& v, Rest... rest) {
  */
 template<typename OpType>
 inline std::size_t hash_operator(const OpType& op) {
-    /// LibInt operator enum
-    constexpr auto libint_op = integrals::op_v<OpType>;
-    auto hash                = std::hash<int>{}(int(libint_op));
     /// NWX operator string
-    combine_hash(hash, op.as_string());
+    auto hash = std::hash<std::string>{}(op.as_string());
     /// Additional information from op
     if constexpr(std::is_same_v<OpType, simde::type::el_nuc_coulomb>) {
         const auto& nuclei = op.template at<1>();
@@ -108,7 +103,7 @@ inline std::size_t hash_operator(const OpType& op) {
  *  @returns A hash as a string
  */
 template<typename OpType>
-std::string hash_inputs(const std::vector<libint2::BasisSet>& bases,
+std::string hash_inputs(const std::vector<simde::type::ao_basis_set>& bases,
                         const OpType& op, double thresh,
                         double cs_thresh = -1.0) {
     std::size_t hash = hash_operator(op);
@@ -120,28 +115,22 @@ std::string hash_inputs(const std::vector<libint2::BasisSet>& bases,
 
 /** @brief std::hash specializaton for a vector of LibInt basis sets */
 template<>
-struct std::hash<std::vector<libint2::BasisSet>> {
+struct std::hash<std::vector<simde::type::ao_basis_set>> {
     /** @brief Hashes the input vector
      *
      *  @param[in] b A vector of libint basis sets
      *  @returns A hash of the vector
      */
     std::size_t operator()(
-      const std::vector<libint2::BasisSet>& b) const noexcept {
-        using integrals::detail_::combine_hash;
+      const std::vector<simde::type::ao_basis_set>& b) const noexcept {
+        using integrals::ao_integrals::detail_::combine_hash;
         /// Start with the number of basis sets
         auto hash = std::hash<std::size_t>{}(b.size());
         /// Set through the sets and hash the info
         for(const auto& set : b) {
-            for(const auto& shell : set) {
-                for(const auto& coord : shell.O) combine_hash(hash, coord);
-                for(const auto& alpha : shell.alpha) combine_hash(hash, alpha);
-                for(const auto& cont : shell.contr) {
-                    combine_hash(hash, cont.l);
-                    combine_hash(hash, cont.pure);
-                    for(const auto& coeff : cont.coeff)
-                        combine_hash(hash, coeff);
-                }
+            for(const auto& p : set.unique_primitives()) {
+                combine_hash(hash, p.coefficient(), p.exponent(), p.x(), p.y(),
+                             p.z());
             }
         }
         return hash;

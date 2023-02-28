@@ -31,7 +31,7 @@ namespace integrals::ao_integrals::detail_ {
  *  @returns An allocator
  */
 template<bool direct, typename T, typename OpType>
-auto select_allocator(const std::vector<libint2::BasisSet>& bases,
+auto select_allocator(const std::vector<simde::type::ao_basis_set>& bases,
                       const OpType& op, double thresh,
                       double cs_thresh = -1.0) {
     if constexpr(direct) {

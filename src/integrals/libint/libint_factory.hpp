@@ -44,7 +44,7 @@ private:
 
     std::vector<libint2::BasisSet> m_bases_;
     libint_op_type m_op_;
-    theshold_type m_thresh_;
+    threshold_type m_thresh_;
     derivative_order_type m_deriv_;
     libint2::Engine m_engine_;
 };
@@ -53,7 +53,7 @@ private:
 
 template<std::size_t NCenters>
 LIBINT_FACTORY::LibintFactory(libint_basis_vector bases, libint_op_type op,
-                              theshold_type thresh,
+                              threshold_type thresh,
                               derivative_order_type deriv) :
   m_bases_(std::move(bases)),
   m_op_(op),
@@ -66,7 +66,7 @@ typename LIBINT_FACTORY::const_buffer_reference LIBINT_FACTORY::compute_(
   const_indices_reference idx) const {
     auto idx_seq = std::make_index_sequence<NCenters>();
     run_engine_(m_engine_, m_bases_, idx, idx_seq);
-    return engine.results();
+    return m_engine_.results();
 }
 
 template<std::size_t NCenters>

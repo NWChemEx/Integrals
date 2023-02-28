@@ -33,17 +33,17 @@ auto unpack_bases(const ModuleInputs& inputs) {
     using ao_space_t = simde::type::ao_space;
     std::vector<ao_space_t> aos(N);
     if constexpr(N == 2) {
-        aos[0] = inputs.at("bra").template value<ao_space_t>();
-        aos[1] = inputs.at("ket").template value<ao_space_t>();
+        aos[0] = inputs.at("bra").template value<ao_space_t>().basis_set();
+        aos[1] = inputs.at("ket").template value<ao_space_t>().basis_set();
     } else if constexpr(N == 3) {
-        aos[0] = inputs.at("bra").template value<ao_space_t>();
-        aos[1] = inputs.at("ket 1").template value<ao_space_t>();
-        aos[2] = inputs.at("ket 2").template value<ao_space_t>();
+        aos[0] = inputs.at("bra").template value<ao_space_t>().basis_set();
+        aos[1] = inputs.at("ket 1").template value<ao_space_t>().basis_set();
+        aos[2] = inputs.at("ket 2").template value<ao_space_t>().basis_set();
     } else if constexpr(N == 4) {
-        aos[0] = inputs.at("bra 1").template value<ao_space_t>();
-        aos[1] = inputs.at("bra 2").template value<ao_space_t>();
-        aos[2] = inputs.at("ket 1").template value<ao_space_t>();
-        aos[3] = inputs.at("ket 2").template value<ao_space_t>();
+        aos[0] = inputs.at("bra 1").template value<ao_space_t>().basis_set();
+        aos[1] = inputs.at("bra 2").template value<ao_space_t>().basis_set();
+        aos[2] = inputs.at("ket 1").template value<ao_space_t>().basis_set();
+        aos[3] = inputs.at("ket 2").template value<ao_space_t>().basis_set();
     }
     return aos;
 }

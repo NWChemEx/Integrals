@@ -15,15 +15,13 @@
  */
 
 #include "integrals/ao_integrals/detail_/hash_inputs.hpp"
-#include "integrals/libint/detail_/make_libint_basis_set.hpp"
-#include "libint_basis_set_water.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
 
 using namespace mokup;
-using namespace integrals::detail_;
+using namespace integrals::ao_integrals::detail_;
 
-using bases_vector_t = std::vector<libint2::BasisSet>;
+using bases_vector_t = std::vector<simde::type::ao_basis_set>;
 
 TEST_CASE("Combining hashes") {
     /// Values for input and comparison
@@ -60,10 +58,7 @@ TEST_CASE("Hashing Operators") {
         simde::type::el_el_coulomb op;
         simde::type::el_el_delta other_op;
         auto op_hash = hash_operator(op);
-
-        auto corr             = std::hash<int>{}(10);
-        std::string op_string = "(r\u0302₁₂)⁻¹";
-        combine_hash(corr, op_string);
+        auto corr    = std::hash<std::string>{}("(r\u0302₁₂)⁻¹");
 
         /// Check correctness of hash
         REQUIRE(op_hash == corr);
@@ -85,9 +80,8 @@ TEST_CASE("Hashing Operators") {
         op_t other_op2(e_t{}, nuc_t{a1, a2});
         auto op_hash = hash_operator(op);
 
-        auto corr             = std::hash<int>{}(2);
-        std::string op_string = "(r\u0302₁₂)⁻¹";
-        combine_hash(corr, op_string, std::size_t{1}, 0.0, 0.0, 0.0);
+        auto corr = std::hash<std::string>{}("(r\u0302₁₂)⁻¹");
+        combine_hash(corr, std::size_t{1}, 0.0, 0.0, 0.0);
 
         /// Check correctness of hash
         REQUIRE(op_hash == corr);
@@ -105,9 +99,8 @@ TEST_CASE("Hashing Operators") {
         op_t other_op2(stg_t{1.0, 2.0});
         auto op_hash = hash_operator(op);
 
-        auto corr             = std::hash<int>{}(17);
-        std::string op_string = "f\u0302₁₂";
-        combine_hash(corr, op_string, 1.0, 1.0);
+        auto corr = std::hash<std::string>{}("f\u0302₁₂");
+        combine_hash(corr, 1.0, 1.0);
 
         /// Check correctness of hash
         REQUIRE(op_hash == corr);
@@ -122,8 +115,8 @@ TEST_CASE("Hashing Bases") {
     auto sto3g_nwx  = get_bases(name, basis_set::sto3g);
     auto ccpvdz_nwx = get_bases(name, basis_set::ccpvdz);
 
-    auto sto3g  = make_libint_basis_set(sto3g_nwx.basis_set());
-    auto ccpvdz = make_libint_basis_set(ccpvdz_nwx.basis_set());
+    auto sto3g  = sto3g_nwx.basis_set();
+    auto ccpvdz = ccpvdz_nwx.basis_set();
 
     bases_vector_t set1{sto3g};
     bases_vector_t set2{ccpvdz};
@@ -150,8 +143,10 @@ TEST_CASE("Hashing Bases") {
 TEST_CASE("hash_inputs") {
     /// Inputs
     simde::type::el_el_coulomb op;
-    auto bset = testing::water_basis_set();
-    bases_vector_t bases{bset};
+    const auto name = molecule::h2o;
+    auto sto3g_nwx  = get_bases(name, basis_set::sto3g);
+    auto sto3g      = sto3g_nwx.basis_set();
+    bases_vector_t bases{sto3g};
     double t = 1.23456;
 
     /// Hash inputs
