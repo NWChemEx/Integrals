@@ -150,11 +150,11 @@ TEST_CASE("hash_inputs") {
     double t = 1.23456;
 
     /// Hash inputs
-    auto hash = hash_inputs(bases, op, t, t);
+    auto hash = hash_inputs(bases, op, t);
 
     /// Correct value
     auto corr = hash_operator(op);
-    combine_hash(corr, bases, t, t);
+    combine_hash(corr, bases, t);
 
     /// Check correctness of hash
     REQUIRE(hash == std::to_string(corr));

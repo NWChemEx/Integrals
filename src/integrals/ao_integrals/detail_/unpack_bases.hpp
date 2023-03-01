@@ -31,7 +31,8 @@ namespace integrals::ao_integrals::detail_ {
 template<std::size_t N, typename ModuleInputs>
 auto unpack_bases(const ModuleInputs& inputs) {
     using ao_space_t = simde::type::ao_space;
-    std::vector<ao_space_t> aos(N);
+    using ao_basis_t = simde::type::ao_basis_set;
+    std::vector<ao_basis_t> aos(N);
     if constexpr(N == 2) {
         aos[0] = inputs.at("bra").template value<ao_space_t>().basis_set();
         aos[1] = inputs.at("ket").template value<ao_space_t>().basis_set();

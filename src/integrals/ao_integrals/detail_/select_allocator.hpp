@@ -32,10 +32,9 @@ namespace integrals::ao_integrals::detail_ {
  */
 template<bool direct, typename T, typename OpType>
 auto select_allocator(const std::vector<simde::type::ao_basis_set>& bases,
-                      const OpType& op, double thresh,
-                      double cs_thresh = -1.0) {
+                      const OpType& op, double cs_thresh = -1.0) {
     if constexpr(direct) {
-        auto fxn_id = hash_inputs(bases, op, thresh, cs_thresh);
+        auto fxn_id = hash_inputs(bases, op, cs_thresh);
         return tensorwrapper::tensor::allocator::direct_ta_allocator<T>(fxn_id);
     } else {
         return tensorwrapper::tensor::default_allocator<T>();

@@ -31,8 +31,8 @@ void ao_integrals_set_defaults(pluginplay::ModuleManager& mm);
 // -- Declare Integral Module Types
 // -----------------------------------------------------------------------------
 
-// template<std::size_t N, typename OperatorType, bool direct>
-// DECLARE_MODULE(AOIntegral);
+template<std::size_t N, typename OperatorType, bool direct>
+DECLARE_MODULE(AOIntegral);
 
 // template<std::size_t L, typename OperatorType>
 // DECLARE_MODULE(AOIntegralMultipole);
@@ -44,26 +44,27 @@ void ao_integrals_set_defaults(pluginplay::ModuleManager& mm);
 // -- Forward External Template Declarations
 // -----------------------------------------------------------------------------
 
-// #define EXTERN_INT_AND_DIRECT(N, op)                \
-//     extern template class AOIntegral<N, op, false>; \
-//     extern template class AOIntegral<N, op, true>
+#define EXTERN_INT_AND_DIRECT(N, op)                \
+    extern template class AOIntegral<N, op, false>; \
+    extern template class AOIntegral<N, op, true>
 
-// EXTERN_INT_AND_DIRECT(2, simde::type::el_el_coulomb);
-// EXTERN_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
-// EXTERN_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
-// EXTERN_INT_AND_DIRECT(2, simde::type::el_kinetic);
-// EXTERN_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
-// EXTERN_INT_AND_DIRECT(2, simde::type::el_identity);
-// EXTERN_INT_AND_DIRECT(2, simde::type::el_el_stg);
-// EXTERN_INT_AND_DIRECT(3, simde::type::el_el_stg);
-// EXTERN_INT_AND_DIRECT(4, simde::type::el_el_stg);
-// EXTERN_INT_AND_DIRECT(2, simde::type::el_el_yukawa);
-// EXTERN_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
-// EXTERN_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
-// EXTERN_INT_AND_DIRECT(2, simde::type::el_el_f12_commutator);
-// EXTERN_INT_AND_DIRECT(3, simde::type::el_el_f12_commutator);
-// EXTERN_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
-// #undef EXTERN_INT_AND_DIRECT
+EXTERN_INT_AND_DIRECT(2, simde::type::el_el_coulomb);
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_kinetic);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_identity);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_el_stg);
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_stg);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_stg);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_el_yukawa);
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_el_f12_commutator);
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_f12_commutator);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
+
+#undef EXTERN_INT_AND_DIRECT
 
 // extern template class AOIntegralDOI<false>;
 // extern template class AOIntegralDOI<true>;

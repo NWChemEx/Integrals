@@ -104,10 +104,9 @@ inline std::size_t hash_operator(const OpType& op) {
  */
 template<typename OpType>
 std::string hash_inputs(const std::vector<simde::type::ao_basis_set>& bases,
-                        const OpType& op, double thresh,
-                        double cs_thresh = -1.0) {
+                        const OpType& op, double cs_thresh = -1.0) {
     std::size_t hash = hash_operator(op);
-    combine_hash(hash, bases, thresh, cs_thresh);
+    combine_hash(hash, bases, cs_thresh);
     return std::to_string(hash);
 }
 

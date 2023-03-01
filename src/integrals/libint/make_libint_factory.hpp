@@ -24,7 +24,7 @@ namespace integrals::libint {
 // -- Declare MakeLibintFactory Module Type
 // -----------------------------------------------------------------------------
 
-template<typename std::size_t N, typename OperatorType>
+template<std::size_t N, typename OperatorType>
 DECLARE_MODULE(MakeLibintFactory);
 
 // -----------------------------------------------------------------------------

@@ -23,12 +23,25 @@ using namespace simde::type;
 
 namespace integrals {
 
+void set_defaults(pluginplay::ModuleManager& mm) {
+    std::vector<std::string> module_names{
+      "ERI2", "ERI3", "ERI4", "Kinetic", "Nuclear", "Overlap",
+      "STG2", "STG3", "STG4", "Yukawa2", "Yukawa3", "Yukawa4"};
+
+    for(const auto& name : module_names) {
+        auto submod_name = "AO Integral Factory";
+        mm.change_submod(name, submod_name, name + " Factory");
+        mm.change_submod("Direct " + name, submod_name, name + " Factory");
+    }
+}
+
 void load_modules(pluginplay::ModuleManager& mm) {
     ao_integrals::load_ao_integrals(mm);
     libint::load_libint_modules(mm);
     transforms::load_transformed_integrals(mm);
 
     ao_integrals::ao_integrals_set_defaults(mm);
+    set_defaults(mm);
 }
 
 } // namespace integrals

@@ -22,7 +22,7 @@
 
 namespace integrals::libint {
 
-template<typename std::size_t N, typename OperatorType>
+template<std::size_t N, typename OperatorType>
 TEMPLATED_MODULE_CTOR(MakeLibintFactory, N, OperatorType) {
     using my_pt = simde::IntegralFactory<OperatorType>;
 
@@ -34,7 +34,7 @@ TEMPLATED_MODULE_CTOR(MakeLibintFactory, N, OperatorType) {
         "The target precision with which the integrals will be computed");
 }
 
-template<typename std::size_t N, typename OperatorType>
+template<std::size_t N, typename OperatorType>
 TEMPLATED_MODULE_RUN(MakeLibintFactory, N, OperatorType) {
     using my_pt               = simde::IntegralFactory<OperatorType>;
     using integral_factory    = simde::type::integral_factory;
