@@ -20,8 +20,16 @@
 
 namespace integrals::ao_integrals {
 
+// -----------------------------------------------------------------------------
+// -- Declare Module Load Functions
+// -----------------------------------------------------------------------------
+
 void load_ao_integrals(pluginplay::ModuleManager& mm);
 void ao_integrals_set_defaults(pluginplay::ModuleManager& mm);
+
+// -----------------------------------------------------------------------------
+// -- Declare Integral Module Types
+// -----------------------------------------------------------------------------
 
 // template<std::size_t N, typename OperatorType, bool direct>
 // DECLARE_MODULE(AOIntegral);
@@ -32,9 +40,9 @@ void ao_integrals_set_defaults(pluginplay::ModuleManager& mm);
 // template<bool direct>
 // DECLARE_MODULE(AOIntegralDOI);
 
-// // -----------------------------------------------------------------------------
-// // -- Forward External Template Declarations
-// // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// -- Forward External Template Declarations
+// -----------------------------------------------------------------------------
 
 // #define EXTERN_INT_AND_DIRECT(N, op)                \
 //     extern template class AOIntegral<N, op, false>; \

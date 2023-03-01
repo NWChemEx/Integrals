@@ -65,8 +65,8 @@ namespace integrals::ao_integrals {
 //         /// Convert index values from AOs to shells
 //         size_vector_t lo_shells, up_shells;
 //         for(auto i = 0; i < N; ++i) {
-//             auto shells_in_tile = detail_::aos2shells(bases[i], lo[i], up[i]);
-//             lo_shells.push_back(shells_in_tile.front());
+//             auto shells_in_tile = detail_::aos2shells(bases[i], lo[i],
+//             up[i]); lo_shells.push_back(shells_in_tile.front());
 //             up_shells.push_back(shells_in_tile.back());
 //         }
 
@@ -112,6 +112,10 @@ namespace integrals::ao_integrals {
 //     return my_pt::wrap_results(rv, I);
 // }
 
+// -----------------------------------------------------------------------------
+// -- Template Declarations
+// -----------------------------------------------------------------------------
+
 // #define TEMPLATE_INT_AND_DIRECT(N, op)       \
 //     template class AOIntegral<N, op, false>; \
 //     template class AOIntegral<N, op, true>
@@ -133,6 +137,10 @@ namespace integrals::ao_integrals {
 // TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
 
 // #undef TEMPLATE_INT_AND_DIRECT
+
+// -----------------------------------------------------------------------------
+// -- Define Module Load Functions
+// -----------------------------------------------------------------------------
 
 #define ADD_INT_WITH_DIRECT(N, op, key_base)           \
     mm.add_module<AOIntegral<N, op, false>>(key_base); \
@@ -189,15 +197,16 @@ void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
     // mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
     // mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
     // mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
-    // mm.change_submod("Direct Kinetic CS", "Shell Norms", "Shell Norms Overlap");
-    // mm.change_submod("Direct Nuclear CS", "Shell Norms", "Shell Norms Overlap");
-    // mm.change_submod("Direct Overlap CS", "Shell Norms", "Shell Norms Overlap");
-    // mm.change_submod("Direct ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
-    // mm.change_submod("Direct ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
-    // mm.change_submod("Direct STG3 CS", "Shell Norms", "Shell Norms STG");
-    // mm.change_submod("Direct STG4 CS", "Shell Norms", "Shell Norms STG");
-    // mm.change_submod("Direct Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
-    // mm.change_submod("Direct Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
+    // mm.change_submod("Direct Kinetic CS", "Shell Norms", "Shell Norms
+    // Overlap"); mm.change_submod("Direct Nuclear CS", "Shell Norms", "Shell
+    // Norms Overlap"); mm.change_submod("Direct Overlap CS", "Shell Norms",
+    // "Shell Norms Overlap"); mm.change_submod("Direct ERI3 CS", "Shell Norms",
+    // "Shell Norms Coulomb"); mm.change_submod("Direct ERI4 CS", "Shell Norms",
+    // "Shell Norms Coulomb"); mm.change_submod("Direct STG3 CS", "Shell Norms",
+    // "Shell Norms STG"); mm.change_submod("Direct STG4 CS", "Shell Norms",
+    // "Shell Norms STG"); mm.change_submod("Direct Yukawa3 CS", "Shell Norms",
+    // "Shell Norms Yukawa"); mm.change_submod("Direct Yukawa4 CS", "Shell
+    // Norms", "Shell Norms Yukawa");
 }
 
 #undef ADD_INT_WITH_DIRECT

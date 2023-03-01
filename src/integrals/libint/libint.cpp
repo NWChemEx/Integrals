@@ -14,9 +14,35 @@
  * limitations under the License.
  */
 #include "libint.hpp"
+#include "make_libint_factory.hpp"
 
 namespace integrals::libint {
 
-void load_libint_modules(pluginplay::ModuleManager& mm) {}
+#define ADD_FACTORY(N, op, key) \
+    mm.add_module<MakeLibintFactory<N, op>>(key " Factory")
+
+void load_libint_modules(pluginplay::ModuleManager& mm) {
+    ADD_FACTORY(2, simde::type::el_el_coulomb, "ERI2");
+    ADD_FACTORY(3, simde::type::el_el_coulomb, "ERI3");
+    ADD_FACTORY(4, simde::type::el_el_coulomb, "ERI4");
+    ADD_FACTORY(2, simde::type::el_kinetic, "Kinetic");
+    ADD_FACTORY(2, simde::type::el_nuc_coulomb, "Nuclear");
+    ADD_FACTORY(2, simde::type::el_identity, "Overlap");
+    ADD_FACTORY(2, simde::type::el_el_stg, "STG2");
+    ADD_FACTORY(3, simde::type::el_el_stg, "STG3");
+    ADD_FACTORY(4, simde::type::el_el_stg, "STG4");
+    ADD_FACTORY(2, simde::type::el_el_yukawa, "Yukawa2");
+    ADD_FACTORY(3, simde::type::el_el_yukawa, "Yukawa3");
+    ADD_FACTORY(4, simde::type::el_el_yukawa, "Yukawa4");
+    ADD_FACTORY(2, simde::type::el_el_f12_commutator, "F12 2C");
+    ADD_FACTORY(3, simde::type::el_el_f12_commutator, "F12 3C");
+    ADD_FACTORY(4, simde::type::el_el_f12_commutator, "F12 4C");
+    ADD_FACTORY(2, simde::type::el_dipole, "EDipole");
+    ADD_FACTORY(2, simde::type::el_quadrupole, "EQuadrupole");
+    ADD_FACTORY(2, simde::type::el_octupole, "EOctupole");
+    ADD_FACTORY(4, simde::type::el_el_delta, "DOI");
+}
+
+#undef ADD_FACTORY
 
 } // namespace integrals::libint
