@@ -80,8 +80,8 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
             auto ord_pos =
               detail_::shells2ord(bases, curr_shells, lo_shells, up_shells);
 
-            auto buf  = factory.compute(curr_shells);
-            auto vals = buf[0];
+            const auto& buf = factory.compute(curr_shells);
+            auto vals       = buf[0];
 
             if(vals) {
                 /// Copy libint values into tile data;
@@ -156,9 +156,11 @@ TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
 void load_ao_integrals(pluginplay::ModuleManager& mm) {
     // mm.add_module<AOIntegralDOI<false>>("DOI");
     // mm.add_module<AOIntegralDOI<true>>("Direct DOI");
-    // mm.add_module<AOIntegralMultipole<0, el_dipole>>("EDipole");
-    // mm.add_module<AOIntegralMultipole<1, el_quadrupole>>("EQuadrupole");
-    // mm.add_module<AOIntegralMultipole<2, el_octupole>>("EOctupole");
+    mm.add_module<AOIntegralMultipole<0, simde::type::el_dipole>>("EDipole");
+    mm.add_module<AOIntegralMultipole<1, simde::type::el_quadrupole>>(
+      "EQuadrupole");
+    mm.add_module<AOIntegralMultipole<2, simde::type::el_octupole>>(
+      "EOctupole");
     ADD_INT_WITH_DIRECT(2, simde::type::el_el_coulomb, "ERI2");
     ADD_INT_WITH_DIRECT(3, simde::type::el_el_coulomb, "ERI3");
     ADD_INT_WITH_DIRECT(4, simde::type::el_el_coulomb, "ERI4");

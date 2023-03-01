@@ -34,8 +34,8 @@ void ao_integrals_set_defaults(pluginplay::ModuleManager& mm);
 template<std::size_t N, typename OperatorType, bool direct>
 DECLARE_MODULE(AOIntegral);
 
-// template<std::size_t L, typename OperatorType>
-// DECLARE_MODULE(AOIntegralMultipole);
+template<std::size_t L, typename OperatorType>
+DECLARE_MODULE(AOIntegralMultipole);
 
 // template<bool direct>
 // DECLARE_MODULE(AOIntegralDOI);
@@ -69,8 +69,8 @@ EXTERN_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
 // extern template class AOIntegralDOI<false>;
 // extern template class AOIntegralDOI<true>;
 
-// extern template class AOIntegralMultipole<0, simde::type::el_dipole>;
-// extern template class AOIntegralMultipole<1, simde::type::el_quadrupole>;
-// extern template class AOIntegralMultipole<2, simde::type::el_octupole>;
+extern template class AOIntegralMultipole<0, simde::type::el_dipole>;
+extern template class AOIntegralMultipole<1, simde::type::el_quadrupole>;
+extern template class AOIntegralMultipole<2, simde::type::el_octupole>;
 
 } // namespace integrals::ao_integrals

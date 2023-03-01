@@ -24,14 +24,18 @@ using namespace simde::type;
 namespace integrals {
 
 void set_defaults(pluginplay::ModuleManager& mm) {
+    auto submod_name = "AO Integral Factory";
     std::vector<std::string> module_names{
       "ERI2", "ERI3", "ERI4", "Kinetic", "Nuclear", "Overlap",
       "STG2", "STG3", "STG4", "Yukawa2", "Yukawa3", "Yukawa4"};
-
     for(const auto& name : module_names) {
-        auto submod_name = "AO Integral Factory";
         mm.change_submod(name, submod_name, name + " Factory");
         mm.change_submod("Direct " + name, submod_name, name + " Factory");
+    }
+
+    module_names = {"EDipole", "EQuadrupole", "EOctupole"};
+    for(const auto& name : module_names) {
+        mm.change_submod(name, submod_name, name + " Factory");
     }
 }
 
