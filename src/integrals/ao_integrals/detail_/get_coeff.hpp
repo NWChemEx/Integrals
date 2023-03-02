@@ -35,4 +35,4 @@ auto get_coefficient(const OperatorType& op) {
     return coeff;
 }
 
-} // namespace integrals::ao_integrals
+} // namespace integrals::ao_integrals::detail_

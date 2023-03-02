@@ -25,7 +25,8 @@
 
 // template<std::size_t NBodies, typename OperatorType>
 // TEMPLATED_MODULE_CTOR(ShellNorms, NBodies, OperatorType) {
-//     description("Calculates the Cauchy-Schwarz screening matrix for a pair of "
+//     description("Calculates the Cauchy-Schwarz screening matrix for a pair of
+//     "
 //                 "basis sets");
 
 //     using my_pt = simde::ShellNorms<OperatorType>;

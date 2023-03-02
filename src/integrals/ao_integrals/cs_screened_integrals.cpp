@@ -49,13 +49,15 @@
 //       .set_default(0.0)
 //       .set_description("Cauchy-Schwarz Screening Threshold");
 
-//     if constexpr(N > 2) { /// Use operator based screening for 2-body integrals
+//     if constexpr(N > 2) { /// Use operator based screening for 2-body
+//     integrals
 //         add_submodule<simde::ShellNorms<OperatorType>>("Shell Norms")
 //           .set_description(
 //             "Computes the Cauchy-Schwarz Matrix for a pair of basis sets");
 //     }
 
-//     if constexpr(N == 2) { /// Use overlap based screening for 1-body integrals
+//     if constexpr(N == 2) { /// Use overlap based screening for 1-body
+//     integrals
 //         add_submodule<simde::ShellNorms<identity_op_t>>("Shell Norms")
 //           .set_description(
 //             "Computes the Cauchy-Schwarz Matrix for a pair of basis sets");
@@ -111,8 +113,8 @@
 //         /// Convert index values from AOs to shells
 //         size_vector_t lo_shells, up_shells;
 //         for(auto i = 0; i < N; ++i) {
-//             auto shells_in_tile = detail_::aos2shells(bases[i], lo[i], up[i]);
-//             lo_shells.push_back(shells_in_tile.front());
+//             auto shells_in_tile = detail_::aos2shells(bases[i], lo[i],
+//             up[i]); lo_shells.push_back(shells_in_tile.front());
 //             up_shells.push_back(shells_in_tile.back());
 //         }
 
@@ -133,12 +135,14 @@
 //             /// in 1-body integrals
 //             if constexpr(N == 2) {
 //                 screen_value =
-//                   (bases[0][curr_shells[0]].O == bases[1][curr_shells[1]].O) ?
+//                   (bases[0][curr_shells[0]].O == bases[1][curr_shells[1]].O)
+//                   ?
 //                     cs_thresh + 1 :
 //                     screen_value;
 //             }
 
-//             /// If shell pair isn't screened out, calcuate the current values.
+//             /// If shell pair isn't screened out, calcuate the current
+//             values.
 //             /// Otherwise, set the current values to 0.
 //             if(screen_value > cs_thresh) {
 //                 /// Compute values
@@ -169,7 +173,8 @@
 //     };
 
 //     tensor_t I(l, make_shape(bases),
-//                select_allocator<direct, field_t>(bases, op, thresh, cs_thresh));
+//                select_allocator<direct, field_t>(bases, op, thresh,
+//                cs_thresh));
 
 //     /// Finish
 //     auto rv = results();
