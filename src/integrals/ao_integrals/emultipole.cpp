@@ -89,7 +89,7 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
     auto [factory] = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
 
     /// Lambda to calculate values
-    auto l = [&](const auto& lo, const auto& up, auto* data) {
+    auto l = [=](const auto& lo, const auto& up, auto* data) mutable {
         /// Convert index values from AOs to shells
         /// Leading index is for multipole components
         constexpr std::size_t N = 2;
@@ -102,15 +102,16 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
         }
 
         /// Calculate the number of values per leading index
+        auto leading_step = 0;
         for(auto i = lo_shells[0]; i <= up_shells[0]; ++i) {
             for(auto j = lo_shells[1]; j <= up_shells[1]; ++j) {
-                leading_step += bases[0][i].size() * bases[1][j].size();
+                leading_step +=
+                  bases[0].shell(i).size() * bases[1].shell(j).size();
             }
         }
 
         /// Loop through shell combinations
         size_vector_t curr_shells = lo_shells;
-        std::cout << curr_shells.size() << std::endl;
         while(curr_shells[0] <= up_shells[0]) {
             /// Determine which values will be computed this time
             auto ord_pos =

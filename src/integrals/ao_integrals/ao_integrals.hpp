@@ -37,8 +37,8 @@ DECLARE_MODULE(AOIntegral);
 template<std::size_t L, typename OperatorType>
 DECLARE_MODULE(AOIntegralMultipole);
 
-// template<bool direct>
-// DECLARE_MODULE(AOIntegralDOI);
+template<bool direct>
+DECLARE_MODULE(AOIntegralDOI);
 
 // -----------------------------------------------------------------------------
 // -- Forward External Template Declarations
@@ -66,8 +66,8 @@ EXTERN_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
 
 #undef EXTERN_INT_AND_DIRECT
 
-// extern template class AOIntegralDOI<false>;
-// extern template class AOIntegralDOI<true>;
+extern template class AOIntegralDOI<false>;
+extern template class AOIntegralDOI<true>;
 
 extern template class AOIntegralMultipole<0, simde::type::el_dipole>;
 extern template class AOIntegralMultipole<1, simde::type::el_quadrupole>;

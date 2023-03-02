@@ -154,8 +154,8 @@ TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
     mm.add_module<CSAOIntegral<N, op, true>>("Direct " key_base)
 
 void load_ao_integrals(pluginplay::ModuleManager& mm) {
-    // mm.add_module<AOIntegralDOI<false>>("DOI");
-    // mm.add_module<AOIntegralDOI<true>>("Direct DOI");
+    mm.add_module<AOIntegralDOI<false>>("DOI");
+    mm.add_module<AOIntegralDOI<true>>("Direct DOI");
     mm.add_module<AOIntegralMultipole<0, simde::type::el_dipole>>("EDipole");
     mm.add_module<AOIntegralMultipole<1, simde::type::el_quadrupole>>(
       "EQuadrupole");
