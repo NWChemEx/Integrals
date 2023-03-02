@@ -89,7 +89,8 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
     auto [factory] = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
 
     /// Lambda to calculate values
-    auto l = [=](const auto& lo, const auto& up, auto* data) mutable {
+    auto l = [=, factory = factory](const auto& lo, const auto& up,
+                                    auto* data) mutable {
         /// Convert index values from AOs to shells
         /// Leading index is for multipole components
         constexpr std::size_t N = 2;

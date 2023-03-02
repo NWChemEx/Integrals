@@ -110,7 +110,8 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
     }
 
     /// Lambda to calculate values
-    auto l = [=](const auto& lo, const auto& up, auto* data) mutable {
+    auto l = [=, factory = factory](const auto& lo, const auto& up,
+                                    auto* data) mutable {
         /// Convert index values from AOs to shells
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
