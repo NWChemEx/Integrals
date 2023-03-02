@@ -183,10 +183,10 @@ void load_ao_integrals(pluginplay::ModuleManager& mm) {
     // ADD_CS_INT_WITH_DIRECT(3, el_el_yukawa, "Yukawa3 CS");
     // ADD_CS_INT_WITH_DIRECT(4, el_el_yukawa, "Yukawa4 CS");
 
-    // mm.add_module<ShellNormOverlap>("Shell Norms Overlap");
-    // mm.add_module<ShellNormCoulomb>("Shell Norms Coulomb");
-    // mm.add_module<ShellNormSTG>("Shell Norms STG");
-    // mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
+    mm.add_module<ShellNormOverlap>("Shell Norms Overlap");
+    mm.add_module<ShellNormCoulomb>("Shell Norms Coulomb");
+    mm.add_module<ShellNormSTG>("Shell Norms STG");
+    mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
 
     // mm.add_module<AOIntegral<4, el_el_f12_commutator, false>>(
     //   "STG 4 Center dfdr Squared");
