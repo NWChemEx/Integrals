@@ -26,4 +26,4 @@ namespace integrals::transforms {
 
 void load_transformed_integrals(pluginplay::ModuleManager& mm);
 
-}
+} // namespace integrals::transforms
