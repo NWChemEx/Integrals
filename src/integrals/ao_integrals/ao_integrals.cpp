@@ -173,45 +173,44 @@ void load_ao_integrals(pluginplay::ModuleManager& mm) {
     ADD_INT_WITH_DIRECT(2, simde::type::el_el_yukawa, "Yukawa2");
     ADD_INT_WITH_DIRECT(3, simde::type::el_el_yukawa, "Yukawa3");
     ADD_INT_WITH_DIRECT(4, simde::type::el_el_yukawa, "Yukawa4");
-    // ADD_CS_INT_WITH_DIRECT(2, el_kinetic, "Kinetic CS");
-    // ADD_CS_INT_WITH_DIRECT(2, el_nuc_coulomb, "Nuclear CS");
-    // ADD_CS_INT_WITH_DIRECT(2, el_identity, "Overlap CS");
-    // ADD_CS_INT_WITH_DIRECT(3, el_el_coulomb, "ERI3 CS");
-    // ADD_CS_INT_WITH_DIRECT(4, el_el_coulomb, "ERI4 CS");
-    // ADD_CS_INT_WITH_DIRECT(3, el_el_stg, "STG3 CS");
-    // ADD_CS_INT_WITH_DIRECT(4, el_el_stg, "STG4 CS");
-    // ADD_CS_INT_WITH_DIRECT(3, el_el_yukawa, "Yukawa3 CS");
-    // ADD_CS_INT_WITH_DIRECT(4, el_el_yukawa, "Yukawa4 CS");
+    ADD_CS_INT_WITH_DIRECT(2, simde::type::el_kinetic, "Kinetic CS");
+    ADD_CS_INT_WITH_DIRECT(2, simde::type::el_nuc_coulomb, "Nuclear CS");
+    ADD_CS_INT_WITH_DIRECT(2, simde::type::el_identity, "Overlap CS");
+    ADD_CS_INT_WITH_DIRECT(3, simde::type::el_el_coulomb, "ERI3 CS");
+    ADD_CS_INT_WITH_DIRECT(4, simde::type::el_el_coulomb, "ERI4 CS");
+    ADD_CS_INT_WITH_DIRECT(3, simde::type::el_el_stg, "STG3 CS");
+    ADD_CS_INT_WITH_DIRECT(4, simde::type::el_el_stg, "STG4 CS");
+    ADD_CS_INT_WITH_DIRECT(3, simde::type::el_el_yukawa, "Yukawa3 CS");
+    ADD_CS_INT_WITH_DIRECT(4, simde::type::el_el_yukawa, "Yukawa4 CS");
 
     mm.add_module<ShellNormOverlap>("Shell Norms Overlap");
     mm.add_module<ShellNormCoulomb>("Shell Norms Coulomb");
     mm.add_module<ShellNormSTG>("Shell Norms STG");
     mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
 
-    // mm.add_module<AOIntegral<4, el_el_f12_commutator, false>>(
-    //   "STG 4 Center dfdr Squared");
+    mm.add_module<AOIntegral<4, simde::type::el_el_f12_commutator, false>>(
+      "STG 4 Center dfdr Squared");
 }
 
 void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
-    // mm.change_submod("Kinetic CS", "Shell Norms", "Shell Norms Overlap");
-    // mm.change_submod("Nuclear CS", "Shell Norms", "Shell Norms Overlap");
-    // mm.change_submod("Overlap CS", "Shell Norms", "Shell Norms Overlap");
-    // mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
-    // mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
-    // mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
-    // mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
-    // mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
-    // mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
-    // mm.change_submod("Direct Kinetic CS", "Shell Norms", "Shell Norms
-    // Overlap"); mm.change_submod("Direct Nuclear CS", "Shell Norms", "Shell
-    // Norms Overlap"); mm.change_submod("Direct Overlap CS", "Shell Norms",
-    // "Shell Norms Overlap"); mm.change_submod("Direct ERI3 CS", "Shell Norms",
-    // "Shell Norms Coulomb"); mm.change_submod("Direct ERI4 CS", "Shell Norms",
-    // "Shell Norms Coulomb"); mm.change_submod("Direct STG3 CS", "Shell Norms",
-    // "Shell Norms STG"); mm.change_submod("Direct STG4 CS", "Shell Norms",
-    // "Shell Norms STG"); mm.change_submod("Direct Yukawa3 CS", "Shell Norms",
-    // "Shell Norms Yukawa"); mm.change_submod("Direct Yukawa4 CS", "Shell
-    // Norms", "Shell Norms Yukawa");
+    mm.change_submod("Kinetic CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Nuclear CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Overlap CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
+    mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
+    mm.change_submod("Direct Kinetic CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Direct Nuclear CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Direct Overlap CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Direct ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("Direct ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("Direct STG3 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("Direct STG4 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("Direct Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
+    mm.change_submod("Direct Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
 }
 
 #undef ADD_INT_WITH_DIRECT

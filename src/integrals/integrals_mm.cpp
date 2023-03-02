@@ -32,6 +32,13 @@ void set_defaults(pluginplay::ModuleManager& mm) {
         mm.change_submod(name, submod_name, name + " Factory");
         mm.change_submod("Direct " + name, submod_name, name + " Factory");
     }
+    module_names = {"ERI3", "ERI4", "Kinetic", "Nuclear", "Overlap",
+                    "STG3", "STG4", "Yukawa3", "Yukawa4"};
+    for(const auto& name : module_names) {
+        mm.change_submod(name + " CS", submod_name, name + " Factory");
+        mm.change_submod("Direct " + name + " CS", submod_name,
+                         name + " Factory");
+    }
     module_names = {"EDipole", "EQuadrupole", "EOctupole"};
     for(const auto& name : module_names) {
         mm.change_submod(name, submod_name, name + " Factory");
@@ -40,6 +47,8 @@ void set_defaults(pluginplay::ModuleManager& mm) {
     mm.change_submod("Shell Norms Coulomb", submod_name, "ERI4 Factory");
     mm.change_submod("Shell Norms STG", submod_name, "STG4 Factory");
     mm.change_submod("Shell Norms Yukawa", submod_name, "Yukawa4 Factory");
+    mm.change_submod("STG 4 Center dfdr Squared", submod_name,
+                     "F12 4C Factory");
 }
 
 void load_modules(pluginplay::ModuleManager& mm) {
