@@ -24,9 +24,8 @@ namespace integrals::ao_integrals::detail_ {
  *  @tparam direct Whether the integral if direct or not
  *  @tparam T The type the tensors field
  *  @tparam OpType The type of the operator
- *  @param[in] bases The basis sets as a vector of libint basis sets
+ *  @param[in] bases The basis sets as a vector
  *  @param[in] op The operator associated with the integral
- *  @param[in] thresh The threshold for integral precision
  *  @param[in] cs_thresh The Cauchy-Schwarz screening threshold
  *  @returns An allocator
  */

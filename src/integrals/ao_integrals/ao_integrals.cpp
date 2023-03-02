@@ -119,80 +119,90 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
 // -- Template Declarations
 // -----------------------------------------------------------------------------
 
-#define TEMPLATE_INT_AND_DIRECT(N, op)       \
+#define TEMPLATE_AOI_AND_DIRECT(N, op)       \
     template class AOIntegral<N, op, false>; \
     template class AOIntegral<N, op, true>
 
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_coulomb);
-TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
-TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_kinetic);
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_identity);
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_stg);
-TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_stg);
-TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_stg);
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_yukawa);
-TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
-TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_f12_commutator);
-TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_f12_commutator);
-TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
+TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_el_coulomb);
+TEMPLATE_AOI_AND_DIRECT(3, simde::type::el_el_coulomb);
+TEMPLATE_AOI_AND_DIRECT(4, simde::type::el_el_coulomb);
+TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_kinetic);
+TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_nuc_coulomb);
+TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_identity);
+TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_el_stg);
+TEMPLATE_AOI_AND_DIRECT(3, simde::type::el_el_stg);
+TEMPLATE_AOI_AND_DIRECT(4, simde::type::el_el_stg);
+TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_el_yukawa);
+TEMPLATE_AOI_AND_DIRECT(3, simde::type::el_el_yukawa);
+TEMPLATE_AOI_AND_DIRECT(4, simde::type::el_el_yukawa);
+TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_el_f12_commutator);
+TEMPLATE_AOI_AND_DIRECT(3, simde::type::el_el_f12_commutator);
+TEMPLATE_AOI_AND_DIRECT(4, simde::type::el_el_f12_commutator);
+TEMPLATE_AOI_AND_DIRECT(4, simde::type::el_el_delta);
 
-#undef TEMPLATE_INT_AND_DIRECT
+#undef TEMPLATE_AOI_AND_DIRECT
 
 // -----------------------------------------------------------------------------
 // -- Define Module Load Functions
 // -----------------------------------------------------------------------------
 
-#define ADD_INT_WITH_DIRECT(N, op, key_base)           \
+#define ADD_AOI_WITH_DIRECT(N, op, key_base)           \
     mm.add_module<AOIntegral<N, op, false>>(key_base); \
     mm.add_module<AOIntegral<N, op, true>>("Direct " key_base)
 
-#define ADD_CS_INT_WITH_DIRECT(N, op, key_base)          \
+#define ADD_CS_AOI_WITH_DIRECT(N, op, key_base)          \
     mm.add_module<CSAOIntegral<N, op, false>>(key_base); \
     mm.add_module<CSAOIntegral<N, op, true>>("Direct " key_base)
 
 void load_ao_integrals(pluginplay::ModuleManager& mm) {
-    mm.add_module<AOIntegralDOI<false>>("DOI");
-    mm.add_module<AOIntegralDOI<true>>("Direct DOI");
-    mm.add_module<AOIntegralMultipole<0, simde::type::el_dipole>>("EDipole");
-    mm.add_module<AOIntegralMultipole<1, simde::type::el_quadrupole>>(
-      "EQuadrupole");
-    mm.add_module<AOIntegralMultipole<2, simde::type::el_octupole>>(
-      "EOctupole");
-    ADD_INT_WITH_DIRECT(2, simde::type::el_el_coulomb, "ERI2");
-    ADD_INT_WITH_DIRECT(3, simde::type::el_el_coulomb, "ERI3");
-    ADD_INT_WITH_DIRECT(4, simde::type::el_el_coulomb, "ERI4");
-    ADD_INT_WITH_DIRECT(2, simde::type::el_kinetic, "Kinetic");
-    ADD_INT_WITH_DIRECT(2, simde::type::el_nuc_coulomb, "Nuclear");
-    ADD_INT_WITH_DIRECT(2, simde::type::el_identity, "Overlap");
-    ADD_INT_WITH_DIRECT(2, simde::type::el_el_stg, "STG2");
-    ADD_INT_WITH_DIRECT(3, simde::type::el_el_stg, "STG3");
-    ADD_INT_WITH_DIRECT(4, simde::type::el_el_stg, "STG4");
-    ADD_INT_WITH_DIRECT(2, simde::type::el_el_yukawa, "Yukawa2");
-    ADD_INT_WITH_DIRECT(3, simde::type::el_el_yukawa, "Yukawa3");
-    ADD_INT_WITH_DIRECT(4, simde::type::el_el_yukawa, "Yukawa4");
-    ADD_CS_INT_WITH_DIRECT(2, simde::type::el_kinetic, "Kinetic CS");
-    ADD_CS_INT_WITH_DIRECT(2, simde::type::el_nuc_coulomb, "Nuclear CS");
-    ADD_CS_INT_WITH_DIRECT(2, simde::type::el_identity, "Overlap CS");
-    ADD_CS_INT_WITH_DIRECT(3, simde::type::el_el_coulomb, "ERI3 CS");
-    ADD_CS_INT_WITH_DIRECT(4, simde::type::el_el_coulomb, "ERI4 CS");
-    ADD_CS_INT_WITH_DIRECT(3, simde::type::el_el_stg, "STG3 CS");
-    ADD_CS_INT_WITH_DIRECT(4, simde::type::el_el_stg, "STG4 CS");
-    ADD_CS_INT_WITH_DIRECT(3, simde::type::el_el_yukawa, "Yukawa3 CS");
-    ADD_CS_INT_WITH_DIRECT(4, simde::type::el_el_yukawa, "Yukawa4 CS");
+    using namespace simde::type;
+
+    mm.add_module<AOIntegralDOI>("DOI");
+    mm.add_module<AOIntegralDOI>("Direct DOI");
+    mm.add_module<AOIntegralMultipole<0, el_dipole>>("EDipole");
+    mm.add_module<AOIntegralMultipole<1, el_quadrupole>>("EQuadrupole");
+    mm.add_module<AOIntegralMultipole<2, el_octupole>>("EOctupole");
+    mm.add_module<AOIntegral<4, el_el_f12_commutator, false>>(
+      "STG 4 Center dfdr Squared");
+
+    ADD_AOI_WITH_DIRECT(2, el_el_coulomb, "ERI2");
+    ADD_AOI_WITH_DIRECT(3, el_el_coulomb, "ERI3");
+    ADD_AOI_WITH_DIRECT(4, el_el_coulomb, "ERI4");
+    ADD_AOI_WITH_DIRECT(2, el_kinetic, "Kinetic");
+    ADD_AOI_WITH_DIRECT(2, el_nuc_coulomb, "Nuclear");
+    ADD_AOI_WITH_DIRECT(2, el_identity, "Overlap");
+    ADD_AOI_WITH_DIRECT(2, el_el_stg, "STG2");
+    ADD_AOI_WITH_DIRECT(3, el_el_stg, "STG3");
+    ADD_AOI_WITH_DIRECT(4, el_el_stg, "STG4");
+    ADD_AOI_WITH_DIRECT(2, el_el_yukawa, "Yukawa2");
+    ADD_AOI_WITH_DIRECT(3, el_el_yukawa, "Yukawa3");
+    ADD_AOI_WITH_DIRECT(4, el_el_yukawa, "Yukawa4");
+    ADD_AOI_WITH_DIRECT(4, el_el_delta, "DOI4");
+    ADD_CS_AOI_WITH_DIRECT(2, el_kinetic, "Kinetic CS");
+    ADD_CS_AOI_WITH_DIRECT(2, el_nuc_coulomb, "Nuclear CS");
+    ADD_CS_AOI_WITH_DIRECT(2, el_identity, "Overlap CS");
+    ADD_CS_AOI_WITH_DIRECT(3, el_el_coulomb, "ERI3 CS");
+    ADD_CS_AOI_WITH_DIRECT(4, el_el_coulomb, "ERI4 CS");
+    ADD_CS_AOI_WITH_DIRECT(3, el_el_stg, "STG3 CS");
+    ADD_CS_AOI_WITH_DIRECT(4, el_el_stg, "STG4 CS");
+    ADD_CS_AOI_WITH_DIRECT(3, el_el_yukawa, "Yukawa3 CS");
+    ADD_CS_AOI_WITH_DIRECT(4, el_el_yukawa, "Yukawa4 CS");
 
     mm.add_module<ShellNormOverlap>("Shell Norms Overlap");
     mm.add_module<ShellNormCoulomb>("Shell Norms Coulomb");
     mm.add_module<ShellNormSTG>("Shell Norms STG");
     mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
-
-    mm.add_module<AOIntegral<4, simde::type::el_el_f12_commutator, false>>(
-      "STG 4 Center dfdr Squared");
 }
 
+#undef ADD_AOI_WITH_DIRECT
+#undef ADD_CS_AOI_WITH_DIRECT
+
 void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
+    /// Set DOI submods
+    mm.change_submod("DOI", "DOI4", "DOI4");
+    mm.change_submod("Direct DOI", "DOI4", "Direct DOI4");
+
+    /// Set shell norm submods
     mm.change_submod("Kinetic CS", "Shell Norms", "Shell Norms Overlap");
     mm.change_submod("Nuclear CS", "Shell Norms", "Shell Norms Overlap");
     mm.change_submod("Overlap CS", "Shell Norms", "Shell Norms Overlap");
@@ -212,8 +222,5 @@ void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
     mm.change_submod("Direct Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
     mm.change_submod("Direct Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
 }
-
-#undef ADD_INT_WITH_DIRECT
-#undef ADD_CS_INT_WITH_DIRECT
 
 } // namespace integrals::ao_integrals

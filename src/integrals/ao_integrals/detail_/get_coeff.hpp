@@ -20,6 +20,15 @@
 
 namespace integrals::ao_integrals::detail_ {
 
+/** @brief Get the scalar coefficient from STG-like operators.
+ *
+ *  Accesses and returns the coefficient of STG-like operators, and returns 1.0
+ *  for all other operator types.
+ *
+ *  @tparam OperatorType The type of the input operator
+ *  @param[in] op The operator to access
+ *  @returns The scaling coefficient for the operator
+ */
 template<typename OperatorType>
 auto get_coefficient(const OperatorType& op) {
     /// Geminal exponent handling

@@ -124,6 +124,10 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
     return my_pt::wrap_results(rv, mat);
 }
 
+// -----------------------------------------------------------------------------
+// -- Template Declarations
+// -----------------------------------------------------------------------------
+
 template class ShellNorms<1, simde::type::el_identity>;
 template class ShellNorms<2, simde::type::el_el_coulomb>;
 template class ShellNorms<2, simde::type::el_el_stg>;

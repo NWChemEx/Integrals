@@ -23,7 +23,7 @@ namespace integrals::ao_integrals::detail_ {
 /** @brief Given a vector of basis sets, compute the shape of the corresponding
  *         integral.
  *
- *  @param[in] bases A vector of LibInt2 BasisSets
+ *  @param[in] bases A vector of basis sets
  *  @param[in] leading_extent An extent value added to the front of the shape
  *  @returns A unique_ptr for the resulting shape
  */

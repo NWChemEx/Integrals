@@ -26,100 +26,35 @@
 
 namespace integrals::ao_integrals {
 
-/// Type of a module that produces integral factories
-template<typename OperatorType>
-using factory_pt = simde::IntegralFactory<OperatorType>;
-using factory_t  = simde::type::integral_factory;
-
 /// Grab the various detail_ functions
 using namespace detail_;
 
-template<bool direct>
-TEMPLATED_MODULE_CTOR(AOIntegralDOI, direct) {
+MODULE_CTOR(AOIntegralDOI) {
     description("Computes DOI integrals");
-    using my_pt = simde::AOTensorRepresentation<2, simde::type::el_el_delta>;
+    using op_t    = simde::type::el_el_delta;
+    using my_pt   = simde::AOTensorRepresentation<2, op_t>;
+    using doi4_pt = simde::AOTensorRepresentation<4, op_t>;
 
     satisfies_property_type<my_pt>();
 
-    add_submodule<factory_pt<simde::type::el_el_delta>>("AO Integral Factory")
-      .set_description("Used to generate the AO factory");
+    add_submodule<doi4_pt>("DOI4").set_description("Computes DOI4 integrals");
 }
 
-template<bool direct>
-TEMPLATED_MODULE_RUN(AOIntegralDOI, direct) {
-    using op_t          = simde::type::el_el_delta;
-    using my_pt         = simde::AOTensorRepresentation<2, op_t>;
-    using size_vector_t = std::vector<std::size_t>;
-    using tensor_t      = simde::type::tensor;
-    using field_t       = typename tensor_t::field_type;
+MODULE_RUN(AOIntegralDOI) {
+    using op_t    = simde::type::el_el_delta;
+    using my_pt   = simde::AOTensorRepresentation<2, op_t>;
+    using doi4_pt = simde::AOTensorRepresentation<4, op_t>;
 
-    auto init_bases = detail_::unpack_bases<2>(inputs);
-    auto op_str     = op_t().as_string();
-    auto& fac_mod   = submods.at("AO Integral Factory");
-    const auto& op  = inputs.at(op_str).template value<const op_t&>();
+    /// Get inputs
+    const auto& [bra, op, ket] = my_pt::unwrap_inputs(inputs);
+    auto& doi4_mod             = submods.at("DOI4");
 
-    /// Have to double up the basis sets
-    std::vector<simde::type::ao_basis_set> bases;
-    for(auto& set : init_bases) {
-        for(auto i = 0; i < 2; ++i) bases.push_back(set);
-    }
-
-    auto [factory] = fac_mod.run_as<factory_pt<op_t>>(bases, op);
-
-    /// Lambda to calculate values
-    auto l = [=](const auto& lo, const auto& up, auto* data) mutable {
-        /// Convert index values from AOs to shells
-        constexpr std::size_t N = 4;
-        size_vector_t lo_shells, up_shells;
-        for(auto i = 0; i < N; ++i) {
-            auto shells_in_tile = detail_::aos2shells(bases[i], lo[i], up[i]);
-            lo_shells.push_back(shells_in_tile.front());
-            up_shells.push_back(shells_in_tile.back());
-        }
-        /// Loop through shell combinations
-        size_vector_t curr_shells = lo_shells;
-        while(curr_shells[0] <= up_shells[0]) {
-            /// Determine which values will be computed this time
-            auto ord_pos =
-              detail_::shells2ord(bases, curr_shells, lo_shells, up_shells);
-
-            /// Compute values
-            const auto& buf = factory.compute(curr_shells);
-            auto vals       = buf[0];
-
-            if(vals) {
-                /// Copy libint values into tile data;
-                for(auto i = 0; i < ord_pos.size(); ++i) {
-                    data[ord_pos[i]] = vals[i];
-                }
-            } else {
-                for(auto i = 0; i < ord_pos.size(); ++i) {
-                    data[ord_pos[i]] = 0.0;
-                }
-            }
-
-            /// Increment curr_shells
-            curr_shells[N - 1] += 1;
-            for(auto i = 1; i < N; ++i) {
-                if(curr_shells[N - i] > up_shells[N - i]) {
-                    /// Reset this dimension and increment the next one
-                    /// curr_shells[0] accumulates until we reach the end
-                    curr_shells[N - i] = lo_shells[N - i];
-                    curr_shells[N - i - 1] += 1;
-                }
-            }
-        }
-    };
-
-    tensor_t I(l, make_shape(bases),
-               select_allocator<direct, field_t>(bases, op));
+    /// Run DOI4
+    auto [I] = doi4_mod.run_as<doi4_pt>(bra, bra, op, ket, ket);
 
     /// Finish
     auto rv = results();
     return my_pt::wrap_results(rv, I);
 }
-
-template class AOIntegralDOI<false>;
-template class AOIntegralDOI<true>;
 
 } // namespace integrals::ao_integrals

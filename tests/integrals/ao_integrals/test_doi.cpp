@@ -24,8 +24,9 @@
 using namespace mokup;
 
 TEST_CASE("DOI") {
-    using op_type       = simde::type::el_el_delta;
-    using integral_type = simde::EDOI;
+    using op_type   = simde::type::el_el_delta;
+    using doi_type  = simde::EDOI;
+    using doi4_type = simde::AOTensorRepresentation<4, op_type>;
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
@@ -39,12 +40,25 @@ TEST_CASE("DOI") {
     op_type d;
 
     SECTION("Explicit") {
-        auto [X] = mm.at("DOI").run_as<integral_type>(aos, d, aos);
-        REQUIRE(tensorwrapper::tensor::allclose(X, corr));
+        SECTION("Four-Index") {
+            auto [X] = mm.at("DOI4").run_as<doi4_type>(aos, aos, d, aos, aos);
+            REQUIRE(tensorwrapper::tensor::allclose(X, corr));
+        }
+        SECTION("Wrapper") {
+            auto [X] = mm.at("DOI").run_as<doi_type>(aos, d, aos);
+            REQUIRE(tensorwrapper::tensor::allclose(X, corr));
+        }
     }
 
     SECTION("Direct") {
-        auto [X] = mm.at("Direct DOI").run_as<integral_type>(aos, d, aos);
-        REQUIRE(direct_allclose(X, corr));
+        SECTION("Four-Index") {
+            auto [X] =
+              mm.at("Direct DOI4").run_as<doi4_type>(aos, aos, d, aos, aos);
+            REQUIRE(direct_allclose(X, corr));
+        }
+        SECTION("Wrapper") {
+            auto [X] = mm.at("Direct DOI").run_as<doi_type>(aos, d, aos);
+            REQUIRE(direct_allclose(X, corr));
+        }
     }
 }

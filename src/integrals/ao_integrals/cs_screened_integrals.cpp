@@ -181,6 +181,10 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
     return my_pt::wrap_results(rv, I);
 }
 
+// -----------------------------------------------------------------------------
+// -- Template Declarations
+// -----------------------------------------------------------------------------
+
 #define TEMPLATE_INT_AND_DIRECT(N, op)         \
     template class CSAOIntegral<N, op, false>; \
     template class CSAOIntegral<N, op, true>

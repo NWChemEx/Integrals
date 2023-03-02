@@ -21,7 +21,7 @@ namespace integrals::ao_integrals::detail_ {
 
 /** @brief Find the ordinal indices spanned by the shell indices
  *
- *  @param[in] bases A vector of libint basis sets.
+ *  @param[in] bases A vector of basis sets.
  *  @param[in] shell A vector of indices for shells in the basis sets.
  *  @param[in] lo_shell The lower most shell index in the span.
  *  @param[in] up_shell The upper most shell index in the span.

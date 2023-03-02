@@ -164,6 +164,10 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
     return rv;
 }
 
+// -----------------------------------------------------------------------------
+// -- Template Declarations
+// -----------------------------------------------------------------------------
+
 template class AOIntegralMultipole<0, simde::type::el_dipole>;
 template class AOIntegralMultipole<1, simde::type::el_quadrupole>;
 template class AOIntegralMultipole<2, simde::type::el_octupole>;

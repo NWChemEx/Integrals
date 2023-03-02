@@ -19,8 +19,16 @@
 
 namespace integrals {
 
+// -----------------------------------------------------------------------------
+// -- Declare Module Types
+// -----------------------------------------------------------------------------
+
 template<std::size_t N, typename OpType>
 DECLARE_MODULE(StandardTransform);
+
+// -----------------------------------------------------------------------------
+// -- Forward External Template Declarations
+// -----------------------------------------------------------------------------
 
 extern template class StandardTransform<2, simde::type::el_scf_k>;
 extern template class StandardTransform<2, simde::type::fock>;

@@ -24,31 +24,39 @@ using namespace simde::type;
 namespace integrals {
 
 void set_defaults(pluginplay::ModuleManager& mm) {
-    auto submod_name = "AO Integral Factory";
+    /// Submodule name
+    auto fac_sub = "AO Integral Factory";
+
+    /// Set Factory for non-screened integrals
     std::vector<std::string> module_names{
       "ERI2", "ERI3", "ERI4",    "Kinetic", "Nuclear", "Overlap", "STG2",
-      "STG3", "STG4", "Yukawa2", "Yukawa3", "Yukawa4", "DOI"};
+      "STG3", "STG4", "Yukawa2", "Yukawa3", "Yukawa4", "DOI4"};
     for(const auto& name : module_names) {
-        mm.change_submod(name, submod_name, name + " Factory");
-        mm.change_submod("Direct " + name, submod_name, name + " Factory");
+        mm.change_submod(name, fac_sub, name + " Factory");
+        mm.change_submod("Direct " + name, fac_sub, name + " Factory");
     }
+    mm.change_submod("STG 4 Center dfdr Squared", fac_sub, "F12 4C Factory");
+
+    /// Set Factory for screened integrals
     module_names = {"ERI3", "ERI4", "Kinetic", "Nuclear", "Overlap",
                     "STG3", "STG4", "Yukawa3", "Yukawa4"};
     for(const auto& name : module_names) {
-        mm.change_submod(name + " CS", submod_name, name + " Factory");
-        mm.change_submod("Direct " + name + " CS", submod_name,
-                         name + " Factory");
+        auto name_cs = name + " CS";
+        mm.change_submod(name_cs, fac_sub, name + " Factory");
+        mm.change_submod("Direct " + name_cs, fac_sub, name + " Factory");
     }
+
+    /// Set Factory for multipoles
     module_names = {"EDipole", "EQuadrupole", "EOctupole"};
     for(const auto& name : module_names) {
-        mm.change_submod(name, submod_name, name + " Factory");
+        mm.change_submod(name, fac_sub, name + " Factory");
     }
-    mm.change_submod("Shell Norms Overlap", submod_name, "Overlap Factory");
-    mm.change_submod("Shell Norms Coulomb", submod_name, "ERI4 Factory");
-    mm.change_submod("Shell Norms STG", submod_name, "STG4 Factory");
-    mm.change_submod("Shell Norms Yukawa", submod_name, "Yukawa4 Factory");
-    mm.change_submod("STG 4 Center dfdr Squared", submod_name,
-                     "F12 4C Factory");
+
+    /// Set Factory for shell norms
+    mm.change_submod("Shell Norms Overlap", fac_sub, "Overlap Factory");
+    mm.change_submod("Shell Norms Coulomb", fac_sub, "ERI4 Factory");
+    mm.change_submod("Shell Norms STG", fac_sub, "STG4 Factory");
+    mm.change_submod("Shell Norms Yukawa", fac_sub, "Yukawa4 Factory");
 }
 
 void load_modules(pluginplay::ModuleManager& mm) {

@@ -19,6 +19,10 @@
 
 namespace integrals::ao_integrals {
 
+// -----------------------------------------------------------------------------
+// -- Declare Integral Module Types
+// -----------------------------------------------------------------------------
+
 template<std::size_t NBodies, typename OperatorType>
 DECLARE_MODULE(ShellNorms);
 
@@ -26,6 +30,10 @@ using ShellNormOverlap = ShellNorms<1, simde::type::el_identity>;
 using ShellNormCoulomb = ShellNorms<2, simde::type::el_el_coulomb>;
 using ShellNormSTG     = ShellNorms<2, simde::type::el_el_stg>;
 using ShellNormYukawa  = ShellNorms<2, simde::type::el_el_yukawa>;
+
+// -----------------------------------------------------------------------------
+// -- Forward External Template Declarations
+// -----------------------------------------------------------------------------
 
 extern template class ShellNorms<1, simde::type::el_identity>;
 extern template class ShellNorms<2, simde::type::el_el_coulomb>;

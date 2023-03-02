@@ -98,7 +98,6 @@ inline std::size_t hash_operator(const OpType& op) {
  *  @tparam OpType The type of the operator
  *  @param[in] bases The basis sets as a vector of libint basis sets
  *  @param[in] op The operator associated with the integral
- *  @param[in] thresh The threshold for integral precision
  *  @param[in] cs_thresh The Cauchy-Schwarz screening threshold
  *  @returns A hash as a string
  */

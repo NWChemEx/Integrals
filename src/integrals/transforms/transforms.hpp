@@ -20,6 +20,10 @@
 
 namespace integrals::transforms {
 
+// -----------------------------------------------------------------------------
+// -- Declare Module Load Functions
+// -----------------------------------------------------------------------------
+
 void load_transformed_integrals(pluginplay::ModuleManager& mm);
 
 }

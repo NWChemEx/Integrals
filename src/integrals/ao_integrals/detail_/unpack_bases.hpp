@@ -26,7 +26,7 @@ namespace integrals::ao_integrals::detail_ {
 /** @brief Unpacks the basis sets from the inputs
  *
  *  @param[in] inputs The module inputs containing the basis sets.
- *  @returns A vector of the converted basis sets.
+ *  @returns A vector of the basis sets.
  */
 template<std::size_t N, typename ModuleInputs>
 auto unpack_bases(const ModuleInputs& inputs) {

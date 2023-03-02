@@ -19,6 +19,10 @@
 
 namespace integrals::libint {
 
+// -----------------------------------------------------------------------------
+// -- Declare Module Load Functions
+// -----------------------------------------------------------------------------
+
 void load_libint_modules(pluginplay::ModuleManager& mm);
 
-}
+} // namespace integrals::libint
