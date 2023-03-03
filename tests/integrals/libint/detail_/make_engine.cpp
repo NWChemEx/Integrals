@@ -20,14 +20,16 @@
 const double eps  = 100000000 * std::numeric_limits<double>::epsilon();
 const double marg = 1000000 * std::numeric_limits<double>::epsilon();
 
+using integrals::libint::detail_::make_engine;
+
 TEST_CASE("make_engine") {
     /// Libint Basis Set
     auto bset = testing::water_basis_set();
 
     /// Basis set inputs
-    std::vector<libint2::BasisSet> two_sets{bset, bset};
-    std::vector<libint2::BasisSet> three_sets{bset, bset, bset};
-    std::vector<libint2::BasisSet> four_sets{bset, bset, bset, bset};
+    std::vector two_sets{bset, bset};
+    std::vector three_sets{bset, bset, bset};
+    std::vector four_sets{bset, bset, bset, bset};
 
     /// Threshold input
     double t = 1.0E-16;
@@ -49,19 +51,19 @@ TEST_CASE("make_engine") {
         op_t op;
 
         SECTION("Two basis sets") {
-            auto engine = integrals::detail_::make_engine(two_sets, op, t);
+            auto engine = make_engine(two_sets, op, t);
             testing::test_engine_standard<op_t>(engine);
             REQUIRE(engine.braket() == libint2::BraKet::xs_xs);
         }
 
         SECTION("Three basis sets") {
-            auto engine = integrals::detail_::make_engine(three_sets, op, t);
+            auto engine = make_engine(three_sets, op, t);
             testing::test_engine_standard<op_t>(engine);
             REQUIRE(engine.braket() == libint2::BraKet::xs_xx);
         }
 
         SECTION("Four basis sets") {
-            auto engine = integrals::detail_::make_engine(four_sets, op, t);
+            auto engine = make_engine(four_sets, op, t);
             testing::test_engine_standard<op_t>(engine);
             REQUIRE(engine.braket() == libint2::BraKet::xx_xx);
         }
@@ -73,7 +75,7 @@ TEST_CASE("make_engine") {
     SECTION("el_nuc_coulomb") {
         using op_t = simde::type::el_nuc_coulomb;
         op_t op(e, water);
-        auto engine = integrals::detail_::make_engine(two_sets, op, t);
+        auto engine = make_engine(two_sets, op, t);
         testing::test_engine_standard<op_t>(engine);
         const auto& buf = engine.compute(two_sets[0][0], two_sets[1][0]);
         REQUIRE(buf[0][0] ==
@@ -83,7 +85,7 @@ TEST_CASE("make_engine") {
     SECTION("el_el_stg") {
         using op_t = simde::type::el_el_stg;
         op_t op(stg);
-        auto engine = integrals::detail_::make_engine(two_sets, op, t);
+        auto engine = make_engine(two_sets, op, t);
         testing::test_engine_standard<op_t>(engine);
         const auto& buf = engine.compute(two_sets[0][0], two_sets[1][0]);
         REQUIRE(buf[0][0] ==
@@ -93,7 +95,7 @@ TEST_CASE("make_engine") {
     SECTION("el_el_yukawa") {
         using op_t = simde::type::el_el_yukawa;
         op_t op(stg, e, e);
-        auto engine = integrals::detail_::make_engine(two_sets, op, t);
+        auto engine = make_engine(two_sets, op, t);
         testing::test_engine_standard<op_t>(engine);
         const auto& buf = engine.compute(two_sets[0][0], two_sets[1][0]);
         REQUIRE(buf[0][0] ==
@@ -103,7 +105,7 @@ TEST_CASE("make_engine") {
     SECTION("el_el_f12_commutator") {
         using op_t = simde::type::el_el_f12_commutator;
         op_t op(stg, e, e);
-        auto engine = integrals::detail_::make_engine(two_sets, op, t);
+        auto engine = make_engine(two_sets, op, t);
         testing::test_engine_standard<op_t>(engine);
         const auto& buf = engine.compute(two_sets[0][0], two_sets[1][0]);
         REQUIRE(buf[0][0] == Approx(0.1612010046).epsilon(eps).margin(marg));
@@ -112,7 +114,7 @@ TEST_CASE("make_engine") {
     SECTION("el_dipole") {
         using op_t = simde::type::el_dipole;
         op_t op;
-        auto engine = integrals::detail_::make_engine(two_sets, op, t);
+        auto engine = make_engine(two_sets, op, t);
         testing::test_engine_standard<op_t>(engine);
         const auto& buf = engine.results();
         engine.compute(two_sets[0][0], two_sets[1][0]);
@@ -125,7 +127,7 @@ TEST_CASE("make_engine") {
     SECTION("el_quadrupole") {
         using op_t = simde::type::el_quadrupole;
         op_t op;
-        auto engine = integrals::detail_::make_engine(two_sets, op, t);
+        auto engine = make_engine(two_sets, op, t);
         testing::test_engine_standard<op_t>(engine);
         const auto& buf = engine.results();
         engine.compute(two_sets[0][0], two_sets[1][0]);
@@ -140,7 +142,7 @@ TEST_CASE("make_engine") {
     SECTION("el_octupole") {
         using op_t = simde::type::el_octupole;
         op_t op;
-        auto engine = integrals::detail_::make_engine(two_sets, op, t);
+        auto engine = make_engine(two_sets, op, t);
         testing::test_engine_standard<op_t>(engine);
         const auto& buf = engine.results();
         engine.compute(two_sets[0][0], two_sets[1][0]);

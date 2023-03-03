@@ -15,29 +15,36 @@
  */
 
 #pragma once
-#include <simde/simde.hpp>
+#include <pluginplay/module_base.hpp>
+#include <simde/types.hpp>
 
-namespace integrals {
+namespace integrals::ao_integrals {
 
 // -----------------------------------------------------------------------------
-// -- Declare Module Types
+// -- Declare Integral Module Types
 // -----------------------------------------------------------------------------
 
-template<std::size_t N, typename OpType>
-DECLARE_MODULE(StandardTransform);
+template<std::size_t N, typename OperatorType, bool direct>
+DECLARE_MODULE(CSAOIntegral);
 
 // -----------------------------------------------------------------------------
 // -- Forward External Template Declarations
 // -----------------------------------------------------------------------------
 
-extern template class StandardTransform<2, simde::type::el_scf_k>;
-extern template class StandardTransform<2, simde::type::fock>;
-extern template class StandardTransform<2, simde::type::el_kinetic>;
-extern template class StandardTransform<2, simde::type::el_nuc_coulomb>;
-extern template class StandardTransform<2, simde::type::fock>;
-extern template class StandardTransform<3, simde::type::el_el_coulomb>;
-extern template class StandardTransform<4, simde::type::el_el_coulomb>;
-extern template class StandardTransform<4, simde::type::el_el_f12_commutator>;
-extern template class StandardTransform<4, simde::type::el_el_stg>;
-extern template class StandardTransform<4, simde::type::el_el_yukawa>;
-} // namespace integrals
+#define EXTERN_INT_AND_DIRECT(N, op)                  \
+    extern template class CSAOIntegral<N, op, false>; \
+    extern template class CSAOIntegral<N, op, true>
+
+EXTERN_INT_AND_DIRECT(2, simde::type::el_kinetic);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
+EXTERN_INT_AND_DIRECT(2, simde::type::el_identity);
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_stg);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_stg);
+EXTERN_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
+EXTERN_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
+
+#undef EXTERN_INT_AND_DIRECT
+
+} // namespace integrals::ao_integrals

@@ -15,11 +15,11 @@
  */
 
 #pragma once
-#include "type_traits.hpp"
+#include "../libint_op.hpp"
 #include <libint2.hpp>
 #include <simde/types.hpp>
 
-namespace integrals::detail_ {
+namespace integrals::libint::detail_ {
 
 /** @brief Constructs a Libint engine.
  *
@@ -33,7 +33,7 @@ template<typename OpType>
 auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
                  double thresh, std::size_t deriv = 0) {
     /// Variables for engine construction
-    constexpr auto libint_op = integrals::op_v<OpType>;
+    constexpr auto libint_op = integrals::libint::op_v<OpType>;
     auto max_nprims          = libint2::max_nprim(bases[0]);
     auto max_l               = libint2::max_l(bases[0]);
 
@@ -78,21 +78,4 @@ auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
     return engine;
 }
 
-/** @brief Wrap the call of LibInt2 engine so it can take a variable number
- * of shell inputs.
- *
- * @tparam Is A variadic parameter pack of integers from [0,NBases) to
- * expand.
- * @param engine The LibInt2 engine that computes integrals
- * @param bases The bases sets that hold the shells
- * @param shells The index of the requested shell block
- */
-template<std::size_t... Is>
-void run_engine_(libint2::Engine& engine,
-                 const std::vector<libint2::BasisSet>& bases,
-                 const std::vector<std::size_t>& shells,
-                 std::index_sequence<Is...>) {
-    engine.compute(bases[Is][shells[Is]]...);
-}
-
-} // namespace integrals::detail_
+} // namespace integrals::libint::detail_

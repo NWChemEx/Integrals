@@ -77,6 +77,10 @@ TEMPLATED_MODULE_RUN(StandardTransform, N, OpType) {
     return pt::wrap_results(rv, t);
 }
 
+// -----------------------------------------------------------------------------
+// -- Template Declarations
+// -----------------------------------------------------------------------------
+
 template class StandardTransform<2, simde::type::el_scf_k>;
 template class StandardTransform<2, simde::type::fock>;
 template class StandardTransform<2, simde::type::el_kinetic>;

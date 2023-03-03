@@ -16,3 +16,14 @@
 
 #pragma once
 #include "standard.hpp"
+#include <pluginplay/module_manager.hpp>
+
+namespace integrals::transforms {
+
+// -----------------------------------------------------------------------------
+// -- Declare Module Load Functions
+// -----------------------------------------------------------------------------
+
+void load_transformed_integrals(pluginplay::ModuleManager& mm);
+
+} // namespace integrals::transforms
