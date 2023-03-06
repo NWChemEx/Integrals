@@ -14,158 +14,59 @@
  * limitations under the License.
  */
 
-#include "integrals/integrals_mm.hpp"
-#include "libint/cs_screened_integrals.hpp"
+#include "ao_integrals/ao_integrals.hpp"
 #include "libint/libint.hpp"
 #include "libint/shapes/shapes.hpp"
-#include "libint/shellnorms.hpp"
 #include "transforms/transforms.hpp"
-
-#define ADD_INT_WITH_DIRECT(N, op, key_base)       \
-    mm.add_module<Libint<N, op, false>>(key_base); \
-    mm.add_module<Libint<N, op, true>>("Direct " key_base)
-
-#define ADD_CS_INT_WITH_DIRECT(N, op, key_base)      \
-    mm.add_module<CSLibint<N, op, false>>(key_base); \
-    mm.add_module<CSLibint<N, op, true>>("Direct " key_base)
+#include <integrals/integrals_mm.hpp>
 
 using namespace simde::type;
 
 namespace integrals {
 
-template<std::size_t N, typename OpType>
-void register_transformed_integral(pluginplay::ModuleManager& mm,
-                                   std::string key) {
-    using module_t = StandardTransform<N, OpType>;
-    auto new_key   = "Transformed " + key;
-    mm.add_module<module_t>(new_key);
-    mm.change_submod(new_key, "integral kernel", key);
-}
-
-void load_libint_integrals(pluginplay::ModuleManager& mm) {
-    mm.add_module<LibintDOI<false>>("DOI");
-    mm.add_module<LibintDOI<true>>("Direct DOI");
-    mm.add_module<LibintMultipole<0, el_dipole>>("EDipole");
-    mm.add_module<LibintMultipole<1, el_quadrupole>>("EQuadrupole");
-    mm.add_module<LibintMultipole<2, el_octupole>>("EOctupole");
-    ADD_INT_WITH_DIRECT(2, el_el_coulomb, "ERI2");
-    ADD_INT_WITH_DIRECT(3, el_el_coulomb, "ERI3");
-    ADD_INT_WITH_DIRECT(4, el_el_coulomb, "ERI4");
-    ADD_INT_WITH_DIRECT(2, el_kinetic, "Kinetic");
-    ADD_INT_WITH_DIRECT(2, el_nuc_coulomb, "Nuclear");
-    ADD_INT_WITH_DIRECT(2, el_identity, "Overlap");
-    ADD_INT_WITH_DIRECT(2, el_el_stg, "STG2");
-    ADD_INT_WITH_DIRECT(3, el_el_stg, "STG3");
-    ADD_INT_WITH_DIRECT(4, el_el_stg, "STG4");
-    ADD_INT_WITH_DIRECT(2, el_el_yukawa, "Yukawa2");
-    ADD_INT_WITH_DIRECT(3, el_el_yukawa, "Yukawa3");
-    ADD_INT_WITH_DIRECT(4, el_el_yukawa, "Yukawa4");
-    ADD_CS_INT_WITH_DIRECT(2, el_kinetic, "Kinetic CS");
-    ADD_CS_INT_WITH_DIRECT(2, el_nuc_coulomb, "Nuclear CS");
-    ADD_CS_INT_WITH_DIRECT(2, el_identity, "Overlap CS");
-    ADD_CS_INT_WITH_DIRECT(3, el_el_coulomb, "ERI3 CS");
-    ADD_CS_INT_WITH_DIRECT(4, el_el_coulomb, "ERI4 CS");
-    ADD_CS_INT_WITH_DIRECT(3, el_el_stg, "STG3 CS");
-    ADD_CS_INT_WITH_DIRECT(4, el_el_stg, "STG4 CS");
-    ADD_CS_INT_WITH_DIRECT(3, el_el_yukawa, "Yukawa3 CS");
-    ADD_CS_INT_WITH_DIRECT(4, el_el_yukawa, "Yukawa4 CS");
-
-    mm.add_module<ShellNormOverlap>("Shell Norms Overlap");
-    mm.add_module<ShellNormCoulomb>("Shell Norms Coulomb");
-    mm.add_module<ShellNormSTG>("Shell Norms STG");
-    mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
-}
-
-void load_transformed_libint_integrals(pluginplay::ModuleManager& mm) {
-    // register_transformed_integral<pt::edipole<T>>(mm, "EDipole");
-    // register_transformed_integral<pt::equadrupole<T>>(mm, "EQuadrupole");
-    // register_transformed_integral<pt::eoctopole<T>>(mm, "EOctopole");
-    // register_transformed_integral<pt::eri2c<T>>(mm, "ERI2");
-    register_transformed_integral<3, el_el_coulomb>(mm, "ERI3");
-    register_transformed_integral<4, el_el_coulomb>(mm, "ERI4");
-    // register_transformed_integral<pt::kinetic<T>>(mm, "Kinetic");
-    // register_transformed_integral<pt::nuclear<T>>(mm, "Nuclear");
-    // register_transformed_integral<pt::overlap<T>>(mm, "Overlap");
-    register_transformed_integral<2, el_kinetic>(mm, "Kinetic");
-    register_transformed_integral<2, el_nuc_coulomb>(mm, "Nuclear");
-}
-
-void load_f12_integrals(pluginplay::ModuleManager& mm) {
-    mm.add_module<Libint<4, el_el_f12_commutator, false>>(
-      "STG 4 Center dfdr Squared");
-}
-
-void load_transformed_f12_integrals(pluginplay::ModuleManager& mm) {
-    register_transformed_integral<4, el_el_f12_commutator>(
-      mm, "STG 4 Center dfdr Squared");
-    register_transformed_integral<4, el_el_stg>(mm, "STG4");
-    register_transformed_integral<4, el_el_yukawa>(mm, "Yukawa4");
-}
-
-void load_misc_transforms(pluginplay::ModuleManager& mm) {
-    mm.add_module<StandardTransform<2, el_scf_k>>("Transformed K");
-    mm.add_module<StandardTransform<2, fock>>("Transformed Fock");
-}
-
 void set_defaults(pluginplay::ModuleManager& mm) {
-    /// Set the shape module of the unscreened integrals
-    /// and their direct versions
-    mm.change_submod("STG 4 Center dfdr Squared", "Tensor Shape",
-                     "OneTileShape");
-    {
-        std::vector<std::string> ints = {
-          "DOI",  "ERI2", "ERI3", "ERI4",    "Kinetic", "Nuclear", "Overlap",
-          "STG2", "STG3", "STG4", "Yukawa2", "Yukawa3", "Yukawa4",
-        };
-        for(auto& name : ints) {
-            mm.change_submod(name, "Tensor Shape", "OneTileShape");
-            mm.change_submod("Direct " + name, "Tensor Shape", "OneTileShape");
-        }
+    /// Submodule name
+    auto fac_sub = "AO Integral Factory";
+
+    /// Set Factory for non-screened integrals
+    std::vector<std::string> module_names{
+      "ERI2", "ERI3", "ERI4",    "Kinetic", "Nuclear", "Overlap", "STG2",
+      "STG3", "STG4", "Yukawa2", "Yukawa3", "Yukawa4", "DOI4"};
+    for(const auto& name : module_names) {
+        mm.change_submod(name, fac_sub, name + " Factory");
+        mm.change_submod("Direct " + name, fac_sub, name + " Factory");
+    }
+    mm.change_submod("STG 4 Center dfdr Squared", fac_sub, "F12 4C Factory");
+
+    /// Set Factory for screened integrals
+    module_names = {"ERI3", "ERI4", "Kinetic", "Nuclear", "Overlap",
+                    "STG3", "STG4", "Yukawa3", "Yukawa4"};
+    for(const auto& name : module_names) {
+        auto name_cs = name + " CS";
+        mm.change_submod(name_cs, fac_sub, name + " Factory");
+        mm.change_submod("Direct " + name_cs, fac_sub, name + " Factory");
     }
 
-    /// Set the shape and shell norm modules for the screened integrals
-    /// and their direct versions.
-    {
-        std::vector<std::string> ints = {
-          "ERI3 CS", "ERI4 CS", "Kinetic CS", "Nuclear CS", "Overlap CS",
-          "STG3 CS", "STG4 CS", "Yukawa3 CS", "Yukawa4 CS"};
-        for(auto& name : ints) {
-            mm.change_submod(name, "Tensor Shape", "OneTileShape");
-            mm.change_submod("Direct " + name, "Tensor Shape", "OneTileShape");
-
-            if(name.find("ERI") != std::string::npos) {
-                mm.change_submod(name, "Shell Norms", "Shell Norms Coulomb");
-                mm.change_submod("Direct " + name, "Shell Norms",
-                                 "Shell Norms Coulomb");
-            } else if(name.find("STG") != std::string::npos) {
-                mm.change_submod(name, "Shell Norms", "Shell Norms STG");
-                mm.change_submod("Direct " + name, "Shell Norms",
-                                 "Shell Norms STG");
-            } else if(name.find("Yukawa") != std::string::npos) {
-                mm.change_submod(name, "Shell Norms", "Shell Norms Yukawa");
-                mm.change_submod("Direct " + name, "Shell Norms",
-                                 "Shell Norms Yukawa");
-            } else {
-                mm.change_submod(name, "Shell Norms", "Shell Norms Overlap");
-                mm.change_submod("Direct " + name, "Shell Norms",
-                                 "Shell Norms Overlap");
-            }
-        }
+    /// Set Factory for multipoles
+    module_names = {"EDipole", "EQuadrupole", "EOctupole"};
+    for(const auto& name : module_names) {
+        mm.change_submod(name, fac_sub, name + " Factory");
     }
+
+    /// Set Factory for shell norms
+    mm.change_submod("Shell Norms Overlap", fac_sub, "Overlap Factory");
+    mm.change_submod("Shell Norms Coulomb", fac_sub, "ERI4 Factory");
+    mm.change_submod("Shell Norms STG", fac_sub, "STG4 Factory");
+    mm.change_submod("Shell Norms Yukawa", fac_sub, "Yukawa4 Factory");
 }
 
 void load_modules(pluginplay::ModuleManager& mm) {
-    load_libint_integrals(mm);
-    load_transformed_libint_integrals(mm);
-    load_f12_integrals(mm);
-    load_transformed_f12_integrals(mm);
-    load_misc_transforms(mm);
-    shape_mods::load_modules(mm);
+    ao_integrals::load_ao_integrals(mm);
+    libint::load_libint_modules(mm);
+    transforms::load_transformed_integrals(mm);
 
+    ao_integrals::ao_integrals_set_defaults(mm);
     set_defaults(mm);
 }
 
 } // namespace integrals
-
-#undef ADD_INT_WITH_DIRECT
-#undef ADD_CS_INT_WITH_DIRECT

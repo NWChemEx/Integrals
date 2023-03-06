@@ -15,29 +15,29 @@
  */
 
 #pragma once
-#include <simde/simde.hpp>
+#include <pluginplay/module_base.hpp>
 
-namespace integrals {
+namespace integrals::ao_integrals {
 
 // -----------------------------------------------------------------------------
-// -- Declare Module Types
+// -- Declare Integral Module Types
 // -----------------------------------------------------------------------------
 
-template<std::size_t N, typename OpType>
-DECLARE_MODULE(StandardTransform);
+template<std::size_t NBodies, typename OperatorType>
+DECLARE_MODULE(ShellNorms);
+
+using ShellNormOverlap = ShellNorms<1, simde::type::el_identity>;
+using ShellNormCoulomb = ShellNorms<2, simde::type::el_el_coulomb>;
+using ShellNormSTG     = ShellNorms<2, simde::type::el_el_stg>;
+using ShellNormYukawa  = ShellNorms<2, simde::type::el_el_yukawa>;
 
 // -----------------------------------------------------------------------------
 // -- Forward External Template Declarations
 // -----------------------------------------------------------------------------
 
-extern template class StandardTransform<2, simde::type::el_scf_k>;
-extern template class StandardTransform<2, simde::type::fock>;
-extern template class StandardTransform<2, simde::type::el_kinetic>;
-extern template class StandardTransform<2, simde::type::el_nuc_coulomb>;
-extern template class StandardTransform<2, simde::type::fock>;
-extern template class StandardTransform<3, simde::type::el_el_coulomb>;
-extern template class StandardTransform<4, simde::type::el_el_coulomb>;
-extern template class StandardTransform<4, simde::type::el_el_f12_commutator>;
-extern template class StandardTransform<4, simde::type::el_el_stg>;
-extern template class StandardTransform<4, simde::type::el_el_yukawa>;
-} // namespace integrals
+extern template class ShellNorms<1, simde::type::el_identity>;
+extern template class ShellNorms<2, simde::type::el_el_coulomb>;
+extern template class ShellNorms<2, simde::type::el_el_stg>;
+extern template class ShellNorms<2, simde::type::el_el_yukawa>;
+
+} // namespace integrals::ao_integrals

@@ -23,4 +23,3 @@
  */
 #pragma once
 #include "integrals/integrals_mm.hpp"
-#include <simde/simde.hpp>

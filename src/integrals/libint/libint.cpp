@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NWChemEx-Project
+ * Copyright 2023 NWChemEx-Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,146 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include "detail_/aos2shells.hpp"
-#include "detail_/bases_helper.hpp"
-#include "detail_/make_engine.hpp"
-#include "detail_/make_shape.hpp"
-#include "detail_/select_allocator.hpp"
-#include "detail_/shells2ord.hpp"
 #include "libint.hpp"
-#include <integrals/property_types/integral_shape.hpp>
-#include <simde/tensor_representation/ao_tensor_representation.hpp>
+#include "make_libint_factory.hpp"
 
-namespace integrals {
+namespace integrals::libint {
 
-using integral_shape_t = integrals::IntegralShape;
+// -----------------------------------------------------------------------------
+// -- Define Module Load Functions
+// -----------------------------------------------------------------------------
 
-/// Grab the various detail_ functions
-using namespace detail_;
+#define ADD_FACTORY(N, op, key) \
+    mm.add_module<MakeLibintFactory<N, op>>(key " Factory")
 
-template<std::size_t N, typename OperatorType, bool direct>
-TEMPLATED_MODULE_CTOR(Libint, N, OperatorType, direct) {
-    description("Computes integrals with Libint");
-    using my_pt = simde::AOTensorRepresentation<N, OperatorType>;
+void load_libint_modules(pluginplay::ModuleManager& mm) {
+    using namespace simde::type;
 
-    satisfies_property_type<my_pt>();
-
-    add_input<double>("Threshold")
-      .set_default(1.0E-16)
-      .set_description(
-        "The target precision with which the integrals will be computed");
-
-    add_submodule<integral_shape_t>("Tensor Shape")
-      .set_description("Determines the shape of the resulting tensor");
+    ADD_FACTORY(2, el_el_coulomb, "ERI2");
+    ADD_FACTORY(3, el_el_coulomb, "ERI3");
+    ADD_FACTORY(4, el_el_coulomb, "ERI4");
+    ADD_FACTORY(2, el_kinetic, "Kinetic");
+    ADD_FACTORY(2, el_nuc_coulomb, "Nuclear");
+    ADD_FACTORY(2, el_identity, "Overlap");
+    ADD_FACTORY(2, el_el_stg, "STG2");
+    ADD_FACTORY(3, el_el_stg, "STG3");
+    ADD_FACTORY(4, el_el_stg, "STG4");
+    ADD_FACTORY(2, el_el_yukawa, "Yukawa2");
+    ADD_FACTORY(3, el_el_yukawa, "Yukawa3");
+    ADD_FACTORY(4, el_el_yukawa, "Yukawa4");
+    ADD_FACTORY(2, el_el_f12_commutator, "F12 2C");
+    ADD_FACTORY(3, el_el_f12_commutator, "F12 3C");
+    ADD_FACTORY(4, el_el_f12_commutator, "F12 4C");
+    ADD_FACTORY(2, el_dipole, "EDipole");
+    ADD_FACTORY(2, el_quadrupole, "EQuadrupole");
+    ADD_FACTORY(2, el_octupole, "EOctupole");
+    ADD_FACTORY(4, el_el_delta, "DOI4");
 }
 
-template<std::size_t N, typename OperatorType, bool direct>
-TEMPLATED_MODULE_RUN(Libint, N, OperatorType, direct) {
-    /// Typedefs
-    using my_pt         = simde::AOTensorRepresentation<N, OperatorType>;
-    using size_vector_t = std::vector<std::size_t>;
-    using tensor_t      = simde::type::tensor;
-    using field_t       = typename tensor_t::field_type;
-    using shape_t       = typename tensor_t::shape_type;
+#undef ADD_FACTORY
 
-    /// Grab input information
-    auto bases  = unpack_bases<N>(inputs);
-    auto op_str = OperatorType().as_string();
-    auto op     = inputs.at(op_str).template value<const OperatorType&>();
-    auto thresh = inputs.at("Threshold").value<double>();
-
-    /// Geminal exponent handling
-    constexpr auto is_stg =
-      std::is_same_v<OperatorType, simde::type::el_el_stg>;
-    constexpr auto is_yukawa =
-      std::is_same_v<OperatorType, simde::type::el_el_yukawa>;
-
-    double coeff = 1.0;
-    if constexpr(is_stg || is_yukawa) {
-        coeff = op.template at<0>().coefficient;
-    }
-
-    /// Lambda to calculate values
-    auto l = [=](const auto& lo, const auto& up, auto* data) {
-        /// Convert index values from AOs to shells
-        size_vector_t lo_shells, up_shells;
-        for(auto i = 0; i < N; ++i) {
-            auto shells_in_tile = aos2shells(bases[i], lo[i], up[i]);
-            lo_shells.push_back(shells_in_tile.front());
-            up_shells.push_back(shells_in_tile.back());
-        }
-
-        /// Make the libint engine to calculate integrals
-        auto engine     = make_engine(bases, op, thresh);
-        const auto& buf = engine.results();
-
-        /// Loop through shell combinations
-        size_vector_t curr_shells = lo_shells;
-        while(curr_shells[0] <= up_shells[0]) {
-            /// Determine which values will be computed this time
-            auto ord_pos = shells2ord(bases, curr_shells, lo_shells, up_shells);
-
-            /// Compute values
-            run_engine_(engine, bases, curr_shells,
-                        std::make_index_sequence<N>());
-            auto vals = buf[0];
-
-            if(vals) {
-                /// Copy libint values into tile data;
-                for(auto i = 0; i < ord_pos.size(); ++i) {
-                    data[ord_pos[i]] = vals[i] * coeff;
-                }
-            } else {
-                for(auto i = 0; i < ord_pos.size(); ++i) {
-                    data[ord_pos[i]] = 0.0;
-                }
-            }
-
-            /// Increment curr_shells
-            curr_shells[N - 1] += 1;
-            for(auto i = 1; i < N; ++i) {
-                if(curr_shells[N - i] > up_shells[N - i]) {
-                    /// Reset this dimension and increment the next one
-                    /// curr_shells[0] accumulates until we reach the end
-                    curr_shells[N - i] = lo_shells[N - i];
-                    curr_shells[N - i - 1] += 1;
-                }
-            }
-        }
-    };
-
-    auto [shape] = submods.at("Tensor Shape")
-                     .run_as<integral_shape_t>(unpack_inputs<N>(inputs));
-
-    tensor_t I(l, std::make_unique<shape_t>(shape),
-               select_allocator<direct, field_t>(bases, op, thresh));
-
-    /// Finish
-    auto rv = results();
-    return my_pt::wrap_results(rv, I);
-}
-
-#define TEMPLATE_INT_AND_DIRECT(N, op)   \
-    template class Libint<N, op, false>; \
-    template class Libint<N, op, true>
-
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_coulomb);
-TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
-TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_kinetic);
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_identity);
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_stg);
-TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_stg);
-TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_stg);
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_yukawa);
-TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
-TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
-TEMPLATE_INT_AND_DIRECT(2, simde::type::el_el_f12_commutator);
-TEMPLATE_INT_AND_DIRECT(3, simde::type::el_el_f12_commutator);
-TEMPLATE_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
-
-#undef TEMPLATE_INT_AND_DIRECT
-
-} // namespace integrals
+} // namespace integrals::libint

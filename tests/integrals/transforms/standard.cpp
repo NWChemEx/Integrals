@@ -17,6 +17,7 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
+#include <simde/simde.hpp>
 #include <tensorwrapper/tensor/allclose.hpp>
 
 using namespace mokup;
