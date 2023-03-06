@@ -21,6 +21,7 @@
 #include "detail_/select_allocator.hpp"
 #include "detail_/shells2ord.hpp"
 #include "detail_/unpack_bases.hpp"
+#include <integrals/property_types/integral_shape.hpp>
 #include <simde/cauchy_schwarz_approximation.hpp>
 #include <simde/integral_factory.hpp>
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
@@ -31,6 +32,9 @@ namespace integrals::ao_integrals {
 template<typename OperatorType>
 using factory_pt = simde::IntegralFactory<OperatorType>;
 using factory_t  = simde::type::integral_factory;
+
+/// Type of a module that produces integral shapes
+using integral_shape_pt = integrals::IntegralShape;
 
 /// Grab the various detail_ functions
 using namespace detail_;
@@ -47,6 +51,9 @@ TEMPLATED_MODULE_CTOR(CSAOIntegral, N, OperatorType, direct) {
 
     add_submodule<factory_pt<OperatorType>>("AO Integral Factory")
       .set_description("Used to generate the AO factory");
+
+    add_submodule<integral_shape_pt>("Tensor Shape")
+      .set_description("Determines the shape of the resulting tensor");
 
     add_input<double>("Screening Threshold")
       .set_default(0.0)
@@ -72,6 +79,7 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
     using ao_space_t    = simde::type::ao_space;
     using tensor_t      = simde::type::tensor;
     using field_t       = typename tensor_t::field_type;
+    using shape_t       = typename tensor_t::shape_type;
     using size_vector_t = std::vector<std::size_t>;
     using shell_norm_t  = std::vector<std::vector<double>>;
 
@@ -174,7 +182,9 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
         }
     };
 
-    tensor_t I(l, make_shape(bases),
+    auto [shape] = submods.at("Tensor Shape").run_as<integral_shape_pt>(bases);
+
+    tensor_t I(l, std::make_unique<shape_t>(shape),
                select_allocator<direct, field_t>(bases, op, cs_thresh));
 
     /// Finish

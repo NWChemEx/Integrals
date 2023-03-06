@@ -17,16 +17,12 @@
 #pragma once
 #include <pluginplay/pluginplay.hpp>
 
-namespace integrals {
+namespace integrals::shapes {
 
 DECLARE_MODULE(OneTileShape);
-
-namespace shape_mods {
 
 inline void load_modules(pluginplay::ModuleManager& mm) {
     mm.add_module<OneTileShape>("OneTileShape");
 }
 
-} // namespace shape_mods
-
-} // namespace integrals
+} // namespace integrals::shapes

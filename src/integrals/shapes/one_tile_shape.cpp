@@ -17,7 +17,7 @@
 #include "shapes.hpp"
 #include <integrals/property_types/integral_shape.hpp>
 
-namespace integrals {
+namespace integrals::shapes {
 
 using integral_shape_t = integrals::IntegralShape;
 using shape_t          = typename simde::type::tensor::shape_type;
@@ -39,4 +39,4 @@ MODULE_RUN(OneTileShape) {
     return integral_shape_t::wrap_results(rv, shape);
 }
 
-} // namespace integrals
+} // namespace integrals::shapes

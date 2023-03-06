@@ -16,7 +16,7 @@
 
 #include "ao_integrals/ao_integrals.hpp"
 #include "libint/libint.hpp"
-#include "libint/shapes/shapes.hpp"
+#include "shapes/shapes.hpp"
 #include "transforms/transforms.hpp"
 #include <integrals/integrals_mm.hpp>
 
@@ -33,9 +33,13 @@ void set_defaults(pluginplay::ModuleManager& mm) {
       "ERI2", "ERI3", "ERI4",    "Kinetic", "Nuclear", "Overlap", "STG2",
       "STG3", "STG4", "Yukawa2", "Yukawa3", "Yukawa4", "DOI4"};
     for(const auto& name : module_names) {
+        mm.change_submod(name, "Tensor Shape", "OneTileShape");
+        mm.change_submod("Direct " + name, "Tensor Shape", "OneTileShape");
         mm.change_submod(name, fac_sub, name + " Factory");
         mm.change_submod("Direct " + name, fac_sub, name + " Factory");
     }
+    mm.change_submod("STG 4 Center dfdr Squared", "Tensor Shape",
+                     "OneTileShape");
     mm.change_submod("STG 4 Center dfdr Squared", fac_sub, "F12 4C Factory");
 
     /// Set Factory for screened integrals
@@ -43,6 +47,8 @@ void set_defaults(pluginplay::ModuleManager& mm) {
                     "STG3", "STG4", "Yukawa3", "Yukawa4"};
     for(const auto& name : module_names) {
         auto name_cs = name + " CS";
+        mm.change_submod(name_cs, "Tensor Shape", "OneTileShape");
+        mm.change_submod("Direct " + name_cs, "Tensor Shape", "OneTileShape");
         mm.change_submod(name_cs, fac_sub, name + " Factory");
         mm.change_submod("Direct " + name_cs, fac_sub, name + " Factory");
     }
@@ -64,6 +70,7 @@ void load_modules(pluginplay::ModuleManager& mm) {
     ao_integrals::load_ao_integrals(mm);
     libint::load_libint_modules(mm);
     transforms::load_transformed_integrals(mm);
+    shapes::load_modules(mm);
 
     ao_integrals::ao_integrals_set_defaults(mm);
     set_defaults(mm);
