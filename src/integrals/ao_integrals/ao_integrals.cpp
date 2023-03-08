@@ -17,6 +17,7 @@
 #include "ao_integrals.hpp"
 #include "cs_screened_integrals.hpp"
 #include "detail_/aos2shells.hpp"
+#include "detail_/bsets_shell_sizes.hpp"
 #include "detail_/get_coeff.hpp"
 #include "detail_/make_shape.hpp"
 #include "detail_/select_allocator.hpp"
@@ -63,21 +64,22 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
     using field_t       = typename tensor_t::field_type;
     using shape_t       = typename tensor_t::shape_type;
 
-    auto bases     = detail_::unpack_bases<N>(inputs);
+    auto bases     = unpack_bases<N>(inputs);
     auto op_str    = OperatorType().as_string();
     auto& fac_mod  = submods.at("AO Integral Factory");
     const auto& op = inputs.at(op_str).template value<const OperatorType&>();
 
-    auto [factory] = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
-    auto coeff     = detail_::get_coefficient(op);
+    auto [factory]   = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+    auto coeff       = get_coefficient(op);
+    auto shell_sizes = bsets_shell_sizes(bases);
 
     /// Lambda to calculate values
-    auto l = [=, factory = factory](const auto& lo, const auto& up,
-                                    auto* data) mutable {
+    auto l = [coeff, shell_sizes, factory = factory](
+               const auto& lo, const auto& up, auto* data) mutable {
         /// Convert index values from AOs to shells
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
-            auto shells_in_tile = detail_::aos2shells(bases[i], lo[i], up[i]);
+            auto shells_in_tile = aos2shells(shell_sizes[i], lo[i], up[i]);
             lo_shells.push_back(shells_in_tile.front());
             up_shells.push_back(shells_in_tile.back());
         }
@@ -87,7 +89,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
         while(curr_shells[0] <= up_shells[0]) {
             /// Determine which values will be computed this time
             auto ord_pos =
-              detail_::shells2ord(bases, curr_shells, lo_shells, up_shells);
+              shells2ord(shell_sizes, curr_shells, lo_shells, up_shells);
 
             const auto& buf = factory.compute(curr_shells);
             auto vals       = buf[0];

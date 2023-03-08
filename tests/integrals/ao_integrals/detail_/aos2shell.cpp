@@ -16,24 +16,18 @@
 
 #include "integrals/ao_integrals/detail_/aos2shells.hpp"
 #include <catch2/catch.hpp>
-#include <mokup/mokup.hpp>
-
-using namespace mokup;
 
 using integrals::ao_integrals::detail_::aos2shells;
 
 TEST_CASE("aos2shells") {
-    const auto name  = molecule::h2o;
-    const auto bs    = basis_set::sto3g;
-    auto aos         = get_bases(name, bs);
-    const auto& bset = aos.basis_set();
+    std::vector<std::size_t> shell_sizes{1, 1, 3, 1, 1};
 
     // Run with different inputs
-    auto all     = aos2shells(bset, 0, 7);
-    auto only_o  = aos2shells(bset, 0, 5);
-    auto only_h1 = aos2shells(bset, 5, 6);
-    auto only_h2 = aos2shells(bset, 6, 7);
-    auto both_hs = aos2shells(bset, 5, 7);
+    auto all     = aos2shells(shell_sizes, 0, 7);
+    auto only_o  = aos2shells(shell_sizes, 0, 5);
+    auto only_h1 = aos2shells(shell_sizes, 5, 6);
+    auto only_h2 = aos2shells(shell_sizes, 6, 7);
+    auto both_hs = aos2shells(shell_sizes, 5, 7);
 
     /// Check outputs
     REQUIRE(all == std::vector<std::size_t>{0, 1, 2, 3, 4});

@@ -16,49 +16,45 @@
 
 #include "integrals/ao_integrals/detail_/shells2ord.hpp"
 #include <catch2/catch.hpp>
-#include <mokup/mokup.hpp>
 
-using namespace mokup;
 using integrals::ao_integrals::detail_::shells2ord;
 using size_vector_t = std::vector<std::size_t>;
 
 TEST_CASE("shell2ord") {
-    /// Common basis set
-    const auto name  = molecule::h2o;
-    const auto bs    = basis_set::sto3g;
-    auto aos         = get_bases(name, bs);
-    const auto& bset = aos.basis_set();
-    /// Check different dimensionalities
+    // Shell sizes
+    size_vector_t shell_sizes{1, 1, 3, 1, 1};
+
+    // Check different dimensionalities
     SECTION("2D") {
-        std::vector sets{bset, bset};
+        std::vector sizes{shell_sizes, shell_sizes};
         size_vector_t curr{2, 0}, lo{0, 0}, up{4, 4};
-        auto ord_pos = shells2ord(sets, curr, lo, up);
+        auto ord_pos = shells2ord(sizes, curr, lo, up);
         REQUIRE(ord_pos == size_vector_t{14, 21, 28});
     }
 
     SECTION("3D") {
-        std::vector sets{bset, bset, bset};
+        std::vector sizes{shell_sizes, shell_sizes, shell_sizes};
         size_vector_t curr{2, 0, 0}, lo{0, 0, 0}, up{4, 4, 4};
-        auto ord_pos = shells2ord(sets, curr, lo, up);
+        auto ord_pos = shells2ord(sizes, curr, lo, up);
         REQUIRE(ord_pos == size_vector_t{98, 147, 196});
     }
 
     SECTION("4D") {
-        std::vector sets{bset, bset, bset, bset};
+        std::vector sizes{shell_sizes, shell_sizes, shell_sizes, shell_sizes};
         size_vector_t curr{2, 0, 0, 0}, lo{0, 0, 0, 0}, up{4, 4, 4, 4};
-        auto ord_pos = shells2ord(sets, curr, lo, up);
+        auto ord_pos = shells2ord(sizes, curr, lo, up);
         REQUIRE(ord_pos == size_vector_t{686, 1029, 1372});
     }
 
     SECTION("specific tile") {
-        std::vector sets{bset, bset};
+        std::vector sizes{shell_sizes, shell_sizes};
         size_vector_t lo{2, 0}, up{3, 0};
         SECTION("lower") {
-            auto ord_pos = shells2ord(sets, lo, lo, up);
+            auto ord_pos = shells2ord(sizes, lo, lo, up);
             REQUIRE(ord_pos == size_vector_t{0, 1, 2});
         }
         SECTION("upper") {
-            auto ord_pos = shells2ord(sets, up, lo, up);
+            auto ord_pos = shells2ord(sizes, up, lo, up);
             REQUIRE(ord_pos == size_vector_t{3});
         }
     }

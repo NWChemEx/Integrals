@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "detail_/bsets_shell_sizes.hpp"
 #include "detail_/unpack_bases.hpp"
 #include "shellnorms.hpp"
 #include <simde/cauchy_schwarz_approximation.hpp>
@@ -25,6 +26,9 @@ namespace integrals::ao_integrals {
 template<typename OperatorType>
 using factory_pt = simde::IntegralFactory<OperatorType>;
 using factory_t  = simde::type::integral_factory;
+
+/// Grab the various detail_ functions
+using namespace detail_;
 
 template<std::size_t NBodies, typename OperatorType>
 TEMPLATED_MODULE_CTOR(ShellNorms, NBodies, OperatorType) {
@@ -45,13 +49,16 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
     using return_vec = typename std::vector<elem_vec>;
 
     // Get inputs
-    auto bases     = detail_::unpack_bases<2>(inputs);
+    auto bases     = unpack_bases<2>(inputs);
     auto op_str    = OperatorType().as_string();
     auto& fac_mod  = submods.at("AO Integral Factory");
     const auto& op = inputs.at(op_str).template value<const OperatorType&>();
 
     // Check if the basis sets are the same
     bool same_bs = (bases[0] == bases[1]);
+
+    // Get shell sizes
+    auto shell_sizes = bsets_shell_sizes(bases);
 
     // Our return value
     return_vec mat(bases[0].n_shells(), elem_vec(bases[1].n_shells(), 0.0));
@@ -60,14 +67,13 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
     std::function<void(std::size_t, std::size_t)> into_mat;
     if constexpr(NBodies == 1) {
         auto [factory] = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
-        into_mat       = [&, factory = factory](std::size_t i,
-                                          std::size_t j) mutable {
+        into_mat       = [&mat, &same_bs, &shell_sizes,
+                    factory = factory](std::size_t i, std::size_t j) mutable {
             const auto& buf = factory.compute({i, j});
             auto vals       = buf[0];
 
             // Determine the number of compute values
-            std::size_t nvals =
-              (bases[0].shell(i).size() * bases[1].shell(j).size());
+            std::size_t nvals = (shell_sizes[0][i] * shell_sizes[1][j]);
 
             // Find the norm and take the square root
             double frobenius_norm_squared = 0.0;
@@ -85,15 +91,14 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
         auto doubled = bases;
         for(auto& set : bases) doubled.push_back(set);
         auto [factory] = fac_mod.run_as<factory_pt<OperatorType>>(doubled, op);
-        into_mat       = [&, factory = factory](std::size_t i,
-                                          std::size_t j) mutable {
+        into_mat       = [&mat, &same_bs, &shell_sizes,
+                    factory = factory](std::size_t i, std::size_t j) mutable {
             const auto& buf = factory.compute({i, j, i, j});
             auto vals       = buf[0];
 
             // Determine the number of compute values
-            std::size_t nvals =
-              (bases[0].shell(i).size() * bases[0].shell(i).size());
-            nvals *= (bases[1].shell(j).size() * bases[1].shell(j).size());
+            std::size_t nvals = (shell_sizes[0][i] * shell_sizes[0][i]);
+            nvals *= (shell_sizes[1][j] * shell_sizes[1][j]);
 
             // Find the norm and take the square root
             double inf_norm_squared = 0.0;

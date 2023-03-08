@@ -21,21 +21,19 @@ namespace integrals::ao_integrals::detail_ {
 
 /** @brief Find the ordinal indices spanned by the shell indices
  *
- *  @param[in] bases A vector of basis sets.
+ *  @param[in] bases A vector of shell sizes.
  *  @param[in] shell A vector of indices for shells in the basis sets.
  *  @param[in] lo_shell The lower most shell index in the span.
  *  @param[in] up_shell The upper most shell index in the span.
  *  @returns An std::vector of the ordinal indices associated with the shells.
  */
-inline auto shells2ord(const std::vector<simde::type::ao_basis_set>& bases,
+inline auto shells2ord(const std::vector<std::vector<std::size_t>>& shell_sizes,
                        std::vector<std::size_t>& shells,
                        std::vector<std::size_t>& lo_shells,
                        std::vector<std::size_t>& up_shells) {
     using size_vector_t = std::vector<std::size_t>;
 
-    /// Need bases extents and the AO span of the shells
-    /// for ordinal position determination
-    auto N = bases.size();
+    auto N = shell_sizes.size();
     size_vector_t extents;
     size_vector_t lo_ao;
     size_vector_t up_ao;
@@ -44,9 +42,9 @@ inline auto shells2ord(const std::vector<simde::type::ao_basis_set>& bases,
         for(auto j = lo_shells[i]; j <= up_shells[i]; ++j) {
             if(j == shells[i]) {
                 lo_ao.push_back(set_extent);
-                up_ao.push_back(set_extent + bases[i].shell(j).size() - 1);
+                up_ao.push_back(set_extent + shell_sizes[i][j] - 1);
             }
-            set_extent += bases[i].shell(j).size();
+            set_extent += shell_sizes[i][j];
         }
         extents.push_back(set_extent);
     }
