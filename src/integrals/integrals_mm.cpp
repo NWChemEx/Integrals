@@ -60,10 +60,31 @@ void set_defaults(pluginplay::ModuleManager& mm) {
     }
 
     /// Set Factory for shell norms
-    mm.change_submod("Shell Norms Overlap", fac_sub, "Overlap Factory");
-    mm.change_submod("Shell Norms Coulomb", fac_sub, "ERI4 Factory");
-    mm.change_submod("Shell Norms STG", fac_sub, "STG4 Factory");
-    mm.change_submod("Shell Norms Yukawa", fac_sub, "Yukawa4 Factory");
+    /// TODO: Uncomment after module optimization
+    // mm.change_submod("Shell Norms Overlap", fac_sub, "Overlap Factory");
+    // mm.change_submod("Shell Norms Coulomb", fac_sub, "ERI4 Factory");
+    // mm.change_submod("Shell Norms STG", fac_sub, "STG4 Factory");
+    // mm.change_submod("Shell Norms Yukawa", fac_sub, "Yukawa4 Factory");
+
+    /// TODO: Need to be removed. See module declarations.
+    mm.change_submod("Kinetic CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Nuclear CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Overlap CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
+    mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
+    mm.change_submod("Direct Kinetic CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Direct Nuclear CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Direct Overlap CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Direct ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("Direct ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("Direct STG3 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("Direct STG4 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("Direct Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
+    mm.change_submod("Direct Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
 }
 
 void load_modules(pluginplay::ModuleManager& mm) {
