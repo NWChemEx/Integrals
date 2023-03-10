@@ -21,23 +21,22 @@ namespace integrals::ao_integrals::detail_ {
 
 /** @brief Find the shells that contain the specified AOs.
  *
- *  Given an AOBasisSet @p basis_set and a lower @p lower and upper @p
- * AO index, returns a std::vector of shell indices that contain the AOs
- * between @p lower and @p upper.
+ *  Given an vector of shell sizes @p shell_sizes and a lower @p lower and
+ *  upper @p AO index, returns a std::vector of shell indices that contain the
+ *  AOs between @p lower and @p upper.
  *
- *  @param[in] bs The AOBasisSet containing the AOs
+ *  @param[in] shell_sizes The size of the shells of the basis sets
  *  @param[in] lo The lower value of the AO range
  *  @param[in] up The upper value of the AO range
  *  @returns An std::vector of the shell indices
  */
-inline auto aos2shells(const simde::type::ao_basis_set& bs, std::size_t lo,
-                       std::size_t up) {
+inline auto aos2shells(const std::vector<std::size_t>& shell_sizes,
+                       std::size_t lo, std::size_t up) {
     std::vector<std::size_t> return_vec;
-    auto shells = bs.shells();
-    for(auto ishell = 0, offset = 0; ishell < shells.size(); ++ishell) {
+    for(auto ishell = 0, offset = 0; ishell < shell_sizes.size(); ++ishell) {
         if(offset >= up) break;
         if(offset >= lo) return_vec.push_back(ishell);
-        offset += shells[ishell].size();
+        offset += shell_sizes[ishell];
     }
     return return_vec;
 }

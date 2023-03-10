@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-/// TODO: Optimize for IntegralFactory usage
+/// TODO: These modules need to be removed once the IntegralFactory versions
+/// are better optimized.
 
-#include "detail_/bsets_shell_sizes.hpp"
-#include "detail_/unpack_bases.hpp"
+#include "detail_/make_engine.hpp"
+#include "detail_/make_libint_basis_set.hpp"
 #include "shellnorms.hpp"
 #include <simde/cauchy_schwarz_approximation.hpp>
-#include <simde/integral_factory.hpp>
 
-namespace integrals::ao_integrals {
-
-/// Type of a module that produces integral factories
-template<typename OperatorType>
-using factory_pt = simde::IntegralFactory<OperatorType>;
-using factory_t  = simde::type::integral_factory;
+namespace integrals::libint {
 
 /// Grab the various detail_ functions
 using namespace detail_;
@@ -40,8 +35,9 @@ TEMPLATED_MODULE_CTOR(ShellNorms, NBodies, OperatorType) {
     using my_pt = simde::ShellNorms<OperatorType>;
     satisfies_property_type<my_pt>();
 
-    add_submodule<factory_pt<OperatorType>>("AO Integral Factory")
-      .set_description("Used to generate the AO factory");
+    add_input<double>("Threshold")
+      .set_description("Convergence threshold of integrals")
+      .set_default(1.0E-16);
 }
 
 template<std::size_t NBodies, typename OperatorType>
@@ -51,31 +47,33 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
     using return_vec = typename std::vector<elem_vec>;
 
     // Get inputs
-    auto bases     = unpack_bases<2>(inputs);
-    auto op_str    = OperatorType().as_string();
-    auto& fac_mod  = submods.at("AO Integral Factory");
-    const auto& op = inputs.at(op_str).template value<const OperatorType&>();
+    const auto& [bra, op, ket] = my_pt::unwrap_inputs(inputs);
+    auto thresh                = inputs.at("Threshold").value<double>();
+
+    // Libint basis sets
+    auto set_bra = make_libint_basis_set(bra.basis_set());
+    auto set_ket = make_libint_basis_set(ket.basis_set());
 
     // Check if the basis sets are the same
-    bool same_bs = (bases[0] == bases[1]);
-
-    // Get shell sizes
-    auto shell_sizes = bsets_shell_sizes(bases);
+    bool same_bs = (set_bra == set_ket);
 
     // Our return value
-    return_vec mat(bases[0].n_shells(), elem_vec(bases[1].n_shells(), 0.0));
+    return_vec mat(set_bra.size(), elem_vec(set_ket.size(), 0.0));
 
     // Lambda to fill in the values
     std::function<void(std::size_t, std::size_t)> into_mat;
+    std::vector bases{set_bra, set_ket};
+    auto engine = detail_::make_engine(bases, op, thresh);
     if constexpr(NBodies == 1) {
-        auto [factory] = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
-        into_mat       = [&mat, &same_bs, &shell_sizes,
-                    factory = factory](std::size_t i, std::size_t j) mutable {
-            const auto& buf = factory.compute({i, j});
-            auto vals       = buf[0];
+        engine.set(libint2::BraKet::xs_xs);
+        into_mat = [&mat, &same_bs, &bases, engine](std::size_t i,
+                                                    std::size_t j) mutable {
+            const auto& buf = engine.results();
+            engine.compute(bases[0][i], bases[1][j]);
+            auto vals = buf[0];
 
             // Determine the number of compute values
-            std::size_t nvals = (shell_sizes[0][i] * shell_sizes[1][j]);
+            std::size_t nvals = (bases[0][i].size() * bases[1][j].size());
 
             // Find the norm and take the square root
             double frobenius_norm_squared = 0.0;
@@ -90,17 +88,16 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
             } // cut down on work
         };
     } else if constexpr(NBodies == 2) {
-        auto doubled = bases;
-        for(auto& set : bases) doubled.push_back(set);
-        auto [factory] = fac_mod.run_as<factory_pt<OperatorType>>(doubled, op);
-        into_mat       = [&mat, &same_bs, &shell_sizes,
-                    factory = factory](std::size_t i, std::size_t j) mutable {
-            const auto& buf = factory.compute({i, j, i, j});
-            auto vals       = buf[0];
+        engine.set(libint2::BraKet::xx_xx);
+        into_mat = [&mat, &same_bs, &bases, engine](std::size_t i,
+                                                    std::size_t j) mutable {
+            const auto& buf = engine.results();
+            engine.compute(bases[0][i], bases[1][j], bases[0][i], bases[1][j]);
+            auto vals = buf[0];
 
             // Determine the number of compute values
-            std::size_t nvals = (shell_sizes[0][i] * shell_sizes[0][i]);
-            nvals *= (shell_sizes[1][j] * shell_sizes[1][j]);
+            std::size_t nvals = (bases[0][i].size() * bases[0][i].size());
+            nvals *= (bases[1][j].size() * bases[1][j].size());
 
             // Find the norm and take the square root
             double inf_norm_squared = 0.0;
@@ -120,9 +117,9 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
     // Calculate values
     auto& my_runtime = get_runtime();
     auto& world      = my_runtime.madness_world();
-    for(std::size_t i = 0; i < bases[0].n_shells(); ++i) {
+    for(std::size_t i = 0; i < bases[0].size(); ++i) {
         // only do lower triangle if basis sets are the same
-        auto len = (same_bs) ? i : bases[1].n_shells() - 1;
+        auto len = (same_bs) ? i : bases[1].size() - 1;
         for(std::size_t j = 0; j <= len; ++j) {
             world.taskq.add(into_mat, i, j);
         }
@@ -142,4 +139,4 @@ template class ShellNorms<2, simde::type::el_el_coulomb>;
 template class ShellNorms<2, simde::type::el_el_stg>;
 template class ShellNorms<2, simde::type::el_el_yukawa>;
 
-} // namespace integrals::ao_integrals
+} // namespace integrals::libint

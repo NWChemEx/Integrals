@@ -15,6 +15,7 @@
  */
 #include "libint.hpp"
 #include "make_libint_factory.hpp"
+#include "shellnorms.hpp"
 
 namespace integrals::libint {
 
@@ -47,6 +48,12 @@ void load_libint_modules(pluginplay::ModuleManager& mm) {
     ADD_FACTORY(2, el_quadrupole, "EQuadrupole");
     ADD_FACTORY(2, el_octupole, "EOctupole");
     ADD_FACTORY(4, el_el_delta, "DOI4");
+
+    /// TODO: Need to be removed. See module declarations.
+    mm.add_module<ShellNormOverlap>("Shell Norms Overlap");
+    mm.add_module<ShellNormCoulomb>("Shell Norms Coulomb");
+    mm.add_module<ShellNormSTG>("Shell Norms STG");
+    mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
 }
 
 #undef ADD_FACTORY

@@ -16,6 +16,7 @@
 
 #include "ao_integrals.hpp"
 #include "detail_/aos2shells.hpp"
+#include "detail_/bsets_shell_sizes.hpp"
 #include "detail_/make_shape.hpp"
 #include "detail_/select_allocator.hpp"
 #include "detail_/shells2ord.hpp"
@@ -81,23 +82,24 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
     using field_t       = typename tensor_t::field_type;
 
     /// Grab input information
-    auto bases    = detail_::unpack_bases<2>(inputs);
+    auto bases    = unpack_bases<2>(inputs);
     auto op_str   = OperatorType().as_string();
     auto op       = inputs.at(op_str).template value<const OperatorType&>();
     auto& fac_mod = submods.at("AO Integral Factory");
 
-    auto [factory] = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+    auto [factory]   = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+    auto shell_sizes = bsets_shell_sizes(bases);
 
     /// Lambda to calculate values
-    auto l = [=, factory = factory](const auto& lo, const auto& up,
-                                    auto* data) mutable {
+    auto l = [shell_sizes, factory = factory](const auto& lo, const auto& up,
+                                              auto* data) mutable {
         /// Convert index values from AOs to shells
         /// Leading index is for multipole components
         constexpr std::size_t N = 2;
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
             auto shells_in_tile =
-              detail_::aos2shells(bases[i], lo[i + 1], up[i + 1]);
+              aos2shells(shell_sizes[i], lo[i + 1], up[i + 1]);
             lo_shells.push_back(shells_in_tile.front());
             up_shells.push_back(shells_in_tile.back());
         }
@@ -106,8 +108,7 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
         auto leading_step = 0;
         for(auto i = lo_shells[0]; i <= up_shells[0]; ++i) {
             for(auto j = lo_shells[1]; j <= up_shells[1]; ++j) {
-                leading_step +=
-                  bases[0].shell(i).size() * bases[1].shell(j).size();
+                leading_step += shell_sizes[0][i] * shell_sizes[1][j];
             }
         }
 
@@ -116,7 +117,7 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
         while(curr_shells[0] <= up_shells[0]) {
             /// Determine which values will be computed this time
             auto ord_pos =
-              detail_::shells2ord(bases, curr_shells, lo_shells, up_shells);
+              shells2ord(shell_sizes, curr_shells, lo_shells, up_shells);
 
             /// Compute values
             const auto& buf = factory.compute(curr_shells);
@@ -148,6 +149,7 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
     if constexpr(L == 2) { leading_extent = 20; }
 
     /// Make complete tensor and slice out return values
+    /// TODO: Switch out make_shape with an IntegralShape module
     tensor_t I(l, make_shape(bases, leading_extent),
                tensorwrapper::tensor::default_allocator<field_t>());
 

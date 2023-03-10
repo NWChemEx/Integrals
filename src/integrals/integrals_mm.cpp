@@ -16,6 +16,7 @@
 
 #include "ao_integrals/ao_integrals.hpp"
 #include "libint/libint.hpp"
+#include "shapes/shapes.hpp"
 #include "transforms/transforms.hpp"
 #include <integrals/integrals_mm.hpp>
 
@@ -32,9 +33,13 @@ void set_defaults(pluginplay::ModuleManager& mm) {
       "ERI2", "ERI3", "ERI4",    "Kinetic", "Nuclear", "Overlap", "STG2",
       "STG3", "STG4", "Yukawa2", "Yukawa3", "Yukawa4", "DOI4"};
     for(const auto& name : module_names) {
+        mm.change_submod(name, "Tensor Shape", "OneTileShape");
+        mm.change_submod("Direct " + name, "Tensor Shape", "OneTileShape");
         mm.change_submod(name, fac_sub, name + " Factory");
         mm.change_submod("Direct " + name, fac_sub, name + " Factory");
     }
+    mm.change_submod("STG 4 Center dfdr Squared", "Tensor Shape",
+                     "OneTileShape");
     mm.change_submod("STG 4 Center dfdr Squared", fac_sub, "F12 4C Factory");
 
     /// Set Factory for screened integrals
@@ -42,6 +47,8 @@ void set_defaults(pluginplay::ModuleManager& mm) {
                     "STG3", "STG4", "Yukawa3", "Yukawa4"};
     for(const auto& name : module_names) {
         auto name_cs = name + " CS";
+        mm.change_submod(name_cs, "Tensor Shape", "OneTileShape");
+        mm.change_submod("Direct " + name_cs, "Tensor Shape", "OneTileShape");
         mm.change_submod(name_cs, fac_sub, name + " Factory");
         mm.change_submod("Direct " + name_cs, fac_sub, name + " Factory");
     }
@@ -53,16 +60,38 @@ void set_defaults(pluginplay::ModuleManager& mm) {
     }
 
     /// Set Factory for shell norms
-    mm.change_submod("Shell Norms Overlap", fac_sub, "Overlap Factory");
-    mm.change_submod("Shell Norms Coulomb", fac_sub, "ERI4 Factory");
-    mm.change_submod("Shell Norms STG", fac_sub, "STG4 Factory");
-    mm.change_submod("Shell Norms Yukawa", fac_sub, "Yukawa4 Factory");
+    /// TODO: Uncomment after module optimization
+    // mm.change_submod("Shell Norms Overlap", fac_sub, "Overlap Factory");
+    // mm.change_submod("Shell Norms Coulomb", fac_sub, "ERI4 Factory");
+    // mm.change_submod("Shell Norms STG", fac_sub, "STG4 Factory");
+    // mm.change_submod("Shell Norms Yukawa", fac_sub, "Yukawa4 Factory");
+
+    /// TODO: Need to be removed. See module declarations.
+    mm.change_submod("Kinetic CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Nuclear CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Overlap CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
+    mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
+    mm.change_submod("Direct Kinetic CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Direct Nuclear CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Direct Overlap CS", "Shell Norms", "Shell Norms Overlap");
+    mm.change_submod("Direct ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("Direct ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
+    mm.change_submod("Direct STG3 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("Direct STG4 CS", "Shell Norms", "Shell Norms STG");
+    mm.change_submod("Direct Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
+    mm.change_submod("Direct Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
 }
 
 void load_modules(pluginplay::ModuleManager& mm) {
     ao_integrals::load_ao_integrals(mm);
     libint::load_libint_modules(mm);
     transforms::load_transformed_integrals(mm);
+    shapes::load_modules(mm);
 
     ao_integrals::ao_integrals_set_defaults(mm);
     set_defaults(mm);

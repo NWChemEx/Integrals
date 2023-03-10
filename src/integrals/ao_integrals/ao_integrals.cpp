@@ -17,12 +17,14 @@
 #include "ao_integrals.hpp"
 #include "cs_screened_integrals.hpp"
 #include "detail_/aos2shells.hpp"
+#include "detail_/bsets_shell_sizes.hpp"
 #include "detail_/get_coeff.hpp"
 #include "detail_/make_shape.hpp"
 #include "detail_/select_allocator.hpp"
 #include "detail_/shells2ord.hpp"
 #include "detail_/unpack_bases.hpp"
 #include "shellnorms.hpp"
+#include <integrals/property_types/integral_shape.hpp>
 #include <simde/integral_factory.hpp>
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
 
@@ -32,6 +34,9 @@ namespace integrals::ao_integrals {
 template<typename OperatorType>
 using factory_pt = simde::IntegralFactory<OperatorType>;
 using factory_t  = simde::type::integral_factory;
+
+/// Type of a module that produces integral shapes
+using integral_shape_pt = integrals::IntegralShape;
 
 /// Grab the various detail_ functions
 using namespace detail_;
@@ -45,6 +50,9 @@ TEMPLATED_MODULE_CTOR(AOIntegral, N, OperatorType, direct) {
 
     add_submodule<factory_pt<OperatorType>>("AO Integral Factory")
       .set_description("Used to generate the AO factory");
+
+    add_submodule<integral_shape_pt>("Tensor Shape")
+      .set_description("Determines the shape of the resulting tensor");
 }
 
 template<std::size_t N, typename OperatorType, bool direct>
@@ -54,22 +62,24 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
     using size_vector_t = std::vector<std::size_t>;
     using tensor_t      = simde::type::tensor;
     using field_t       = typename tensor_t::field_type;
+    using shape_t       = typename tensor_t::shape_type;
 
-    auto bases     = detail_::unpack_bases<N>(inputs);
+    auto bases     = unpack_bases<N>(inputs);
     auto op_str    = OperatorType().as_string();
     auto& fac_mod  = submods.at("AO Integral Factory");
     const auto& op = inputs.at(op_str).template value<const OperatorType&>();
 
-    auto [factory] = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
-    auto coeff     = detail_::get_coefficient(op);
+    auto [factory]   = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+    auto coeff       = get_coefficient(op);
+    auto shell_sizes = bsets_shell_sizes(bases);
 
     /// Lambda to calculate values
-    auto l = [=, factory = factory](const auto& lo, const auto& up,
-                                    auto* data) mutable {
+    auto l = [coeff, shell_sizes, factory = factory](
+               const auto& lo, const auto& up, auto* data) mutable {
         /// Convert index values from AOs to shells
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
-            auto shells_in_tile = detail_::aos2shells(bases[i], lo[i], up[i]);
+            auto shells_in_tile = aos2shells(shell_sizes[i], lo[i], up[i]);
             lo_shells.push_back(shells_in_tile.front());
             up_shells.push_back(shells_in_tile.back());
         }
@@ -79,7 +89,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
         while(curr_shells[0] <= up_shells[0]) {
             /// Determine which values will be computed this time
             auto ord_pos =
-              detail_::shells2ord(bases, curr_shells, lo_shells, up_shells);
+              shells2ord(shell_sizes, curr_shells, lo_shells, up_shells);
 
             const auto& buf = factory.compute(curr_shells);
             auto vals       = buf[0];
@@ -108,7 +118,9 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
         }
     };
 
-    tensor_t I(l, make_shape(bases),
+    auto [shape] = submods.at("Tensor Shape").run_as<integral_shape_pt>(bases);
+
+    tensor_t I(l, std::make_unique<shape_t>(shape),
                select_allocator<direct, field_t>(bases, op));
 
     /// Finish
@@ -189,10 +201,11 @@ void load_ao_integrals(pluginplay::ModuleManager& mm) {
     ADD_CS_AOI_WITH_DIRECT(3, el_el_yukawa, "Yukawa3 CS");
     ADD_CS_AOI_WITH_DIRECT(4, el_el_yukawa, "Yukawa4 CS");
 
-    mm.add_module<ShellNormOverlap>("Shell Norms Overlap");
-    mm.add_module<ShellNormCoulomb>("Shell Norms Coulomb");
-    mm.add_module<ShellNormSTG>("Shell Norms STG");
-    mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
+    /// TODO: Uncomment after module optimization
+    // mm.add_module<ShellNormOverlap>("Shell Norms Overlap");
+    // mm.add_module<ShellNormCoulomb>("Shell Norms Coulomb");
+    // mm.add_module<ShellNormSTG>("Shell Norms STG");
+    // mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
 }
 
 #undef ADD_AOI_WITH_DIRECT
@@ -204,24 +217,26 @@ void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
     mm.change_submod("Direct DOI", "DOI4", "Direct DOI4");
 
     /// Set shell norm submods
-    mm.change_submod("Kinetic CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Nuclear CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Overlap CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
-    mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
-    mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
-    mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
-    mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
-    mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
-    mm.change_submod("Direct Kinetic CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Direct Nuclear CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Direct Overlap CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Direct ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
-    mm.change_submod("Direct ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
-    mm.change_submod("Direct STG3 CS", "Shell Norms", "Shell Norms STG");
-    mm.change_submod("Direct STG4 CS", "Shell Norms", "Shell Norms STG");
-    mm.change_submod("Direct Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
-    mm.change_submod("Direct Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
+    /// TODO: Uncomment after module optimization
+    // mm.change_submod("Kinetic CS", "Shell Norms", "Shell Norms Overlap");
+    // mm.change_submod("Nuclear CS", "Shell Norms", "Shell Norms Overlap");
+    // mm.change_submod("Overlap CS", "Shell Norms", "Shell Norms Overlap");
+    // mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
+    // mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
+    // mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
+    // mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
+    // mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
+    // mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
+    // mm.change_submod("Direct Kinetic CS", "Shell Norms", "Shell Norms
+    // Overlap"); mm.change_submod("Direct Nuclear CS", "Shell Norms", "Shell
+    // Norms Overlap"); mm.change_submod("Direct Overlap CS", "Shell Norms",
+    // "Shell Norms Overlap"); mm.change_submod("Direct ERI3 CS", "Shell Norms",
+    // "Shell Norms Coulomb"); mm.change_submod("Direct ERI4 CS", "Shell Norms",
+    // "Shell Norms Coulomb"); mm.change_submod("Direct STG3 CS", "Shell Norms",
+    // "Shell Norms STG"); mm.change_submod("Direct STG4 CS", "Shell Norms",
+    // "Shell Norms STG"); mm.change_submod("Direct Yukawa3 CS", "Shell Norms",
+    // "Shell Norms Yukawa"); mm.change_submod("Direct Yukawa4 CS", "Shell
+    // Norms", "Shell Norms Yukawa");
 }
 
 } // namespace integrals::ao_integrals
