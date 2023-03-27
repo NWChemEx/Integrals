@@ -57,8 +57,10 @@ auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
     if constexpr(std::is_same_v<OpType, simde::type::el_nuc_coulomb>) {
         const auto& nuclei = op.template at<1>();
         std::vector<std::pair<double, std::array<double, 3>>> qs;
-        for(const auto& ai : nuclei)
-            qs.emplace_back(static_cast<const double&>(ai.Z()), ai.coords());
+        for(const auto& ai : nuclei) {
+            std::array<double, 3> coords{ai.x(), ai.y(), ai.z()};
+            qs.emplace_back(static_cast<const double&>(ai.Z()), coords);
+        }
         engine.set_params(qs);
     } else if constexpr(std::is_same_v<OpType, simde::type::el_el_stg> ||
                         std::is_same_v<OpType, simde::type::el_el_yukawa>) {
