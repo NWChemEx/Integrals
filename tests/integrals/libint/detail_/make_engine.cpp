@@ -35,15 +35,11 @@ TEST_CASE("make_engine") {
     double t = 1.0E-16;
 
     /// Components for operators
-    std::size_t one{1}, eight{8};
-    std::array<double, 3> coords1{0.0, -0.143222342980786, 0.0};
-    std::array<double, 3> coords2{1.638033502034240, 1.136556880358410, 0.0};
-    std::array<double, 3> coords3{-1.638033502034240, 1.136556880358410, 0.0};
     chemist::Electron e{};
     chemist::operators::STG stg{1.0, 1.0};
-    chemist::Atom o1{eight, coords1};
-    chemist::Atom h1{one, coords2};
-    chemist::Atom h2{one, coords3};
+    chemist::Atom o1{"O", 8ul, 0.0, 0.0, -0.143222342980786, 0.0};
+    chemist::Atom h1{"H", 1ul, 0.0, 1.638033502034240, 1.136556880358410, 0.0};
+    chemist::Atom h2{"H", 1ul, 0.0, -1.638033502034240, 1.136556880358410, 0.0};
     chemist::Nuclei water{o1, h1, h2};
 
     SECTION("el_el_coulomb") {

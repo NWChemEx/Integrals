@@ -67,21 +67,21 @@ TEST_CASE("Hashing Operators") {
     }
 
     SECTION("el_nuc_coulomb") {
-        using e_t      = chemist::Electron;
-        using coords_t = std::array<double, 3>;
-        using atom_t   = chemist::Atom;
-        using nuc_t    = chemist::Nuclei;
-        using op_t     = simde::type::el_nuc_coulomb;
+        using e_t    = chemist::Electron;
+        using atom_t = chemist::Atom;
+        using nuc_t  = chemist::Nuclei;
+        using op_t   = simde::type::el_nuc_coulomb;
 
-        atom_t a1{std::size_t{1}, coords_t{0.0, 0.0, 0.0}};
-        atom_t a2{std::size_t{2}, coords_t{1.0, 0.0, 0.0}};
+        atom_t a1{"X", std::size_t{1}, 0.0, 0.0, 0.0, 0.0};
+        atom_t a2{"X", std::size_t{2}, 0.0, 1.0, 0.0, 0.0};
         op_t op(e_t{}, nuc_t{a1});
         op_t other_op1(e_t{}, nuc_t{a2});
         op_t other_op2(e_t{}, nuc_t{a1, a2});
         auto op_hash = hash_operator(op);
 
         auto corr = std::hash<std::string>{}("(r\u0302₁₂)⁻¹");
-        combine_hash(corr, std::size_t{1}, 0.0, 0.0, 0.0);
+        combine_hash(corr, std::size_t{1}, std::string("X"), 0.0, 1.0, 0.0, 0.0,
+                     0.0);
 
         /// Check correctness of hash
         REQUIRE(op_hash == corr);
