@@ -80,7 +80,10 @@ inline std::size_t hash_operator(const OpType& op) {
         const auto& nuclei = op.template at<1>();
         for(const auto& ai : nuclei) {
             combine_hash(hash, ai.Z());
-            for(const auto& coord : ai.coords()) combine_hash(hash, coord);
+            combine_hash(hash, ai.name());
+            combine_hash(hash, ai.mass());
+            combine_hash(hash, ai.charge());
+            for(auto c = 0; c < 3; ++c) combine_hash(hash, ai.coord(c));
         }
     } else if constexpr(std::is_same_v<OpType, simde::type::el_el_stg> ||
                         std::is_same_v<OpType, simde::type::el_el_yukawa> ||
