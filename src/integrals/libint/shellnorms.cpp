@@ -20,6 +20,7 @@
 #include "detail_/make_engine.hpp"
 #include "detail_/make_libint_basis_set.hpp"
 #include "shellnorms.hpp"
+#include <madness/world/MADworld.h>
 #include <simde/cauchy_schwarz_approximation.hpp>
 
 namespace integrals::libint {
@@ -116,7 +117,8 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
 
     // Calculate values
     auto& my_runtime = get_runtime();
-    auto& world      = my_runtime.madness_world();
+    auto comm        = get_runtime().mpi_comm();
+    auto& world      = *madness::World::find_instance(SafeMPI::Intracomm(comm));
     for(std::size_t i = 0; i < bases[0].size(); ++i) {
         // only do lower triangle if basis sets are the same
         auto len = (same_bs) ? i : bases[1].size() - 1;
