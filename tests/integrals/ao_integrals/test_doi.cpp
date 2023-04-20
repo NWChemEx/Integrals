@@ -41,23 +41,23 @@ TEST_CASE("DOI") {
 
     SECTION("Explicit") {
         SECTION("Four-Index") {
-            auto [X] = mm.at("DOI4").run_as<doi4_type>(aos, aos, d, aos, aos);
+            auto X = mm.at("DOI4").run_as<doi4_type>(aos, aos, d, aos, aos);
             REQUIRE(tensorwrapper::tensor::allclose(X, corr));
         }
         SECTION("Wrapper") {
-            auto [X] = mm.at("DOI").run_as<doi_type>(aos, d, aos);
+            auto X = mm.at("DOI").run_as<doi_type>(aos, d, aos);
             REQUIRE(tensorwrapper::tensor::allclose(X, corr));
         }
     }
 
     SECTION("Direct") {
         SECTION("Four-Index") {
-            auto [X] =
+            auto X =
               mm.at("Direct DOI4").run_as<doi4_type>(aos, aos, d, aos, aos);
             REQUIRE(direct_allclose(X, corr));
         }
         SECTION("Wrapper") {
-            auto [X] = mm.at("Direct DOI").run_as<doi_type>(aos, d, aos);
+            auto X = mm.at("Direct DOI").run_as<doi_type>(aos, d, aos);
             REQUIRE(direct_allclose(X, corr));
         }
     }

@@ -46,7 +46,7 @@ TEST_CASE("Dipole") {
     // }
 
     SECTION("dipole matrix") {
-        auto [D] = mm.at("EDipole").run_as<d_type>(aos, r, aos);
+        auto D = mm.at("EDipole").run_as<d_type>(aos, r, aos);
         REQUIRE(tensorwrapper::tensor::allclose(D, corr));
     }
 }

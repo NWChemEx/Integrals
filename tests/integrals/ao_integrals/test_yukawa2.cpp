@@ -40,12 +40,12 @@ TEST_CASE("Yukawa2C") {
     op_type gr(chemist::operators::STG(1.0, 1.0), e, e);
 
     SECTION("Explicit") {
-        auto [X] = mm.at("Yukawa2").run_as<integral_type>(aos, gr, aos);
+        auto X = mm.at("Yukawa2").run_as<integral_type>(aos, gr, aos);
         REQUIRE(tensorwrapper::tensor::allclose(X, corr));
     }
 
     SECTION("Direct") {
-        auto [X] = mm.at("Direct Yukawa2").run_as<integral_type>(aos, gr, aos);
+        auto X = mm.at("Direct Yukawa2").run_as<integral_type>(aos, gr, aos);
         REQUIRE(direct_allclose(X, corr));
     }
 }

@@ -50,6 +50,6 @@ TEST_CASE("Make Overlap LibintFactory") {
     factory_t corr(std::move(p));
 
     /// Check module output
-    auto [fac] = mm.at("Overlap Factory").run_as<test_pt>(sets, op);
+    auto fac = mm.at("Overlap Factory").run_as<test_pt>(sets, op);
     REQUIRE(fac == corr);
 }

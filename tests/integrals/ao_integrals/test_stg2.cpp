@@ -40,12 +40,12 @@ TEST_CASE("STG2C") {
     op_type stg(chemist::operators::STG(1.0, 1.0));
 
     SECTION("Explicit") {
-        auto [X] = mm.at("STG2").run_as<integral_type>(aos, stg, aos);
+        auto X = mm.at("STG2").run_as<integral_type>(aos, stg, aos);
         REQUIRE(tensorwrapper::tensor::allclose(X, corr));
     }
 
     SECTION("Direct") {
-        auto [X] = mm.at("Direct STG2").run_as<integral_type>(aos, stg, aos);
+        auto X = mm.at("Direct STG2").run_as<integral_type>(aos, stg, aos);
         REQUIRE(direct_allclose(X, corr));
     }
 }

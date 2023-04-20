@@ -87,7 +87,7 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
     auto op       = inputs.at(op_str).template value<const OperatorType&>();
     auto& fac_mod = submods.at("AO Integral Factory");
 
-    auto [factory]   = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+    auto factory   = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
     auto shell_sizes = bsets_shell_sizes(bases);
 
     /// Lambda to calculate values

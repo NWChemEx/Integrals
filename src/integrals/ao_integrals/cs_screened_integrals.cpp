@@ -92,7 +92,7 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
     auto& fac_mod  = submods.at("AO Integral Factory");
     const auto& op = inputs.at(op_str).template value<const OperatorType&>();
 
-    auto [factory]     = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+    auto factory     = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
     auto coeff         = get_coefficient(op);
     auto shell_sizes   = bsets_shell_sizes(bases);
     auto shell_centers = bsets_shell_centers(bases);
@@ -105,19 +105,19 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
         auto bra = inputs.at("bra").template value<ao_space_t>();
         auto ket = inputs.at("ket").template value<ao_space_t>();
         identity_op_t I;
-        std::tie(mat1) =
+        mat1 =
           cs_screen.run_as<simde::ShellNorms<identity_op_t>>(bra, I, ket);
     }
     if constexpr(N > 2) {
         auto ket1 = inputs.at("ket 1").template value<ao_space_t>();
         auto ket2 = inputs.at("ket 2").template value<ao_space_t>();
-        std::tie(mat1) =
+        mat1 =
           cs_screen.run_as<simde::ShellNorms<OperatorType>>(ket1, op, ket2);
     }
     if constexpr(N == 4) {
         auto bra1 = inputs.at("bra 1").template value<ao_space_t>();
         auto bra2 = inputs.at("bra 2").template value<ao_space_t>();
-        std::tie(mat2) =
+        mat2  =
           cs_screen.run_as<simde::ShellNorms<OperatorType>>(bra1, op, bra2);
     }
 
@@ -185,7 +185,7 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
         }
     };
 
-    auto [shape] = submods.at("Tensor Shape").run_as<integral_shape_pt>(bases);
+    auto shape = submods.at("Tensor Shape").run_as<integral_shape_pt>(bases);
 
     tensor_t I(l, std::make_unique<shape_t>(shape),
                select_allocator<direct, field_t>(bases, op, cs_thresh));

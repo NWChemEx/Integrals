@@ -40,12 +40,12 @@ TEST_CASE("Nuclear") {
     op_type riA(chemist::Electron{}, mol);
 
     SECTION("Explicit") {
-        auto [V] = mm.at("Nuclear").run_as<integral_type>(aos, riA, aos);
+        auto V = mm.at("Nuclear").run_as<integral_type>(aos, riA, aos);
         REQUIRE(tensorwrapper::tensor::allclose(V, corr));
     }
 
     SECTION("Direct") {
-        auto [V] = mm.at("Direct Nuclear").run_as<integral_type>(aos, riA, aos);
+        auto V = mm.at("Direct Nuclear").run_as<integral_type>(aos, riA, aos);
         REQUIRE(direct_allclose(V, corr));
     }
 }

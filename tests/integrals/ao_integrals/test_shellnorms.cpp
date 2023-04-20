@@ -89,7 +89,7 @@ TEST_CASE("Cauchy-Schwarz") {
         using op_t  = simde::type::el_identity;
         using cs_pt = simde::ShellNorms<op_t>;
         op_t op;
-        auto [rv] = mm.at("Shell Norms Overlap").run_as<cs_pt>(aos, op, aos);
+        auto rv = mm.at("Shell Norms Overlap").run_as<cs_pt>(aos, op, aos);
         for(int i = 0; i < 5; ++i) {
             for(int j = 0; j < 5; ++j) {
                 REQUIRE(rv[i][j] ==
@@ -102,7 +102,7 @@ TEST_CASE("Cauchy-Schwarz") {
         using op_t  = simde::type::el_el_coulomb;
         using cs_pt = simde::ShellNorms<op_t>;
         op_t op;
-        auto [rv] = mm.at("Shell Norms Coulomb").run_as<cs_pt>(aos, op, aos);
+        auto rv = mm.at("Shell Norms Coulomb").run_as<cs_pt>(aos, op, aos);
         for(int i = 0; i < 5; ++i) {
             for(int j = 0; j < 5; ++j) {
                 REQUIRE(rv[i][j] ==
@@ -115,7 +115,7 @@ TEST_CASE("Cauchy-Schwarz") {
         using op_t  = simde::type::el_el_stg;
         using cs_pt = simde::ShellNorms<op_t>;
         op_t op(chemist::operators::STG(1.0, 1.0));
-        auto [rv] = mm.at("Shell Norms STG").run_as<cs_pt>(aos, op, aos);
+        auto rv = mm.at("Shell Norms STG").run_as<cs_pt>(aos, op, aos);
         for(int i = 0; i < 5; ++i) {
             for(int j = 0; j < 5; ++j) {
                 REQUIRE(rv[i][j] ==
@@ -129,7 +129,7 @@ TEST_CASE("Cauchy-Schwarz") {
         using cs_pt = simde::ShellNorms<op_t>;
         chemist::Electron e;
         op_t op(chemist::operators::STG(1.0, 1.0), e, e);
-        auto [rv] = mm.at("Shell Norms Yukawa").run_as<cs_pt>(aos, op, aos);
+        auto rv = mm.at("Shell Norms Yukawa").run_as<cs_pt>(aos, op, aos);
         for(int i = 0; i < 5; ++i) {
             for(int j = 0; j < 5; ++j) {
                 REQUIRE(rv[i][j] ==
