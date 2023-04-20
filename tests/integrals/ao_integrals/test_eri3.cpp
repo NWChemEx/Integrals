@@ -44,8 +44,7 @@ TEST_CASE("ERI3C") {
     }
 
     SECTION("Direct") {
-        auto X =
-          mm.at("Direct ERI3").run_as<integral_type>(aos, r12, aos, aos);
+        auto X = mm.at("Direct ERI3").run_as<integral_type>(aos, r12, aos, aos);
         REQUIRE(direct_allclose(X, corr));
     }
 }

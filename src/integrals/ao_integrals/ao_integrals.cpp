@@ -69,7 +69,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
     auto& fac_mod  = submods.at("AO Integral Factory");
     const auto& op = inputs.at(op_str).template value<const OperatorType&>();
 
-    auto factory   = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+    auto factory     = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
     auto coeff       = get_coefficient(op);
     auto shell_sizes = bsets_shell_sizes(bases);
 

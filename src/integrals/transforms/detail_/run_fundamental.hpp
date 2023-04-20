@@ -56,11 +56,11 @@ auto run_fundamental(pluginplay::Module& submod,
         x = submod.run_as<sub_pt>(aos0, op, aos1);
     } else if constexpr(N == 3) {
         const auto& aos2 = all_aos.at(2).get();
-        x      = submod.run_as<sub_pt>(aos0, op, aos1, aos2);
+        x                = submod.run_as<sub_pt>(aos0, op, aos1, aos2);
     } else if constexpr(N == 4) {
         const auto& aos2 = all_aos.at(2).get();
         const auto& aos3 = all_aos.at(3).get();
-        x      = submod.run_as<sub_pt>(aos0, aos1, op, aos2, aos3);
+        x                = submod.run_as<sub_pt>(aos0, aos1, op, aos2, aos3);
     } else {
         static_assert(N == 2, "Unsupported number of centers");
     }

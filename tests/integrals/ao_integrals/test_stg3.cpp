@@ -45,8 +45,7 @@ TEST_CASE("STG3C") {
     }
 
     SECTION("Direct") {
-        auto X =
-          mm.at("Direct STG3").run_as<integral_type>(aos, stg, aos, aos);
+        auto X = mm.at("Direct STG3").run_as<integral_type>(aos, stg, aos, aos);
         REQUIRE(direct_allclose(X, corr));
     }
 }

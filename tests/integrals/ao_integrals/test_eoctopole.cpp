@@ -52,19 +52,19 @@ TEST_CASE("Octupole") {
     // }
 
     SECTION("dipole matrix") {
-        auto D  = mm.at("EOctupole").run_as<d_type>(aos, r, aos);
+        auto D    = mm.at("EOctupole").run_as<d_type>(aos, r, aos);
         auto corr = get_ao_data(name, bases, property::dipole);
         REQUIRE(tensorwrapper::tensor::allclose(D, corr));
     }
 
     SECTION("Quadrupole") {
-        auto Q  = mm.at("EOctupole").run_as<q_type>(aos, r2, aos);
+        auto Q    = mm.at("EOctupole").run_as<q_type>(aos, r2, aos);
         auto corr = get_ao_data(name, bases, property::quadrupole);
         REQUIRE(tensorwrapper::tensor::allclose(Q, corr));
     }
 
     SECTION("Octupole") {
-        auto O  = mm.at("EOctupole").run_as<o_type>(aos, r3, aos);
+        auto O    = mm.at("EOctupole").run_as<o_type>(aos, r3, aos);
         auto corr = get_ao_data(name, bases, property::octopole);
         REQUIRE(tensorwrapper::tensor::allclose(O, corr));
     }

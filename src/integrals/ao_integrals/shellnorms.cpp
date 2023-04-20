@@ -70,7 +70,7 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
     std::function<void(std::size_t, std::size_t)> into_mat;
     if constexpr(NBodies == 1) {
         auto factory = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
-        into_mat       = [&mat, &same_bs, &shell_sizes,
+        into_mat     = [&mat, &same_bs, &shell_sizes,
                     factory = factory](std::size_t i, std::size_t j) mutable {
             const auto& buf = factory.compute({i, j});
             auto vals       = buf[0];
@@ -94,7 +94,7 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
         auto doubled = bases;
         for(auto& set : bases) doubled.push_back(set);
         auto factory = fac_mod.run_as<factory_pt<OperatorType>>(doubled, op);
-        into_mat       = [&mat, &same_bs, &shell_sizes,
+        into_mat     = [&mat, &same_bs, &shell_sizes,
                     factory = factory](std::size_t i, std::size_t j) mutable {
             const auto& buf = factory.compute({i, j, i, j});
             auto vals       = buf[0];

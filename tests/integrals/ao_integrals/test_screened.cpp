@@ -45,8 +45,7 @@ TEST_CASE("Overlap CS") {
     }
 
     SECTION("Direct") {
-        auto S =
-          mm.at("Direct Overlap CS").run_as<integral_type>(aos, I, aos);
+        auto S = mm.at("Direct Overlap CS").run_as<integral_type>(aos, I, aos);
         REQUIRE(direct_allclose(S, corr_S));
     }
 }
@@ -75,7 +74,7 @@ TEST_CASE("ERI4C CS") {
 
     SECTION("Direct") {
         auto X = mm.at("Direct ERI4 CS")
-                     .run_as<integral_type>(aos, aos, r12, aos, aos);
+                   .run_as<integral_type>(aos, aos, r12, aos, aos);
         REQUIRE(direct_allclose(X, corr_X));
     }
 }
