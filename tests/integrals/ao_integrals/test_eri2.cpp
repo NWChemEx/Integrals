@@ -39,12 +39,12 @@ TEST_CASE("ERI2C") {
     op_type r12;
 
     SECTION("Explicit") {
-        auto [X] = mm.at("ERI2").run_as<integral_type>(aos, r12, aos);
+        auto X = mm.at("ERI2").run_as<integral_type>(aos, r12, aos);
         REQUIRE(tensorwrapper::tensor::allclose(X, corr));
     }
 
     SECTION("Direct") {
-        auto [X] = mm.at("Direct ERI2").run_as<integral_type>(aos, r12, aos);
+        auto X = mm.at("Direct ERI2").run_as<integral_type>(aos, r12, aos);
         REQUIRE(direct_allclose(X, corr));
     }
 }

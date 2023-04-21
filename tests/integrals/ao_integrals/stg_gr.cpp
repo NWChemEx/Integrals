@@ -41,7 +41,7 @@ TEST_CASE("STG 4 Center GR") {
         SECTION(as_string(name, bs)) {
             auto aos    = get_bases(name, bs);
             auto X_corr = get_ao_data(name, bs_key, prop);
-            auto [X] = mm.at(key).run_as<integral_type>(aos, aos, gr, aos, aos);
+            auto X = mm.at(key).run_as<integral_type>(aos, aos, gr, aos, aos);
             REQUIRE(tensorwrapper::tensor::allclose(X, X_corr));
         }
     }

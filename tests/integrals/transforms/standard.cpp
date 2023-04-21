@@ -62,7 +62,7 @@ TEST_CASE("Transformed") {
         ao_spaces.emplace(1, aos);
         ao_spaces.emplace(2, aos);
         ao_spaces.emplace(3, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor corr;
         corr("i,b,c,d") = C("a,i") * G("a,b,c,d");
         REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
@@ -75,7 +75,7 @@ TEST_CASE("Transformed") {
         ao_spaces.emplace(0, aos);
         ao_spaces.emplace(2, aos);
         ao_spaces.emplace(3, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor corr;
         corr("a,i,c,d") = C("b,i") * G("a,b,c,d");
         REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
@@ -88,7 +88,7 @@ TEST_CASE("Transformed") {
         ao_spaces.emplace(0, aos);
         ao_spaces.emplace(1, aos);
         ao_spaces.emplace(3, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor corr;
         corr("a,b,i,d") = C("c,i") * G("a,b,c,d");
         REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
@@ -101,7 +101,7 @@ TEST_CASE("Transformed") {
         ao_spaces.emplace(0, aos);
         ao_spaces.emplace(1, aos);
         ao_spaces.emplace(2, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor corr;
         corr("a,b,c,i") = C("d,i") * G("a,b,c,d");
         REQUIRE(tensorwrapper::tensor::allclose(rv, corr));
@@ -114,7 +114,7 @@ TEST_CASE("Transformed") {
         mo_spaces.emplace(1, mos);
         ao_spaces.emplace(2, aos);
         ao_spaces.emplace(3, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor temp, corr;
         temp("i,b,c,d") = C("a,i") * G("a,b,c,d");
         corr("i,j,c,d") = C("b,j") * temp("i,b,c,d");
@@ -128,7 +128,7 @@ TEST_CASE("Transformed") {
         mo_spaces.emplace(2, mos);
         ao_spaces.emplace(1, aos);
         ao_spaces.emplace(3, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor temp, corr;
         temp("i,b,c,d") = C("a,i") * G("a,b,c,d");
         corr("i,b,j,d") = C("c,j") * temp("i,b,c,d");
@@ -142,7 +142,7 @@ TEST_CASE("Transformed") {
         mo_spaces.emplace(3, mos);
         ao_spaces.emplace(1, aos);
         ao_spaces.emplace(2, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor temp, corr;
         temp("i,b,c,d") = C("a,i") * G("a,b,c,d");
         corr("i,b,c,j") = C("d,j") * temp("i,b,c,d");
@@ -156,7 +156,7 @@ TEST_CASE("Transformed") {
         mo_spaces.emplace(2, mos);
         ao_spaces.emplace(0, aos);
         ao_spaces.emplace(3, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor temp, corr;
         temp("a,i,c,d") = C("b,i") * G("a,b,c,d");
         corr("a,i,j,d") = C("c,j") * temp("a,i,c,d");
@@ -170,7 +170,7 @@ TEST_CASE("Transformed") {
         mo_spaces.emplace(3, mos);
         ao_spaces.emplace(0, aos);
         ao_spaces.emplace(2, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor temp, corr;
         temp("a,i,c,d") = C("b,i") * G("a,b,c,d");
         corr("a,i,c,j") = C("d,j") * temp("a,i,c,d");
@@ -184,7 +184,7 @@ TEST_CASE("Transformed") {
         mo_spaces.emplace(3, mos);
         ao_spaces.emplace(0, aos);
         ao_spaces.emplace(1, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor temp, corr;
         temp("a,b,i,d") = C("c,i") * G("a,b,c,d");
         corr("a,b,i,j") = C("d,j") * temp("a,b,i,d");
@@ -198,7 +198,7 @@ TEST_CASE("Transformed") {
         mo_spaces.emplace(1, mos);
         mo_spaces.emplace(2, mos);
         ao_spaces.emplace(3, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor temp, corr;
         corr("i,b,c,d") = C("a,i") * G("a,b,c,d");
         temp("i,j,c,d") = C("b,j") * corr("i,b,c,d");
@@ -213,7 +213,7 @@ TEST_CASE("Transformed") {
         mo_spaces.emplace(1, mos);
         mo_spaces.emplace(3, mos);
         ao_spaces.emplace(2, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor temp, corr;
         corr("i,b,c,d") = C("a,i") * G("a,b,c,d");
         temp("i,j,c,d") = C("b,j") * corr("i,b,c,d");
@@ -228,7 +228,7 @@ TEST_CASE("Transformed") {
         mo_spaces.emplace(2, mos);
         mo_spaces.emplace(3, mos);
         ao_spaces.emplace(1, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor temp, corr;
         corr("i,b,c,d") = C("a,i") * G("a,b,c,d");
         temp("i,b,j,d") = C("c,j") * corr("i,b,c,d");
@@ -243,7 +243,7 @@ TEST_CASE("Transformed") {
         mo_spaces.emplace(2, mos);
         mo_spaces.emplace(3, mos);
         ao_spaces.emplace(0, aos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor temp, corr;
         corr("a,i,c,d") = C("b,i") * G("a,b,c,d");
         temp("a,i,j,d") = C("c,j") * corr("a,i,c,d");
@@ -258,7 +258,7 @@ TEST_CASE("Transformed") {
         mo_spaces.emplace(1, mos);
         mo_spaces.emplace(2, mos);
         mo_spaces.emplace(3, mos);
-        auto [rv] = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
+        auto rv = mod.run_as<pt>(ao_spaces, mo_spaces, r12);
         simde::type::tensor corr, temp;
         corr("i,b,c,d") = C("a,i") * G("a,b,c,d");
         temp("i,j,c,d") = C("b,j") * corr("i,b,c,d");

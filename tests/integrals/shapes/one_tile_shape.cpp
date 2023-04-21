@@ -37,7 +37,7 @@ TEST_CASE("OneTileShape") {
     inputs[0] = sto3g_space.basis_set();
     inputs[1] = ccpvdz_space.basis_set();
 
-    auto [shape] = mm.at("OneTileShape").run_as<pt>(inputs);
+    auto shape = mm.at("OneTileShape").run_as<pt>(inputs);
     shape_t corr{{7, 24}};
     REQUIRE(shape == corr);
 }

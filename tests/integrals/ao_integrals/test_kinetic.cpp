@@ -39,12 +39,12 @@ TEST_CASE("Kinetic") {
     op_type t;
 
     SECTION("Explicit") {
-        auto [T] = mm.at("Kinetic").run_as<integral_type>(aos, t, aos);
+        auto T = mm.at("Kinetic").run_as<integral_type>(aos, t, aos);
         REQUIRE(tensorwrapper::tensor::allclose(T, corr));
     }
 
     SECTION("Direct") {
-        auto [T] = mm.at("Direct Kinetic").run_as<integral_type>(aos, t, aos);
+        auto T = mm.at("Direct Kinetic").run_as<integral_type>(aos, t, aos);
         REQUIRE(direct_allclose(T, corr));
     }
 }

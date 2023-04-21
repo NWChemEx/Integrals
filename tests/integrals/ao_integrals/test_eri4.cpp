@@ -39,12 +39,12 @@ TEST_CASE("ERI4C") {
     op_type r12;
 
     SECTION("Explicit") {
-        auto [X] = mm.at("ERI4").run_as<integral_type>(aos, aos, r12, aos, aos);
+        auto X = mm.at("ERI4").run_as<integral_type>(aos, aos, r12, aos, aos);
         REQUIRE(tensorwrapper::tensor::allclose(X, corr));
     }
 
     SECTION("Direct") {
-        auto [X] =
+        auto X =
           mm.at("Direct ERI4").run_as<integral_type>(aos, aos, r12, aos, aos);
         REQUIRE(direct_allclose(X, corr));
     }
