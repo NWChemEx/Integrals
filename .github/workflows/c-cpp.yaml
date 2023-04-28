@@ -8,10 +8,9 @@ on:
     branches:
       - test-libfort-libint-comb
 
-
 jobs:
   build-with-gcc:
-    uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@master
+    uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@cache-libfort
     with: 
       dependencies: 'ninja gcc cmake gcovr openblas cblas lapacke scalapack boost eigen3 openmpi libint'
       clang-build: false
