@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-with-gcc:
-    uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@cache-libfort
+    uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@master
     with: 
       dependencies: 'ninja gcc cmake gcovr openblas cblas lapacke scalapack boost eigen3 openmpi libint'
       clang-build: false
