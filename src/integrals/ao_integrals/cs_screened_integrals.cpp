@@ -76,7 +76,7 @@ TEMPLATED_MODULE_CTOR(CSAOIntegral, N, OperatorType, direct) {
 
 template<std::size_t N, typename OperatorType, bool direct>
 TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
-    /// Typedefs
+    // Typedefs
     using my_pt         = simde::AOTensorRepresentation<N, OperatorType>;
     using ao_space_t    = simde::type::ao_space;
     using tensor_t      = simde::type::tensor;
@@ -85,19 +85,20 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
     using size_vector_t = std::vector<std::size_t>;
     using shell_norm_t  = std::vector<std::vector<double>>;
 
-    /// Grab input information
-    auto bases     = unpack_bases<N>(inputs);
-    auto op_str    = OperatorType().as_string();
-    auto cs_thresh = inputs.at("Screening Threshold").value<double>();
-    auto& fac_mod  = submods.at("AO Integral Factory");
-    const auto& op = inputs.at(op_str).template value<const OperatorType&>();
-
-    auto factory       = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
-    auto coeff         = get_coefficient(op);
-    auto shell_sizes   = bsets_shell_sizes(bases);
+    // Grab input information
+    auto bases       = unpack_bases<N>(inputs);
+    auto op_str      = OperatorType().as_string();
+    auto cs_thresh   = inputs.at("Screening Threshold").value<double>();
+    auto& fac_mod    = submods.at("AO Integral Factory");
+    const auto& op   = inputs.at(op_str).template value<const OperatorType&>();
+    auto coeff       = get_coefficient(op);
+    auto shell_sizes = bsets_shell_sizes(bases);
     auto shell_centers = bsets_shell_centers(bases);
 
-    /// Calculate Shell Norms for screening
+    // Cache result of factory module
+    fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+
+    // Calculate Shell Norms for screening
     shell_norm_t mat1, mat2;
     auto& cs_screen = submods.at("Shell Norms");
 
@@ -120,11 +121,9 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
           cs_screen.run_as<simde::ShellNorms<OperatorType>>(bra1, op, bra2);
     }
 
-    /// Lambda to calculate values
-    auto l = [coeff, shell_sizes, shell_centers, mat1, mat2, cs_thresh,
-              factory = factory](const auto& lo, const auto& up,
-                                 auto* data) mutable {
-        /// Convert index values from AOs to shells
+    // Lambda to calculate values
+    auto l = [=](const auto& lo, const auto& up, auto* data) mutable {
+        // Convert index values from AOs to shells
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
             auto shells_in_tile = aos2shells(shell_sizes[i], lo[i], up[i]);
@@ -132,21 +131,24 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
             up_shells.push_back(shells_in_tile.back());
         }
 
-        /// Loop through shell combinations
+        // Get integral factory
+        auto factory = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+
+        // Loop through shell combinations
         size_vector_t curr_shells = lo_shells;
         while(curr_shells[0] <= up_shells[0]) {
-            /// Determine which values will be computed this time
+            // Determine which values will be computed this time
             auto ord_pos =
               shells2ord(shell_sizes, curr_shells, lo_shells, up_shells);
 
-            /// Determine the screening value
+            // Determine the screening value
             auto screen_value = mat1[curr_shells[N - 2]][curr_shells[N - 1]];
             if constexpr(N == 4) {
                 screen_value *= mat2[curr_shells[N - 4]][curr_shells[N - 3]];
             }
 
-            /// Ensure that shells on the same center aren't screened out
-            /// in 1-body integrals
+            // Ensure that shells on the same center aren't screened out
+            // in 1-body integrals
             if constexpr(N == 2) {
                 auto center_i    = shell_centers[0][curr_shells[0]];
                 auto center_j    = shell_centers[1][curr_shells[1]];
@@ -154,14 +156,14 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
                 screen_value     = (same_center) ? cs_thresh + 1 : screen_value;
             }
 
-            /// If shell pair isn't screened out, calcuate the current values.
-            /// Otherwise, set the current values to 0.
+            // If shell pair isn't screened out, calcuate the current values.
+            // Otherwise, set the current values to 0.
             if(screen_value > cs_thresh) {
-                /// Compute values
+                // Compute values
                 const auto& buf = factory.compute(curr_shells);
                 auto vals       = buf[0];
 
-                /// Copy libint values into tile data;
+                // Copy libint values into tile data;
                 for(auto i = 0; i < ord_pos.size(); ++i) {
                     data[ord_pos[i]] = vals[i] * coeff;
                 }
@@ -171,12 +173,12 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
                 }
             }
 
-            /// Increment curr_shells
+            // Increment curr_shells
             curr_shells[N - 1] += 1;
             for(auto i = 1; i < N; ++i) {
                 if(curr_shells[N - i] > up_shells[N - i]) {
-                    /// Reset this dimension and increment the next one
-                    /// curr_shells[0] accumulates until we reach the end
+                    // Reset this dimension and increment the next one
+                    // curr_shells[0] accumulates until we reach the end
                     curr_shells[N - i] = lo_shells[N - i];
                     curr_shells[N - i - 1] += 1;
                 }
@@ -189,7 +191,7 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
     tensor_t I(l, std::make_unique<shape_t>(shape),
                select_allocator<direct, field_t>(bases, op, cs_thresh));
 
-    /// Finish
+    // Finish
     auto rv = results();
     return my_pt::wrap_results(rv, I);
 }

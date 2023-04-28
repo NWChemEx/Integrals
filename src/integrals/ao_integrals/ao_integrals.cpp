@@ -57,26 +57,26 @@ TEMPLATED_MODULE_CTOR(AOIntegral, N, OperatorType, direct) {
 
 template<std::size_t N, typename OperatorType, bool direct>
 TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
-    /// Typedefs
+    // Typedefs
     using my_pt         = simde::AOTensorRepresentation<N, OperatorType>;
     using size_vector_t = std::vector<std::size_t>;
     using tensor_t      = simde::type::tensor;
     using field_t       = typename tensor_t::field_type;
     using shape_t       = typename tensor_t::shape_type;
 
-    auto bases     = unpack_bases<N>(inputs);
-    auto op_str    = OperatorType().as_string();
-    auto& fac_mod  = submods.at("AO Integral Factory");
-    const auto& op = inputs.at(op_str).template value<const OperatorType&>();
-
-    auto factory     = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+    auto bases       = unpack_bases<N>(inputs);
+    auto op_str      = OperatorType().as_string();
+    auto& fac_mod    = submods.at("AO Integral Factory");
+    const auto& op   = inputs.at(op_str).template value<const OperatorType&>();
     auto coeff       = get_coefficient(op);
     auto shell_sizes = bsets_shell_sizes(bases);
 
-    /// Lambda to calculate values
-    auto l = [coeff, shell_sizes, factory = factory](
-               const auto& lo, const auto& up, auto* data) mutable {
-        /// Convert index values from AOs to shells
+    // Cache result of factory module
+    fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+
+    // Lambda to calculate values
+    auto l = [=](const auto& lo, const auto& up, auto* data) mutable {
+        // Convert index values from AOs to shells
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
             auto shells_in_tile = aos2shells(shell_sizes[i], lo[i], up[i]);
@@ -84,10 +84,13 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
             up_shells.push_back(shells_in_tile.back());
         }
 
-        /// Loop through shell combinations
+        // Get integral factory
+        auto factory = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+
+        // Loop through shell combinations
         size_vector_t curr_shells = lo_shells;
         while(curr_shells[0] <= up_shells[0]) {
-            /// Determine which values will be computed this time
+            // Determine which values will be computed this time
             auto ord_pos =
               shells2ord(shell_sizes, curr_shells, lo_shells, up_shells);
 
@@ -95,7 +98,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
             auto vals       = buf[0];
 
             if(vals) {
-                /// Copy libint values into tile data;
+                // Copy libint values into tile data;
                 for(auto i = 0; i < ord_pos.size(); ++i) {
                     data[ord_pos[i]] = vals[i] * coeff;
                 }
@@ -105,12 +108,12 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
                 }
             }
 
-            /// Increment curr_shells
+            // Increment curr_shells
             curr_shells[N - 1] += 1;
             for(auto i = 1; i < N; ++i) {
                 if(curr_shells[N - i] > up_shells[N - i]) {
-                    /// Reset this dimension and increment the next one
-                    /// curr_shells[0] accumulates until we reach the end
+                    // Reset this dimension and increment the next one
+                    // curr_shells[0] accumulates until we reach the end
                     curr_shells[N - i] = lo_shells[N - i];
                     curr_shells[N - i - 1] += 1;
                 }
@@ -123,7 +126,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
     tensor_t I(l, std::make_unique<shape_t>(shape),
                select_allocator<direct, field_t>(bases, op));
 
-    /// Finish
+    // Finish
     auto rv = results();
     return my_pt::wrap_results(rv, I);
 }
@@ -212,11 +215,11 @@ void load_ao_integrals(pluginplay::ModuleManager& mm) {
 #undef ADD_CS_AOI_WITH_DIRECT
 
 void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
-    /// Set DOI submods
+    // Set DOI submods
     mm.change_submod("DOI", "DOI4", "DOI4");
     mm.change_submod("Direct DOI", "DOI4", "Direct DOI4");
 
-    /// Set shell norm submods
+    // Set shell norm submods
     /// TODO: Uncomment after module optimization
     // mm.change_submod("Kinetic CS", "Shell Norms", "Shell Norms Overlap");
     // mm.change_submod("Nuclear CS", "Shell Norms", "Shell Norms Overlap");
