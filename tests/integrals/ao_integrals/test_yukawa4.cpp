@@ -40,13 +40,12 @@ TEST_CASE("Yukawa4C") {
     op_type gr(chemist::operators::STG(1.0, 1.0), e, e);
 
     SECTION("Explicit") {
-        auto [X] =
-          mm.at("Yukawa4").run_as<integral_type>(aos, aos, gr, aos, aos);
+        auto X = mm.at("Yukawa4").run_as<integral_type>(aos, aos, gr, aos, aos);
         REQUIRE(tensorwrapper::tensor::allclose(X, corr));
     }
 
     SECTION("Direct") {
-        auto [X] =
+        auto X =
           mm.at("Direct Yukawa4").run_as<integral_type>(aos, aos, gr, aos, aos);
         REQUIRE(direct_allclose(X, corr));
     }

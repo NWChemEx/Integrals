@@ -40,12 +40,12 @@ TEST_CASE("Overlap") {
     op_type I;
 
     SECTION("Explicit") {
-        auto [S] = mm.at("Overlap").run_as<integral_type>(aos, I, aos);
+        auto S = mm.at("Overlap").run_as<integral_type>(aos, I, aos);
         REQUIRE(tensorwrapper::tensor::allclose(S, corr_S));
     }
 
     SECTION("Direct") {
-        auto [S] = mm.at("Direct Overlap").run_as<integral_type>(aos, I, aos);
+        auto S = mm.at("Direct Overlap").run_as<integral_type>(aos, I, aos);
         REQUIRE(direct_allclose(S, corr_S));
     }
 }

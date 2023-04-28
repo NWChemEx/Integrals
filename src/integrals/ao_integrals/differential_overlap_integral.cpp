@@ -50,7 +50,7 @@ MODULE_RUN(AOIntegralDOI) {
     auto& doi4_mod             = submods.at("DOI4");
 
     /// Run DOI4
-    auto [I] = doi4_mod.run_as<doi4_pt>(bra, bra, op, ket, ket);
+    auto I = doi4_mod.run_as<doi4_pt>(bra, bra, op, ket, ket);
 
     /// Finish
     auto rv = results();

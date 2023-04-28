@@ -69,7 +69,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
     auto& fac_mod  = submods.at("AO Integral Factory");
     const auto& op = inputs.at(op_str).template value<const OperatorType&>();
 
-    auto [factory]   = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+    auto factory     = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
     auto coeff       = get_coefficient(op);
     auto shell_sizes = bsets_shell_sizes(bases);
 
@@ -118,7 +118,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
         }
     };
 
-    auto [shape] = submods.at("Tensor Shape").run_as<integral_shape_pt>(bases);
+    auto shape = submods.at("Tensor Shape").run_as<integral_shape_pt>(bases);
 
     tensor_t I(l, std::make_unique<shape_t>(shape),
                select_allocator<direct, field_t>(bases, op));

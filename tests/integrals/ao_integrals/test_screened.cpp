@@ -40,13 +40,12 @@ TEST_CASE("Overlap CS") {
     simde::type::el_identity I;
 
     SECTION("Explicit") {
-        auto [S] = mm.at("Overlap CS").run_as<integral_type>(aos, I, aos);
+        auto S = mm.at("Overlap CS").run_as<integral_type>(aos, I, aos);
         REQUIRE(tensorwrapper::tensor::allclose(S, corr_S));
     }
 
     SECTION("Direct") {
-        auto [S] =
-          mm.at("Direct Overlap CS").run_as<integral_type>(aos, I, aos);
+        auto S = mm.at("Direct Overlap CS").run_as<integral_type>(aos, I, aos);
         REQUIRE(direct_allclose(S, corr_S));
     }
 }
@@ -68,14 +67,14 @@ TEST_CASE("ERI4C CS") {
     simde::type::el_el_coulomb r12;
 
     SECTION("Explicit") {
-        auto [X] =
+        auto X =
           mm.at("ERI4 CS").run_as<integral_type>(aos, aos, r12, aos, aos);
         REQUIRE(tensorwrapper::tensor::allclose(X, corr_X));
     }
 
     SECTION("Direct") {
-        auto [X] = mm.at("Direct ERI4 CS")
-                     .run_as<integral_type>(aos, aos, r12, aos, aos);
+        auto X = mm.at("Direct ERI4 CS")
+                   .run_as<integral_type>(aos, aos, r12, aos, aos);
         REQUIRE(direct_allclose(X, corr_X));
     }
 }
