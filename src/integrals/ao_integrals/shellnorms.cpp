@@ -57,6 +57,12 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
     auto& fac_mod  = submods.at("AO Integral Factory");
     const auto& op = inputs.at(op_str).template value<const OperatorType&>();
 
+    // Double up on the basis sets if 2-body
+    if constexpr(NBodies == 2) {
+        bases.push_back(bases[0]);
+        bases.push_back(bases[1]);
+    }
+
     // Check if the basis sets are the same
     bool same_bs = (bases[0] == bases[1]);
 
@@ -66,12 +72,12 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
     // Our return value
     return_vec mat(bases[0].n_shells(), elem_vec(bases[1].n_shells(), 0.0));
 
+    // Cache result of factory module
+    fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+
     // Lambda to fill in the values
     std::function<void(std::size_t, std::size_t)> into_mat;
     if constexpr(NBodies == 1) {
-        // Cache result of factory module
-        fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
-
         into_mat = [&](std::size_t i, std::size_t j) mutable {
             auto factory = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
             const auto& buf = factory.compute({i, j});
@@ -93,12 +99,6 @@ TEMPLATED_MODULE_RUN(ShellNorms, NBodies, OperatorType) {
             } // cut down on work
         };
     } else if constexpr(NBodies == 2) {
-        // Double up the basis set
-        auto doubled = bases;
-        for(auto& set : bases) doubled.push_back(set);
-
-        // Cache result of factory module
-        fac_mod.run_as<factory_pt<OperatorType>>(doubled, op);
         into_mat = [&](std::size_t i, std::size_t j) mutable {
             auto factory = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
             const auto& buf = factory.compute({i, j, i, j});

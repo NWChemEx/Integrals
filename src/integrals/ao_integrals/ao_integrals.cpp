@@ -220,26 +220,25 @@ void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
     mm.change_submod("Direct DOI", "DOI4", "Direct DOI4");
 
     // Set shell norm submods
-    /// TODO: Uncomment after module optimization
-    // mm.change_submod("Kinetic CS", "Shell Norms", "Shell Norms Overlap");
-    // mm.change_submod("Nuclear CS", "Shell Norms", "Shell Norms Overlap");
-    // mm.change_submod("Overlap CS", "Shell Norms", "Shell Norms Overlap");
-    // mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
-    // mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
-    // mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
-    // mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
-    // mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
-    // mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
-    // mm.change_submod("Direct Kinetic CS", "Shell Norms", "Shell Norms
-    // Overlap"); mm.change_submod("Direct Nuclear CS", "Shell Norms", "Shell
-    // Norms Overlap"); mm.change_submod("Direct Overlap CS", "Shell Norms",
-    // "Shell Norms Overlap"); mm.change_submod("Direct ERI3 CS", "Shell Norms",
-    // "Shell Norms Coulomb"); mm.change_submod("Direct ERI4 CS", "Shell Norms",
-    // "Shell Norms Coulomb"); mm.change_submod("Direct STG3 CS", "Shell Norms",
-    // "Shell Norms STG"); mm.change_submod("Direct STG4 CS", "Shell Norms",
-    // "Shell Norms STG"); mm.change_submod("Direct Yukawa3 CS", "Shell Norms",
-    // "Shell Norms Yukawa"); mm.change_submod("Direct Yukawa4 CS", "Shell
-    // Norms", "Shell Norms Yukawa");
+    // std::string sh_norm = "Shell Norms";
+    // mm.change_submod("Kinetic CS", sh_norm, sh_norm + " Overlap");
+    // mm.change_submod("Nuclear CS", sh_norm, sh_norm + " Overlap");
+    // mm.change_submod("Overlap CS", sh_norm, sh_norm + " Overlap");
+    // mm.change_submod("ERI3 CS", sh_norm, sh_norm + " Coulomb");
+    // mm.change_submod("ERI4 CS", sh_norm, sh_norm + " Coulomb");
+    // mm.change_submod("STG3 CS", sh_norm, sh_norm + " STG");
+    // mm.change_submod("STG4 CS", sh_norm, sh_norm + " STG");
+    // mm.change_submod("Yukawa3 CS", sh_norm, sh_norm + " Yukawa");
+    // mm.change_submod("Yukawa4 CS", sh_norm, sh_norm + " Yukawa");
+    // mm.change_submod("Direct Kinetic CS", sh_norm, sh_norm + " Overlap");
+    // mm.change_submod("Direct Nuclear CS", sh_norm, sh_norm + " Overlap");
+    // mm.change_submod("Direct Overlap CS", sh_norm, sh_norm + " Overlap");
+    // mm.change_submod("Direct ERI3 CS", sh_norm, sh_norm + " Coulomb");
+    // mm.change_submod("Direct ERI4 CS", sh_norm, sh_norm + " Coulomb");
+    // mm.change_submod("Direct STG3 CS", sh_norm, sh_norm + " STG");
+    // mm.change_submod("Direct STG4 CS", sh_norm, sh_norm + " STG");
+    // mm.change_submod("Direct Yukawa3 CS", sh_norm, sh_norm + " Yukawa");
+    // mm.change_submod("Direct Yukawa4 CS", sh_norm, sh_norm + " Yukawa");
 }
 
 } // namespace integrals::ao_integrals

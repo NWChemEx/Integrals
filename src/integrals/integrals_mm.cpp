@@ -28,7 +28,7 @@ void set_defaults(pluginplay::ModuleManager& mm) {
     /// Submodule name
     auto fac_sub = "AO Integral Factory";
 
-    /// Set Factory for non-screened integrals
+    /// Set Factory and Shape for non-screened integrals
     std::vector<std::string> module_names{
       "ERI2", "ERI3", "ERI4",    "Kinetic", "Nuclear", "Overlap", "STG2",
       "STG3", "STG4", "Yukawa2", "Yukawa3", "Yukawa4", "DOI4"};
@@ -42,7 +42,7 @@ void set_defaults(pluginplay::ModuleManager& mm) {
                      "OneTileShape");
     mm.change_submod("STG 4 Center dfdr Squared", fac_sub, "F12 4C Factory");
 
-    /// Set Factory for screened integrals
+    /// Set Factory and Shape for screened integrals
     module_names = {"ERI3", "ERI4", "Kinetic", "Nuclear", "Overlap",
                     "STG3", "STG4", "Yukawa3", "Yukawa4"};
     for(const auto& name : module_names) {
@@ -53,7 +53,7 @@ void set_defaults(pluginplay::ModuleManager& mm) {
         mm.change_submod("Direct " + name_cs, fac_sub, name + " Factory");
     }
 
-    /// Set Factory for multipoles
+    /// Set Factory and Shape for multipoles
     module_names = {"EDipole", "EQuadrupole", "EOctupole"};
     for(const auto& name : module_names) {
         mm.change_submod(name, fac_sub, name + " Factory");
@@ -67,24 +67,25 @@ void set_defaults(pluginplay::ModuleManager& mm) {
     // mm.change_submod("Shell Norms Yukawa", fac_sub, "Yukawa4 Factory");
 
     /// TODO: Need to be removed. See module declarations.
-    mm.change_submod("Kinetic CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Nuclear CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Overlap CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
-    mm.change_submod("ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
-    mm.change_submod("STG3 CS", "Shell Norms", "Shell Norms STG");
-    mm.change_submod("STG4 CS", "Shell Norms", "Shell Norms STG");
-    mm.change_submod("Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
-    mm.change_submod("Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
-    mm.change_submod("Direct Kinetic CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Direct Nuclear CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Direct Overlap CS", "Shell Norms", "Shell Norms Overlap");
-    mm.change_submod("Direct ERI3 CS", "Shell Norms", "Shell Norms Coulomb");
-    mm.change_submod("Direct ERI4 CS", "Shell Norms", "Shell Norms Coulomb");
-    mm.change_submod("Direct STG3 CS", "Shell Norms", "Shell Norms STG");
-    mm.change_submod("Direct STG4 CS", "Shell Norms", "Shell Norms STG");
-    mm.change_submod("Direct Yukawa3 CS", "Shell Norms", "Shell Norms Yukawa");
-    mm.change_submod("Direct Yukawa4 CS", "Shell Norms", "Shell Norms Yukawa");
+    std::string sh_norm = "Shell Norms";
+    mm.change_submod("Kinetic CS", sh_norm, sh_norm + " Overlap");
+    mm.change_submod("Nuclear CS", sh_norm, sh_norm + " Overlap");
+    mm.change_submod("Overlap CS", sh_norm, sh_norm + " Overlap");
+    mm.change_submod("ERI3 CS", sh_norm, sh_norm + " Coulomb");
+    mm.change_submod("ERI4 CS", sh_norm, sh_norm + " Coulomb");
+    mm.change_submod("STG3 CS", sh_norm, sh_norm + " STG");
+    mm.change_submod("STG4 CS", sh_norm, sh_norm + " STG");
+    mm.change_submod("Yukawa3 CS", sh_norm, sh_norm + " Yukawa");
+    mm.change_submod("Yukawa4 CS", sh_norm, sh_norm + " Yukawa");
+    mm.change_submod("Direct Kinetic CS", sh_norm, sh_norm + " Overlap");
+    mm.change_submod("Direct Nuclear CS", sh_norm, sh_norm + " Overlap");
+    mm.change_submod("Direct Overlap CS", sh_norm, sh_norm + " Overlap");
+    mm.change_submod("Direct ERI3 CS", sh_norm, sh_norm + " Coulomb");
+    mm.change_submod("Direct ERI4 CS", sh_norm, sh_norm + " Coulomb");
+    mm.change_submod("Direct STG3 CS", sh_norm, sh_norm + " STG");
+    mm.change_submod("Direct STG4 CS", sh_norm, sh_norm + " STG");
+    mm.change_submod("Direct Yukawa3 CS", sh_norm, sh_norm + " Yukawa");
+    mm.change_submod("Direct Yukawa4 CS", sh_norm, sh_norm + " Yukawa");
 }
 
 void load_modules(pluginplay::ModuleManager& mm) {

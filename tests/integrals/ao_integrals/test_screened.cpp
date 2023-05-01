@@ -25,6 +25,8 @@ using namespace mokup;
 
 TEST_CASE("Overlap CS") {
     using integral_type = simde::EOverlap;
+    using shape_t       = typename simde::type::tensor::shape_type;
+    using field_t       = typename simde::type::tensor::field_type;
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
@@ -47,6 +49,22 @@ TEST_CASE("Overlap CS") {
     SECTION("Direct") {
         auto S = mm.at("Direct Overlap CS").run_as<integral_type>(aos, I, aos);
         REQUIRE(direct_allclose(S, corr_S));
+    }
+
+    SECTION("Center-based Tiling") {
+        /// TODO: Different tiling needs to be simpler to accomplish
+        auto S_vector = tensorwrapper::tensor::to_vector(corr_S);
+        auto shape    = shape_t({{0, 5, 6, 7}, {0, 5, 6, 7}});
+        auto l        = [S_vector](const auto& idx) {
+            auto ord = idx[0] * 7 + idx[1];
+            return S_vector[ord];
+        };
+        tensor_t corr(l, std::make_unique<shape_t>(shape),
+                      tensorwrapper::tensor::default_allocator<field_t>());
+
+        mm.change_submod("Overlap CS", "Tensor Shape", "CenterTiledShape");
+        auto S = mm.at("Overlap CS").run_as<integral_type>(aos, I, aos);
+        REQUIRE(tensorwrapper::tensor::allclose(S, corr));
     }
 }
 

@@ -95,9 +95,6 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
     auto shell_sizes = bsets_shell_sizes(bases);
     auto shell_centers = bsets_shell_centers(bases);
 
-    // Cache result of factory module
-    fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
-
     // Calculate Shell Norms for screening
     shell_norm_t mat1, mat2;
     auto& cs_screen = submods.at("Shell Norms");
@@ -120,6 +117,9 @@ TEMPLATED_MODULE_RUN(CSAOIntegral, N, OperatorType, direct) {
         mat2 =
           cs_screen.run_as<simde::ShellNorms<OperatorType>>(bra1, op, bra2);
     }
+
+    // Cache result of factory module
+    fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
 
     // Lambda to calculate values
     auto l = [=](const auto& lo, const auto& up, auto* data) mutable {
