@@ -74,9 +74,9 @@ TEST_CASE("Hashing Operators") {
 
         atom_t a1{"X", std::size_t{1}, 0.0, 0.0, 0.0, 0.0};
         atom_t a2{"X", std::size_t{2}, 0.0, 1.0, 0.0, 0.0};
-        op_t op(e_t{}, nuc_t{a1});
-        op_t other_op1(e_t{}, nuc_t{a2});
-        op_t other_op2(e_t{}, nuc_t{a1, a2});
+        op_t op(e_t{}, nuc_t{a1.nucleus()});
+        op_t other_op1(e_t{}, nuc_t{a2.nucleus()});
+        op_t other_op2(e_t{}, nuc_t{a1.nucleus(), a2.nucleus()});
         auto op_hash = hash_operator(op);
 
         auto corr = std::hash<std::string>{}("(r\u0302₁₂)⁻¹");
