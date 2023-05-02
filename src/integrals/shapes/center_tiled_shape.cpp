@@ -25,7 +25,7 @@ using tiling_t         = typename shape_t::tiling_type;
 
 MODULE_CTOR(CenterTiledShape) {
     satisfies_property_type<integral_shape_t>();
-    description("Construct a tensor shape that has one big tile");
+    description("Construct a tensor shape that is tiled on basis set centers");
 }
 
 MODULE_RUN(CenterTiledShape) {
