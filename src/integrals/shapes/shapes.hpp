@@ -20,9 +20,11 @@
 namespace integrals::shapes {
 
 DECLARE_MODULE(OneTileShape);
+DECLARE_MODULE(CenterTiledShape);
 
 inline void load_modules(pluginplay::ModuleManager& mm) {
     mm.add_module<OneTileShape>("OneTileShape");
+    mm.add_module<CenterTiledShape>("CenterTiledShape");
 }
 
 } // namespace integrals::shapes

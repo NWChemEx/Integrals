@@ -76,25 +76,25 @@ TEMPLATED_MODULE_CTOR(AOIntegralMultipole, L, OperatorType) {
 
 template<std::size_t L, typename OperatorType>
 TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
-    /// Typedefs
+    // Typedefs
     using size_vector_t = std::vector<std::size_t>;
     using tensor_t      = simde::type::tensor;
     using field_t       = typename tensor_t::field_type;
 
-    /// Grab input information
-    auto bases    = unpack_bases<2>(inputs);
-    auto op_str   = OperatorType().as_string();
-    auto op       = inputs.at(op_str).template value<const OperatorType&>();
-    auto& fac_mod = submods.at("AO Integral Factory");
-
-    auto factory     = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+    // Grab input information
+    auto bases       = unpack_bases<2>(inputs);
+    auto op_str      = OperatorType().as_string();
+    auto op          = inputs.at(op_str).template value<const OperatorType&>();
+    auto& fac_mod    = submods.at("AO Integral Factory");
     auto shell_sizes = bsets_shell_sizes(bases);
 
-    /// Lambda to calculate values
-    auto l = [shell_sizes, factory = factory](const auto& lo, const auto& up,
-                                              auto* data) mutable {
-        /// Convert index values from AOs to shells
-        /// Leading index is for multipole components
+    // Cache result of factory module
+    fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+
+    // Lambda to calculate values
+    auto l = [=](const auto& lo, const auto& up, auto* data) mutable {
+        // Convert index values from AOs to shells
+        // Leading index is for multipole components
         constexpr std::size_t N = 2;
         size_vector_t lo_shells, up_shells;
         for(auto i = 0; i < N; ++i) {
@@ -104,7 +104,7 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
             up_shells.push_back(shells_in_tile.back());
         }
 
-        /// Calculate the number of values per leading index
+        // Calculate the number of values per leading index
         auto leading_step = 0;
         for(auto i = lo_shells[0]; i <= up_shells[0]; ++i) {
             for(auto j = lo_shells[1]; j <= up_shells[1]; ++j) {
@@ -112,17 +112,20 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
             }
         }
 
-        /// Loop through shell combinations
+        // Get integral factory
+        auto factory = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+
+        // Loop through shell combinations
         size_vector_t curr_shells = lo_shells;
         while(curr_shells[0] <= up_shells[0]) {
-            /// Determine which values will be computed this time
+            // Determine which values will be computed this time
             auto ord_pos =
               shells2ord(shell_sizes, curr_shells, lo_shells, up_shells);
 
-            /// Compute values
+            // Compute values
             const auto& buf = factory.compute(curr_shells);
 
-            /// Copy libint values into tile data;
+            // Copy libint values into tile data;
             for(auto i = lo[0]; i < up[0]; ++i) {
                 auto depth = i * leading_step;
                 for(auto j = 0; j < ord_pos.size(); ++j) {
@@ -130,12 +133,12 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
                 }
             }
 
-            /// Increment curr_shells
+            // Increment curr_shells
             curr_shells[N - 1] += 1;
             for(auto i = 1; i < N; ++i) {
                 if(curr_shells[N - i] > up_shells[N - i]) {
-                    /// Reset this dimension and increment the next one
-                    /// curr_shells[0] accumulates until we reach the end
+                    // Reset this dimension and increment the next one
+                    // curr_shells[0] accumulates until we reach the end
                     curr_shells[N - i] = lo_shells[N - i];
                     curr_shells[N - i - 1] += 1;
                 }
@@ -143,12 +146,12 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
         }
     };
 
-    /// Count up necessary components for multipole
+    // Count up necessary components for multipole
     std::size_t leading_extent = 4;
     if constexpr(L == 1) { leading_extent = 10; }
     if constexpr(L == 2) { leading_extent = 20; }
 
-    /// Make complete tensor and slice out return values
+    // Make complete tensor and slice out return values
     /// TODO: Switch out make_shape with an IntegralShape module
     tensor_t I(l, make_shape(bases, leading_extent),
                tensorwrapper::tensor::default_allocator<field_t>());
