@@ -40,7 +40,7 @@ TEST_CASE("make_engine") {
     chemist::Atom o1{"O", 8ul, 0.0, 0.0, -0.143222342980786, 0.0};
     chemist::Atom h1{"H", 1ul, 0.0, 1.638033502034240, 1.136556880358410, 0.0};
     chemist::Atom h2{"H", 1ul, 0.0, -1.638033502034240, 1.136556880358410, 0.0};
-    chemist::Nuclei water{o1, h1, h2};
+    chemist::Nuclei water{o1.nucleus(), h1.nucleus(), h2.nucleus()};
 
     SECTION("el_el_coulomb") {
         using op_t = simde::type::el_el_coulomb;

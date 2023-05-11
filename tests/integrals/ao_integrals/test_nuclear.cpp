@@ -37,7 +37,7 @@ TEST_CASE("Nuclear") {
     std::vector bases{bs, bs};
     auto corr = get_ao_data(name, bases, property::nuclear);
 
-    op_type riA(chemist::Electron{}, mol);
+    op_type riA(chemist::Electron{}, mol.nuclei());
 
     SECTION("Explicit") {
         auto V = mm.at("Nuclear").run_as<integral_type>(aos, riA, aos);
