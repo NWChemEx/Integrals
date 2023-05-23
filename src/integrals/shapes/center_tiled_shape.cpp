@@ -15,11 +15,11 @@
  */
 
 #include "shapes.hpp"
-#include <integrals/property_types/integral_shape.hpp>
+#include <simde/simde.hpp>
 
 namespace integrals::shapes {
 
-using integral_shape_t = integrals::IntegralShape;
+using integral_shape_t = simde::IntegralShape;
 using shape_t          = typename simde::type::tensor::shape_type;
 using tiling_t         = typename shape_t::tiling_type;
 

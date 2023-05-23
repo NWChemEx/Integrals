@@ -24,7 +24,7 @@
 #include "detail_/shells2ord.hpp"
 #include "detail_/unpack_bases.hpp"
 #include "shellnorms.hpp"
-#include <integrals/property_types/integral_shape.hpp>
+//#include <integrals/property_types/integral_shape.hpp>
 #include <simde/integral_factory.hpp>
 #include <simde/tensor_representation/ao_tensor_representation.hpp>
 
@@ -36,7 +36,7 @@ using factory_pt = simde::IntegralFactory<OperatorType>;
 using factory_t  = simde::type::integral_factory;
 
 /// Type of a module that produces integral shapes
-using integral_shape_pt = integrals::IntegralShape;
+using integral_shape_pt = simde::IntegralShape;
 
 /// Grab the various detail_ functions
 using namespace detail_;
