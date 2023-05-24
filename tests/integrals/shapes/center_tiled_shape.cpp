@@ -17,6 +17,7 @@
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
 #include <mokup/mokup.hpp>
+#include <simde/simde.hpp>
 
 using pt      = simde::IntegralShape;
 using shape_t = typename simde::type::tensor::shape_type;
