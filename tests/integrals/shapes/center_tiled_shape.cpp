@@ -16,10 +16,10 @@
 
 #include "integrals/integrals.hpp"
 #include <catch2/catch.hpp>
-#include <integrals/property_types/integral_shape.hpp>
 #include <mokup/mokup.hpp>
+#include <simde/simde.hpp>
 
-using pt      = integrals::IntegralShape;
+using pt      = simde::IntegralShape;
 using shape_t = typename simde::type::tensor::shape_type;
 using input_t = std::vector<simde::type::ao_basis_set>;
 
