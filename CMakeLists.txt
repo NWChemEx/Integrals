@@ -30,6 +30,7 @@ set(
 )
 
 include(get_cmaize)
+include(nwx_versions)
 include(nwx_cxx_api_docs)
 nwx_cxx_api_docs("${CMAKE_CURRENT_SOURCE_DIR}/integrals")
 
@@ -43,6 +44,7 @@ option(BUILD_PYBINDINGS "Should we build Python3 bindings?" ON)
 cmaize_find_or_build_dependency(
     Libint2
     URL github.com/evaleev/libint
+    VERSION ${NWX_LIBINT2_VERSION}
     BUILD_TARGET int2
     FIND_TARGET Libint2::int2
 )
@@ -51,6 +53,7 @@ cmaize_find_or_build_dependency(
     simde
     URL github.com/NWChemEx-Project/SimDE
     PRIVATE TRUE
+    VERSION ${NWX_SIMDE_VERSION}
     BUILD_TARGET simde
     FIND_TARGET nwx::simde
     CMAKE_ARGS BUILD_TESTING=OFF
@@ -75,12 +78,13 @@ if("${BUILD_TESTING}")
         URL github.com/catchorg/Catch2
         BUILD_TARGET Catch2
         FIND_TARGET Catch2::Catch2
-        VERSION v2.x
+        VERSION ${NWX_CATCH2_VERSION}
     )
     cmaize_find_or_build_dependency(
         mokup
         URL github.com/NWChemEx-Project/Mokup
         PRIVATE TRUE
+        VERSION ${NWX_MOKUP_VERSION}
         BUILD_TARGET mokup
         FIND_TARGET nwx::mokup
         CMAKE_ARGS BUILD_TESTING=OFF
