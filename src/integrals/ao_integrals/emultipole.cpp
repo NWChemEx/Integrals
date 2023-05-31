@@ -89,7 +89,7 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
     auto shell_sizes = bsets_shell_sizes(bases);
 
     // Cache result of factory module
-    fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+    fac_mod.run_as<factory_pt<OperatorType>>(bases, op, 0ul);
 
     // Lambda to calculate values
     auto l = [=](const auto& lo, const auto& up, auto* data) mutable {
@@ -113,7 +113,7 @@ TEMPLATED_MODULE_RUN(AOIntegralMultipole, L, OperatorType) {
         }
 
         // Get integral factory
-        auto factory = fac_mod.run_as<factory_pt<OperatorType>>(bases, op);
+        auto factory = fac_mod.run_as<factory_pt<OperatorType>>(bases, op, 0ul);
 
         // Loop through shell combinations
         size_vector_t curr_shells = lo_shells;
