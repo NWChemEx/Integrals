@@ -42,9 +42,8 @@ TEMPLATED_MODULE_RUN(MakeLibintFactory, N, OperatorType) {
     using libint_basis_vector = typename libint_factory::libint_basis_vector;
 
     /// Inputs
-    const auto& [bases, op] = my_pt::unwrap_inputs(inputs);
+    const auto& [bases, op, deriv] = my_pt::unwrap_inputs(inputs);
     auto thresh             = inputs.at("Threshold").value<double>();
-    auto deriv              = 0; // TODO: Get from TMP
 
     // Convert from NWX bases to libint
     libint_basis_vector libint_bases;

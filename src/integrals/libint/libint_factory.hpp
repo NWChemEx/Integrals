@@ -43,7 +43,7 @@ public:
     using const_indices_reference = const indices_type&;
 
     LibintFactory(libint_basis_vector bases, operator_type op,
-                  threshold_type thesh, derivative_order_type deriv = 0);
+                  threshold_type thesh, derivative_order_type deriv);
 
 private:
     const_buffer_reference compute_(const_indices_reference idx) override;
