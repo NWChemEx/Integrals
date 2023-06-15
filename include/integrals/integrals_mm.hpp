@@ -15,10 +15,10 @@
  */
 
 #pragma once
-#include <pluginplay/module_manager.hpp>
+#include <pluginplay/plugin/plugin.hpp>
 
 namespace integrals {
 
-void load_modules(pluginplay::ModuleManager& mm);
+DECLARE_PLUGIN(integrals);
 
 } // end namespace integrals
