@@ -13,7 +13,7 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.14)
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" VERSION)
+set(VERSION 1.0.0) #TODO: get from git
 project(integrals VERSION "${VERSION}" LANGUAGES CXX)
 
 include(FetchContent)
@@ -36,7 +36,8 @@ nwx_cxx_api_docs("${CMAKE_CURRENT_SOURCE_DIR}/integrals")
 
 ### Options ###
 option(BUILD_TESTING "Should we build the tests?" OFF)
-option(BUILD_PYBINDINGS "Should we build Python3 bindings?" ON)
+option(BUILD_PYBIND11_PYBINDINGS "Use pybind11 to build Python3 bindings?" OFF)
+option(BUILD_CPPYY_PYBINDINGS "Use Cppyy to build Python3 bindings?" OFF)
 
 
 # Can't build from github due to Libint setup.
@@ -69,10 +70,20 @@ cmaize_add_library(
     DEPENDS Libint2 simde
 )
 
+include(nwx_pybind11)
+nwx_add_pybind11_module(
+    ${PROJECT_NAME}
+    SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/src/python"
+    DEPENDS "${PROJECT_NAME}"
+)
+
 include(nwx_python_mods)
 cppyy_make_python_package(PACKAGE integrals NAMESPACES integrals DEPPACKAGES simde )
 
 if("${BUILD_TESTING}")
+    set(CXX_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/tests/cxx)
+    set(PYTHON_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/tests/python)
+
     cmaize_find_or_build_dependency(
         Catch2
         URL github.com/catchorg/Catch2
@@ -91,9 +102,13 @@ if("${BUILD_TESTING}")
     )
     cmaize_add_tests(
         test_integrals
-        SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/tests"
+        SOURCE_DIR "${CXX_TEST_DIR}/unit_tests"
         INCLUDE_DIRS "${project_src_dir}"
         DEPENDS Catch2 mokup ${PROJECT_NAME}
+    )
+    nwx_pybind11_tests(
+        py_integrals "${PYTHON_TEST_DIR}/unit_tests/test_integrals.py"
+        SUBMODULES pluginplay chemist parallelzone simde
     )
 endif()
 

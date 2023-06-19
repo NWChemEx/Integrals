@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NWChemEx-Project
+ * Copyright 2023 NWChemEx-Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-#pragma once
+#include <integrals/integrals_mm.hpp>
 #include <pluginplay/plugin/plugin.hpp>
+#include <pybind11/pybind11.h>
 
 namespace integrals {
 
-DECLARE_PLUGIN(integrals);
+EXPORT_PLUGIN(integrals, m) {}
 
-} // end namespace integrals
+} // namespace integrals
