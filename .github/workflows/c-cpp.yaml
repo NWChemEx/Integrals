@@ -4,22 +4,16 @@ on:
   pull_request:
     branches:
       - master
+  push:
+    branches:
+      - test-with-installed-plugin
 jobs:
   build-with-gcc:
-    uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@master
+    uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@integrals-test
     with: 
       dependencies: 'ninja gcc cmake gcovr openblas cblas lapacke scalapack boost eigen3 openmpi libint'
       clang-build: false
       gcc-build: true
-      ninja_build: true
-    secrets:
-      CMAIZE_GITHUB_TOKEN: ${{ secrets.CMAIZE_GITHUB_TOKEN }}
-  build-with-clang:
-    uses: NWChemEx-Project/.github/.github/workflows/c-cpp_tmpl.yaml@master
-    with: 
-      dependencies: 'ninja clang cmake gcovr openblas cblas lapacke scalapack boost eigen3 openmpi libint'
-      clang-build: true
-      gcc-build: false
       ninja_build: true
     secrets:
       CMAIZE_GITHUB_TOKEN: ${{ secrets.CMAIZE_GITHUB_TOKEN }}
