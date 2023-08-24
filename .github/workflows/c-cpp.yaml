@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-
   push:
     branches:
       - test-with-installed-plugin
