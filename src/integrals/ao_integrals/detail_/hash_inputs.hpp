@@ -129,9 +129,10 @@ struct std::hash<std::vector<simde::type::ao_basis_set>> {
         auto hash = std::hash<std::size_t>{}(b.size());
         /// Set through the sets and hash the info
         for(const auto& set : b) {
-            for(const auto& p : set.unique_primitives()) {
-                combine_hash(hash, p.coefficient(), p.exponent(), p.x(), p.y(),
-                             p.z());
+            for(auto i = 0; i < set.n_primitives(); ++i) {
+                auto p = set.primitive(i);
+                combine_hash(hash, p.coefficient(), p.exponent(),
+                             p.center().x(), p.center().y(), p.center().z());
             }
         }
         return hash;

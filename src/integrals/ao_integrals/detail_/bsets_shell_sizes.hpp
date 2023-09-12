@@ -31,8 +31,8 @@ inline auto bsets_shell_sizes(
     auto N = bases.size();
     std::vector<std::vector<std::size_t>> shell_sizes(N);
     for(auto i = 0; i < N; ++i) {
-        for(const auto& shell : bases[i].shells()) {
-            shell_sizes[i].push_back(shell.size());
+        for(auto j = 0; j < bases[i].n_shells(); ++j) {
+            shell_sizes[i].push_back(bases[i].shell(j).size());
         }
     }
     return shell_sizes;

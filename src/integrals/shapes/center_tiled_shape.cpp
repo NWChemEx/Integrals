@@ -32,10 +32,10 @@ MODULE_RUN(CenterTiledShape) {
     auto [bases] = integral_shape_t::unwrap_inputs(inputs);
 
     tiling_t tiling;
-    for(auto& set : bases) {
+    for(const auto& set : bases) {
         tiling.push_back({0});
         auto& current_tiling = tiling.back();
-        for(auto& center : set) {
+        for(const auto& center : set) {
             current_tiling.push_back(current_tiling.back() + center.n_aos());
         }
     }
