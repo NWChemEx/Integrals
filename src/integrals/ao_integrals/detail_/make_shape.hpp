@@ -35,7 +35,7 @@ inline auto make_shape(const std::vector<simde::type::ao_basis_set>& bases,
     /// Count up the extents from the shells in the basis sets
     extents_t extents{};
     if(leading_extent != 0) extents.push_back(leading_extent);
-    for(auto& set : bases) { extents.push_back(set.n_aos()); }
+    for(const auto& set : bases) { extents.push_back(set.n_aos()); }
 
     /// Make the unique pointer to the shape
     return std::make_unique<shape_t>(extents);
