@@ -12,14 +12,10 @@
 .. See the License for the specific language governing permissions and
 .. limitations under the License.
 
-Welcome to Integral's documentation!
-======================================
+**********
+Module API
+**********
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   module_api/index
-   C++ API <https://nwchemex-project.github.io/Integrals/integrals_cxx_api/index.html>
-
-
+   :maxdepth: 1
+   :caption: Packages
