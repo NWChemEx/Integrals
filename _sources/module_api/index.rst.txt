@@ -1,21 +1,91 @@
-.. Copyright 2022 NWChemEx-Project
-..
-.. Licensed under the Apache License, Version 2.0 (the "License");
-.. you may not use this file except in compliance with the License.
-.. You may obtain a copy of the License at
-..
-.. http://www.apache.org/licenses/LICENSE-2.0
-..
-.. Unless required by applicable law or agreed to in writing, software
-.. distributed under the License is distributed on an "AS IS" BASIS,
-.. WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-.. See the License for the specific language governing permissions and
-.. limitations under the License.
-
-**********
-Module API
-**********
+***********
+Modules API
+***********
 
 .. toctree::
    :maxdepth: 1
-   :caption: Packages
+
+   CenterTiledShape
+   Direct_DOI
+   Direct_DOI4
+   Direct_ERI2
+   Direct_ERI3
+   Direct_ERI3_CS
+   Direct_ERI4
+   Direct_ERI4_CS
+   Direct_Kinetic
+   Direct_Kinetic_CS
+   Direct_Nuclear
+   Direct_Nuclear_CS
+   Direct_Overlap
+   Direct_Overlap_CS
+   Direct_STG2
+   Direct_STG3
+   Direct_STG3_CS
+   Direct_STG4
+   Direct_STG4_CS
+   Direct_Yukawa2
+   Direct_Yukawa3
+   Direct_Yukawa3_CS
+   Direct_Yukawa4
+   Direct_Yukawa4_CS
+   DOI
+   DOI4
+   DOI4_Factory
+   EDipole
+   EDipole_Factory
+   EOctupole
+   EOctupole_Factory
+   EQuadrupole
+   EQuadrupole_Factory
+   ERI2
+   ERI2_Factory
+   ERI3
+   ERI3_CS
+   ERI3_Factory
+   ERI4
+   ERI4_CS
+   ERI4_Factory
+   F12_2C_Factory
+   F12_3C_Factory
+   F12_4C_Factory
+   Kinetic
+   Kinetic_CS
+   Kinetic_Factory
+   Nuclear
+   Nuclear_CS
+   Nuclear_Factory
+   OneTileShape
+   Overlap
+   Overlap_CS
+   Overlap_Factory
+   Shell_Norms_Coulomb
+   Shell_Norms_Overlap
+   Shell_Norms_STG
+   Shell_Norms_Yukawa
+   STG_4_Center_dfdr_Squared
+   STG2
+   STG2_Factory
+   STG3
+   STG3_CS
+   STG3_Factory
+   STG4
+   STG4_CS
+   STG4_Factory
+   Transformed_ERI3
+   Transformed_ERI4
+   Transformed_Fock
+   Transformed_K
+   Transformed_Kinetic
+   Transformed_Nuclear
+   Transformed_STG_4_Center_dfdr_Squared
+   Transformed_STG4
+   Transformed_Yukawa4
+   Yukawa2
+   Yukawa2_Factory
+   Yukawa3
+   Yukawa3_CS
+   Yukawa3_Factory
+   Yukawa4
+   Yukawa4_CS
+   Yukawa4_Factory
