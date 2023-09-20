@@ -58,7 +58,7 @@ TEST_CASE("Hashing Operators") {
         simde::type::el_el_coulomb op;
         simde::type::el_el_delta other_op;
         auto op_hash = hash_operator(op);
-        auto corr    = std::hash<std::string>{}("(r\u0302₁₂)⁻¹");
+        auto corr    = std::hash<std::string>{}("(r₁₂)⁻¹");
 
         /// Check correctness of hash
         REQUIRE(op_hash == corr);
@@ -79,7 +79,7 @@ TEST_CASE("Hashing Operators") {
         op_t other_op2(e_t{}, nuc_t{a1.nucleus(), a2.nucleus()});
         auto op_hash = hash_operator(op);
 
-        auto corr = std::hash<std::string>{}("(r\u0302₁₂)⁻¹");
+        auto corr = std::hash<std::string>{}("(r₁₂)⁻¹");
         combine_hash(corr, std::size_t{1}, std::string("X"), 0.0, 1.0, 0.0, 0.0,
                      0.0);
 
@@ -99,7 +99,7 @@ TEST_CASE("Hashing Operators") {
         op_t other_op2(stg_t{1.0, 2.0});
         auto op_hash = hash_operator(op);
 
-        auto corr = std::hash<std::string>{}("f\u0302₁₂");
+        auto corr = std::hash<std::string>{}("f₁₂");
         combine_hash(corr, 1.0, 1.0);
 
         /// Check correctness of hash

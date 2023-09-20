@@ -58,18 +58,18 @@ inline auto make_libint_basis_set(const simde::type::ao_basis_set& bs) {
     std::array<double, 3> origin = {0.0, 0.0, 0.0};
 
     /// Convert centers and their shells to libint equivalents.
-    for(auto center_i = 0; center_i < bs.size(); ++center_i) {
+    for(auto abs_i = 0; abs_i < bs.size(); ++abs_i) {
         /// Add current center to atoms list
-        auto& center = bs[center_i];
-        centers.push_back(
-          atom_ctor(center_i, center.x(), center.y(), center.z()));
+        const auto& abs = bs[abs_i];
+        centers.push_back(atom_ctor(abs_i, abs.center().x(), abs.center().y(),
+                                    abs.center().z()));
 
         /// Gather shells for this center and add them to element_bases
         atom_bases_t atom_bases{};
-        for(const auto&& shelli : center) {
-            const auto nprims = shelli.n_unique_primitives();
-            const auto prim0  = shelli.unique_primitive(0);
-            const auto primN  = shelli.unique_primitive(nprims - 1);
+        for(const auto&& shelli : abs) {
+            const auto nprims = shelli.n_primitives();
+            const auto prim0  = shelli.primitive(0);
+            const auto primN  = shelli.primitive(nprims - 1);
             const bool pure   = shelli.pure() == chemist::ShellType::pure;
             const int l       = shelli.l();
 
