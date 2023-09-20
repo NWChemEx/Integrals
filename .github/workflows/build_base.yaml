@@ -1,0 +1,52 @@
+# Integrals can be built using the
+# same base image as that of
+# TensorWrapper. This workflow
+# just tag the base image of TensorWrapper
+
+name: Build the base image of Integrals
+
+on:
+  workflow_call:
+    inputs:
+      libint_version:
+        type: string
+        required: false
+        default: 2.6.0
+
+jobs:
+  build-base-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CONTAINER_REPO_TOKEN }}
+      - name: Install libint
+        uses: NWChemEx-Project/.github/actions/image-install_package@master
+        with:
+          libint_version: ${{ inputs.libint_version }}
+          package_name: libint
+          parent_image_name: ghcr.io/nwchemex-project/base_tensorwrapper
+          path_to_dockerfile: .github/Dockerfile/base-libint.Dockerfile
+      - name: Push the base image
+        uses: NWChemEx-Project/.github/actions/push_image@master
+        with:
+          tmp_image_name: base-libint
+          tmp_image_tag: latest
+          image_name: ghcr.io/nwchemex-project/base_integrals
+          image_tag: latest
+      - name: Check stable base image
+        id: image_exists
+        shell: /usr/bin/bash {0}
+        run: |
+          docker manifest inspect ghcr.io/nwchemex-project/base_integrals:stable > /dev/null
+          echo "conclusion=$?" >> "$GITHUB_OUTPUT"
+      - name: Push stable base image if not exist
+        if: ${{ steps.image_exists.outputs.conclusion != 0 }}
+        run: |
+          docker pull ghcr.io/nwchemex-project/base_integrals:latest
+          docker tag ghcr.io/nwchemex-project/base_integrals:latest ghcr.io/nwchemex-project/base_integrals:stable
+          docker push ghcr.io/nwchemex-project/base_integrals:stable
