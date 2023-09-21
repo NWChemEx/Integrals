@@ -101,8 +101,14 @@ if("${BUILD_TESTING}")
         CMAKE_ARGS BUILD_TESTING=OFF
     )
     cmaize_add_tests(
-        test_integrals
-        SOURCE_DIR "${CXX_TEST_DIR}/unit_tests"
+        test_unit_integrals
+        SOURCE_DIR "${CXX_TEST_DIR}/unit"
+        INCLUDE_DIRS "${project_src_dir}"
+        DEPENDS Catch2 mokup ${PROJECT_NAME}
+    )
+    cmaize_add_tests(
+        test_integration_integrals
+        SOURCE_DIR "${CXX_TEST_DIR}/integration"
         INCLUDE_DIRS "${project_src_dir}"
         DEPENDS Catch2 mokup ${PROJECT_NAME}
     )
