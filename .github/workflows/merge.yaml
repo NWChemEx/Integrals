@@ -11,14 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-FROM alpine:latest
+name: .github Merge Workflow
 
-COPY docker-action /docker-action
-COPY entrypoint.sh /entrypoint.sh
+on:
+  push:
+    branches:
+      - master
 
-RUN apk add --update --no-cache docker
-RUN ["chmod", "+x", "/entrypoint.sh"]
-
-# Code file to execute when the docker container starts up (`entrypoint.sh`)
-ENTRYPOINT ["/entrypoint.sh"]
+jobs:
+  Common-Merge:
+    uses: NWChemEx-Project/.github/.github/workflows/common_merge.yaml@master
+    with:
+      doc_target: 'integrals_cxx_api'
+      generate_module_docs: true
+    secrets: inherit
