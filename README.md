@@ -14,9 +14,9 @@
   ~ limitations under the License.
 -->
 
-[![Actions](https://github.com/NWChemEx-Project/Integrals/workflows/C_C++_CI/badge.svg)](https://github.com/NWChemEx-Project/Integrals)
+[![Actions](https://github.com/NWChemEx/Integrals/workflows/C_C++_CI/badge.svg)](https://github.com/NWChemEx/Integrals)
 
-[![Codecov](https://codecov.io/github/NWChemEx-Project/Integrals/branch/master/graphs/sunburst.svg?token=5ChSH9Fq4j)](https://codecov.io/github/NWChemEx-Project/Integrals/branch/master)
+[![Codecov](https://codecov.io/github/NWChemEx/Integrals/branch/master/graphs/sunburst.svg?token=5ChSH9Fq4j)](https://codecov.io/github/NWChemEx/Integrals/branch/master)
 
 Integrals
 ===========
@@ -33,7 +33,7 @@ computer, and you are willing to let Integrals build all dependencies, then
 the following will suffice to build Integrals:
 
 ```
-git clone https://github.com/NWChemEx-Project/Integrals.git
+git clone https://github.com/NWChemEx/Integrals.git
 cd SDE
 cmake -H. -Bbuild -DCPP_GITHUB_TOKEN=<your super-secret token> \
                   -DMPI_ROOT=<path/to/your/mpi/installation> \
@@ -56,14 +56,14 @@ thorough CPP build instructions located
 
 and note that Integrals depends on several other projects:
 
-- [utilities](https://github.com/NWChemEx-Project/Utilities)
-- [SDE](https://github.com/NWChemEx-Project/SDE)
+- [utilities](https://github.com/NWChemEx/Utilities)
+- [SDE](https://github.com/NWChemEx/SDE)
   - [bphash](https://github.com/bennybp/BPHash)
   - [pybind11](https://github.com/pybind/pybind11)
     - Requires a development version of Python
   - [cereal](https://github.com/USCiLab/cereal)
-- [Chemist](https://github.com/NWChemEx-Project/Chemist)  
-- [TAMM](https://github.com/NWChemEx-Project/TAMM)
+- [Chemist](https://github.com/NWChemEx/Chemist)  
+- [TAMM](https://github.com/NWChemEx/TAMM)
   - [HPTT](https://github.com/ajaypanyala/hptt)
   - [MSGSL](https://github.com/Microsoft/GSL)
   - [LAPACKE](http://www.netlib.org/lapack/)

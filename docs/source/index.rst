@@ -20,6 +20,6 @@ Welcome to Integral's documentation!
    :caption: Contents:
 
    module_api/index
-   C++ API <https://nwchemex-project.github.io/Integrals/integrals_cxx_api/index.html>
+   C++ API <https://nwchemex.github.io/Integrals/integrals_cxx_api/index.html>
 
 

@@ -19,7 +19,7 @@ project(integrals VERSION "${VERSION}" LANGUAGES CXX)
 include(FetchContent)
 FetchContent_Declare(
     nwx_cmake
-    GIT_REPOSITORY https://github.com/NWChemEx-Project/NWXCMake
+    GIT_REPOSITORY https://github.com/NWChemEx/NWXCMake
 )
 FetchContent_MakeAvailable(nwx_cmake)
 list(APPEND CMAKE_MODULE_PATH "${nwx_cmake_SOURCE_DIR}/cmake")
@@ -52,7 +52,7 @@ cmaize_find_or_build_dependency(
 
 cmaize_find_or_build_dependency(
     simde
-    URL github.com/NWChemEx-Project/SimDE
+    URL github.com/NWChemEx/SimDE
     PRIVATE TRUE
     VERSION ${NWX_SIMDE_VERSION}
     BUILD_TARGET simde
@@ -93,7 +93,7 @@ if("${BUILD_TESTING}")
     )
     cmaize_find_or_build_dependency(
         mokup
-        URL github.com/NWChemEx-Project/Mokup
+        URL github.com/NWChemEx/Mokup
         PRIVATE TRUE
         VERSION ${NWX_MOKUP_VERSION}
         BUILD_TARGET mokup
