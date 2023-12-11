@@ -61,6 +61,6 @@ TEST_CASE("STG 4 Center Correlation Factor") {
     std::vector<basis_set> bs_key(4, bs);
     auto aos    = get_bases(name, bs);
     auto X_corr = get_ao_data(name, bs_key, prop);
-    auto X = mm.at(key).run_as<integral_type>(aos, aos, stg, aos, aos);
+    auto X      = mm.at(key).run_as<integral_type>(aos, aos, stg, aos, aos);
     REQUIRE(tensorwrapper::tensor::allclose(X, X_corr));
 }
