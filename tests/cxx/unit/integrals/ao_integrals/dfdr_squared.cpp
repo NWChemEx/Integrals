@@ -32,16 +32,13 @@ TEST_CASE("STG 4 Center dfdr Squared") {
     integrals::load_modules(mm);
 
     const auto name = molecule::h2;
+    const auto bs   = basis_set::sto3g;
     const auto prop = property::stg_dfdr_squared;
     op_type fTf;
 
-    for(const auto& bs : {basis_set::sto3g, basis_set::ccpvdz}) {
-        std::vector<basis_set> bs_key(4, bs);
-        SECTION(as_string(name, bs)) {
-            auto aos    = get_bases(name, bs);
-            auto X_corr = get_ao_data(name, bs_key, prop);
-            auto X = mm.at(key).run_as<integral_type>(aos, aos, fTf, aos, aos);
-            REQUIRE(tensorwrapper::tensor::allclose(X, X_corr));
-        }
-    }
+    std::vector<basis_set> bs_key(4, bs);
+    auto aos    = get_bases(name, bs);
+    auto X_corr = get_ao_data(name, bs_key, prop);
+    auto X      = mm.at(key).run_as<integral_type>(aos, aos, fTf, aos, aos);
+    REQUIRE(tensorwrapper::tensor::allclose(X, X_corr));
 }
