@@ -21,7 +21,7 @@ include(cmake/get_nwx_cmake.cmake)
 #Sets the version to whatever git thinks it is
 include(get_version_from_git)
 get_version_from_git(integrals_version "${CMAKE_CURRENT_LIST_DIR}")
-project(integrals integrals_version "${VERSION}" LANGUAGES CXX)
+project(integrals VERSION "${integrals_version}" LANGUAGES CXX)
 
 include(nwx_versions)
 include(get_cmaize)
@@ -73,8 +73,8 @@ nwx_add_pybind11_module(
 )
 
 if("${BUILD_TESTING}")
-    set(CXX_TEST_DIR ${INTEGRALS_TESTS_DIR}/tests/cxx/)
-    set(PYTHON_TEST_DIR ${INTEGRALS_TESTS_DIR}/tests/python)
+    set(CXX_TEST_DIR ${INTEGRALS_TESTS_DIR}/cxx/)
+    set(PYTHON_TEST_DIR ${INTEGRALS_TESTS_DIR}/python)
 
     cmaize_find_or_build_dependency(
         Catch2
@@ -86,7 +86,7 @@ if("${BUILD_TESTING}")
 
     cmaize_add_tests(
         test_unit_integrals
-        SOURCE_DIR "${CXX_TEST_DIR}/unit"
+        SOURCE_DIR "${CXX_TEST_DIR}/unit/${PROJECT_NAME}"
         INCLUDE_DIRS "${INTEGRALS_SOURCE_DIR}/${PROJECT_NAME}"
         DEPENDS Catch2 ${PROJECT_NAME}
     )
