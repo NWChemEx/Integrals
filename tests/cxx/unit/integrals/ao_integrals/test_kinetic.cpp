@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-#include "ao_integrals/ao_integrals.hpp"
-// #include "transforms/transforms.hpp"
-#include <integrals/integrals_mm.hpp>
+#include "integrals/integrals.hpp"
+#include <catch2/catch_test_macros.hpp>
 
-// using namespace simde::type;
-
-namespace integrals {
-
-void set_defaults(pluginplay::ModuleManager& mm) {
-    // Set any default associations
+TEST_CASE("Kinetic") {
+    pluginplay::ModuleManager mm;
+    integrals::load_modules(mm);
+    auto keys = mm.keys();
+    REQUIRE(keys[0] == "Kinetic");
 }
-
-void load_modules(pluginplay::ModuleManager& mm) {
-    ao_integrals::load_ao_integrals(mm);
-    set_defaults(mm);
-}
-
-} // namespace integrals
