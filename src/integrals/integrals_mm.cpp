@@ -15,7 +15,6 @@
  */
 
 #include "ao_integrals/ao_integrals.hpp"
-// #include "transforms/transforms.hpp"
 #include <integrals/integrals_mm.hpp>
 
 // using namespace simde::type;

@@ -28,7 +28,7 @@ DECLARE_MODULE(AOIntegral);
 
 #define EXTERN_TEMPLATE(N, op) extern template struct AOIntegral<N, op>
 
-EXTERN_TEMPLATE(2, chemist::qm_operator::Kinetic<chemist::Electron>);
+EXTERN_TEMPLATE(2, simde::type::el_kinetic);
 
 #undef EXTERN_TEMPLATE
 

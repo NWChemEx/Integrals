@@ -18,34 +18,10 @@
 
 namespace integrals::ao_integrals {
 
-using chemist::Electron;
-using chemist::qm_operator::Kinetic;
-
-// --- Placeholder Elements ----------------------------------------------------
-namespace placeholder {
-
-#include <pluginplay/pluginplay.hpp>
-template<typename OperatorType>
-DECLARE_TEMPLATED_PROPERTY_TYPE(Placeholder, OperatorType);
-
-template<typename OperatorType>
-TEMPLATED_PROPERTY_TYPE_INPUTS(Placeholder, OperatorType) {
-    auto rv = pluginplay::declare_input();
-    return rv;
-}
-
-template<typename OperatorType>
-TEMPLATED_PROPERTY_TYPE_RESULTS(Placeholder, OperatorType) {
-    auto rv = pluginplay::declare_result();
-    return rv;
-}
-
-} // namespace placeholder
-
 // --- Define Module Constructor -----------------------------------------------
 template<std::size_t N, typename OperatorType>
 TEMPLATED_MODULE_CTOR(AOIntegral, N, OperatorType) {
-    using my_pt = placeholder::Placeholder<OperatorType>;
+    using my_pt = simde::TwoCenterAOTensorRepresentation<OperatorType>;
     satisfies_property_type<my_pt>();
     description("Computes integrals with Libint");
 }
@@ -53,15 +29,15 @@ TEMPLATED_MODULE_CTOR(AOIntegral, N, OperatorType) {
 // --- Define Module Run Function ----------------------------------------------
 template<std::size_t N, typename OperatorType>
 TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType) {
-    using my_pt = placeholder::Placeholder<OperatorType>;
-    auto rv = results();
+    using my_pt = simde::TwoCenterAOTensorRepresentation<OperatorType>;
+    auto rv     = results();
     return my_pt::wrap_results(rv);
 }
 
 // --- Template Declarations ---------------------------------------------------
 #define TEMPLATE_AOI(N, op) template struct AOIntegral<N, op>
 
-TEMPLATE_AOI(2, Kinetic<Electron>);
+TEMPLATE_AOI(2, simde::type::el_kinetic);
 
 #undef TEMPLATE_AOI
 
@@ -73,7 +49,7 @@ void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
 }
 
 void load_ao_integrals(pluginplay::ModuleManager& mm) {
-    ADD_AOI(2, Kinetic<Electron>, "Kinetic");
+    ADD_AOI(2, simde::type::el_kinetic, "Kinetic");
     ao_integrals_set_defaults(mm);
 }
 
