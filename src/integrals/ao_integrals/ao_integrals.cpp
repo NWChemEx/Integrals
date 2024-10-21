@@ -18,41 +18,47 @@
 
 namespace integrals::ao_integrals {
 
-// --- Define Module Constructor -----------------------------------------------
-template<std::size_t N, typename OperatorType>
-TEMPLATED_MODULE_CTOR(AOIntegral, N, OperatorType) {
-    using my_pt = simde::TwoCenterAOTensorRepresentation<OperatorType>;
+using simde::type::aos;
+using simde::type::braket;
+using simde::type::t_e_type;
+using simde::type::v_ee_type;
+using simde::type::v_en_type;
+
+template<typename BraKetType>
+TEMPLATED_MODULE_CTOR(AOIntegral, BraKetType) {
+    using my_pt = simde::EvaluateBraKet<BraKetType>;
     satisfies_property_type<my_pt>();
     description("Computes integrals with Libint");
 }
 
-// --- Define Module Run Function ----------------------------------------------
-template<std::size_t N, typename OperatorType>
-TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType) {
-    using my_pt = simde::TwoCenterAOTensorRepresentation<OperatorType>;
+template<typename BraKetType>
+TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
+    using my_pt = simde::EvaluateBraKet<BraKetType>;
     auto rv     = results();
     return my_pt::wrap_results(rv);
 }
 
-// --- Template Declarations ---------------------------------------------------
-#define TEMPLATE_AOI(N, op) template struct AOIntegral<N, op>
+#define TWO_INDEX_AOI(op) AOIntegral<braket<aos, op, aos>>
+#define TEMPLATE_2INDEX(op) template struct TWO_INDEX_AOI(op)
+#define ADD_2INDEX(op, key) mm.add_module<TWO_INDEX_AOI(op)>(key)
 
-TEMPLATE_AOI(2, simde::type::el_kinetic);
-
-#undef TEMPLATE_AOI
-
-// --- Define Module Load Functions --------------------------------------------
-#define ADD_AOI(N, op, key) mm.add_module<AOIntegral<N, op>>(key)
+TEMPLATE_2INDEX(t_e_type);
+TEMPLATE_2INDEX(v_en_type);
+TEMPLATE_2INDEX(v_ee_type);
 
 void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
     // Set any default associations
 }
 
 void load_ao_integrals(pluginplay::ModuleManager& mm) {
-    ADD_AOI(2, simde::type::el_kinetic, "Kinetic");
+    ADD_2INDEX(t_e_type, "Kinetic");
+    ADD_2INDEX(v_en_type, "Nuclear");
+    ADD_2INDEX(v_ee_type, "ERI2");
     ao_integrals_set_defaults(mm);
 }
 
-#undef ADD_AOI
+#undef TWO_INDEX_AOI
+#undef TEMPLATE_2INDEX
+#undef ADD_2INDEX
 
 } // namespace integrals::ao_integrals

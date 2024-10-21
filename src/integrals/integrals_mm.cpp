@@ -17,12 +17,16 @@
 #include "ao_integrals/ao_integrals.hpp"
 #include <integrals/integrals_mm.hpp>
 
-// using namespace simde::type;
-
 namespace integrals {
 
+/** @brief Set default module relationships
+ *
+ *  @param mm The Module Manager with modules whose defaults will be set
+ *
+ *  @throw none No throw guarantee
+ */
 void set_defaults(pluginplay::ModuleManager& mm) {
-    // Set any default associations
+    // Defaults go here
 }
 
 void load_modules(pluginplay::ModuleManager& mm) {

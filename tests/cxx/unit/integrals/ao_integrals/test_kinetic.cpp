@@ -20,6 +20,7 @@
 TEST_CASE("Kinetic") {
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
-    auto keys = mm.keys();
-    REQUIRE(keys[0] == "Kinetic");
+    REQUIRE(mm.count("Kinetic"));
+    REQUIRE(mm.count("Nuclear"));
+    REQUIRE(mm.count("ERI2"));
 }

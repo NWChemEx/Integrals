@@ -19,6 +19,12 @@
 
 namespace integrals {
 
+/** @brief Load this plugin's modules into a Module Manager
+ *
+ *  @param mm The Module Manager to load the modules into
+ *
+ *  @throw none No throw guarantee
+ */
 DECLARE_PLUGIN(integrals);
 
 } // end namespace integrals

@@ -18,23 +18,46 @@
 #include <pluginplay/pluginplay.hpp>
 #include <simde/simde.hpp>
 
+/** @namespace integrals::ao_integrals
+ * 
+ *  @brief The namespace for the modules that produce AO Integrals
+ */
 namespace integrals::ao_integrals {
 
-// --- Declare Integral Module Types -------------------------------------------
-template<std::size_t N, typename OperatorType>
+/** @brief The Module for computing AO Integrals
+ *  
+ *  @tparam BraKetType The type of the BraKet input
+ */
+template<typename BraKetType>
 DECLARE_MODULE(AOIntegral);
 
-// --- Forward External Template Declarations ----------------------------------
-
-#define EXTERN_TEMPLATE(N, op) extern template struct AOIntegral<N, op>
-
-EXTERN_TEMPLATE(2, simde::type::el_kinetic);
-
-#undef EXTERN_TEMPLATE
-
-// --- Declare Module Load Functions -------------------------------------------
-
+/** @brief Load the AO integral modules into a Module Manager
+ *
+ *  @param mm The Module Manager to load the modules into
+ *
+ *  @throw none No throw guarantee
+ */
 void load_ao_integrals(pluginplay::ModuleManager& mm);
+
+/** @brief Set default module relationships
+ *
+ *  @param mm The Module Manager with modules whose defaults will be set
+ *
+ *  @throw none No throw guarantee
+ */
 void ao_integrals_set_defaults(pluginplay::ModuleManager& mm);
+
+// Forward External Template Declarations
+#define EXTERN_AOI extern template struct AOIntegral
+#define BRAKET simde::type::braket
+#define AOS simde::type::aos
+
+EXTERN_AOI<BRAKET<AOS, simde::type::t_e_type, AOS>>;
+EXTERN_AOI<BRAKET<AOS, simde::type::v_en_type, AOS>>;
+EXTERN_AOI<BRAKET<AOS, simde::type::v_ee_type, AOS>>;
+
+#undef EXTERN_AOI
+#undef BRAKET
+#undef AOS
 
 } // namespace integrals::ao_integrals
