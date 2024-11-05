@@ -21,6 +21,4 @@ TEST_CASE("Kinetic") {
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
     REQUIRE(mm.count("Kinetic"));
-    REQUIRE(mm.count("Nuclear"));
-    REQUIRE(mm.count("ERI2"));
 }

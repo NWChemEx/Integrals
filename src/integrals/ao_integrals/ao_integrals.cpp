@@ -18,12 +18,6 @@
 
 namespace integrals::ao_integrals {
 
-using simde::type::aos;
-using simde::type::braket;
-using simde::type::t_e_type;
-using simde::type::v_ee_type;
-using simde::type::v_en_type;
-
 template<typename BraKetType>
 TEMPLATED_MODULE_CTOR(AOIntegral, BraKetType) {
     using my_pt = simde::EvaluateBraKet<BraKetType>;
@@ -38,27 +32,30 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
     return my_pt::wrap_results(rv);
 }
 
-#define TWO_INDEX_AOI(op) AOIntegral<braket<aos, op, aos>>
-#define TEMPLATE_2INDEX(op) template struct TWO_INDEX_AOI(op)
-#define ADD_2INDEX(op, key) mm.add_module<TWO_INDEX_AOI(op)>(key)
+#define AOI(bra, op, ket) AOIntegral<braket<bra, op, ket>>
+#define EXTERN_AOI(bra, op, ket) template struct AOI(bra, op, ket)
+#define ADD_AOI(bra, op, ket, key) mm.add_module<AOI(bra, op, ket)>(key)
 
-TEMPLATE_2INDEX(t_e_type);
-TEMPLATE_2INDEX(v_en_type);
-TEMPLATE_2INDEX(v_ee_type);
+EXTERN_AOI(aos, t_e_type, aos);
+EXTERN_AOI(aos, v_en_type, aos);
+EXTERN_AOI(aos, v_ee_type, aos);
+EXTERN_AOI(aos, v_ee_type, aos_squared);
+EXTERN_AOI(aos_squared, v_ee_type, aos_squared);
 
 void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
     // Set any default associations
 }
 
 void load_ao_integrals(pluginplay::ModuleManager& mm) {
-    ADD_2INDEX(t_e_type, "Kinetic");
-    ADD_2INDEX(v_en_type, "Nuclear");
-    ADD_2INDEX(v_ee_type, "ERI2");
+    ADD_AOI(aos, t_e_type, aos, "Kinetic");
+    ADD_AOI(aos, v_en_type, aos, "Nuclear");
+    ADD_AOI(aos, v_ee_type, aos, "ERI2");
+    ADD_AOI(aos, v_ee_type, aos_squared, "ERI3");
+    ADD_AOI(aos_squared, v_ee_type, aos_squared, "ERI4");
     ao_integrals_set_defaults(mm);
 }
 
-#undef TWO_INDEX_AOI
-#undef TEMPLATE_2INDEX
-#undef ADD_2INDEX
+#undef AOI
+#undef ADD_AOI
 
 } // namespace integrals::ao_integrals
