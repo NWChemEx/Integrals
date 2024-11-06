@@ -114,11 +114,11 @@ TEST_CASE("Kinetic") {
 
 #define DOWNCAST static_cast<const tensorwrapper::buffer::Eigen<double, 2>&>
 
-    // auto t = DOWNCAST(T.buffer());
-    // std::cout << t.value() << std::endl;
+    auto t = DOWNCAST(T.buffer());
+    std::cout << t.value() << std::endl;
 
-    // auto t_corr = DOWNCAST(corr.buffer());
-    // std::cout << t_corr.value() << std::endl;
+    auto t_corr = DOWNCAST(corr.buffer());
+    std::cout << t_corr.value() << std::endl;
 
 #undef DOWNCAST
 

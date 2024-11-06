@@ -27,18 +27,28 @@ TEMPLATED_MODULE_CTOR(AOIntegral, BraKetType) {
 
 template<typename BraKetType>
 TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
-    using my_pt = simde::EvaluateBraKet<BraKetType>;
+    using my_pt    = simde::EvaluateBraKet<BraKetType>;
+    using tensor_t = simde::type::tensor;
+    using shape_t  = tensorwrapper::shape::Smooth;
+    using layout_t = tensorwrapper::layout::Physical;
+    using buffer_t = tensorwrapper::buffer::Eigen<double, 2>;
+    using matrix_t = typename buffer_type::data_type;
 
-    using buffer_type = tensorwrapper::buffer::Eigen<double, 2>;
-    using matrix_type = typename buffer_type::data_type;
-    tensorwrapper::shape::Smooth s{3, 3};
-    tensorwrapper::layout::Physical l(s);
-    matrix_type m(3, 3);
-    buffer_type b{m, l};
+    const auto& [braket] = my_pt::unwrap_inputs(inputs);
+    auto bra             = braket.bra();
+    auto ket             = braket.ket();
+    auto op              = braket.op();
+
+    shape_t s{3, 3};
+    layout_t l(s);
+    matrix_t m(3, 3);
+    buffer_t b{m, l};
     for(std::size_t i = 0; i < 3; ++i) {
-        for(std::size_t j = 0; j < 3; ++j) b.value()(i, j) = (i + 1) * (j + 1);
+        for(std::size_t j = 0; j < 3; ++j) {
+            b.value()(i, j) = (i + 1) * (j + 1);
+        }
     }
-    simde::type::tensor t({s, b});
+    tensor_t t({s, b});
 
     auto rv = results();
     return my_pt::wrap_results(rv, t);
