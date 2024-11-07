@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+#pragma once
 #include <simde/simde.hpp>
 
 namespace test {
 
-simde::type::molecule water_molecule() {
+inline simde::type::molecule water_molecule() {
     using atom_t     = simde::type::atom;
     using molecule_t = simde::type::molecule;
     atom_t O{"O", 8ul, 0.0, 0.0, -0.143222342980786, 0.0};
@@ -27,7 +28,7 @@ simde::type::molecule water_molecule() {
     return molecule_t{O, H1, H2};
 }
 
-simde::type::ao_basis_set water_sto3g_basis_set() {
+inline simde::type::ao_basis_set water_sto3g_basis_set() {
     using ao_basis_t     = simde::type::ao_basis_set;
     using atomic_basis_t = simde::type::atomic_basis_set;
     using cg_t           = simde::type::contracted_gaussian;

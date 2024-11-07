@@ -32,7 +32,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
     using shape_t  = tensorwrapper::shape::Smooth;
     using layout_t = tensorwrapper::layout::Physical;
     using buffer_t = tensorwrapper::buffer::Eigen<double, 2>;
-    using matrix_t = typename buffer_type::data_type;
+    using matrix_t = typename buffer_t::data_type;
 
     const auto& [braket] = my_pt::unwrap_inputs(inputs);
     auto bra             = braket.bra();
