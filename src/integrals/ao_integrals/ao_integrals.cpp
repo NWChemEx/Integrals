@@ -15,8 +15,49 @@
  */
 
 #include "ao_integrals.hpp"
+#include "detail_/make_libint_basis_set.hpp"
+#include <type_traits>
 
 namespace integrals::ao_integrals {
+
+template<typename BraType, typename KetType>
+constexpr int get_n(const BraType& bra, const KetType& ket) {
+    constexpr auto bra_is_aos         = std::is_same_v<BraType, aos>;
+    constexpr auto bra_is_aos_squared = std::is_same_v<BraType, aos_squared>;
+    constexpr auto ket_is_aos         = std::is_same_v<KetType, aos>;
+    constexpr auto ket_is_aos_squared = std::is_same_v<KetType, aos_squared>;
+    if constexpr(bra_is_aos && ket_is_aos) {
+        return 2;
+    } else if constexpr(bra_is_aos && ket_is_aos_squared) {
+        return 3;
+    } else if constexpr(bra_is_aos_squared && ket_is_aos_squared) {
+        return 4;
+    }
+}
+
+template<typename BraType, typename KetType>
+std::vector<libint2::BasisSet> get_basis_sets(const BraType& bra,
+                                              const KetType& ket) {
+    using detail_::make_libint_basis_set;
+
+    std::vector<libint2::BasisSet> basis_sets;
+
+    if constexpr(std::is_same_v<BraType, aos>) {
+        basis_sets.push_back(make_libint_basis_set(bra.ao_basis_set()));
+    } else if constexpr(std::is_same_v<BraType, aos_squared>) {
+        basis_sets.push_back(make_libint_basis_set(bra.lhs().ao_basis_set()));
+        basis_sets.push_back(make_libint_basis_set(bra.rhs().ao_basis_set()));
+    }
+
+    if constexpr(std::is_same_v<KetType, aos>) {
+        basis_sets.push_back(make_libint_basis_set(ket.ao_basis_set()));
+    } else if constexpr(std::is_same_v<KetType, aos_squared>) {
+        basis_sets.push_back(make_libint_basis_set(ket.lhs().ao_basis_set()));
+        basis_sets.push_back(make_libint_basis_set(ket.rhs().ao_basis_set()));
+    }
+
+    return basis_sets;
+}
 
 template<typename BraKetType>
 TEMPLATED_MODULE_CTOR(AOIntegral, BraKetType) {
@@ -27,21 +68,25 @@ TEMPLATED_MODULE_CTOR(AOIntegral, BraKetType) {
 
 template<typename BraKetType>
 TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
-    using my_pt    = simde::EvaluateBraKet<BraKetType>;
-    using tensor_t = simde::type::tensor;
-    using shape_t  = tensorwrapper::shape::Smooth;
-    using layout_t = tensorwrapper::layout::Physical;
-    using buffer_t = tensorwrapper::buffer::Eigen<double, 2>;
-    using matrix_t = typename buffer_t::data_type;
+    using my_pt = simde::EvaluateBraKet<BraKetType>;
 
     const auto& [braket] = my_pt::unwrap_inputs(inputs);
     auto bra             = braket.bra();
     auto ket             = braket.ket();
     auto op              = braket.op();
 
+    auto basis_sets = get_basis_sets(bra, ket);
+    constexpr int N = get_n(bra, ket);
+
+    using tensor_t = simde::type::tensor;
+    using shape_t  = tensorwrapper::shape::Smooth;
+    using layout_t = tensorwrapper::layout::Physical;
+    using buffer_t = tensorwrapper::buffer::Eigen<double, N>;
+    using data_t   = typename buffer_t::data_type;
+
     shape_t s{3, 3};
     layout_t l(s);
-    matrix_t m(3, 3);
+    data_t m(3, 3);
     buffer_t b{m, l};
     for(std::size_t i = 0; i < 3; ++i) {
         for(std::size_t j = 0; j < 3; ++j) {
