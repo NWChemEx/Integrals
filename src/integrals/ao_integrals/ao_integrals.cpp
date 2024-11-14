@@ -15,10 +15,14 @@
  */
 
 #include "ao_integrals.hpp"
+#include "detail_/libint_op.hpp"
+#include "detail_/make_engine.hpp"
 #include "detail_/make_libint_basis_set.hpp"
 #include <type_traits>
 
 namespace integrals::ao_integrals {
+
+namespace detail_ {
 
 template<typename BraType, typename KetType>
 constexpr int get_n(const BraType& bra, const KetType& ket) {
@@ -59,6 +63,8 @@ std::vector<libint2::BasisSet> get_basis_sets(const BraType& bra,
     return basis_sets;
 }
 
+} // namespace detail_
+
 template<typename BraKetType>
 TEMPLATED_MODULE_CTOR(AOIntegral, BraKetType) {
     using my_pt = simde::EvaluateBraKet<BraKetType>;
@@ -75,26 +81,33 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
     auto ket             = braket.ket();
     auto op              = braket.op();
 
-    auto basis_sets = get_basis_sets(bra, ket);
-    constexpr int N = get_n(bra, ket);
+    // Gather information from Bra, Ket, and Op
+    auto basis_sets            = detail_::get_basis_sets(bra, ket);
+    constexpr int n_basis_sets = detail_::get_n(bra, ket);
+    Eigen::array<Eigen::Index, n_basis_sets> dimensions;
+    for(auto i = 0; i < n_basis_sets; ++i) {
+        dimensions[i] = basis_sets[i].nbf();
+    }
 
+    // Build tensor inputs
     using tensor_t = simde::type::tensor;
     using shape_t  = tensorwrapper::shape::Smooth;
     using layout_t = tensorwrapper::layout::Physical;
-    using buffer_t = tensorwrapper::buffer::Eigen<double, N>;
+    using buffer_t = tensorwrapper::buffer::Eigen<double, n_basis_sets>;
     using data_t   = typename buffer_t::data_type;
 
-    shape_t s{3, 3};
+    shape_t s{dimensions.begin(), dimensions.end()};
     layout_t l(s);
-    data_t m(3, 3);
-    buffer_t b{m, l};
-    for(std::size_t i = 0; i < 3; ++i) {
-        for(std::size_t j = 0; j < 3; ++j) {
-            b.value()(i, j) = (i + 1) * (j + 1);
-        }
-    }
-    tensor_t t({s, b});
+    data_t d(dimensions);
+    buffer_t b{d, l};
+    b.value().setZero();
 
+    // Make libint engine
+    auto engine = detail_::make_engine(basis_sets, op, 0.1, 0);
+
+    // Fill in values
+
+    tensor_t t({s, b});
     auto rv = results();
     return my_pt::wrap_results(rv, t);
 }
