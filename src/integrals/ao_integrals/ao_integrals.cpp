@@ -15,61 +15,42 @@
  */
 
 #include "ao_integrals.hpp"
+#include "detail_/get_basis_sets.hpp"
 #include "detail_/libint_op.hpp"
 #include "detail_/make_engine.hpp"
 #include "detail_/make_libint_basis_set.hpp"
+#include "detail_/shells2ord.hpp"
 #include <type_traits>
 
 namespace integrals::ao_integrals {
 
-namespace detail_ {
-
-template<typename BraType, typename KetType>
-constexpr int get_n(const BraType& bra, const KetType& ket) {
-    constexpr auto bra_is_aos         = std::is_same_v<BraType, aos>;
-    constexpr auto bra_is_aos_squared = std::is_same_v<BraType, aos_squared>;
-    constexpr auto ket_is_aos         = std::is_same_v<KetType, aos>;
-    constexpr auto ket_is_aos_squared = std::is_same_v<KetType, aos_squared>;
-    if constexpr(bra_is_aos && ket_is_aos) {
-        return 2;
-    } else if constexpr(bra_is_aos && ket_is_aos_squared) {
-        return 3;
-    } else if constexpr(bra_is_aos_squared && ket_is_aos_squared) {
-        return 4;
-    }
+/** @brief Wrap the call of LibInt2 engine so it can take a variable number
+ * of shell inputs.
+ *
+ * @tparam Is A variadic parameter pack of integers from [0,NBases) to
+ * expand.
+ * @param engine The LibInt2 engine that computes integrals
+ * @param bases The bases sets that hold the shells
+ * @param shells The index of the requested shell block
+ */
+template<std::size_t... Is>
+void run_engine_(libint2::Engine& engine,
+                 const std::vector<libint2::BasisSet>& bases,
+                 const std::vector<std::size_t>& shells,
+                 std::index_sequence<Is...>) {
+    engine.compute(bases[Is][shells[Is]]...);
 }
-
-template<typename BraType, typename KetType>
-std::vector<libint2::BasisSet> get_basis_sets(const BraType& bra,
-                                              const KetType& ket) {
-    using detail_::make_libint_basis_set;
-
-    std::vector<libint2::BasisSet> basis_sets;
-
-    if constexpr(std::is_same_v<BraType, aos>) {
-        basis_sets.push_back(make_libint_basis_set(bra.ao_basis_set()));
-    } else if constexpr(std::is_same_v<BraType, aos_squared>) {
-        basis_sets.push_back(make_libint_basis_set(bra.lhs().ao_basis_set()));
-        basis_sets.push_back(make_libint_basis_set(bra.rhs().ao_basis_set()));
-    }
-
-    if constexpr(std::is_same_v<KetType, aos>) {
-        basis_sets.push_back(make_libint_basis_set(ket.ao_basis_set()));
-    } else if constexpr(std::is_same_v<KetType, aos_squared>) {
-        basis_sets.push_back(make_libint_basis_set(ket.lhs().ao_basis_set()));
-        basis_sets.push_back(make_libint_basis_set(ket.rhs().ao_basis_set()));
-    }
-
-    return basis_sets;
-}
-
-} // namespace detail_
 
 template<typename BraKetType>
 TEMPLATED_MODULE_CTOR(AOIntegral, BraKetType) {
     using my_pt = simde::EvaluateBraKet<BraKetType>;
     satisfies_property_type<my_pt>();
     description("Computes integrals with Libint");
+
+    add_input<double>("Threshold")
+      .set_default(1.0E-16)
+      .set_description(
+        "The target precision with which the integrals will be computed");
 }
 
 template<typename BraKetType>
@@ -77,35 +58,63 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
     using my_pt = simde::EvaluateBraKet<BraKetType>;
 
     const auto& [braket] = my_pt::unwrap_inputs(inputs);
+    auto thresh          = inputs.at("Threshold").value<double>();
     auto bra             = braket.bra();
     auto ket             = braket.ket();
     auto op              = braket.op();
 
     // Gather information from Bra, Ket, and Op
-    auto basis_sets            = detail_::get_basis_sets(bra, ket);
-    constexpr int n_basis_sets = detail_::get_n(bra, ket);
-    Eigen::array<Eigen::Index, n_basis_sets> dimensions;
-    for(auto i = 0; i < n_basis_sets; ++i) {
-        dimensions[i] = basis_sets[i].nbf();
+    auto basis_sets = detail_::get_basis_sets(bra, ket);
+    constexpr int N = detail_::get_n(bra, ket);
+
+    // Dimensional information
+    std::vector<std::size_t> dims_shells(N);
+    Eigen::array<Eigen::Index, N> dims_bfs;
+    for(auto i = 0; i < N; ++i) {
+        dims_shells[i] = basis_sets[i].size();
+        dims_bfs[i]    = basis_sets[i].nbf();
     }
 
     // Build tensor inputs
     using tensor_t = simde::type::tensor;
     using shape_t  = tensorwrapper::shape::Smooth;
     using layout_t = tensorwrapper::layout::Physical;
-    using buffer_t = tensorwrapper::buffer::Eigen<double, n_basis_sets>;
+    using buffer_t = tensorwrapper::buffer::Eigen<double, N>;
     using data_t   = typename buffer_t::data_type;
 
-    shape_t s{dimensions.begin(), dimensions.end()};
+    shape_t s{dims_bfs.begin(), dims_bfs.end()};
     layout_t l(s);
-    data_t d(dimensions);
+    data_t d(dims_bfs);
     buffer_t b{d, l};
     b.value().setZero();
 
     // Make libint engine
-    auto engine = detail_::make_engine(basis_sets, op, 0.1, 0);
+    auto engine     = detail_::make_engine(basis_sets, op, thresh);
+    const auto& buf = engine.results();
 
     // Fill in values
+    std::vector<std::size_t> shells(N, 0);
+    while(shells[0] < dims_shells[0]) {
+        run_engine_(engine, basis_sets, shells, std::make_index_sequence<N>());
+
+        auto vals = buf[0];
+        if(vals) {
+            auto ord = detail_::shells2ord(basis_sets, shells);
+
+            b.value().data()[0] = vals[0];
+        }
+
+        // Increment index
+        shells[N - 1] += 1;
+        for(auto i = 1; i < N; ++i) {
+            if(shells[N - i] >= dims_shells[N - i]) {
+                // Reset this dimension and increment the next one
+                // index[0] accumulates until we reach the end
+                shells[N - i] = 0;
+                shells[N - i - 1] += 1;
+            }
+        }
+    }
 
     tensor_t t({s, b});
     auto rv = results();

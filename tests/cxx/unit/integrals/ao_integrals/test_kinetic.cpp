@@ -117,7 +117,7 @@ TEST_CASE("Kinetic") {
     auto t = DOWNCAST(T.buffer());
     std::cout << t.value() << std::endl;
     std::cout << t.value().trace() << std::endl;
-    Eigen::Tensor<double, 0> norm_tens = t.value().square().sum().sqrt();
+    Eigen::Tensor<double, 0, Eigen::RowMajor> norm_tens = t.value().square().sum().sqrt();
     std::cout << norm_tens << std::endl;
     std::cout << norm_tens.coeff() << std::endl;
 

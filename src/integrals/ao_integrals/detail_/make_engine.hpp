@@ -55,7 +55,7 @@ auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
     }
 
     if constexpr(std::is_same_v<OpType, simde::type::v_en_type>) {
-        const auto& nuclei = op.template at<1>();
+        const auto& nuclei = op.rhs_particle();
         std::vector<std::pair<double, std::array<double, 3>>> qs;
         for(const auto& ai : nuclei) {
             std::array<double, 3> coords{ai.x(), ai.y(), ai.z()};
