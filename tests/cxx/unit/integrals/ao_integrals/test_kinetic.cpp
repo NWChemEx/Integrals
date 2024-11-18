@@ -14,79 +14,7 @@
  * limitations under the License.
  */
 
-#include "../water_sto3g.hpp"
-#include <catch2/catch_test_macros.hpp>
-#include <integrals/integrals.hpp>
-
-namespace {
-simde::type::tensor correct_value() {
-    return simde::type::tensor{
-      {
-        29.00319994553958,
-        -0.1680109393164922,
-        0.0000000000000000,
-        0.0000000000000000,
-        0.0000000000000000,
-        -0.008416385185447427,
-        -0.008416385185447427,
-      },
-      {
-        -0.1680109393164923,
-        0.8081279549303477,
-        0.0000000000000000,
-        0.0000000000000000,
-        0.0000000000000000,
-        0.07051733851899882,
-        0.07051733851899882,
-      },
-      {
-        0.0000000000000000,
-        0.0000000000000000,
-        2.528731198194765,
-        0.0000000000000000,
-        0.0000000000000000,
-        0.1149203802569082,
-        0.1149203802569082,
-      },
-      {
-        0.0000000000000000,
-        0.0000000000000000,
-        0.0000000000000000,
-        2.528731198194765,
-        0.0000000000000000,
-        0.0000000000000000,
-        0.0000000000000000,
-      },
-      {
-        0.0000000000000000,
-        0.0000000000000000,
-        0.0000000000000000,
-        0.0000000000000000,
-        2.528731198194765,
-        0.1470905524127557,
-        -0.1470905524127557,
-      },
-      {
-        -0.008416385185447427,
-        0.07051733851899882,
-        0.1149203802569082,
-        0.0000000000000000,
-        0.1470905524127557,
-        0.760031883566609,
-        -0.003979736727037247,
-      },
-      {
-        -0.008416385185447427,
-        0.07051733851899882,
-        0.1149203802569082,
-        0.0000000000000000,
-        -0.1470905524127557,
-        -0.003979736727037247,
-        0.760031883566609,
-      },
-    };
-}
-} // namespace
+#include "test_ao_integrals.hpp"
 
 TEST_CASE("Kinetic") {
     using test_pt = simde::aos_t_e_aos;
@@ -109,27 +37,12 @@ TEST_CASE("Kinetic") {
     chemist::braket::BraKet braket(aos, op, aos);
 
     // Call module
-    auto T    = mm.at("Kinetic").run_as<test_pt>(braket);
-    auto corr = correct_value();
-
-#define DOWNCAST static_cast<const tensorwrapper::buffer::Eigen<double, 2>&>
-
-    auto t = DOWNCAST(T.buffer());
-    std::cout << t.value() << std::endl;
-    std::cout << t.value().trace() << std::endl;
-    Eigen::Tensor<double, 0, Eigen::RowMajor> norm_tens = t.value().square().sum().sqrt();
-    std::cout << norm_tens << std::endl;
-    std::cout << norm_tens.coeff() << std::endl;
-
-    auto t_corr = DOWNCAST(corr.buffer());
-    std::cout << t_corr.value() << std::endl;
-    std::cout << t_corr.value().trace() << std::endl;
-    norm_tens = t_corr.value().square().sum().sqrt();
-    std::cout << norm_tens << std::endl;
-    std::cout << norm_tens.coeff() << std::endl;
-
-#undef DOWNCAST
+    auto T = mm.at("Kinetic").run_as<test_pt>(braket);
 
     // Check output
-    REQUIRE(T == corr);
+    auto t = test::eigen_buffer<2>(T.buffer());
+    REQUIRE(test::trace(t) ==
+            Catch::Approx(38.9175852621874441).margin(1.0e-16));
+    REQUIRE(test::norm(t) ==
+            Catch::Approx(29.3665362218072552).margin(1.0e-16));
 }

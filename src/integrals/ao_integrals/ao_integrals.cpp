@@ -100,8 +100,9 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
         auto vals = buf[0];
         if(vals) {
             auto ord = detail_::shells2ord(basis_sets, shells);
-
-            b.value().data()[0] = vals[0];
+            for(auto i_ord = 0; i_ord < ord.size(); ++i_ord) {
+                b.value().data()[ord[i_ord]] = vals[i_ord];
+            }
         }
 
         // Increment index
@@ -109,7 +110,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
         for(auto i = 1; i < N; ++i) {
             if(shells[N - i] >= dims_shells[N - i]) {
                 // Reset this dimension and increment the next one
-                // index[0] accumulates until we reach the end
+                // shells[0] accumulates until we reach the end
                 shells[N - i] = 0;
                 shells[N - i - 1] += 1;
             }
