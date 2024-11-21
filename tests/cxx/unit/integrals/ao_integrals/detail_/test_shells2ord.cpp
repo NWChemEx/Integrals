@@ -23,7 +23,7 @@ TEST_CASE("shells2ord") {
     auto aobs = test::water_basis_set();
     std::vector<libint2::BasisSet> basis_sets{aobs, aobs};
     std::vector<std::size_t> shells{2, 2};
-    auto out = shells2ord(basis_sets, shells);
+    auto out                      = shells2ord(basis_sets, shells);
     std::vector<std::size_t> corr = {16, 17, 18, 23, 24, 25, 30, 31, 32};
     REQUIRE(out == corr);
 }

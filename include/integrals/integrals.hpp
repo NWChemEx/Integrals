@@ -25,7 +25,7 @@
 #include "integrals/integrals_mm.hpp"
 
 /** @namespace integrals
- * 
+ *
  *  @brief The primary namespace for the Integrals library
  */
 namespace integrals {} // end namespace integrals
