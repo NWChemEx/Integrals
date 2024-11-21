@@ -24,23 +24,6 @@
 
 namespace integrals::ao_integrals {
 
-/** @brief Wrap the call of LibInt2 engine so it can take a variable number
- * of shell inputs.
- *
- * @tparam Is A variadic parameter pack of integers from [0,NBases) to
- * expand.
- * @param engine The LibInt2 engine that computes integrals
- * @param bases The bases sets that hold the shells
- * @param shells The index of the requested shell block
- */
-template<std::size_t... Is>
-void run_engine_(libint2::Engine& engine,
-                 const std::vector<libint2::BasisSet>& bases,
-                 const std::vector<std::size_t>& shells,
-                 std::index_sequence<Is...>) {
-    engine.compute(bases[Is][shells[Is]]...);
-}
-
 template<typename BraKetType>
 TEMPLATED_MODULE_CTOR(AOIntegral, BraKetType) {
     using my_pt = simde::EvaluateBraKet<BraKetType>;
@@ -95,7 +78,8 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
     // Fill in values
     std::vector<std::size_t> shells(N, 0);
     while(shells[0] < dims_shells[0]) {
-        run_engine_(engine, basis_sets, shells, std::make_index_sequence<N>());
+        detail_::run_engine_(engine, basis_sets, shells,
+                             std::make_index_sequence<N>());
 
         auto vals = buf[0];
         if(vals) {

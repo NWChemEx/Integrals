@@ -27,26 +27,27 @@ namespace integrals::ao_integrals::detail_ {
  *  @param[in] bases A vector of Libint basis sets
  *  @param[in] op A NWX operator for the integral
  *  @param[in] thresh The precision threshold of the integrals
+ *  @param[in] deriv The level of derivative that should be computed
  *  @returns An engine to compute the values of the associated integrals
  */
 template<typename OpType>
 auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
                  double thresh, std::size_t deriv = 0) {
-    /// Variables for engine construction
+    // Variables for engine construction
     constexpr auto libint_op = integrals::ao_integrals::detail_::op_v<OpType>;
     auto max_nprims          = libint2::max_nprim(bases[0]);
     auto max_l               = libint2::max_l(bases[0]);
 
-    /// Find max_nprims and max_l in bases
+    // Find max_nprims and max_l in bases
     for(auto set : bases) {
         max_nprims = std::max(max_nprims, libint2::max_nprim(set));
         max_l      = std::max(max_l, libint2::max_l(set));
     }
 
-    /// Construct engine and handl specialized settings
+    // Construct engine and handle specialized settings
     if(!libint2::initialized()) libint2::initialize();
     libint2::Engine engine(libint_op, max_nprims, max_l, deriv, thresh);
-    /// Libint not acknowleding max_nprim in ctor?
+    // Libint not acknowleding max_nprim in ctor?
     engine.set_max_nprim(max_nprims);
 
     if(libint2::rank(libint_op) == 2) {
@@ -65,6 +66,23 @@ auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
     }
 
     return engine;
+}
+
+/** @brief Wrap the call of LibInt2 engine so it can take a variable number
+ * of shell inputs.
+ *
+ * @tparam Is A variadic parameter pack of integers from [0,NBases) to
+ * expand.
+ * @param engine The LibInt2 engine that computes integrals
+ * @param bases The bases sets that hold the shells
+ * @param shells The index of the requested shell block
+ */
+template<std::size_t... Is>
+void run_engine_(libint2::Engine& engine,
+                 const std::vector<libint2::BasisSet>& bases,
+                 const std::vector<std::size_t>& shells,
+                 std::index_sequence<Is...>) {
+    engine.compute(bases[Is][shells[Is]]...);
 }
 
 } // namespace integrals::ao_integrals::detail_

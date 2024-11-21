@@ -20,6 +20,14 @@
 
 namespace integrals::ao_integrals::detail_ {
 
+/** @brief Deterimine how many basis sets are in the Bra and Ket.
+ *
+ *  @tparam BraType The type of the Bra
+ *  @tparam KetType The type of the Ket
+ *  @param[in] bra The Bra
+ *  @param[in] ket The Ket
+ *  @returns The number of basis sets in the Bra and Ket
+ */
 template<typename BraType, typename KetType>
 constexpr int get_n(const BraType& bra, const KetType& ket) {
     using simde::type::aos;
@@ -37,6 +45,14 @@ constexpr int get_n(const BraType& bra, const KetType& ket) {
     }
 }
 
+/** @brief Unpack the basis sets from the Bra and Ket.
+ *
+ *  @tparam BraType The type of the Bra
+ *  @tparam KetType The type of the Ket
+ *  @param[in] bra The Bra
+ *  @param[in] ket The Ket
+ *  @returns A vector of basis sets in libint form
+ */
 template<typename BraType, typename KetType>
 std::vector<libint2::BasisSet> get_basis_sets(const BraType& bra,
                                               const KetType& ket) {

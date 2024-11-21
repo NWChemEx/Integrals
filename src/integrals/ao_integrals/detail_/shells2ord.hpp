@@ -15,6 +15,7 @@
  */
 
 #pragma once
+#include <libint2.hpp>
 #include <simde/types.hpp>
 
 namespace integrals::ao_integrals::detail_ {
@@ -23,7 +24,7 @@ namespace integrals::ao_integrals::detail_ {
  *
  *  @param[in] bases The basis sets.
  *  @param[in] shell The shell indices
- *  @returns An std::vector of the ordinal indices associated with the shell.
+ *  @returns A std::vector of the ordinal indices associated with the shell.
  */
 inline auto shells2ord(const std::vector<libint2::BasisSet>& bases,
                        std::vector<std::size_t>& shells) {
