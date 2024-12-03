@@ -33,7 +33,7 @@ inline auto shells2ord(const std::vector<libint2::BasisSet>& bases,
     // Calculate the ordinal step of each basis dimension other than the Nth.
     auto N = bases.size();
     size_vector_t step_sizes(N - 1);
-    for(auto i = 1; i <= N - 1; ++i) {
+    for(decltype(N) i = 1; i <= N - 1; ++i) {
         step_sizes[N - 1 - i] = bases[N - i].nbf();
         if(i > 1) step_sizes[N - 1 - i] *= step_sizes[N - i];
     }
@@ -41,7 +41,7 @@ inline auto shells2ord(const std::vector<libint2::BasisSet>& bases,
     // Set starting and ending AO indices
     size_vector_t curr_ao(N);
     size_vector_t up_ao(N);
-    for(auto i = 0; i < N; ++i) {
+    for(decltype(N) i = 0; i < N; ++i) {
         curr_ao[i] = bases[i].shell2bf()[shells[i]];
         up_ao[i]   = curr_ao[i] + bases[i][shells[i]].size();
     }
@@ -59,7 +59,7 @@ inline auto shells2ord(const std::vector<libint2::BasisSet>& bases,
 
         // Increment to the next AO index.
         curr_ao.back() += 1;
-        for(auto i = 1; i < N; ++i) {
+        for(decltype(N) i = 1; i < N; ++i) {
             if(curr_ao[N - i] >= up_ao[N - i]) {
                 // curr_ao[0] accumalates until it passes up_aos[0]
                 // and the loop terminates.
