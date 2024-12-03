@@ -83,8 +83,9 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
 
         auto vals = buf[0];
         if(vals) {
-            auto ord = detail_::shells2ord(basis_sets, shells);
-            for(auto i_ord = 0; i_ord < ord.size(); ++i_ord) {
+            auto ord   = detail_::shells2ord(basis_sets, shells);
+            auto n_ord = ord.size();
+            for(decltype(n_ord) i_ord = 0; i_ord < n_ord; ++i_ord) {
                 b.value().data()[ord[i_ord]] = vals[i_ord];
             }
         }

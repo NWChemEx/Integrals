@@ -52,7 +52,7 @@ inline auto shells2ord(const std::vector<libint2::BasisSet>& bases,
     while(curr_ao[0] < up_ao[0]) {
         // ordinal calculation
         auto curr_ord = curr_ao.back();
-        for(auto i = 0; i < step_sizes.size(); ++i) {
+        for(std::size_t i = 0; i < step_sizes.size(); ++i) {
             curr_ord += curr_ao[i] * step_sizes[i];
         }
         ords.push_back(curr_ord);
