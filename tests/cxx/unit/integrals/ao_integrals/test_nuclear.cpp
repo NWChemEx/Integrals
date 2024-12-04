@@ -14,38 +14,35 @@
  * limitations under the License.
  */
 
-#include "direct_allclose.hpp"
-#include "integrals/integrals.hpp"
-#include <catch2/catch.hpp>
-#include <mokup/mokup.hpp>
-#include <simde/tensor_representation/tensor_representation.hpp>
-#include <tensorwrapper/tensor/allclose.hpp>
-
-using namespace mokup;
+#include "test_ao_integrals.hpp"
 
 TEST_CASE("Nuclear") {
-    using op_type       = simde::type::el_nuc_coulomb;
-    using integral_type = simde::AOTensorRepresentation<2, op_type>;
+    using test_pt = simde::aos_v_en_aos;
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
+    REQUIRE(mm.count("Nuclear"));
 
-    const auto name = molecule::h2o;
-    const auto bs   = basis_set::sto3g;
-    auto mol        = get_molecule(name);
-    auto aos        = get_bases(name, bs);
-    std::vector bases{bs, bs};
-    auto corr = get_ao_data(name, bases, property::nuclear);
+    // Get basis set
+    auto mol  = test::water_molecule();
+    auto aobs = test::water_sto3g_basis_set();
 
-    op_type riA(chemist::Electron{}, mol.nuclei());
+    // Make AOS object
+    simde::type::aos aos(aobs);
 
-    SECTION("Explicit") {
-        auto V = mm.at("Nuclear").run_as<integral_type>(aos, riA, aos);
-        REQUIRE(tensorwrapper::tensor::allclose(V, corr));
-    }
+    // Make Operator
+    simde::type::v_en_type op{chemist::Electron{}, mol.nuclei().as_nuclei()};
 
-    SECTION("Direct") {
-        auto V = mm.at("Direct Nuclear").run_as<integral_type>(aos, riA, aos);
-        REQUIRE(direct_allclose(V, corr));
-    }
+    // Make BraKet Input
+    chemist::braket::BraKet braket(aos, op, aos);
+
+    // Call module
+    auto T = mm.at("Nuclear").run_as<test_pt>(braket);
+
+    // Check output
+    auto t = test::eigen_buffer<2>(T.buffer());
+    REQUIRE(test::trace(t) ==
+            Catch::Approx(-111.9975421879705664).margin(1.0e-16));
+    REQUIRE(test::norm(t) ==
+            Catch::Approx(66.4857539908047528).margin(1.0e-16));
 }

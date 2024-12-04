@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NWChemEx-Project
+ * Copyright 2024 NWChemEx-Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,3 +23,9 @@
  */
 #pragma once
 #include "integrals/integrals_mm.hpp"
+
+/** @namespace integrals
+ *
+ *  @brief The primary namespace for the Integrals library
+ */
+namespace integrals {} // end namespace integrals

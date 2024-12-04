@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NWChemEx-Project
+ * Copyright 2024 NWChemEx-Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,59 +15,56 @@
  */
 
 #pragma once
-#include <pluginplay/module_base.hpp>
+#include <pluginplay/pluginplay.hpp>
 #include <simde/simde.hpp>
 
+/** @namespace integrals::ao_integrals
+ *
+ *  @brief The namespace for the modules that produce AO Integrals
+ */
 namespace integrals::ao_integrals {
 
-// -----------------------------------------------------------------------------
-// -- Declare Module Load Functions
-// -----------------------------------------------------------------------------
+using simde::type::braket;
 
-void load_ao_integrals(pluginplay::ModuleManager& mm);
-void ao_integrals_set_defaults(pluginplay::ModuleManager& mm);
+using simde::type::aos;
+using simde::type::aos_squared;
 
-// -----------------------------------------------------------------------------
-// -- Declare Integral Module Types
-// -----------------------------------------------------------------------------
+using simde::type::t_e_type;
+using simde::type::v_ee_type;
+using simde::type::v_en_type;
 
-template<std::size_t N, typename OperatorType, bool direct>
+/** @brief The Module for computing AO Integrals
+ *
+ *  @tparam BraKetType The type of the BraKet input
+ */
+template<typename BraKetType>
 DECLARE_MODULE(AOIntegral);
 
-template<std::size_t L, typename OperatorType>
-DECLARE_MODULE(AOIntegralMultipole);
+/** @brief Load the AO integral modules into a Module Manager
+ *
+ *  @param mm The Module Manager to load the modules into
+ *
+ *  @throw none No throw guarantee
+ */
+void load_ao_integrals(pluginplay::ModuleManager& mm);
 
-DECLARE_MODULE(AOIntegralDOI);
+/** @brief Set default module relationships
+ *
+ *  @param mm The Module Manager with modules whose defaults will be set
+ *
+ *  @throw none No throw guarantee
+ */
+void ao_integrals_set_defaults(pluginplay::ModuleManager& mm);
 
-// -----------------------------------------------------------------------------
-// -- Forward External Template Declarations
-// -----------------------------------------------------------------------------
+// Forward External Template Declarations
+#define EXTERN_AOI extern template struct AOIntegral
 
-#define EXTERN_INT_AND_DIRECT(N, op)                \
-    extern template class AOIntegral<N, op, false>; \
-    extern template class AOIntegral<N, op, true>
+EXTERN_AOI<braket<aos, t_e_type, aos>>;
+EXTERN_AOI<braket<aos, v_en_type, aos>>;
+EXTERN_AOI<braket<aos, v_ee_type, aos>>;
+EXTERN_AOI<braket<aos, v_ee_type, aos_squared>>;
+EXTERN_AOI<braket<aos_squared, v_ee_type, aos_squared>>;
 
-EXTERN_INT_AND_DIRECT(2, simde::type::el_el_coulomb);
-EXTERN_INT_AND_DIRECT(3, simde::type::el_el_coulomb);
-EXTERN_INT_AND_DIRECT(4, simde::type::el_el_coulomb);
-EXTERN_INT_AND_DIRECT(2, simde::type::el_kinetic);
-EXTERN_INT_AND_DIRECT(2, simde::type::el_nuc_coulomb);
-EXTERN_INT_AND_DIRECT(2, simde::type::el_identity);
-EXTERN_INT_AND_DIRECT(2, simde::type::el_el_stg);
-EXTERN_INT_AND_DIRECT(3, simde::type::el_el_stg);
-EXTERN_INT_AND_DIRECT(4, simde::type::el_el_stg);
-EXTERN_INT_AND_DIRECT(2, simde::type::el_el_yukawa);
-EXTERN_INT_AND_DIRECT(3, simde::type::el_el_yukawa);
-EXTERN_INT_AND_DIRECT(4, simde::type::el_el_yukawa);
-EXTERN_INT_AND_DIRECT(2, simde::type::el_el_f12_commutator);
-EXTERN_INT_AND_DIRECT(3, simde::type::el_el_f12_commutator);
-EXTERN_INT_AND_DIRECT(4, simde::type::el_el_f12_commutator);
-EXTERN_INT_AND_DIRECT(4, simde::type::el_el_delta);
-
-#undef EXTERN_INT_AND_DIRECT
-
-extern template class AOIntegralMultipole<0, simde::type::el_dipole>;
-extern template class AOIntegralMultipole<1, simde::type::el_quadrupole>;
-extern template class AOIntegralMultipole<2, simde::type::el_octupole>;
+#undef EXTERN_AOI
 
 } // namespace integrals::ao_integrals

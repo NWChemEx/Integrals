@@ -21,44 +21,55 @@
 # http://www.sphinx-doc.org/en/master/config
 
 import os
+import git
 
 # -- Project information -----------------------------------------------------
 
-project = u'LibChemist'
+project = u'Integrals'
 copyright = u'2020, NWChemEx Team'
 author = u'NWChemEx Team'
-
-# Get the version from version.txt
-with open('../../version.txt', 'r') as file:
-    version = file.read().replace('\n', '')
-# The full version, including alpha/beta/rc tags
-release = version
 
 ##############################################################################
 #           Shouldn't need to change anything below this point               #
 ##############################################################################
 
+# -- Project Paths -----------------------------------------------------------
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+doc_path = os.path.dirname(dir_path)
+root_path = os.path.dirname(doc_path)
+
+# -- Package Version ---------------------------------------------------------
+
+# Read the git tags, from ../../.git and find the most recent one
+repo = git.Repo(root_path)
+tags = sorted(repo.tags, key=lambda t: t.commit.committed_datetime)
+
+if len(tags):
+    last_tag = tags[-1]
+else:
+    last_tag = "1.0.0"
+
+# This is the strictly numeric version (e.g., no "beta" qualifier)
+version = str(last_tag)
+
+# This is the full version (includes qualifiers like "beta" or
+# "release candidate")
+release = version
+
 # -- General configuration ---------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
-# needs_sphinx = '1.0'
+needs_sphinx = '7.2.6'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.githubpages'
+    'sphinx.ext.autodoc', 'sphinx.ext.mathjax', 'sphinx.ext.githubpages',
+    'sphinx.ext.autosummary', 'sphinx_rtd_theme', 'sphinx.ext.intersphinx'
 ]
-dir_path = os.path.dirname(os.path.realpath(__file__))
-doc_path = os.path.dirname(dir_path)
-root_path = os.path.dirname(doc_path)
 
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
@@ -77,7 +88,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -87,6 +98,8 @@ exclude_patterns = []
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+numfig = True
+numfig_secnum_depth = 0
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -116,12 +129,10 @@ html_theme = 'sphinx_rtd_theme'
 #
 # html_sidebars = {}
 
-
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = project + 'doc'
-
 
 # -- Options for LaTeX output ------------------------------------------------
 
@@ -147,18 +158,16 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, project + '.tex',project + ' Documentation', author, 'manual'),
+    (master_doc, project + '.tex', project + ' Documentation', author,
+     'manual'),
 ]
-
 
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, project.lower(), project + ' Documentation', [author], 1)
-]
-
+man_pages = [(master_doc, project.lower(), project + ' Documentation',
+              [author], 1)]
 
 # -- Options for Texinfo output ----------------------------------------------
 
@@ -166,19 +175,13 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, project, project + ' Documentation',
-     author, project, 'One line description of project.', 'Miscellaneous'),
+    (master_doc, project, project + ' Documentation', author, project,
+     'One line description of project.', 'Miscellaneous'),
 ]
-
 
 # -- Extension configuration -------------------------------------------------
 
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
-
-# -- Options for todo extension ----------------------------------------------
-
-# If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = True
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}

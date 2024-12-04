@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NWChemEx-Project
+ * Copyright 2024 NWChemEx-Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-#include "integrals/libint/detail_/make_libint_basis_set.hpp"
+#include "integrals/ao_integrals/detail_/shells2ord.hpp"
 #include "libint_basis_set_water.hpp"
-#include <catch2/catch.hpp>
-#include <mokup/mokup.hpp>
+#include <catch2/catch_test_macros.hpp>
 
-using namespace mokup;
-
-using integrals::libint::detail_::make_libint_basis_set;
-
-TEST_CASE("make_libint_basis_set") {
-    const auto name = molecule::h2o;
-    const auto bs   = basis_set::sto3g;
-    auto aos        = get_bases(name, bs);
-
-    /// Expected Libint result
-    auto libint_corr = testing::water_basis_set();
-
-    /// Check output
-    auto libint_bs = make_libint_basis_set(aos.basis_set());
-    REQUIRE(libint_bs == libint_corr);
+TEST_CASE("shells2ord") {
+    using integrals::ao_integrals::detail_::shells2ord;
+    auto aobs = test::water_basis_set();
+    std::vector<libint2::BasisSet> basis_sets{aobs, aobs};
+    std::vector<std::size_t> shells{2, 2};
+    auto out                      = shells2ord(basis_sets, shells);
+    std::vector<std::size_t> corr = {16, 17, 18, 23, 24, 25, 30, 31, 32};
+    REQUIRE(out == corr);
 }

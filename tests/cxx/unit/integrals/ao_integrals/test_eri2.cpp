@@ -14,37 +14,35 @@
  * limitations under the License.
  */
 
-#include "direct_allclose.hpp"
-#include "integrals/integrals.hpp"
-#include <catch2/catch.hpp>
-#include <mokup/mokup.hpp>
-#include <simde/tensor_representation/tensor_representation.hpp>
-#include <tensorwrapper/tensor/allclose.hpp>
+#include "test_ao_integrals.hpp"
 
-using namespace mokup;
-
-TEST_CASE("ERI2C") {
-    using op_type       = simde::type::el_el_coulomb;
-    using integral_type = simde::AOTensorRepresentation<2, op_type>;
+TEST_CASE("ERI2") {
+    using test_pt = simde::ERI2;
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
+    REQUIRE(mm.count("ERI2"));
 
-    const auto name = molecule::h2o;
-    const auto bs   = basis_set::sto3g;
-    auto aos        = get_bases(name, bs);
-    std::vector bases{bs, bs};
-    auto corr = get_ao_data(name, bases, property::eris);
+    // Get basis set
+    auto mol  = test::water_molecule();
+    auto aobs = test::water_sto3g_basis_set();
 
-    op_type r12;
+    // Make AOS object
+    simde::type::aos aos(aobs);
 
-    SECTION("Explicit") {
-        auto X = mm.at("ERI2").run_as<integral_type>(aos, r12, aos);
-        REQUIRE(tensorwrapper::tensor::allclose(X, corr));
-    }
+    // Make Operator
+    simde::type::v_ee_type op{};
 
-    SECTION("Direct") {
-        auto X = mm.at("Direct ERI2").run_as<integral_type>(aos, r12, aos);
-        REQUIRE(direct_allclose(X, corr));
-    }
+    // Make BraKet Input
+    chemist::braket::BraKet braket(aos, op, aos);
+
+    // Call module
+    auto T = mm.at("ERI2").run_as<test_pt>(braket);
+
+    // Check output
+    auto t = test::eigen_buffer<2>(T.buffer());
+    REQUIRE(test::trace(t) ==
+            Catch::Approx(124.7011973877891364).margin(1.0e-16));
+    REQUIRE(test::norm(t) ==
+            Catch::Approx(90.2562579028763707).margin(1.0e-16));
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NWChemEx-Project
+ * Copyright 2024 NWChemEx-Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,230 +15,122 @@
  */
 
 #include "ao_integrals.hpp"
-#include "cs_screened_integrals.hpp"
-#include "detail_/aos2shells.hpp"
-#include "detail_/bsets_shell_sizes.hpp"
-#include "detail_/get_coeff.hpp"
-#include "detail_/make_shape.hpp"
-#include "detail_/select_allocator.hpp"
+#include "detail_/get_basis_sets.hpp"
+#include "detail_/libint_op.hpp"
+#include "detail_/make_engine.hpp"
+#include "detail_/make_libint_basis_set.hpp"
 #include "detail_/shells2ord.hpp"
-#include "detail_/unpack_bases.hpp"
-#include "shellnorms.hpp"
-//#include <integrals/property_types/integral_shape.hpp>
-#include <simde/integral_factory.hpp>
-#include <simde/tensor_representation/ao_tensor_representation.hpp>
+#include <type_traits>
 
 namespace integrals::ao_integrals {
 
-/// Type of a module that produces integral factories
-template<typename OperatorType>
-using factory_pt = simde::IntegralFactory<OperatorType>;
-using factory_t  = simde::type::integral_factory;
-
-/// Type of a module that produces integral shapes
-using integral_shape_pt = simde::IntegralShape;
-
-/// Grab the various detail_ functions
-using namespace detail_;
-
-template<std::size_t N, typename OperatorType, bool direct>
-TEMPLATED_MODULE_CTOR(AOIntegral, N, OperatorType, direct) {
-    description("Computes integrals with Libint");
-    using my_pt = simde::AOTensorRepresentation<N, OperatorType>;
-
+template<typename BraKetType>
+TEMPLATED_MODULE_CTOR(AOIntegral, BraKetType) {
+    using my_pt = simde::EvaluateBraKet<BraKetType>;
     satisfies_property_type<my_pt>();
+    description("Computes integrals with Libint");
 
-    add_submodule<factory_pt<OperatorType>>("AO Integral Factory")
-      .set_description("Used to generate the AO factory");
-
-    add_submodule<integral_shape_pt>("Tensor Shape")
-      .set_description("Determines the shape of the resulting tensor");
+    add_input<double>("Threshold")
+      .set_default(1.0E-16)
+      .set_description(
+        "The target precision with which the integrals will be computed");
 }
 
-template<std::size_t N, typename OperatorType, bool direct>
-TEMPLATED_MODULE_RUN(AOIntegral, N, OperatorType, direct) {
-    // Typedefs
-    using my_pt         = simde::AOTensorRepresentation<N, OperatorType>;
-    using size_vector_t = std::vector<std::size_t>;
-    using tensor_t      = simde::type::tensor;
-    using field_t       = typename tensor_t::field_type;
-    using shape_t       = typename tensor_t::shape_type;
+template<typename BraKetType>
+TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
+    using my_pt = simde::EvaluateBraKet<BraKetType>;
 
-    auto bases       = unpack_bases<N>(inputs);
-    auto op_str      = OperatorType().as_string();
-    auto& fac_mod    = submods.at("AO Integral Factory");
-    const auto& op   = inputs.at(op_str).template value<const OperatorType&>();
-    auto coeff       = get_coefficient(op);
-    auto shell_sizes = bsets_shell_sizes(bases);
+    const auto& [braket] = my_pt::unwrap_inputs(inputs);
+    auto thresh          = inputs.at("Threshold").value<double>();
+    auto bra             = braket.bra();
+    auto ket             = braket.ket();
+    auto op              = braket.op();
 
-    // Cache result of factory module
-    fac_mod.run_as<factory_pt<OperatorType>>(bases, op, 0ul);
+    // Gather information from Bra, Ket, and Op
+    auto basis_sets = detail_::get_basis_sets(bra, ket);
+    constexpr int N = detail_::get_n(bra, ket);
 
-    // Lambda to calculate values
-    auto l = [=](const auto& lo, const auto& up, auto* data) mutable {
-        // Convert index values from AOs to shells
-        size_vector_t lo_shells, up_shells;
-        for(auto i = 0; i < N; ++i) {
-            auto shells_in_tile = aos2shells(shell_sizes[i], lo[i], up[i]);
-            lo_shells.push_back(shells_in_tile.front());
-            up_shells.push_back(shells_in_tile.back());
-        }
+    // Dimensional information
+    std::vector<std::size_t> dims_shells(N);
+    Eigen::array<Eigen::Index, N> dims_bfs;
+    for(auto i = 0; i < N; ++i) {
+        dims_shells[i] = basis_sets[i].size();
+        dims_bfs[i]    = basis_sets[i].nbf();
+    }
 
-        // Get integral factory
-        auto factory = fac_mod.run_as<factory_pt<OperatorType>>(bases, op, 0ul);
+    // Build tensor inputs
+    using tensor_t = simde::type::tensor;
+    using shape_t  = tensorwrapper::shape::Smooth;
+    using layout_t = tensorwrapper::layout::Physical;
+    using buffer_t = tensorwrapper::buffer::Eigen<double, N>;
+    using data_t   = typename buffer_t::data_type;
 
-        // Loop through shell combinations
-        size_vector_t curr_shells = lo_shells;
-        while(curr_shells[0] <= up_shells[0]) {
-            // Determine which values will be computed this time
-            auto ord_pos =
-              shells2ord(shell_sizes, curr_shells, lo_shells, up_shells);
+    shape_t s{dims_bfs.begin(), dims_bfs.end()};
+    layout_t l(s);
+    data_t d(dims_bfs);
+    buffer_t b{d, l};
+    b.value().setZero();
 
-            const auto& buf = factory.compute(curr_shells);
-            auto vals       = buf[0];
+    // Make libint engine
+    auto engine     = detail_::make_engine(basis_sets, op, thresh);
+    const auto& buf = engine.results();
 
-            if(vals) {
-                // Copy libint values into tile data;
-                for(auto i = 0; i < ord_pos.size(); ++i) {
-                    data[ord_pos[i]] = vals[i] * coeff;
-                }
-            } else {
-                for(auto i = 0; i < ord_pos.size(); ++i) {
-                    data[ord_pos[i]] = 0.0;
-                }
-            }
+    // Fill in values
+    std::vector<std::size_t> shells(N, 0);
+    while(shells[0] < dims_shells[0]) {
+        detail_::run_engine_(engine, basis_sets, shells,
+                             std::make_index_sequence<N>());
 
-            // Increment curr_shells
-            curr_shells[N - 1] += 1;
-            for(auto i = 1; i < N; ++i) {
-                if(curr_shells[N - i] > up_shells[N - i]) {
-                    // Reset this dimension and increment the next one
-                    // curr_shells[0] accumulates until we reach the end
-                    curr_shells[N - i] = lo_shells[N - i];
-                    curr_shells[N - i - 1] += 1;
-                }
+        auto vals = buf[0];
+        if(vals) {
+            auto ord   = detail_::shells2ord(basis_sets, shells);
+            auto n_ord = ord.size();
+            for(decltype(n_ord) i_ord = 0; i_ord < n_ord; ++i_ord) {
+                b.value().data()[ord[i_ord]] = vals[i_ord];
             }
         }
-    };
 
-    auto shape = submods.at("Tensor Shape").run_as<integral_shape_pt>(bases);
+        // Increment index
+        shells[N - 1] += 1;
+        for(auto i = 1; i < N; ++i) {
+            if(shells[N - i] >= dims_shells[N - i]) {
+                // Reset this dimension and increment the next one
+                // shells[0] accumulates until we reach the end
+                shells[N - i] = 0;
+                shells[N - i - 1] += 1;
+            }
+        }
+    }
 
-    tensor_t I(l, std::make_unique<shape_t>(shape),
-               select_allocator<direct, field_t>(bases, op));
-
-    // Finish
+    tensor_t t({s, b});
     auto rv = results();
-    return my_pt::wrap_results(rv, I);
+    return my_pt::wrap_results(rv, t);
 }
 
-// -----------------------------------------------------------------------------
-// -- Template Declarations
-// -----------------------------------------------------------------------------
+#define AOI(bra, op, ket) AOIntegral<braket<bra, op, ket>>
+#define EXTERN_AOI(bra, op, ket) template struct AOI(bra, op, ket)
+#define LOAD_AOI(bra, op, ket, key) mm.add_module<AOI(bra, op, ket)>(key)
 
-#define TEMPLATE_AOI_AND_DIRECT(N, op)       \
-    template class AOIntegral<N, op, false>; \
-    template class AOIntegral<N, op, true>
-
-TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_el_coulomb);
-TEMPLATE_AOI_AND_DIRECT(3, simde::type::el_el_coulomb);
-TEMPLATE_AOI_AND_DIRECT(4, simde::type::el_el_coulomb);
-TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_kinetic);
-TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_nuc_coulomb);
-TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_identity);
-TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_el_stg);
-TEMPLATE_AOI_AND_DIRECT(3, simde::type::el_el_stg);
-TEMPLATE_AOI_AND_DIRECT(4, simde::type::el_el_stg);
-TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_el_yukawa);
-TEMPLATE_AOI_AND_DIRECT(3, simde::type::el_el_yukawa);
-TEMPLATE_AOI_AND_DIRECT(4, simde::type::el_el_yukawa);
-TEMPLATE_AOI_AND_DIRECT(2, simde::type::el_el_f12_commutator);
-TEMPLATE_AOI_AND_DIRECT(3, simde::type::el_el_f12_commutator);
-TEMPLATE_AOI_AND_DIRECT(4, simde::type::el_el_f12_commutator);
-TEMPLATE_AOI_AND_DIRECT(4, simde::type::el_el_delta);
-
-#undef TEMPLATE_AOI_AND_DIRECT
-
-// -----------------------------------------------------------------------------
-// -- Define Module Load Functions
-// -----------------------------------------------------------------------------
-
-#define ADD_AOI_WITH_DIRECT(N, op, key_base)           \
-    mm.add_module<AOIntegral<N, op, false>>(key_base); \
-    mm.add_module<AOIntegral<N, op, true>>("Direct " key_base)
-
-#define ADD_CS_AOI_WITH_DIRECT(N, op, key_base)          \
-    mm.add_module<CSAOIntegral<N, op, false>>(key_base); \
-    mm.add_module<CSAOIntegral<N, op, true>>("Direct " key_base)
-
-void load_ao_integrals(pluginplay::ModuleManager& mm) {
-    using namespace simde::type;
-
-    mm.add_module<AOIntegralDOI>("DOI");
-    mm.add_module<AOIntegralDOI>("Direct DOI");
-    mm.add_module<AOIntegralMultipole<0, el_dipole>>("EDipole");
-    mm.add_module<AOIntegralMultipole<1, el_quadrupole>>("EQuadrupole");
-    mm.add_module<AOIntegralMultipole<2, el_octupole>>("EOctupole");
-    mm.add_module<AOIntegral<4, el_el_f12_commutator, false>>(
-      "STG 4 Center dfdr Squared");
-
-    ADD_AOI_WITH_DIRECT(2, el_el_coulomb, "ERI2");
-    ADD_AOI_WITH_DIRECT(3, el_el_coulomb, "ERI3");
-    ADD_AOI_WITH_DIRECT(4, el_el_coulomb, "ERI4");
-    ADD_AOI_WITH_DIRECT(2, el_kinetic, "Kinetic");
-    ADD_AOI_WITH_DIRECT(2, el_nuc_coulomb, "Nuclear");
-    ADD_AOI_WITH_DIRECT(2, el_identity, "Overlap");
-    ADD_AOI_WITH_DIRECT(2, el_el_stg, "STG2");
-    ADD_AOI_WITH_DIRECT(3, el_el_stg, "STG3");
-    ADD_AOI_WITH_DIRECT(4, el_el_stg, "STG4");
-    ADD_AOI_WITH_DIRECT(2, el_el_yukawa, "Yukawa2");
-    ADD_AOI_WITH_DIRECT(3, el_el_yukawa, "Yukawa3");
-    ADD_AOI_WITH_DIRECT(4, el_el_yukawa, "Yukawa4");
-    ADD_AOI_WITH_DIRECT(4, el_el_delta, "DOI4");
-    ADD_CS_AOI_WITH_DIRECT(2, el_kinetic, "Kinetic CS");
-    ADD_CS_AOI_WITH_DIRECT(2, el_nuc_coulomb, "Nuclear CS");
-    ADD_CS_AOI_WITH_DIRECT(2, el_identity, "Overlap CS");
-    ADD_CS_AOI_WITH_DIRECT(3, el_el_coulomb, "ERI3 CS");
-    ADD_CS_AOI_WITH_DIRECT(4, el_el_coulomb, "ERI4 CS");
-    ADD_CS_AOI_WITH_DIRECT(3, el_el_stg, "STG3 CS");
-    ADD_CS_AOI_WITH_DIRECT(4, el_el_stg, "STG4 CS");
-    ADD_CS_AOI_WITH_DIRECT(3, el_el_yukawa, "Yukawa3 CS");
-    ADD_CS_AOI_WITH_DIRECT(4, el_el_yukawa, "Yukawa4 CS");
-
-    /// TODO: Uncomment after module optimization
-    // mm.add_module<ShellNormOverlap>("Shell Norms Overlap");
-    // mm.add_module<ShellNormCoulomb>("Shell Norms Coulomb");
-    // mm.add_module<ShellNormSTG>("Shell Norms STG");
-    // mm.add_module<ShellNormYukawa>("Shell Norms Yukawa");
-}
-
-#undef ADD_AOI_WITH_DIRECT
-#undef ADD_CS_AOI_WITH_DIRECT
+EXTERN_AOI(aos, t_e_type, aos);
+EXTERN_AOI(aos, v_en_type, aos);
+EXTERN_AOI(aos, v_ee_type, aos);
+EXTERN_AOI(aos, v_ee_type, aos_squared);
+EXTERN_AOI(aos_squared, v_ee_type, aos_squared);
 
 void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
-    // Set DOI submods
-    mm.change_submod("DOI", "DOI4", "DOI4");
-    mm.change_submod("Direct DOI", "DOI4", "Direct DOI4");
-
-    // Set shell norm submods
-    // std::string sh_norm = "Shell Norms";
-    // mm.change_submod("Kinetic CS", sh_norm, sh_norm + " Overlap");
-    // mm.change_submod("Nuclear CS", sh_norm, sh_norm + " Overlap");
-    // mm.change_submod("Overlap CS", sh_norm, sh_norm + " Overlap");
-    // mm.change_submod("ERI3 CS", sh_norm, sh_norm + " Coulomb");
-    // mm.change_submod("ERI4 CS", sh_norm, sh_norm + " Coulomb");
-    // mm.change_submod("STG3 CS", sh_norm, sh_norm + " STG");
-    // mm.change_submod("STG4 CS", sh_norm, sh_norm + " STG");
-    // mm.change_submod("Yukawa3 CS", sh_norm, sh_norm + " Yukawa");
-    // mm.change_submod("Yukawa4 CS", sh_norm, sh_norm + " Yukawa");
-    // mm.change_submod("Direct Kinetic CS", sh_norm, sh_norm + " Overlap");
-    // mm.change_submod("Direct Nuclear CS", sh_norm, sh_norm + " Overlap");
-    // mm.change_submod("Direct Overlap CS", sh_norm, sh_norm + " Overlap");
-    // mm.change_submod("Direct ERI3 CS", sh_norm, sh_norm + " Coulomb");
-    // mm.change_submod("Direct ERI4 CS", sh_norm, sh_norm + " Coulomb");
-    // mm.change_submod("Direct STG3 CS", sh_norm, sh_norm + " STG");
-    // mm.change_submod("Direct STG4 CS", sh_norm, sh_norm + " STG");
-    // mm.change_submod("Direct Yukawa3 CS", sh_norm, sh_norm + " Yukawa");
-    // mm.change_submod("Direct Yukawa4 CS", sh_norm, sh_norm + " Yukawa");
+    // Set any default associations
 }
+
+void load_ao_integrals(pluginplay::ModuleManager& mm) {
+    LOAD_AOI(aos, t_e_type, aos, "Kinetic");
+    LOAD_AOI(aos, v_en_type, aos, "Nuclear");
+    LOAD_AOI(aos, v_ee_type, aos, "ERI2");
+    LOAD_AOI(aos, v_ee_type, aos_squared, "ERI3");
+    LOAD_AOI(aos_squared, v_ee_type, aos_squared, "ERI4");
+    ao_integrals_set_defaults(mm);
+}
+
+#undef AOI
+#undef ADD_AOI
 
 } // namespace integrals::ao_integrals

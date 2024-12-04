@@ -14,37 +14,35 @@
  * limitations under the License.
  */
 
-#include "direct_allclose.hpp"
-#include "integrals/integrals.hpp"
-#include <catch2/catch.hpp>
-#include <mokup/mokup.hpp>
-#include <simde/tensor_representation/tensor_representation.hpp>
-#include <tensorwrapper/tensor/allclose.hpp>
-
-using namespace mokup;
+#include "test_ao_integrals.hpp"
 
 TEST_CASE("Kinetic") {
-    using op_type       = simde::type::el_kinetic;
-    using integral_type = simde::AOTensorRepresentation<2, op_type>;
+    using test_pt = simde::aos_t_e_aos;
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
+    REQUIRE(mm.count("Kinetic"));
 
-    const auto name = molecule::h2o;
-    const auto bs   = basis_set::sto3g;
-    auto aos        = get_bases(name, bs);
-    std::vector bases{bs, bs};
-    auto corr = get_ao_data(name, bases, property::kinetic);
+    // Get basis set
+    auto mol  = test::water_molecule();
+    auto aobs = test::water_sto3g_basis_set();
 
-    op_type t;
+    // Make AOS object
+    simde::type::aos aos(aobs);
 
-    SECTION("Explicit") {
-        auto T = mm.at("Kinetic").run_as<integral_type>(aos, t, aos);
-        REQUIRE(tensorwrapper::tensor::allclose(T, corr));
-    }
+    // Make Operator
+    simde::type::t_e_type op{};
 
-    SECTION("Direct") {
-        auto T = mm.at("Direct Kinetic").run_as<integral_type>(aos, t, aos);
-        REQUIRE(direct_allclose(T, corr));
-    }
+    // Make BraKet Input
+    chemist::braket::BraKet braket(aos, op, aos);
+
+    // Call module
+    auto T = mm.at("Kinetic").run_as<test_pt>(braket);
+
+    // Check output
+    auto t = test::eigen_buffer<2>(T.buffer());
+    REQUIRE(test::trace(t) ==
+            Catch::Approx(38.9175852621874441).margin(1.0e-16));
+    REQUIRE(test::norm(t) ==
+            Catch::Approx(29.3665362218072552).margin(1.0e-16));
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NWChemEx-Project
+ * Copyright 2024 NWChemEx-Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,30 @@
  */
 
 #pragma once
+#include <libint2.hpp>
 #include <simde/types.hpp>
 
 namespace integrals::ao_integrals::detail_ {
 
-/** @brief Collect the sizes of the shells of the basis sets.
- *
- *
- *
- *  @param[in] bases A vector of basis sets.
- *  @returns The shell sizes for the basis sets as a vector of vectors.
- */
-inline auto bsets_shell_sizes(
-  const std::vector<simde::type::ao_basis_set>& bases) {
-    auto N = bases.size();
-    std::vector<std::vector<std::size_t>> shell_sizes(N);
-    for(auto i = 0; i < N; ++i) {
-        for(auto j = 0; j < bases[i].n_shells(); ++j) {
-            shell_sizes[i].push_back(bases[i].shell(j).size());
-        }
-    }
-    return shell_sizes;
-}
+template<typename T>
+struct LibintOp;
+
+template<>
+struct LibintOp<simde::type::v_ee_type> {
+    static constexpr auto value = libint2::Operator::coulomb;
+};
+
+template<>
+struct LibintOp<simde::type::t_e_type> {
+    static constexpr auto value = libint2::Operator::kinetic;
+};
+
+template<>
+struct LibintOp<simde::type::v_en_type> {
+    static constexpr auto value = libint2::Operator::nuclear;
+};
+
+template<typename T>
+static constexpr auto op_v = detail_::LibintOp<T>::value;
 
 } // namespace integrals::ao_integrals::detail_

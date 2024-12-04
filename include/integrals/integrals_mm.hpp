@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NWChemEx-Project
+ * Copyright 2024 NWChemEx-Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,12 @@
 
 namespace integrals {
 
+/** @brief Load this plugin's modules into a Module Manager
+ *
+ *  @param mm The Module Manager to load the modules into
+ *
+ *  @throw none No throw guarantee
+ */
 DECLARE_PLUGIN(integrals);
 
 } // end namespace integrals
