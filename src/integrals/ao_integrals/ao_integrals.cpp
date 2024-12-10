@@ -32,7 +32,7 @@ public:
 
     LibIntVisitor(const std::vector<libint2::BasisSet>& bases, double thresh,
                   std::size_t deriv = 0) :
-      m_bases(bases), m_thresh(thresh), m_deriv(deriv) {};
+      m_bases(bases), m_thresh(thresh), m_deriv(deriv){};
 
     void run(const t_e_type& T_e) {
         m_engine = detail_::make_engine(m_bases, T_e, m_thresh, m_deriv);
@@ -105,7 +105,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
     // Make libint engine
     LibIntVisitor visitor(basis_sets, thresh);
     op.visit(visitor);
-    auto engine = visitor.engine();
+    auto engine     = visitor.engine();
     const auto& buf = engine.results();
 
     // Fill in values
