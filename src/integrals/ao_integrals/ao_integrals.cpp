@@ -75,7 +75,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
     auto thresh          = inputs.at("Threshold").value<double>();
     auto bra             = braket.bra();
     auto ket             = braket.ket();
-    auto op              = braket.op();
+    auto& op             = braket.op();
 
     // Gather information from Bra, Ket, and Op
     auto basis_sets = detail_::get_basis_sets(bra, ket);
@@ -106,7 +106,6 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
     LibIntVisitor visitor(basis_sets, thresh);
     op.visit(visitor);
     auto engine = visitor.engine();
-    // auto engine     = detail_::make_engine(basis_sets, op, thresh);
     const auto& buf = engine.results();
 
     // Fill in values
@@ -145,9 +144,9 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
 #define EXTERN_AOI(bra, op, ket) template struct AOI(bra, op, ket)
 #define LOAD_AOI(bra, op, ket, key) mm.add_module<AOI(bra, op, ket)>(key)
 
-// EXTERN_AOI(aos, op_type, aos);
-// EXTERN_AOI(aos, op_type, aos_squared);
-// EXTERN_AOI(aos_squared, op_type, aos_squared);
+EXTERN_AOI(aos, op_base_type, aos);
+EXTERN_AOI(aos, op_base_type, aos_squared);
+EXTERN_AOI(aos_squared, op_base_type, aos_squared);
 
 EXTERN_AOI(aos, t_e_type, aos);
 EXTERN_AOI(aos, v_en_type, aos);
@@ -160,9 +159,9 @@ void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
 }
 
 void load_ao_integrals(pluginplay::ModuleManager& mm) {
-    // LOAD_AOI(aos, op_type, aos, "Evaluate 2-Index BraKet");
-    // LOAD_AOI(aos, op_type, aos_squared, "Evaluate 3-Index BraKet");
-    // LOAD_AOI(aos_squared, op_type, aos_squared, "Evaluate 4-Index BraKet");
+    LOAD_AOI(aos, op_base_type, aos, "Evaluate 2-Index BraKet");
+    LOAD_AOI(aos, op_base_type, aos_squared, "Evaluate 3-Index BraKet");
+    LOAD_AOI(aos_squared, op_base_type, aos_squared, "Evaluate 4-Index BraKet");
 
     LOAD_AOI(aos, t_e_type, aos, "Kinetic");
     LOAD_AOI(aos, v_en_type, aos, "Nuclear");
