@@ -24,6 +24,37 @@
 
 namespace integrals::ao_integrals {
 
+class LibIntVisitor : public chemist::qm_operator::OperatorVisitor {
+public:
+    using t_e_type  = simde::type::t_e_type;
+    using v_ee_type = simde::type::v_ee_type;
+    using v_en_type = simde::type::v_en_type;
+
+    LibIntVisitor(const std::vector<libint2::BasisSet>& bases, double thresh,
+                  std::size_t deriv = 0) :
+      m_bases(bases), m_thresh(thresh), m_deriv(deriv){};
+
+    void run(const t_e_type& T_e) {
+        m_engine = detail_::make_engine(m_bases, T_e, m_thresh, m_deriv);
+    }
+
+    void run(const v_en_type& V_en) {
+        m_engine = detail_::make_engine(m_bases, V_en, m_thresh, m_deriv);
+    }
+
+    void run(const v_ee_type& V_ee) {
+        m_engine = detail_::make_engine(m_bases, V_ee, m_thresh, m_deriv);
+    }
+
+    libint2::Engine& engine() { return m_engine; }
+
+private:
+    const std::vector<libint2::BasisSet>& m_bases;
+    double m_thresh;
+    std::size_t m_deriv;
+    libint2::Engine m_engine;
+};
+
 template<typename BraKetType>
 TEMPLATED_MODULE_CTOR(AOIntegral, BraKetType) {
     using my_pt = simde::EvaluateBraKet<BraKetType>;
@@ -44,7 +75,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
     auto thresh          = inputs.at("Threshold").value<double>();
     auto bra             = braket.bra();
     auto ket             = braket.ket();
-    auto op              = braket.op();
+    auto& op             = braket.op();
 
     // Gather information from Bra, Ket, and Op
     auto basis_sets = detail_::get_basis_sets(bra, ket);
@@ -72,7 +103,9 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
     b.value().setZero();
 
     // Make libint engine
-    auto engine     = detail_::make_engine(basis_sets, op, thresh);
+    LibIntVisitor visitor(basis_sets, thresh);
+    op.visit(visitor);
+    auto engine     = visitor.engine();
     const auto& buf = engine.results();
 
     // Fill in values
@@ -111,6 +144,10 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
 #define EXTERN_AOI(bra, op, ket) template struct AOI(bra, op, ket)
 #define LOAD_AOI(bra, op, ket, key) mm.add_module<AOI(bra, op, ket)>(key)
 
+EXTERN_AOI(aos, op_base_type, aos);
+EXTERN_AOI(aos, op_base_type, aos_squared);
+EXTERN_AOI(aos_squared, op_base_type, aos_squared);
+
 EXTERN_AOI(aos, t_e_type, aos);
 EXTERN_AOI(aos, v_en_type, aos);
 EXTERN_AOI(aos, v_ee_type, aos);
@@ -122,6 +159,10 @@ void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
 }
 
 void load_ao_integrals(pluginplay::ModuleManager& mm) {
+    LOAD_AOI(aos, op_base_type, aos, "Evaluate 2-Index BraKet");
+    LOAD_AOI(aos, op_base_type, aos_squared, "Evaluate 3-Index BraKet");
+    LOAD_AOI(aos_squared, op_base_type, aos_squared, "Evaluate 4-Index BraKet");
+
     LOAD_AOI(aos, t_e_type, aos, "Kinetic");
     LOAD_AOI(aos, v_en_type, aos, "Nuclear");
     LOAD_AOI(aos, v_ee_type, aos, "ERI2");

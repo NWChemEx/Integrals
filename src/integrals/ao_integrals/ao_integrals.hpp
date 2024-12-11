@@ -29,6 +29,7 @@ using simde::type::braket;
 using simde::type::aos;
 using simde::type::aos_squared;
 
+using simde::type::op_base_type;
 using simde::type::t_e_type;
 using simde::type::v_ee_type;
 using simde::type::v_en_type;
@@ -58,6 +59,10 @@ void ao_integrals_set_defaults(pluginplay::ModuleManager& mm);
 
 // Forward External Template Declarations
 #define EXTERN_AOI extern template struct AOIntegral
+
+EXTERN_AOI<braket<aos, op_base_type, aos>>;
+EXTERN_AOI<braket<aos, op_base_type, aos_squared>>;
+EXTERN_AOI<braket<aos_squared, op_base_type, aos_squared>>;
 
 EXTERN_AOI<braket<aos, t_e_type, aos>>;
 EXTERN_AOI<braket<aos, v_en_type, aos>>;
