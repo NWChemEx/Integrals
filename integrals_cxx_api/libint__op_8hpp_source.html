@@ -22,7 +22,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">integrals
-   &#160;<span id="projectnumber">0.0.21</span>
+   &#160;<span id="projectnumber">0.0.22</span>
    </div>
   </td>
  </tr>
@@ -110,10 +110,15 @@ $(function() {
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keyword">static</span> constexpr <span class="keyword">auto</span> value = libint2::Operator::nuclear;</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;};</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keyword">static</span> constexpr <span class="keyword">auto</span> op_v = <a class="code" href="structintegrals_1_1ao__integrals_1_1detail___1_1LibintOp.html">detail_::LibintOp&lt;T&gt;::value</a>;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;} <span class="comment">// namespace integrals::ao_integrals::detail_</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keyword">template</span>&lt;&gt;</div>
+<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="structintegrals_1_1ao__integrals_1_1detail___1_1LibintOp_3_01simde_1_1type_1_1s__e__type_01_4.html">   42</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structintegrals_1_1ao__integrals_1_1detail___1_1LibintOp.html">LibintOp</a>&lt;simde::type::s_e_type&gt; {</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keyword">static</span> constexpr <span class="keyword">auto</span> value = libint2::Operator::overlap;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;};</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keyword">static</span> constexpr <span class="keyword">auto</span> op_v = <a class="code" href="structintegrals_1_1ao__integrals_1_1detail___1_1LibintOp.html">detail_::LibintOp&lt;T&gt;::value</a>;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;} <span class="comment">// namespace integrals::ao_integrals::detail_</span></div>
 <div class="ttc" id="anamespaceintegrals_1_1ao__integrals_1_1detail___html"><div class="ttname"><a href="namespaceintegrals_1_1ao__integrals_1_1detail__.html">integrals::ao_integrals::detail_</a></div><div class="ttdoc">For ShellType.</div><div class="ttdef"><b>Definition:</b> get_basis_sets.hpp:21</div></div>
 <div class="ttc" id="astructintegrals_1_1ao__integrals_1_1detail___1_1LibintOp_html"><div class="ttname"><a href="structintegrals_1_1ao__integrals_1_1detail___1_1LibintOp.html">integrals::ao_integrals::detail_::LibintOp</a></div><div class="ttdef"><b>Definition:</b> libint_op.hpp:24</div></div>
 </div><!-- fragment --></div><!-- contents -->

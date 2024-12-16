@@ -13,3 +13,4 @@ Modules API
    Evaluate_4-Index_BraKet
    Kinetic
    Nuclear
+   Overlap
