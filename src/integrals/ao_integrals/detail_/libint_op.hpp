@@ -38,6 +38,11 @@ struct LibintOp<simde::type::v_en_type> {
     static constexpr auto value = libint2::Operator::nuclear;
 };
 
+template<>
+struct LibintOp<simde::type::s_e_type> {
+    static constexpr auto value = libint2::Operator::overlap;
+};
+
 template<typename T>
 static constexpr auto op_v = detail_::LibintOp<T>::value;
 

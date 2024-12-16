@@ -26,6 +26,7 @@ namespace integrals::ao_integrals {
 
 class LibIntVisitor : public chemist::qm_operator::OperatorVisitor {
 public:
+    using s_e_type  = simde::type::s_e_type;
     using t_e_type  = simde::type::t_e_type;
     using v_ee_type = simde::type::v_ee_type;
     using v_en_type = simde::type::v_en_type;
@@ -33,6 +34,10 @@ public:
     LibIntVisitor(const std::vector<libint2::BasisSet>& bases, double thresh,
                   std::size_t deriv = 0) :
       m_bases(bases), m_thresh(thresh), m_deriv(deriv){};
+
+    void run(const s_e_type& S_e) {
+        m_engine = detail_::make_engine(m_bases, S_e, m_thresh, m_deriv);
+    }
 
     void run(const t_e_type& T_e) {
         m_engine = detail_::make_engine(m_bases, T_e, m_thresh, m_deriv);
@@ -135,7 +140,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
         }
     }
 
-    tensor_t t({s, b});
+    tensor_t t(s, b);
     auto rv = results();
     return my_pt::wrap_results(rv, t);
 }
@@ -147,7 +152,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
 EXTERN_AOI(aos, op_base_type, aos);
 EXTERN_AOI(aos, op_base_type, aos_squared);
 EXTERN_AOI(aos_squared, op_base_type, aos_squared);
-
+EXTERN_AOI(aos, s_e_type, aos);
 EXTERN_AOI(aos, t_e_type, aos);
 EXTERN_AOI(aos, v_en_type, aos);
 EXTERN_AOI(aos, v_ee_type, aos);
@@ -162,7 +167,7 @@ void load_ao_integrals(pluginplay::ModuleManager& mm) {
     LOAD_AOI(aos, op_base_type, aos, "Evaluate 2-Index BraKet");
     LOAD_AOI(aos, op_base_type, aos_squared, "Evaluate 3-Index BraKet");
     LOAD_AOI(aos_squared, op_base_type, aos_squared, "Evaluate 4-Index BraKet");
-
+    LOAD_AOI(aos, s_e_type, aos, "Overlap");
     LOAD_AOI(aos, t_e_type, aos, "Kinetic");
     LOAD_AOI(aos, v_en_type, aos, "Nuclear");
     LOAD_AOI(aos, v_ee_type, aos, "ERI2");
