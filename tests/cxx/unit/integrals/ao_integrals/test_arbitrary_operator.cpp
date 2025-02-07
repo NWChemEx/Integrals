@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#include "integrals/uncertain_types.hpp"
 #include "test_ao_integrals.hpp"
+
+using udouble            = integrals::type::uncertain_double;
+constexpr bool has_sigma = !std::is_same_v<udouble, void>;
 
 TEST_CASE("OperatorBase") {
     using aos_t         = simde::type::aos;
@@ -48,16 +52,33 @@ TEST_CASE("OperatorBase") {
         braket_t braket(aos, op_base, aos);
 
         // Call module
-        auto T = mm.at("Evaluate 2-Index BraKet").run_as<test_pt>(braket);
+        auto& mod = mm.at("Evaluate 2-Index BraKet");
 
-        // Check output
-        auto t = test::eigen_buffer<2>(T.buffer());
-        REQUIRE(test::trace(t) ==
-                Catch::Approx(124.7011973877891364).margin(1.0e-16));
-        REQUIRE(test::norm(t) ==
-                Catch::Approx(90.2562579028763707).margin(1.0e-16));
+        SECTION("No UQ") {
+            auto T = mod.run_as<test_pt>(braket);
+
+            // Check output
+            auto t = test::eigen_buffer<2>(T.buffer());
+            REQUIRE(test::trace(t) ==
+                    Catch::Approx(124.7011973877891364).margin(1.0e-16));
+            REQUIRE(test::norm(t) ==
+                    Catch::Approx(90.2562579028763707).margin(1.0e-16));
+        }
+
+        SECTION("With UQ") {
+            if constexpr(has_sigma) {
+                mod.change_input("With UQ?", true);
+                auto T = mod.run_as<test_pt>(braket);
+
+                // Check output
+                auto t = test::eigen_buffer<2, udouble>(T.buffer());
+                REQUIRE(test::trace(t).mean() ==
+                        Catch::Approx(124.7011973877891364).margin(1.0e-16));
+                REQUIRE(test::norm(t).mean() ==
+                        Catch::Approx(90.2562579028763707).margin(1.0e-16));
+            }
+        }
     }
-
     SECTION("3-Index") {
         using braket_t = simde::type::braket<aos_t, op_base_t, aos_squared_t>;
         using test_pt  = simde::EvaluateBraKet<braket_t>;
@@ -65,15 +86,34 @@ TEST_CASE("OperatorBase") {
         // Make BraKet Input
         braket_t braket(aos, op_base, aos_squared);
 
-        // Call module
-        auto T = mm.at("Evaluate 3-Index BraKet").run_as<test_pt>(braket);
+        auto& mod = mm.at("Evaluate 3-Index BraKet");
 
-        // Check output
-        auto t = test::eigen_buffer<3>(T.buffer());
-        REQUIRE(test::trace(t) ==
-                Catch::Approx(16.8245948391706577).margin(1.0e-16));
-        REQUIRE(test::norm(t) ==
-                Catch::Approx(20.6560572032543597).margin(1.0e-16));
+        SECTION("No UQ") {
+            // Call module
+            auto T = mod.run_as<test_pt>(braket);
+
+            // Check output
+            auto t = test::eigen_buffer<3>(T.buffer());
+            REQUIRE(test::trace(t) ==
+                    Catch::Approx(16.8245948391706577).margin(1.0e-16));
+            REQUIRE(test::norm(t) ==
+                    Catch::Approx(20.6560572032543597).margin(1.0e-16));
+        }
+
+        SECTION("With UQ") {
+            if constexpr(has_sigma) {
+                mod.change_input("With UQ?", true);
+                // Call module
+                auto T = mod.run_as<test_pt>(braket);
+
+                // Check output
+                auto t = test::eigen_buffer<3, udouble>(T.buffer());
+                REQUIRE(test::trace(t).mean() ==
+                        Catch::Approx(16.8245948391706577).margin(1.0e-16));
+                REQUIRE(test::norm(t).mean() ==
+                        Catch::Approx(20.6560572032543597).margin(1.0e-16));
+            }
+        }
     }
 
     SECTION("4-Index") {
@@ -84,14 +124,33 @@ TEST_CASE("OperatorBase") {
         // Make BraKet Input
         braket_t braket(aos_squared, op_base, aos_squared);
 
-        // Call module
-        auto T = mm.at("Evaluate 4-Index BraKet").run_as<test_pt>(braket);
+        auto& mod = mm.at("Evaluate 4-Index BraKet");
 
-        // Check output
-        auto t = test::eigen_buffer<4>(T.buffer());
-        REQUIRE(test::trace(t) ==
-                Catch::Approx(9.7919608941952063).margin(1.0e-16));
-        REQUIRE(test::norm(t) ==
-                Catch::Approx(7.7796143419802553).margin(1.0e-16));
+        SECTION("No UQ") {
+            // Call module
+            auto T = mod.run_as<test_pt>(braket);
+
+            // Check output
+            auto t = test::eigen_buffer<4>(T.buffer());
+            REQUIRE(test::trace(t) ==
+                    Catch::Approx(9.7919608941952063).margin(1.0e-16));
+            REQUIRE(test::norm(t) ==
+                    Catch::Approx(7.7796143419802553).margin(1.0e-16));
+        }
+
+        SECTION("With UQ") {
+            if constexpr(has_sigma) {
+                // Call module
+                mod.change_input("With UQ?", true);
+                auto T = mod.run_as<test_pt>(braket);
+
+                // Check output
+                auto t = test::eigen_buffer<4, udouble>(T.buffer());
+                REQUIRE(test::trace(t).mean() ==
+                        Catch::Approx(9.7919608941952063).margin(1.0e-16));
+                REQUIRE(test::norm(t).mean() ==
+                        Catch::Approx(7.7796143419802553).margin(1.0e-16));
+            }
+        }
     }
 }

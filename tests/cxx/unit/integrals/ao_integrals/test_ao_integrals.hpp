@@ -21,20 +21,21 @@
 
 namespace test {
 
-template<std::size_t N>
+template<std::size_t N, typename FloatType = double>
 auto eigen_buffer(const tensorwrapper::buffer::BufferBase& buffer) {
-    return static_cast<const tensorwrapper::buffer::Eigen<double, N>&>(buffer);
+    return static_cast<const tensorwrapper::buffer::Eigen<FloatType, N>&>(
+      buffer);
 }
 
-template<typename TensorType>
-auto trace(const TensorType& t) {
-    Eigen::Tensor<double, 0, Eigen::RowMajor> trace = t.value().trace();
+template<typename FloatType, unsigned short Rank>
+auto trace(const tensorwrapper::buffer::Eigen<FloatType, Rank>& t) {
+    Eigen::Tensor<FloatType, 0, Eigen::RowMajor> trace = t.value().trace();
     return trace.coeff();
 }
 
-template<typename TensorType>
-auto norm(const TensorType& t) {
-    Eigen::Tensor<double, 0, Eigen::RowMajor> norm =
+template<typename FloatType, unsigned short Rank>
+auto norm(const tensorwrapper::buffer::Eigen<FloatType, Rank>& t) {
+    Eigen::Tensor<FloatType, 0, Eigen::RowMajor> norm =
       t.value().square().sum().sqrt();
     return norm.coeff();
 }
