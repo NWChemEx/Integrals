@@ -27,7 +27,7 @@ public:
 
     LibIntVisitor(const std::vector<libint2::BasisSet>& bases, double thresh,
                   std::size_t deriv = 0) :
-      m_bases(bases), m_thresh(thresh), m_deriv(deriv) {};
+      m_bases(bases), m_thresh(thresh), m_deriv(deriv){};
 
     void run(const s_e_type& S_e) {
         m_engine = detail_::make_engine(m_bases, S_e, m_thresh, m_deriv);
