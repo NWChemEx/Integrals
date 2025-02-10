@@ -36,7 +36,7 @@ auto build_eigen_buffer(const std::vector<libint2::BasisSet>& basis_sets,
         initial_value = FloatType(0.0, thresh);
     }
     Eigen::array<Eigen::Index, N> dims_bfs;
-    for(auto i = 0; i < N; ++i) dims_bfs[i] = basis_sets[i].nbf();
+    for(decltype(N) i = 0; i < N; ++i) dims_bfs[i] = basis_sets[i].nbf();
 
     using shape_t  = tensorwrapper::shape::Smooth;
     using layout_t = tensorwrapper::layout::Physical;
@@ -56,7 +56,7 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
                  const chemist::qm_operator::OperatorBase& op, double thresh) {
     // Dimensional information
     std::vector<std::size_t> dims_shells(N);
-    for(auto i = 0; i < N; ++i) dims_shells[i] = basis_sets[i].size();
+    for(decltype(N) i = 0; i < N; ++i) dims_shells[i] = basis_sets[i].size();
 
     auto b = build_eigen_buffer<FloatType, N>(basis_sets, thresh);
 
@@ -83,7 +83,7 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
 
         // Increment index
         shells[N - 1] += 1;
-        for(auto i = 1; i < N; ++i) {
+        for(decltype(N) i = 1; i < N; ++i) {
             if(shells[N - i] >= dims_shells[N - i]) {
                 // Reset this dimension and increment the next one
                 // shells[0] accumulates until we reach the end
@@ -129,7 +129,7 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
 
     simde::type::tensor t;
     if(with_uq) {
-        if constexpr(!std::is_same_v<type::uncertain_double, void>) {
+        if constexpr(integrals::type::has_sigma()) {
             t = fill_tensor<type::uncertain_double, N>(basis_sets, op, thresh);
         } else {
             throw std::runtime_error("Sigma support not enabled!");

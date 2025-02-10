@@ -39,5 +39,4 @@ auto norm(const tensorwrapper::buffer::Eigen<FloatType, Rank>& t) {
       t.value().square().sum().sqrt();
     return norm.coeff();
 }
-
 } // namespace test

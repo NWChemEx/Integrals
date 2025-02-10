@@ -18,7 +18,16 @@
 #include "test_ao_integrals.hpp"
 
 using udouble            = integrals::type::uncertain_double;
-constexpr bool has_sigma = !std::is_same_v<udouble, void>;
+constexpr bool has_sigma = integrals::type::has_sigma();
+
+template<typename InputType>
+auto unwrap_uq(InputType&& uq) {
+    if constexpr(has_sigma) {
+        return uq.mean();
+    } else {
+        return uq;
+    }
+}
 
 TEST_CASE("OperatorBase") {
     using aos_t         = simde::type::aos;
@@ -72,9 +81,9 @@ TEST_CASE("OperatorBase") {
 
                 // Check output
                 auto t = test::eigen_buffer<2, udouble>(T.buffer());
-                REQUIRE(test::trace(t).mean() ==
+                REQUIRE(unwrap_uq(test::trace(t)) ==
                         Catch::Approx(124.7011973877891364).margin(1.0e-16));
-                REQUIRE(test::norm(t).mean() ==
+                REQUIRE(unwrap_uq(test::norm(t)) ==
                         Catch::Approx(90.2562579028763707).margin(1.0e-16));
             }
         }
@@ -108,9 +117,9 @@ TEST_CASE("OperatorBase") {
 
                 // Check output
                 auto t = test::eigen_buffer<3, udouble>(T.buffer());
-                REQUIRE(test::trace(t).mean() ==
+                REQUIRE(unwrap_uq(test::trace(t)) ==
                         Catch::Approx(16.8245948391706577).margin(1.0e-16));
-                REQUIRE(test::norm(t).mean() ==
+                REQUIRE(unwrap_uq(test::norm(t)) ==
                         Catch::Approx(20.6560572032543597).margin(1.0e-16));
             }
         }
@@ -146,9 +155,9 @@ TEST_CASE("OperatorBase") {
 
                 // Check output
                 auto t = test::eigen_buffer<4, udouble>(T.buffer());
-                REQUIRE(test::trace(t).mean() ==
+                REQUIRE(unwrap_uq(test::trace(t)) ==
                         Catch::Approx(9.7919608941952063).margin(1.0e-16));
-                REQUIRE(test::norm(t).mean() ==
+                REQUIRE(unwrap_uq(test::norm(t)) ==
                         Catch::Approx(7.7796143419802553).margin(1.0e-16));
             }
         }

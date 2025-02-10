@@ -15,18 +15,24 @@
  */
 
 #pragma once
-
+#include <stdexcept>
 #ifdef ENABLE_SIGMA
 #include <sigma/sigma.hpp>
 #endif
 
 namespace integrals::type {
 #ifdef ENABLE_SIGMA
+
+static constexpr bool has_sigma() { return true; }
+
 using uncertain_float  = sigma::UFloat;
 using uncertain_double = sigma::UDouble;
 #else
-using uncertain_float  = void;
-using uncertain_double = void;
+
+static constexpr bool has_sigma() { return false; }
+
+using uncertain_float  = float;
+using uncertain_double = double;
 #endif
 
 } // namespace integrals::type
