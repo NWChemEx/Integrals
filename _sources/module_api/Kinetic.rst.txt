@@ -5,7 +5,7 @@
 Kinetic
 #######
 
-Computes integrals with Libint
+Driver for computing integrals with Libint
 
 ***********
 Please Cite
@@ -47,6 +47,8 @@ module. The columns are:
 +-----------+---------+----------------------------------------------------------------+
 | Threshold | 1e-16   | The target precision with which the integrals will be computed |
 +-----------+---------+----------------------------------------------------------------+
+| With UQ?  | 0       | N/A                                                            |
++-----------+---------+----------------------------------------------------------------+
 
 
 Detailed Descriptions
@@ -83,6 +85,17 @@ Threshold
 - Domain Restrictions :
 
   - Type == double
+
+With UQ?
+--------
+
+- Description : N/A
+- Default Value : 0
+- Optional? : False
+- Opaque? : True
+- Domain Restrictions :
+
+  - Type == bool
 
 
 **************

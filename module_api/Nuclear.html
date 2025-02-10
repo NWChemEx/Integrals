@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nuclear &mdash; Integrals v0.0.22 documentation</title>
+  <title>Nuclear &mdash; Integrals v0.0.23 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -13,7 +13,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=3dc61523"></script>
+        <script src="../_static/documentation_options.js?v=99be913a"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -35,7 +35,7 @@
             Integrals
           </a>
               <div class="version">
-                v0.0.22
+                v0.0.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -100,7 +100,7 @@
              
   <section id="nuclear">
 <h1>Nuclear<a class="headerlink" href="#nuclear" title="Link to this heading"></a></h1>
-<p>Computes integrals with Libint</p>
+<p>Driver for computing integrals with Libint</p>
 <section id="please-cite">
 <h2>Please Cite<a class="headerlink" href="#please-cite" title="Link to this heading"></a></h2>
 <p>No citations</p>
@@ -143,6 +143,10 @@ module. The columns are:</p>
 <td><p>1e-16</p></td>
 <td><p>The target precision with which the integrals will be computed</p></td>
 </tr>
+<tr class="row-even"><td><p>With UQ?</p></td>
+<td><p>0</p></td>
+<td><p>N/A</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -182,6 +186,20 @@ subsection we list:</p>
 <li><p>Domain Restrictions :</p>
 <ul>
 <li><p>Type == double</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="with-uq">
+<h4>With UQ?<a class="headerlink" href="#with-uq" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Description : N/A</p></li>
+<li><p>Default Value : 0</p></li>
+<li><p>Optional? : False</p></li>
+<li><p>Opaque? : True</p></li>
+<li><p>Domain Restrictions :</p>
+<ul>
+<li><p>Type == bool</p></li>
 </ul>
 </li>
 </ul>
