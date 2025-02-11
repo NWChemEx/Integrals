@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>integrals: src/integrals/ao_integrals/detail_/make_libint_basis_set.hpp Source File</title>
+<title>integrals: src/integrals/libint/detail_/make_libint_basis_set.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -22,7 +22,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">integrals
-   &#160;<span id="projectnumber">0.0.23</span>
+   &#160;<span id="projectnumber">0.0.24</span>
    </div>
   </td>
  </tr>
@@ -62,7 +62,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_a50b49bc3b7c12e387f10bfc5a719320.html">integrals</a></li><li class="navelem"><a class="el" href="dir_f680437c50084ecadee27d3189edbc57.html">ao_integrals</a></li><li class="navelem"><a class="el" href="dir_6e792fe840ecf39575aa2c64ffa20673.html">detail_</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_a50b49bc3b7c12e387f10bfc5a719320.html">integrals</a></li><li class="navelem"><a class="el" href="dir_ca47fc89fbf148d999fa63761ee4f1a9.html">libint</a></li><li class="navelem"><a class="el" href="dir_c7711e992c309e1b26f04baa0f7d5f92.html">detail_</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -93,9 +93,9 @@ $(function() {
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#include &lt;simde/types.hpp&gt;</span></div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespaceintegrals_1_1ao__integrals_1_1detail__.html">integrals::ao_integrals::detail_</a> {</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html">integrals::libint::detail_</a> {</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
-<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="namespaceintegrals_1_1ao__integrals_1_1detail__.html#a755530c8a42e77ba810dd9ee6e39077a">   31</a></span>&#160;<span class="keyword">inline</span> <span class="keyword">auto</span> <a class="code" href="namespaceintegrals_1_1ao__integrals_1_1detail__.html#a755530c8a42e77ba810dd9ee6e39077a">make_libint_basis_set</a>(<span class="keyword">const</span> simde::type::ao_basis_set&amp; bs) {</div>
+<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">   31</a></span>&#160;<span class="keyword">inline</span> <span class="keyword">auto</span> <a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(<span class="keyword">const</span> simde::type::ao_basis_set&amp; bs) {</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keyword">using</span> atom_t          = libint2::Atom;</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keyword">using</span> shell_t         = libint2::Shell;</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keyword">using</span> basis_t         = libint2::BasisSet;</div>
@@ -145,9 +145,9 @@ $(function() {
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordflow">return</span> basis_t(centers, element_bases);</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;}</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; </div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;} <span class="comment">// namespace integrals::ao_integrals::detail_</span></div>
-<div class="ttc" id="anamespaceintegrals_1_1ao__integrals_1_1detail___html"><div class="ttname"><a href="namespaceintegrals_1_1ao__integrals_1_1detail__.html">integrals::ao_integrals::detail_</a></div><div class="ttdoc">For ShellType.</div><div class="ttdef"><b>Definition:</b> get_basis_sets.hpp:21</div></div>
-<div class="ttc" id="anamespaceintegrals_1_1ao__integrals_1_1detail___html_a755530c8a42e77ba810dd9ee6e39077a"><div class="ttname"><a href="namespaceintegrals_1_1ao__integrals_1_1detail__.html#a755530c8a42e77ba810dd9ee6e39077a">integrals::ao_integrals::detail_::make_libint_basis_set</a></div><div class="ttdeci">auto make_libint_basis_set(const simde::type::ao_basis_set &amp;bs)</div><div class="ttdoc">Converts an NWX basis set object to a LibInt2 basis set object.</div><div class="ttdef"><b>Definition:</b> make_libint_basis_set.hpp:31</div></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;} <span class="comment">// namespace integrals::libint::detail_</span></div>
+<div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html">integrals::libint::detail_</a></div><div class="ttdoc">For ShellType.</div><div class="ttdef"><b>Definition:</b> get_basis_sets.hpp:21</div></div>
+<div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html_a5b83ea9aa76a1772d4b8d6f5ea981440"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">integrals::libint::detail_::make_libint_basis_set</a></div><div class="ttdeci">auto make_libint_basis_set(const simde::type::ao_basis_set &amp;bs)</div><div class="ttdoc">Converts an NWX basis set object to a LibInt2 basis set object.</div><div class="ttdef"><b>Definition:</b> make_libint_basis_set.hpp:31</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

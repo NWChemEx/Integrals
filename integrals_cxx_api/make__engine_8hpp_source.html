@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>integrals: src/integrals/ao_integrals/detail_/make_engine.hpp Source File</title>
+<title>integrals: src/integrals/libint/detail_/make_engine.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -22,7 +22,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">integrals
-   &#160;<span id="projectnumber">0.0.23</span>
+   &#160;<span id="projectnumber">0.0.24</span>
    </div>
   </td>
  </tr>
@@ -62,7 +62,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_a50b49bc3b7c12e387f10bfc5a719320.html">integrals</a></li><li class="navelem"><a class="el" href="dir_f680437c50084ecadee27d3189edbc57.html">ao_integrals</a></li><li class="navelem"><a class="el" href="dir_6e792fe840ecf39575aa2c64ffa20673.html">detail_</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_a50b49bc3b7c12e387f10bfc5a719320.html">integrals</a></li><li class="navelem"><a class="el" href="dir_ca47fc89fbf148d999fa63761ee4f1a9.html">libint</a></li><li class="navelem"><a class="el" href="dir_c7711e992c309e1b26f04baa0f7d5f92.html">detail_</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -91,13 +91,13 @@ $(function() {
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &lt;libint2.hpp&gt;</span></div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &lt;simde/types.hpp&gt;</span></div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespaceintegrals_1_1ao__integrals_1_1detail__.html">integrals::ao_integrals::detail_</a> {</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html">integrals::libint::detail_</a> {</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">typename</span> OpType&gt;</div>
-<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="namespaceintegrals_1_1ao__integrals_1_1detail__.html#a186080744a15f7ae89952c3b8802e6b4">   34</a></span>&#160;<span class="keyword">auto</span> <a class="code" href="namespaceintegrals_1_1ao__integrals_1_1detail__.html#a186080744a15f7ae89952c3b8802e6b4">make_engine</a>(<span class="keyword">const</span> std::vector&lt;libint2::BasisSet&gt;&amp; bases, <span class="keyword">const</span> OpType&amp; op,</div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="namespaceintegrals_1_1libint_1_1detail__.html#a7ac267144797656c14b721bd755f6326">   34</a></span>&#160;<span class="keyword">auto</span> <a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#a7ac267144797656c14b721bd755f6326">make_engine</a>(<span class="keyword">const</span> std::vector&lt;libint2::BasisSet&gt;&amp; bases, <span class="keyword">const</span> OpType&amp; op,</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;                 <span class="keywordtype">double</span> thresh, std::size_t deriv = 0) {</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="comment">// Variables for engine construction</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    constexpr <span class="keyword">auto</span> libint_op = integrals::ao_integrals::detail_::op_v&lt;OpType&gt;;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    constexpr <span class="keyword">auto</span> libint_op = integrals::libint::detail_::op_v&lt;OpType&gt;;</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keyword">auto</span> max_nprims          = libint2::max_nprim(bases[0]);</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keyword">auto</span> max_l               = libint2::max_l(bases[0]);</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
@@ -132,17 +132,17 @@ $(function() {
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;}</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="keyword">template</span>&lt;std::size_t... Is&gt;</div>
-<div class="line"><a name="l00081"></a><span class="lineno"><a class="line" href="namespaceintegrals_1_1ao__integrals_1_1detail__.html#a7e0aef2c7db2e9880f3d9b9ed6650525">   81</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="namespaceintegrals_1_1ao__integrals_1_1detail__.html#a7e0aef2c7db2e9880f3d9b9ed6650525">run_engine_</a>(libint2::Engine&amp; engine,</div>
+<div class="line"><a name="l00081"></a><span class="lineno"><a class="line" href="namespaceintegrals_1_1libint_1_1detail__.html#a0175ab4138c44633bf9772ee06bdfbfb">   81</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#a0175ab4138c44633bf9772ee06bdfbfb">run_engine_</a>(libint2::Engine&amp; engine,</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;                 <span class="keyword">const</span> std::vector&lt;libint2::BasisSet&gt;&amp; bases,</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;                 <span class="keyword">const</span> std::vector&lt;std::size_t&gt;&amp; shells,</div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;                 std::index_sequence&lt;Is...&gt;) {</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    engine.compute(bases[Is][shells[Is]]...);</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;}</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160; </div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;} <span class="comment">// namespace integrals::ao_integrals::detail_</span></div>
-<div class="ttc" id="anamespaceintegrals_1_1ao__integrals_1_1detail___html"><div class="ttname"><a href="namespaceintegrals_1_1ao__integrals_1_1detail__.html">integrals::ao_integrals::detail_</a></div><div class="ttdoc">For ShellType.</div><div class="ttdef"><b>Definition:</b> get_basis_sets.hpp:21</div></div>
-<div class="ttc" id="anamespaceintegrals_1_1ao__integrals_1_1detail___html_a186080744a15f7ae89952c3b8802e6b4"><div class="ttname"><a href="namespaceintegrals_1_1ao__integrals_1_1detail__.html#a186080744a15f7ae89952c3b8802e6b4">integrals::ao_integrals::detail_::make_engine</a></div><div class="ttdeci">auto make_engine(const std::vector&lt; libint2::BasisSet &gt; &amp;bases, const OpType &amp;op, double thresh, std::size_t deriv=0)</div><div class="ttdoc">Constructs a Libint engine.</div><div class="ttdef"><b>Definition:</b> make_engine.hpp:34</div></div>
-<div class="ttc" id="anamespaceintegrals_1_1ao__integrals_1_1detail___html_a7e0aef2c7db2e9880f3d9b9ed6650525"><div class="ttname"><a href="namespaceintegrals_1_1ao__integrals_1_1detail__.html#a7e0aef2c7db2e9880f3d9b9ed6650525">integrals::ao_integrals::detail_::run_engine_</a></div><div class="ttdeci">void run_engine_(libint2::Engine &amp;engine, const std::vector&lt; libint2::BasisSet &gt; &amp;bases, const std::vector&lt; std::size_t &gt; &amp;shells, std::index_sequence&lt; Is... &gt;)</div><div class="ttdoc">Wrap the call of LibInt2 engine so it can take a variable number of shell inputs.</div><div class="ttdef"><b>Definition:</b> make_engine.hpp:81</div></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;} <span class="comment">// namespace integrals::libint::detail_</span></div>
+<div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html">integrals::libint::detail_</a></div><div class="ttdoc">For ShellType.</div><div class="ttdef"><b>Definition:</b> get_basis_sets.hpp:21</div></div>
+<div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html_a0175ab4138c44633bf9772ee06bdfbfb"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html#a0175ab4138c44633bf9772ee06bdfbfb">integrals::libint::detail_::run_engine_</a></div><div class="ttdeci">void run_engine_(libint2::Engine &amp;engine, const std::vector&lt; libint2::BasisSet &gt; &amp;bases, const std::vector&lt; std::size_t &gt; &amp;shells, std::index_sequence&lt; Is... &gt;)</div><div class="ttdoc">Wrap the call of LibInt2 engine so it can take a variable number of shell inputs.</div><div class="ttdef"><b>Definition:</b> make_engine.hpp:81</div></div>
+<div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html_a7ac267144797656c14b721bd755f6326"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html#a7ac267144797656c14b721bd755f6326">integrals::libint::detail_::make_engine</a></div><div class="ttdeci">auto make_engine(const std::vector&lt; libint2::BasisSet &gt; &amp;bases, const OpType &amp;op, double thresh, std::size_t deriv=0)</div><div class="ttdoc">Constructs a Libint engine.</div><div class="ttdef"><b>Definition:</b> make_engine.hpp:34</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

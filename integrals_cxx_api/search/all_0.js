@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['ao_5fintegrals_5fset_5fdefaults_0',['ao_integrals_set_defaults',['../namespaceintegrals_1_1ao__integrals.html#ad61c102e5b00a1b6a7aad23c638021d0',1,'integrals::ao_integrals']]]
+  ['declare_5fmodule_0',['DECLARE_MODULE',['../namespaceintegrals_1_1libint.html#a43ca041750a660d2c45848f933c87264',1,'integrals::libint']]],
+  ['declare_5fplugin_1',['DECLARE_PLUGIN',['../namespaceintegrals.html#a8060f98ec1ad9ba275c573fc1baff3dc',1,'integrals']]]
 ];

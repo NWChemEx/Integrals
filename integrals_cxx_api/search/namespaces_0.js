@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['ao_5fintegrals_27',['ao_integrals',['../namespaceintegrals_1_1ao__integrals.html',1,'integrals']]],
-  ['detail_5f_28',['detail_',['../namespaceintegrals_1_1ao__integrals_1_1detail__.html',1,'integrals::ao_integrals']]],
-  ['integrals_29',['integrals',['../namespaceintegrals.html',1,'']]]
+  ['detail_5f_27',['detail_',['../namespaceintegrals_1_1libint_1_1detail__.html',1,'integrals::libint']]],
+  ['integrals_28',['integrals',['../namespaceintegrals.html',1,'']]],
+  ['libint_29',['libint',['../namespaceintegrals_1_1libint.html',1,'integrals']]]
 ];

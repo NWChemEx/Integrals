@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>integrals: src/integrals/ao_integrals/detail_/shells2ord.hpp Source File</title>
+<title>integrals: src/integrals/libint/detail_/shells2ord.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -22,7 +22,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">integrals
-   &#160;<span id="projectnumber">0.0.23</span>
+   &#160;<span id="projectnumber">0.0.24</span>
    </div>
   </td>
  </tr>
@@ -62,7 +62,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_a50b49bc3b7c12e387f10bfc5a719320.html">integrals</a></li><li class="navelem"><a class="el" href="dir_f680437c50084ecadee27d3189edbc57.html">ao_integrals</a></li><li class="navelem"><a class="el" href="dir_6e792fe840ecf39575aa2c64ffa20673.html">detail_</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_a50b49bc3b7c12e387f10bfc5a719320.html">integrals</a></li><li class="navelem"><a class="el" href="dir_ca47fc89fbf148d999fa63761ee4f1a9.html">libint</a></li><li class="navelem"><a class="el" href="dir_c7711e992c309e1b26f04baa0f7d5f92.html">detail_</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -90,9 +90,9 @@ $(function() {
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &lt;libint2.hpp&gt;</span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &lt;simde/types.hpp&gt;</span></div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespaceintegrals_1_1ao__integrals_1_1detail__.html">integrals::ao_integrals::detail_</a> {</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html">integrals::libint::detail_</a> {</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
-<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="namespaceintegrals_1_1ao__integrals_1_1detail__.html#aea3398ffe00c3311a07aa6913caa5e1e">   29</a></span>&#160;<span class="keyword">inline</span> <span class="keyword">auto</span> <a class="code" href="namespaceintegrals_1_1ao__integrals_1_1detail__.html#aea3398ffe00c3311a07aa6913caa5e1e">shells2ord</a>(<span class="keyword">const</span> std::vector&lt;libint2::BasisSet&gt;&amp; bases,</div>
+<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="namespaceintegrals_1_1libint_1_1detail__.html#aa17d8e3237d0d105fffa57df823c7ea5">   29</a></span>&#160;<span class="keyword">inline</span> <span class="keyword">auto</span> <a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#aa17d8e3237d0d105fffa57df823c7ea5">shells2ord</a>(<span class="keyword">const</span> std::vector&lt;libint2::BasisSet&gt;&amp; bases,</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;                       std::vector&lt;std::size_t&gt;&amp; shells) {</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keyword">using</span> size_vector_t = std::vector&lt;std::size_t&gt;;</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
@@ -137,9 +137,9 @@ $(function() {
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordflow">return</span> ords;</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;}</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160; </div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;} <span class="comment">// namespace integrals::ao_integrals::detail_</span></div>
-<div class="ttc" id="anamespaceintegrals_1_1ao__integrals_1_1detail___html"><div class="ttname"><a href="namespaceintegrals_1_1ao__integrals_1_1detail__.html">integrals::ao_integrals::detail_</a></div><div class="ttdoc">For ShellType.</div><div class="ttdef"><b>Definition:</b> get_basis_sets.hpp:21</div></div>
-<div class="ttc" id="anamespaceintegrals_1_1ao__integrals_1_1detail___html_aea3398ffe00c3311a07aa6913caa5e1e"><div class="ttname"><a href="namespaceintegrals_1_1ao__integrals_1_1detail__.html#aea3398ffe00c3311a07aa6913caa5e1e">integrals::ao_integrals::detail_::shells2ord</a></div><div class="ttdeci">auto shells2ord(const std::vector&lt; libint2::BasisSet &gt; &amp;bases, std::vector&lt; std::size_t &gt; &amp;shells)</div><div class="ttdoc">Find the ordinal indices spanned by the shell.</div><div class="ttdef"><b>Definition:</b> shells2ord.hpp:29</div></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;} <span class="comment">// namespace integrals::libint::detail_</span></div>
+<div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html">integrals::libint::detail_</a></div><div class="ttdoc">For ShellType.</div><div class="ttdef"><b>Definition:</b> get_basis_sets.hpp:21</div></div>
+<div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html_aa17d8e3237d0d105fffa57df823c7ea5"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html#aa17d8e3237d0d105fffa57df823c7ea5">integrals::libint::detail_::shells2ord</a></div><div class="ttdeci">auto shells2ord(const std::vector&lt; libint2::BasisSet &gt; &amp;bases, std::vector&lt; std::size_t &gt; &amp;shells)</div><div class="ttdoc">Find the ordinal indices spanned by the shell.</div><div class="ttdef"><b>Definition:</b> shells2ord.hpp:29</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
