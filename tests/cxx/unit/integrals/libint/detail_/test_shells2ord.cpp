@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-#include "../../water_sto3g.hpp"
-#include "integrals/ao_integrals/detail_/make_libint_basis_set.hpp"
+#include "integrals/libint/detail_/shells2ord.hpp"
 #include "libint_basis_set_water.hpp"
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("make_libint_basis_set") {
-    using integrals::ao_integrals::detail_::make_libint_basis_set;
-    auto aobs        = test::water_sto3g_basis_set();
-    auto libint_bs   = make_libint_basis_set(aobs);
-    auto libint_corr = test::water_basis_set();
-    REQUIRE(libint_bs == libint_corr);
+TEST_CASE("shells2ord") {
+    using integrals::libint::detail_::shells2ord;
+    auto aobs = test::water_basis_set();
+    std::vector<libint2::BasisSet> basis_sets{aobs, aobs};
+    std::vector<std::size_t> shells{2, 2};
+    auto out                      = shells2ord(basis_sets, shells);
+    std::vector<std::size_t> corr = {16, 17, 18, 23, 24, 25, 30, 31, 32};
+    REQUIRE(out == corr);
 }

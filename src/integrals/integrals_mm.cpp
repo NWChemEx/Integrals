@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "ao_integrals/ao_integrals.hpp"
+#include "libint/libint.hpp"
 #include <integrals/integrals_mm.hpp>
 
 namespace integrals {
@@ -30,7 +30,7 @@ void set_defaults(pluginplay::ModuleManager& mm) {
 }
 
 void load_modules(pluginplay::ModuleManager& mm) {
-    ao_integrals::load_ao_integrals(mm);
+    libint::load_libint(mm);
     set_defaults(mm);
 }
 

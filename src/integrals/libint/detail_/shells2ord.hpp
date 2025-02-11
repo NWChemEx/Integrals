@@ -18,7 +18,7 @@
 #include <libint2.hpp>
 #include <simde/types.hpp>
 
-namespace integrals::ao_integrals::detail_ {
+namespace integrals::libint::detail_ {
 
 /** @brief Find the ordinal indices spanned by the shell
  *
@@ -71,4 +71,4 @@ inline auto shells2ord(const std::vector<libint2::BasisSet>& bases,
     return ords;
 }
 
-} // namespace integrals::ao_integrals::detail_
+} // namespace integrals::libint::detail_

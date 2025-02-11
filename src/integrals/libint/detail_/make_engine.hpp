@@ -19,7 +19,7 @@
 #include <libint2.hpp>
 #include <simde/types.hpp>
 
-namespace integrals::ao_integrals::detail_ {
+namespace integrals::libint::detail_ {
 
 /** @brief Constructs a Libint engine.
  *
@@ -34,7 +34,7 @@ template<typename OpType>
 auto make_engine(const std::vector<libint2::BasisSet>& bases, const OpType& op,
                  double thresh, std::size_t deriv = 0) {
     // Variables for engine construction
-    constexpr auto libint_op = integrals::ao_integrals::detail_::op_v<OpType>;
+    constexpr auto libint_op = integrals::libint::detail_::op_v<OpType>;
     auto max_nprims          = libint2::max_nprim(bases[0]);
     auto max_l               = libint2::max_l(bases[0]);
 
@@ -85,4 +85,4 @@ void run_engine_(libint2::Engine& engine,
     engine.compute(bases[Is][shells[Is]]...);
 }
 
-} // namespace integrals::ao_integrals::detail_
+} // namespace integrals::libint::detail_

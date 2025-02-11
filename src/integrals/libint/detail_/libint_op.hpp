@@ -18,7 +18,7 @@
 #include <libint2.hpp>
 #include <simde/types.hpp>
 
-namespace integrals::ao_integrals::detail_ {
+namespace integrals::libint::detail_ {
 
 template<typename T>
 struct LibintOp;
@@ -46,4 +46,4 @@ struct LibintOp<simde::type::s_e_type> {
 template<typename T>
 static constexpr auto op_v = detail_::LibintOp<T>::value;
 
-} // namespace integrals::ao_integrals::detail_
+} // namespace integrals::libint::detail_

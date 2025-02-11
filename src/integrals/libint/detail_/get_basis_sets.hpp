@@ -18,7 +18,7 @@
 #include "make_libint_basis_set.hpp"
 #include <simde/types.hpp>
 
-namespace integrals::ao_integrals::detail_ {
+namespace integrals::libint::detail_ {
 
 /** @brief Deterimine how many basis sets are in the Bra and Ket.
  *
@@ -78,4 +78,4 @@ std::vector<libint2::BasisSet> get_basis_sets(const BraType& bra,
     return basis_sets;
 }
 
-} // namespace integrals::ao_integrals::detail_
+} // namespace integrals::libint::detail_

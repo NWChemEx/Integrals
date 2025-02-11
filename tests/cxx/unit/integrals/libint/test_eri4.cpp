@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "test_ao_integrals.hpp"
+#include "test_libint.hpp"
 
-TEST_CASE("Nuclear") {
-    using test_pt = simde::aos_v_en_aos;
+TEST_CASE("ERI4") {
+    using test_pt = simde::ERI4;
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
-    REQUIRE(mm.count("Nuclear"));
+    REQUIRE(mm.count("ERI4"));
 
     // Get basis set
     auto mol  = test::water_molecule();
@@ -29,20 +29,20 @@ TEST_CASE("Nuclear") {
 
     // Make AOS object
     simde::type::aos aos(aobs);
+    simde::type::aos_squared aos_squared(aos, aos);
 
     // Make Operator
-    simde::type::v_en_type op{chemist::Electron{}, mol.nuclei().as_nuclei()};
+    simde::type::v_ee_type op{};
 
     // Make BraKet Input
-    chemist::braket::BraKet braket(aos, op, aos);
+    chemist::braket::BraKet braket(aos_squared, op, aos_squared);
 
     // Call module
-    auto T = mm.at("Nuclear").run_as<test_pt>(braket);
+    auto T = mm.at("ERI4").run_as<test_pt>(braket);
 
     // Check output
-    auto t = test::eigen_buffer<2>(T.buffer());
+    auto t = test::eigen_buffer<4>(T.buffer());
     REQUIRE(test::trace(t) ==
-            Catch::Approx(-111.9975421879705664).margin(1.0e-16));
-    REQUIRE(test::norm(t) ==
-            Catch::Approx(66.4857539908047528).margin(1.0e-16));
+            Catch::Approx(9.7919608941952063).margin(1.0e-16));
+    REQUIRE(test::norm(t) == Catch::Approx(7.7796143419802553).margin(1.0e-16));
 }

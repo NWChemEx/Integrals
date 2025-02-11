@@ -16,16 +16,16 @@
 #pragma once
 #include <simde/simde.hpp>
 
-namespace integrals::ao_integrals {
+namespace integrals::libint {
 
-class LibIntVisitor : public chemist::qm_operator::OperatorVisitor {
+class LibintVisitor : public chemist::qm_operator::OperatorVisitor {
 public:
     using s_e_type  = simde::type::s_e_type;
     using t_e_type  = simde::type::t_e_type;
     using v_ee_type = simde::type::v_ee_type;
     using v_en_type = simde::type::v_en_type;
 
-    LibIntVisitor(const std::vector<libint2::BasisSet>& bases, double thresh,
+    LibintVisitor(const std::vector<libint2::BasisSet>& bases, double thresh,
                   std::size_t deriv = 0) :
       m_bases(bases), m_thresh(thresh), m_deriv(deriv){};
 
@@ -54,4 +54,4 @@ private:
     libint2::Engine m_engine;
 };
 
-} // namespace integrals::ao_integrals
+} // namespace integrals::libint
