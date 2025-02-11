@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "test_ao_integrals.hpp"
+#include "test_libint.hpp"
 
-TEST_CASE("ERI4") {
-    using test_pt = simde::ERI4;
+TEST_CASE("ERI3") {
+    using test_pt = simde::ERI3;
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
-    REQUIRE(mm.count("ERI4"));
+    REQUIRE(mm.count("ERI3"));
 
     // Get basis set
     auto mol  = test::water_molecule();
@@ -35,14 +35,15 @@ TEST_CASE("ERI4") {
     simde::type::v_ee_type op{};
 
     // Make BraKet Input
-    chemist::braket::BraKet braket(aos_squared, op, aos_squared);
+    chemist::braket::BraKet braket(aos, op, aos_squared);
 
     // Call module
-    auto T = mm.at("ERI4").run_as<test_pt>(braket);
+    auto T = mm.at("ERI3").run_as<test_pt>(braket);
 
     // Check output
-    auto t = test::eigen_buffer<4>(T.buffer());
+    auto t = test::eigen_buffer<3>(T.buffer());
     REQUIRE(test::trace(t) ==
-            Catch::Approx(9.7919608941952063).margin(1.0e-16));
-    REQUIRE(test::norm(t) == Catch::Approx(7.7796143419802553).margin(1.0e-16));
+            Catch::Approx(16.8245948391706577).margin(1.0e-16));
+    REQUIRE(test::norm(t) ==
+            Catch::Approx(20.6560572032543597).margin(1.0e-16));
 }

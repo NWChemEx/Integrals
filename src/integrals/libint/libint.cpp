@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 #include "../uncertain_types.hpp"
-#include "ao_integrals.hpp"
 #include "detail_/get_basis_sets.hpp"
 #include "detail_/libint_op.hpp"
 #include "detail_/make_engine.hpp"
 #include "detail_/make_libint_basis_set.hpp"
 #include "detail_/shells2ord.hpp"
-#include "lib_int_visitor.hpp"
+#include "libint.hpp"
+#include "libint_visitor.hpp"
 #include <type_traits>
 
-namespace integrals::ao_integrals {
+namespace integrals::libint {
 namespace {
 
 template<typename FloatType, unsigned int N>
@@ -61,7 +61,7 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
     auto b = build_eigen_buffer<FloatType, N>(basis_sets, thresh);
 
     // Make libint engine
-    LibIntVisitor visitor(basis_sets, thresh);
+    LibintVisitor visitor(basis_sets, thresh);
     op.visit(visitor);
     auto engine     = visitor.engine();
     const auto& buf = engine.results();
@@ -99,7 +99,7 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
 } // namespace
 
 template<typename BraKetType>
-TEMPLATED_MODULE_CTOR(AOIntegral, BraKetType) {
+TEMPLATED_MODULE_CTOR(Libint, BraKetType) {
     using my_pt = simde::EvaluateBraKet<BraKetType>;
     satisfies_property_type<my_pt>();
     description("Driver for computing integrals with Libint");
@@ -113,7 +113,7 @@ TEMPLATED_MODULE_CTOR(AOIntegral, BraKetType) {
 }
 
 template<typename BraKetType>
-TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
+TEMPLATED_MODULE_RUN(Libint, BraKetType) {
     using my_pt = simde::EvaluateBraKet<BraKetType>;
 
     const auto& [braket] = my_pt::unwrap_inputs(inputs);
@@ -142,38 +142,42 @@ TEMPLATED_MODULE_RUN(AOIntegral, BraKetType) {
     return my_pt::wrap_results(rv, t);
 }
 
-#define AOI(bra, op, ket) AOIntegral<braket<bra, op, ket>>
-#define EXTERN_AOI(bra, op, ket) template struct AOI(bra, op, ket)
-#define LOAD_AOI(bra, op, ket, key) mm.add_module<AOI(bra, op, ket)>(key)
+#define LIBINT(bra, op, ket) Libint<braket<bra, op, ket>>
+#define EXTERN_LIBINT(bra, op, ket) template struct LIBINT(bra, op, ket)
 
-EXTERN_AOI(aos, op_base_type, aos);
-EXTERN_AOI(aos, op_base_type, aos_squared);
-EXTERN_AOI(aos_squared, op_base_type, aos_squared);
-EXTERN_AOI(aos, s_e_type, aos);
-EXTERN_AOI(aos, t_e_type, aos);
-EXTERN_AOI(aos, v_en_type, aos);
-EXTERN_AOI(aos, v_ee_type, aos);
-EXTERN_AOI(aos, v_ee_type, aos_squared);
-EXTERN_AOI(aos_squared, v_ee_type, aos_squared);
+EXTERN_LIBINT(aos, op_base_type, aos);
+EXTERN_LIBINT(aos, op_base_type, aos_squared);
+EXTERN_LIBINT(aos_squared, op_base_type, aos_squared);
+EXTERN_LIBINT(aos, s_e_type, aos);
+EXTERN_LIBINT(aos, t_e_type, aos);
+EXTERN_LIBINT(aos, v_en_type, aos);
+EXTERN_LIBINT(aos, v_ee_type, aos);
+EXTERN_LIBINT(aos, v_ee_type, aos_squared);
+EXTERN_LIBINT(aos_squared, v_ee_type, aos_squared);
 
-void ao_integrals_set_defaults(pluginplay::ModuleManager& mm) {
+#undef EXTERN_LIBINT
+
+void libint_set_defaults(pluginplay::ModuleManager& mm) {
     // Set any default associations
 }
 
-void load_ao_integrals(pluginplay::ModuleManager& mm) {
-    LOAD_AOI(aos, op_base_type, aos, "Evaluate 2-Index BraKet");
-    LOAD_AOI(aos, op_base_type, aos_squared, "Evaluate 3-Index BraKet");
-    LOAD_AOI(aos_squared, op_base_type, aos_squared, "Evaluate 4-Index BraKet");
-    LOAD_AOI(aos, s_e_type, aos, "Overlap");
-    LOAD_AOI(aos, t_e_type, aos, "Kinetic");
-    LOAD_AOI(aos, v_en_type, aos, "Nuclear");
-    LOAD_AOI(aos, v_ee_type, aos, "ERI2");
-    LOAD_AOI(aos, v_ee_type, aos_squared, "ERI3");
-    LOAD_AOI(aos_squared, v_ee_type, aos_squared, "ERI4");
-    ao_integrals_set_defaults(mm);
+#define LOAD_LIBINT(bra, op, ket, key) mm.add_module<LIBINT(bra, op, ket)>(key)
+
+void load_libint(pluginplay::ModuleManager& mm) {
+    LOAD_LIBINT(aos, op_base_type, aos, "Evaluate 2-Index BraKet");
+    LOAD_LIBINT(aos, op_base_type, aos_squared, "Evaluate 3-Index BraKet");
+    LOAD_LIBINT(aos_squared, op_base_type, aos_squared,
+                "Evaluate 4-Index BraKet");
+    LOAD_LIBINT(aos, s_e_type, aos, "Overlap");
+    LOAD_LIBINT(aos, t_e_type, aos, "Kinetic");
+    LOAD_LIBINT(aos, v_en_type, aos, "Nuclear");
+    LOAD_LIBINT(aos, v_ee_type, aos, "ERI2");
+    LOAD_LIBINT(aos, v_ee_type, aos_squared, "ERI3");
+    LOAD_LIBINT(aos_squared, v_ee_type, aos_squared, "ERI4");
+    libint_set_defaults(mm);
 }
 
-#undef AOI
-#undef ADD_AOI
+#undef LOAD_LIBINT
+#undef LIBINT
 
-} // namespace integrals::ao_integrals
+} // namespace integrals::libint

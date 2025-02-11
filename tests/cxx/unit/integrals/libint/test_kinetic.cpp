@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "test_ao_integrals.hpp"
+#include "test_libint.hpp"
 
-TEST_CASE("Overlap") {
-    using test_pt = simde::aos_s_e_aos;
+TEST_CASE("Kinetic") {
+    using test_pt = simde::aos_t_e_aos;
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
-    REQUIRE(mm.count("Overlap"));
+    REQUIRE(mm.count("Kinetic"));
 
     // Get basis set
     auto mol  = test::water_molecule();
@@ -31,18 +31,18 @@ TEST_CASE("Overlap") {
     simde::type::aos aos(aobs);
 
     // Make Operator
-    simde::type::s_e_type op{};
+    simde::type::t_e_type op{};
 
     // Make BraKet Input
     chemist::braket::BraKet braket(aos, op, aos);
 
     // Call module
-    auto S = mm.at("Overlap").run_as<test_pt>(braket);
+    auto T = mm.at("Kinetic").run_as<test_pt>(braket);
 
     // Check output
-    auto t = test::eigen_buffer<2>(S.buffer());
+    auto t = test::eigen_buffer<2>(T.buffer());
     REQUIRE(test::trace(t) ==
-            Catch::Approx(7.00000000000000266).margin(1.0e-16));
+            Catch::Approx(38.9175852621874441).margin(1.0e-16));
     REQUIRE(test::norm(t) ==
-            Catch::Approx(2.87134497074907324).margin(1.0e-16));
+            Catch::Approx(29.3665362218072552).margin(1.0e-16));
 }

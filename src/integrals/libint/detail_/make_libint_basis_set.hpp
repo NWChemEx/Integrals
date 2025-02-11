@@ -21,7 +21,7 @@
 #include <simde/types.hpp>
 #include <vector>
 
-namespace integrals::ao_integrals::detail_ {
+namespace integrals::libint::detail_ {
 
 /** @brief Converts an NWX basis set object to a LibInt2 basis set object.
  *
@@ -87,4 +87,4 @@ inline auto make_libint_basis_set(const simde::type::ao_basis_set& bs) {
     return basis_t(centers, element_bases);
 }
 
-} // namespace integrals::ao_integrals::detail_
+} // namespace integrals::libint::detail_

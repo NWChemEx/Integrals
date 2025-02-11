@@ -18,11 +18,11 @@
 #include <pluginplay/pluginplay.hpp>
 #include <simde/simde.hpp>
 
-/** @namespace integrals::ao_integrals
+/** @namespace integrals::libint
  *
  *  @brief The namespace for the modules that produce AO Integrals
  */
-namespace integrals::ao_integrals {
+namespace integrals::libint {
 
 using simde::type::braket;
 
@@ -40,15 +40,15 @@ using simde::type::v_en_type;
  *  @tparam BraKetType The type of the BraKet input
  */
 template<typename BraKetType>
-DECLARE_MODULE(AOIntegral);
+DECLARE_MODULE(Libint);
 
-/** @brief Load the AO integral modules into a Module Manager
+/** @brief Load the libint modules into a Module Manager
  *
  *  @param mm The Module Manager to load the modules into
  *
  *  @throw none No throw guarantee
  */
-void load_ao_integrals(pluginplay::ModuleManager& mm);
+void load_libint(pluginplay::ModuleManager& mm);
 
 /** @brief Set default module relationships
  *
@@ -56,21 +56,21 @@ void load_ao_integrals(pluginplay::ModuleManager& mm);
  *
  *  @throw none No throw guarantee
  */
-void ao_integrals_set_defaults(pluginplay::ModuleManager& mm);
+void libint_set_defaults(pluginplay::ModuleManager& mm);
 
 // Forward External Template Declarations
-#define EXTERN_AOI extern template struct AOIntegral
+#define EXTERN_LIBINT extern template struct Libint
 
-EXTERN_AOI<braket<aos, op_base_type, aos>>;
-EXTERN_AOI<braket<aos, op_base_type, aos_squared>>;
-EXTERN_AOI<braket<aos_squared, op_base_type, aos_squared>>;
-EXTERN_AOI<braket<aos, s_e_type, aos>>;
-EXTERN_AOI<braket<aos, t_e_type, aos>>;
-EXTERN_AOI<braket<aos, v_en_type, aos>>;
-EXTERN_AOI<braket<aos, v_ee_type, aos>>;
-EXTERN_AOI<braket<aos, v_ee_type, aos_squared>>;
-EXTERN_AOI<braket<aos_squared, v_ee_type, aos_squared>>;
+EXTERN_LIBINT<braket<aos, op_base_type, aos>>;
+EXTERN_LIBINT<braket<aos, op_base_type, aos_squared>>;
+EXTERN_LIBINT<braket<aos_squared, op_base_type, aos_squared>>;
+EXTERN_LIBINT<braket<aos, s_e_type, aos>>;
+EXTERN_LIBINT<braket<aos, t_e_type, aos>>;
+EXTERN_LIBINT<braket<aos, v_en_type, aos>>;
+EXTERN_LIBINT<braket<aos, v_ee_type, aos>>;
+EXTERN_LIBINT<braket<aos, v_ee_type, aos_squared>>;
+EXTERN_LIBINT<braket<aos_squared, v_ee_type, aos_squared>>;
 
-#undef EXTERN_AOI
+#undef EXTERN_LIBINT
 
-} // namespace integrals::ao_integrals
+} // namespace integrals::libint
