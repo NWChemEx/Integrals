@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "ao_integrals/ao_integrals.hpp"
 #include "libint/libint.hpp"
 #include <integrals/integrals_mm.hpp>
 
@@ -26,11 +27,16 @@ namespace integrals {
  *  @throw none No throw guarantee
  */
 void set_defaults(pluginplay::ModuleManager& mm) {
-    // Defaults go here
+    const auto ao_driver = "AO integral driver";
+    mm.change_submod(ao_driver, "Kinetic", "Kinetic");
+    mm.change_submod(ao_driver, "Electron-Nuclear attraction", "Nuclear");
+    mm.change_submod("Four center J builder", "Four-center ERI", "ERI4");
+    mm.change_submod("Four center K builder", "Four-center ERI", "ERI4");
 }
 
 void load_modules(pluginplay::ModuleManager& mm) {
-    libint::load_libint(mm);
+    ao_integrals::load_modules(mm);
+    libint::load_modules(mm);
     set_defaults(mm);
 }
 

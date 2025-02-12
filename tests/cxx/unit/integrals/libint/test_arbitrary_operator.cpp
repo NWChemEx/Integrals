@@ -15,7 +15,7 @@
  */
 
 #include "integrals/uncertain_types.hpp"
-#include "test_libint.hpp"
+#include "../testing.hpp"
 
 using udouble            = integrals::type::uncertain_double;
 constexpr bool has_sigma = integrals::type::has_sigma();

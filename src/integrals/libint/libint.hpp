@@ -48,7 +48,7 @@ DECLARE_MODULE(Libint);
  *
  *  @throw none No throw guarantee
  */
-void load_libint(pluginplay::ModuleManager& mm);
+void load_modules(pluginplay::ModuleManager& mm);
 
 /** @brief Set default module relationships
  *
@@ -56,7 +56,7 @@ void load_libint(pluginplay::ModuleManager& mm);
  *
  *  @throw none No throw guarantee
  */
-void libint_set_defaults(pluginplay::ModuleManager& mm);
+void set_defaults(pluginplay::ModuleManager& mm);
 
 // Forward External Template Declarations
 #define EXTERN_LIBINT extern template struct Libint

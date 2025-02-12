@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NWChemEx-Project
+ * Copyright 2024 NWChemEx-Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,33 +16,32 @@
 
 #include "../testing.hpp"
 
-TEST_CASE("Nuclear") {
-    using test_pt = simde::aos_v_en_aos;
+TEST_CASE("Four center J builder") {
+    using pt = simde::aos_j_e_aos;
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
-    REQUIRE(mm.count("Nuclear"));
+    REQUIRE(mm.count("Four center J builder"));
 
     // Get basis set
-    auto mol  = test::water_molecule();
-    auto aobs = test::water_sto3g_basis_set();
+    auto mol  = test::h2_molecule();
+    auto aobs = test::h2_sto3g_basis_set();
 
     // Make AOS object
     simde::type::aos aos(aobs);
 
     // Make Operator
-    simde::type::v_en_type op{chemist::Electron{}, mol.nuclei().as_nuclei()};
+    simde::type::j_e_type op(simde::type::electron{}, test::h2_density());
 
     // Make BraKet Input
     chemist::braket::BraKet braket(aos, op, aos);
 
     // Call module
-    auto T = mm.at("Nuclear").run_as<test_pt>(braket);
+    const auto& T = mm.at("Four center J builder").run_as<pt>(braket);
 
-    // Check output
     auto t = test::eigen_buffer<2>(T.buffer());
-    REQUIRE(test::trace(t) ==
-            Catch::Approx(-111.9975421879705664).margin(1.0e-16));
-    REQUIRE(test::norm(t) ==
-            Catch::Approx(66.4857539908047528).margin(1.0e-16));
+    REQUIRE(t.value()(0, 0) == Catch::Approx(0.71438149).margin(1E-6));
+    REQUIRE(t.value()(0, 1) == Catch::Approx(0.47471072).margin(1E-6));
+    REQUIRE(t.value()(1, 0) == Catch::Approx(0.47471072).margin(1E-6));
+    REQUIRE(t.value()(1, 1) == Catch::Approx(0.71438149).margin(1E-6));
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "test_libint.hpp"
+#include "../testing.hpp"
 
 TEST_CASE("Kinetic") {
     using test_pt = simde::aos_t_e_aos;

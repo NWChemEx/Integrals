@@ -157,13 +157,13 @@ EXTERN_LIBINT(aos_squared, v_ee_type, aos_squared);
 
 #undef EXTERN_LIBINT
 
-void libint_set_defaults(pluginplay::ModuleManager& mm) {
+void set_defaults(pluginplay::ModuleManager& mm) {
     // Set any default associations
 }
 
 #define LOAD_LIBINT(bra, op, ket, key) mm.add_module<LIBINT(bra, op, ket)>(key)
 
-void load_libint(pluginplay::ModuleManager& mm) {
+void load_modules(pluginplay::ModuleManager& mm) {
     LOAD_LIBINT(aos, op_base_type, aos, "Evaluate 2-Index BraKet");
     LOAD_LIBINT(aos, op_base_type, aos_squared, "Evaluate 3-Index BraKet");
     LOAD_LIBINT(aos_squared, op_base_type, aos_squared,
@@ -174,7 +174,7 @@ void load_libint(pluginplay::ModuleManager& mm) {
     LOAD_LIBINT(aos, v_ee_type, aos, "ERI2");
     LOAD_LIBINT(aos, v_ee_type, aos_squared, "ERI3");
     LOAD_LIBINT(aos_squared, v_ee_type, aos_squared, "ERI4");
-    libint_set_defaults(mm);
+    set_defaults(mm);
 }
 
 #undef LOAD_LIBINT

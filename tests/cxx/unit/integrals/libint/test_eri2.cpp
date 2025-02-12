@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "test_libint.hpp"
+#include "../testing.hpp"
 
 TEST_CASE("ERI2") {
     using test_pt = simde::ERI2;

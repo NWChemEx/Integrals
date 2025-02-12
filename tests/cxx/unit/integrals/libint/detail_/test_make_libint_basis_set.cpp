@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-#include "../../water_sto3g.hpp"
+#include "../../testing.hpp"
 #include "integrals/libint/detail_/make_libint_basis_set.hpp"
 #include "libint_basis_set_water.hpp"
-#include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("make_libint_basis_set") {
     using integrals::libint::detail_::make_libint_basis_set;
