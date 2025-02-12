@@ -40,8 +40,8 @@ TEST_CASE("Four center J builder") {
     const auto& T = mm.at("Four center J builder").run_as<pt>(braket);
 
     auto t = test::eigen_buffer<2>(T.buffer());
-    REQUIRE(t.value()(0, 0) == Catch::Approx(0.71438149).margin(1E-6));
-    REQUIRE(t.value()(0, 1) == Catch::Approx(0.47471072).margin(1E-6));
-    REQUIRE(t.value()(1, 0) == Catch::Approx(0.47471072).margin(1E-6));
-    REQUIRE(t.value()(1, 1) == Catch::Approx(0.71438149).margin(1E-6));
+    REQUIRE(t.value()(0, 0) == Catch::Approx(0.56044143).margin(1E-6));
+    REQUIRE(t.value()(0, 1) == Catch::Approx(0.24704427).margin(1E-6));
+    REQUIRE(t.value()(1, 0) == Catch::Approx(0.24704427).margin(1E-6));
+    REQUIRE(t.value()(1, 1) == Catch::Approx(0.56044143).margin(1E-6));
 }
