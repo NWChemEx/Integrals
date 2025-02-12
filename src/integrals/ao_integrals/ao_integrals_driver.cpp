@@ -31,18 +31,18 @@ using pluginplay::type::submodule_map;
 using simde::type::aos;
 using simde::type::tensor;
 
-using pt       = simde::aos_op_base_aos;
-using t_e_pt   = simde::aos_t_e_aos;
-using v_en_pt  = simde::aos_v_en_aos;
-using j_e_pt   = simde::aos_j_e_aos;
-using k_e_pt   = simde::aos_k_e_aos;
+using pt      = simde::aos_op_base_aos;
+using t_e_pt  = simde::aos_t_e_aos;
+using v_en_pt = simde::aos_v_en_aos;
+using j_e_pt  = simde::aos_j_e_aos;
+using k_e_pt  = simde::aos_k_e_aos;
 
 class AODispatcher : public chemist::qm_operator::OperatorVisitor {
 public:
-    using t_e_type   = simde::type::t_e_type;
-    using v_en_type  = simde::type::v_en_type;
-    using j_e_type   = simde::type::j_e_type;
-    using k_e_type   = simde::type::k_e_type;
+    using t_e_type  = simde::type::t_e_type;
+    using v_en_type = simde::type::v_en_type;
+    using j_e_type  = simde::type::j_e_type;
+    using k_e_type  = simde::type::k_e_type;
 
     using submods_type = pluginplay::type::submodule_map;
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "integrals/uncertain_types.hpp"
 #include "../testing.hpp"
+#include "integrals/uncertain_types.hpp"
 
 using udouble            = integrals::type::uncertain_double;
 constexpr bool has_sigma = integrals::type::has_sigma();

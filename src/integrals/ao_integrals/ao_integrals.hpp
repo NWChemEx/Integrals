@@ -36,4 +36,4 @@ inline void load_modules(pluginplay::ModuleManager& mm) {
     set_defaults(mm);
 }
 
-} // namespace scf::matrix_builder
+} // namespace integrals::ao_integrals
