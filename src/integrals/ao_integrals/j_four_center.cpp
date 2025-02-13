@@ -53,29 +53,9 @@ MODULE_RUN(JFourCenter) {
     chemist::braket::BraKet aos2_v_aos2(e0_pair, v_ee, e1_pair);
     const auto& I = eri_mod.run_as<pt_4c>(std::move(aos2_v_aos2));
 
-    // This goes away when j("m,n") = p("l,s")*I("m,n,s,l") works
-    // {
-    using eri_alloc  = tensorwrapper::allocator::Eigen<double, 4>;
-    using rho_alloc  = tensorwrapper::allocator::Eigen<double, 2>;
-    using index_pair = Eigen::IndexPair<int>;
-    using array_t    = Eigen::array<index_pair, 2>;
+    simde::type::tensor j;
+    j.multiplication_assignment("i,j", p("k,l"), I("i,j,k,l"));
 
-    const auto& I_eigen  = eri_alloc::rebind(I.buffer()).value();
-    const auto& p_buffer = rho_alloc::rebind(p.buffer());
-    const auto& p_eigen  = p_buffer.value();
-
-    array_t contract_modes{index_pair{0, 3}, index_pair(1, 2)};
-    using eigen_buffer_type = typename rho_alloc::eigen_buffer_type;
-    using eigen_tensor_type = typename eigen_buffer_type::data_type;
-
-    eigen_tensor_type j_eigen = p_eigen.contract(I_eigen, contract_modes);
-    auto j_buffer = std::make_unique<eigen_buffer_type>(std::move(j_eigen),
-                                                        p_buffer.layout());
-
-    using logical_type = tensorwrapper::layout::Logical;
-    auto playout       = p.logical_layout().clone_as<logical_type>();
-    simde::type::tensor j(std::move(playout), std::move(j_buffer));
-    //}
     auto rv = results();
     return pt::wrap_results(rv, std::move(j));
 }
