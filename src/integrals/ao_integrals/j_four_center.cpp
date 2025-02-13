@@ -37,21 +37,19 @@ MODULE_CTOR(JFourCenter) {
 
 MODULE_RUN(JFourCenter) {
     const auto&& [braket] = pt::unwrap_inputs(inputs);
-    // TODO: avoid copying AOs
-    simde::type::aos bra_e0 = braket.bra();
-    const auto& j_hat       = braket.op();
-    simde::type::aos ket_e0 = braket.ket();
-    const auto& rho         = j_hat.rhs_particle();
-    simde::type::aos aos_e1 = rho.basis_set();
-    const auto& p           = rho.value();
-    auto& eri_mod           = submods.at("Four-center ERI");
+    auto bra              = braket.bra();
+    auto ket              = braket.ket();
+    const auto& j_hat     = braket.op();
+    const auto& rho       = j_hat.rhs_particle();
+    const auto& p         = rho.value();
+    auto rho_aos          = rho.basis_set();
+    auto& eri_mod         = submods.at("Four-center ERI");
 
-    // auto aos2_v_aos2 = (bra_e0 * ket_e0 | v_ee | aos_e1 * aos_e1);
     simde::type::v_ee_type v_ee;
-    simde::type::aos_squared e0_pair(bra_e0, ket_e0);
-    simde::type::aos_squared e1_pair(aos_e1, aos_e1);
-    chemist::braket::BraKet aos2_v_aos2(e0_pair, v_ee, e1_pair);
-    const auto& I = eri_mod.run_as<pt_4c>(std::move(aos2_v_aos2));
+    simde::type::aos_squared ij_pair(bra, ket);
+    simde::type::aos_squared kl_pair(rho_aos, rho_aos);
+    chemist::braket::BraKet ij_v_kl(ij_pair, v_ee, kl_pair);
+    const auto& I = eri_mod.run_as<pt_4c>(std::move(ij_v_kl));
 
     simde::type::tensor j;
     j.multiplication_assignment("i,j", p("k,l"), I("i,j,k,l"));
