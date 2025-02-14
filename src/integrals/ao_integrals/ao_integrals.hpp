@@ -22,32 +22,17 @@ namespace integrals::ao_integrals {
 DECLARE_MODULE(AOIntegralsDriver);
 DECLARE_MODULE(JFourCenter);
 DECLARE_MODULE(KFourCenter);
-DECLARE_MODULE(JDensityFitted);
-DECLARE_MODULE(KDensityFitted);
-DECLARE_MODULE(DFIntegral);
-DECLARE_MODULE(CoulombMetric);
 
 inline void set_defaults(pluginplay::ModuleManager& mm) {
-    mm.change_submod("AO integral driver", "Coulomb matrix",
-                     "Four center J builder");
-    mm.change_submod("AO integral driver", "Exchange matrix",
-                     "Four center K builder");
-    mm.change_submod("Density Fitted J builder", "DF ERI",
-                     "Density Fitting Integral");
-    mm.change_submod("Density Fitted K builder", "DF ERI",
-                     "Density Fitting Integral");
-    mm.change_submod("Density Fitting Integral", "Coulomb Metric",
-                     "Coulomb Metric");
+    const auto ao_driver = "AO integral driver";
+    mm.change_submod(ao_driver, "Coulomb matrix", "Four center J builder");
+    mm.change_submod(ao_driver, "Exchange matrix", "Four center K builder");
 }
 
 inline void load_modules(pluginplay::ModuleManager& mm) {
     mm.add_module<AOIntegralsDriver>("AO integral driver");
     mm.add_module<JFourCenter>("Four center J builder");
     mm.add_module<KFourCenter>("Four center K builder");
-    mm.add_module<JDensityFitted>("Density Fitted J builder");
-    mm.add_module<KDensityFitted>("Density Fitted K builder");
-    mm.add_module<DFIntegral>("Density Fitting Integral");
-    mm.add_module<CoulombMetric>("Coulomb Metric");
     set_defaults(mm);
 }
 

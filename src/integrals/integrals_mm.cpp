@@ -27,13 +27,11 @@ namespace integrals {
  *  @throw none No throw guarantee
  */
 void set_defaults(pluginplay::ModuleManager& mm) {
-    mm.change_submod("AO integral driver", "Kinetic", "Kinetic");
-    mm.change_submod("AO integral driver", "Electron-Nuclear attraction",
-                     "Nuclear");
+    const auto ao_driver = "AO integral driver";
+    mm.change_submod(ao_driver, "Kinetic", "Kinetic");
+    mm.change_submod(ao_driver, "Electron-Nuclear attraction", "Nuclear");
     mm.change_submod("Four center J builder", "Four-center ERI", "ERI4");
     mm.change_submod("Four center K builder", "Four-center ERI", "ERI4");
-    mm.change_submod("Density Fitting Integral", "Three-center ERI", "ERI3");
-    mm.change_submod("Coulomb Metric", "Two-center ERI", "ERI2");
 }
 
 void load_modules(pluginplay::ModuleManager& mm) {
