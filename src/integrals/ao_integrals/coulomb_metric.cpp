@@ -43,7 +43,6 @@ MODULE_RUN(CoulombMetric) {
 
     // Cholesky Decomp
 
-
     auto rv = results();
     return pt::wrap_results(rv, M);
 }
