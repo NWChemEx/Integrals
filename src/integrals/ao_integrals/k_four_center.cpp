@@ -53,7 +53,7 @@ MODULE_RUN(KFourCenter) {
     const auto& I = eri_mod.run_as<pt_4c>(std::move(ik_v_lj));
 
     simde::type::tensor k;
-    k.multiplication_assignment("i,j", p("k,l"), I("i,k,l,j"));
+    k("i,j") = p("k,l") * I("i,k,l,j");
 
     auto rv = results();
     return pt::wrap_results(rv, std::move(k));

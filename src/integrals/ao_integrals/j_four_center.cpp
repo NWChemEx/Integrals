@@ -52,7 +52,7 @@ MODULE_RUN(JFourCenter) {
     const auto& I = eri_mod.run_as<pt_4c>(std::move(ij_v_kl));
 
     simde::type::tensor j;
-    j.multiplication_assignment("i,j", p("k,l"), I("i,j,k,l"));
+    j("i,j") = p("k,l") * I("i,j,k,l");
 
     auto rv = results();
     return pt::wrap_results(rv, std::move(j));
