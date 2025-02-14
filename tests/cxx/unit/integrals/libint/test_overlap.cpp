@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "test_libint.hpp"
+#include "../testing.hpp"
 
 TEST_CASE("Overlap") {
     using test_pt = simde::aos_s_e_aos;
