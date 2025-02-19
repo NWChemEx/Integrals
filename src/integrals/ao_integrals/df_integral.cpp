@@ -49,9 +49,8 @@ MODULE_RUN(DFIntegral) {
     const auto& M = eri2_mod.run_as<pt_2c>(aux_v_aux);
     const auto& I = eri3_mod.run_as<pt>(braket);
 
-    // Failing at the moment
     simde::type::tensor L;
-    // L.multiplication_assignment("i,k,l", M("i,j"), I("j,k,l"));
+    L("i,k,l") = M("i,j") * I("j,k,l");
 
     auto rv = results();
     return pt::wrap_results(rv, std::move(L));

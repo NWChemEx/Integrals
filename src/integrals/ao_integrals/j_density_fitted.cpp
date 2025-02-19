@@ -59,8 +59,8 @@ MODULE_RUN(JDensityFitted) {
 
     simde::type::tensor temp, j;
     // Failing at the moment
-    // temp.multiplication_assignment("a", p("k,l"), I_akl("a,k,l"));
-    // j.multiplication_assignment("i,j", temp("a"), I_aij("a,i,j"));
+    // temp("a") = p("k,l") * I_akl("a,k,l");
+    // j("i,j")  = temp("a") * I_aij("a,i,j");
 
     auto rv = results();
     return pt::wrap_results(rv, std::move(j));

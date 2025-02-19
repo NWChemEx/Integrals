@@ -60,8 +60,8 @@ MODULE_RUN(KDensityFitted) {
 
     simde::type::tensor temp, k;
     // Failing at the moment
-    // temp.multiplication_assignment("a,i,l", p("k,l"), I_aik("a,i,k"));
-    // k.multiplication_assignment("i,j", temp("a,i,l"), I_ajl("a,j,l"));
+    // temp("a,i,l") = p("k,l") * I_aik("a,i,k");
+    // k("i,j")      = temp("a,i,l") * I_ajl("a,j,l");
 
     auto rv = results();
     return pt::wrap_results(rv, std::move(k));
