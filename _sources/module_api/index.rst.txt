@@ -5,12 +5,15 @@ Modules API
 .. toctree::
    :maxdepth: 1
 
+   AO_integral_driver
    ERI2
    ERI3
    ERI4
    Evaluate_2-Index_BraKet
    Evaluate_3-Index_BraKet
    Evaluate_4-Index_BraKet
+   Four_center_J_builder
+   Four_center_K_builder
    Kinetic
    Nuclear
    Overlap

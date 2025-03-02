@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['detail_5f_4',['detail_',['../namespaceintegrals_1_1libint_1_1detail__.html',1,'integrals::libint']]],
-  ['integrals_5',['integrals',['../namespaceintegrals.html',1,'']]],
-  ['integrals_2ehpp_6',['integrals.hpp',['../integrals_8hpp.html',1,'']]],
-  ['libint_7',['libint',['../namespaceintegrals_1_1libint.html',1,'integrals']]]
+  ['get_5fbasis_5fsets_3',['get_basis_sets',['../namespaceintegrals_1_1libint_1_1detail__.html#a27ad4d25f31fe5ee941c03d156914afe',1,'integrals::libint::detail_']]],
+  ['get_5fn_4',['get_n',['../namespaceintegrals_1_1libint_1_1detail__.html#aa1c8a4a76d2c804af482511f9730cabf',1,'integrals::libint::detail_']]]
 ];
