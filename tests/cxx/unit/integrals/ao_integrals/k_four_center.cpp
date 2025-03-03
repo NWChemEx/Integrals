@@ -39,9 +39,9 @@ TEST_CASE("Four center K builder") {
     // Call module
     const auto& T = mm.at("Four center K builder").run_as<pt>(braket);
 
-    auto t = test::eigen_buffer<2>(T.buffer());
-    REQUIRE(t.value()(0, 0) == Catch::Approx(0.45617623).margin(1E-6));
-    REQUIRE(t.value()(0, 1) == Catch::Approx(0.35130947).margin(1E-6));
-    REQUIRE(t.value()(1, 0) == Catch::Approx(0.35130947).margin(1E-6));
-    REQUIRE(t.value()(1, 1) == Catch::Approx(0.45617623).margin(1E-6));
+    auto t = test::eigen_tensor<2>(T.buffer());
+    REQUIRE(t(0, 0) == Catch::Approx(0.45617623).margin(1E-6));
+    REQUIRE(t(0, 1) == Catch::Approx(0.35130947).margin(1E-6));
+    REQUIRE(t(1, 0) == Catch::Approx(0.35130947).margin(1E-6));
+    REQUIRE(t(1, 1) == Catch::Approx(0.45617623).margin(1E-6));
 }

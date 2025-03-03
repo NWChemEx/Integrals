@@ -41,8 +41,9 @@ TEST_CASE("ERI4") {
     auto T = mm.at("ERI4").run_as<test_pt>(braket);
 
     // Check output
-    auto t = test::eigen_buffer<4>(T.buffer());
-    REQUIRE(test::trace(t) ==
+    auto& t = T.buffer();
+    REQUIRE(test::trace<4>(t) ==
             Catch::Approx(9.7919608941952063).margin(1.0e-16));
-    REQUIRE(test::norm(t) == Catch::Approx(7.7796143419802553).margin(1.0e-16));
+    REQUIRE(test::norm<4>(t) ==
+            Catch::Approx(7.7796143419802553).margin(1.0e-16));
 }

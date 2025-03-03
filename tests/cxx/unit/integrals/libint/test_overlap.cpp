@@ -40,9 +40,9 @@ TEST_CASE("Overlap") {
     auto S = mm.at("Overlap").run_as<test_pt>(braket);
 
     // Check output
-    auto t = test::eigen_buffer<2>(S.buffer());
-    REQUIRE(test::trace(t) ==
+    auto& t = S.buffer();
+    REQUIRE(test::trace<2>(t) ==
             Catch::Approx(7.00000000000000266).margin(1.0e-16));
-    REQUIRE(test::norm(t) ==
+    REQUIRE(test::norm<2>(t) ==
             Catch::Approx(2.87134497074907324).margin(1.0e-16));
 }
