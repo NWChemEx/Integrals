@@ -21,17 +21,20 @@ using simde::type::tensor;
 namespace {
 
 void compare_matrices(const tensor& A, const tensor& A_corr) {
-    using alloc_type          = tensorwrapper::allocator::Eigen<double, 2>;
+    using alloc_type          = tensorwrapper::allocator::Eigen<double>;
     const auto& A_buffer      = alloc_type::rebind(A.buffer());
     const auto& A_corr_buffer = alloc_type::rebind(A_corr.buffer());
-    const auto& A_eigen       = A_buffer.value();
-    const auto& A_corr_eigen  = A_corr_buffer.value();
 
     const auto tol = 1E-6;
-    REQUIRE(A_eigen(0, 0) == Catch::Approx(A_corr_eigen(0, 0)).margin(tol));
-    REQUIRE(A_eigen(0, 1) == Catch::Approx(A_corr_eigen(0, 1)).margin(tol));
-    REQUIRE(A_eigen(1, 0) == Catch::Approx(A_corr_eigen(1, 0)).margin(tol));
-    REQUIRE(A_eigen(1, 1) == Catch::Approx(A_corr_eigen(1, 1)).margin(tol));
+    auto A00       = A_buffer.at(0, 0);
+    auto A01       = A_buffer.at(0, 1);
+    auto A10       = A_buffer.at(1, 0);
+    auto A11       = A_buffer.at(1, 1);
+
+    REQUIRE(A00 == Catch::Approx(A_corr_buffer.at(0, 0)).margin(tol));
+    REQUIRE(A01 == Catch::Approx(A_corr_buffer.at(0, 1)).margin(tol));
+    REQUIRE(A10 == Catch::Approx(A_corr_buffer.at(1, 0)).margin(tol));
+    REQUIRE(A11 == Catch::Approx(A_corr_buffer.at(1, 1)).margin(tol));
 }
 
 } // namespace

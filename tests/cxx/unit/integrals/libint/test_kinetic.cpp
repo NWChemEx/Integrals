@@ -40,9 +40,9 @@ TEST_CASE("Kinetic") {
     auto T = mm.at("Kinetic").run_as<test_pt>(braket);
 
     // Check output
-    auto t = test::eigen_buffer<2>(T.buffer());
-    REQUIRE(test::trace(t) ==
+    auto& t = T.buffer();
+    REQUIRE(test::trace<2>(t) ==
             Catch::Approx(38.9175852621874441).margin(1.0e-16));
-    REQUIRE(test::norm(t) ==
+    REQUIRE(test::norm<2>(t) ==
             Catch::Approx(29.3665362218072552).margin(1.0e-16));
 }

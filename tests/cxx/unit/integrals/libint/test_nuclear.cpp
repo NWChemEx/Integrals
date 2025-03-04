@@ -40,9 +40,9 @@ TEST_CASE("Nuclear") {
     auto T = mm.at("Nuclear").run_as<test_pt>(braket);
 
     // Check output
-    auto t = test::eigen_buffer<2>(T.buffer());
-    REQUIRE(test::trace(t) ==
+    auto& t = T.buffer();
+    REQUIRE(test::trace<2>(t) ==
             Catch::Approx(-111.9975421879705664).margin(1.0e-16));
-    REQUIRE(test::norm(t) ==
+    REQUIRE(test::norm<2>(t) ==
             Catch::Approx(66.4857539908047528).margin(1.0e-16));
 }
