@@ -15,6 +15,7 @@
  */
 
 #include "ao_integrals.hpp"
+#include <Eigen/Eigen>
 
 namespace integrals::ao_integrals {
 
