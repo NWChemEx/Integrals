@@ -39,9 +39,32 @@ MODULE_RUN(CoulombMetric) {
     const auto& [braket] = pt::unwrap_inputs(inputs);
     auto& eri2_mod       = submods.at("Two-center ERI");
 
-    const auto& M = eri2_mod.run_as<pt>(braket);
+    // Get ERI2
+    const auto& I = eri2_mod.run_as<pt>(braket);
 
     // Cholesky Decomp
+    tensorwrapper::allocator::Eigen<double> allocator(get_runtime());
+    const auto& eigen_I = allocator.rebind(I.buffer());
+    const auto* pI      = eigen_I.data();
+    const auto& shape_I = eigen_I.layout().shape().as_smooth();
+    auto rows           = shape_I.extent(0);
+    auto cols           = shape_I.extent(1);
+
+    using emat_t = Eigen::MatrixXd;
+    Eigen::Map<const emat_t> I_map(pI, rows, cols);
+    Eigen::LLT<emat_t> lltOfI(I_map);
+    emat_t U    = lltOfI.matrixU();
+    emat_t Linv = U.inverse().transpose();
+
+    // Wrap result
+    tensorwrapper::shape::Smooth matrix_shape{rows, cols};
+    tensorwrapper::layout::Physical matrix_layout(matrix_shape);
+    auto pM_buffer = allocator.allocate(matrix_layout);
+
+    for(auto i = 0; i < rows; ++i) {
+        for(auto j = 0; j < cols; ++j) { pM_buffer->at(i, j) = Linv(i, j); }
+    }
+    simde::type::tensor M(matrix_shape, std::move(pM_buffer));
 
     auto rv = results();
     return pt::wrap_results(rv, M);

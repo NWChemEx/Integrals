@@ -40,6 +40,13 @@ TEST_CASE("Density Fitting Integral") {
     // Call module
     auto T = mm.at("Density Fitting Integral").run_as<test_pt>(braket);
 
-    // Check output
-    // auto t = test::eigen_buffer<3>(T.buffer());
+    auto t = test::eigen_tensor<3>(T.buffer());
+    REQUIRE(t(0, 0, 0) == Catch::Approx(0.81362039).margin(1E-6));
+    REQUIRE(t(0, 0, 1) == Catch::Approx(0.31266336).margin(1E-6));
+    REQUIRE(t(0, 1, 0) == Catch::Approx(0.31266336).margin(1E-6));
+    REQUIRE(t(0, 1, 1) == Catch::Approx(0.60009419).margin(1E-6));
+    REQUIRE(t(1, 0, 0) == Catch::Approx(-0.12580195).margin(1E-6));
+    REQUIRE(t(1, 0, 1) == Catch::Approx(0.09683503).margin(1E-6));
+    REQUIRE(t(1, 1, 0) == Catch::Approx(0.09683503).margin(1E-6));
+    REQUIRE(t(1, 1, 1) == Catch::Approx(0.56364026).margin(1E-6));
 }

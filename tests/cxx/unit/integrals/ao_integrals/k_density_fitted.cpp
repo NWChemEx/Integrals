@@ -40,5 +40,9 @@ TEST_CASE("Density Fitted K builder") {
     mm.change_input("Density Fitted K builder", "Auxiliary Basis Set", aos);
     const auto& T = mm.at("Density Fitted K builder").run_as<pt>(braket);
 
-    // auto t = test::eigen_buffer<2>(T.buffer());
+    auto t = test::eigen_tensor<2>(T.buffer());
+    REQUIRE(t(0, 0) == Catch::Approx(0.40594955).margin(1E-6));
+    REQUIRE(t(0, 1) == Catch::Approx(0.32265250).margin(1E-6));
+    REQUIRE(t(1, 0) == Catch::Approx(0.32265250).margin(1E-6));
+    REQUIRE(t(1, 1) == Catch::Approx(0.40594955).margin(1E-6));
 }

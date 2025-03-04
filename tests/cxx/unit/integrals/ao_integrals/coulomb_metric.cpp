@@ -39,6 +39,9 @@ TEST_CASE("Coulomb Metric") {
     // Call module
     auto T = mm.at("Coulomb Metric").run_as<test_pt>(braket);
 
-    // Check output
-    auto t = test::eigen_buffer<2>(T.buffer());
+    auto t = test::eigen_tensor<2>(T.buffer());
+    REQUIRE(t(0, 0) == Catch::Approx(0.15824726).margin(1E-6));
+    REQUIRE(t(0, 1) == Catch::Approx(0.0).margin(1E-6));
+    REQUIRE(t(1, 0) == Catch::Approx(-0.23097095).margin(1E-6));
+    REQUIRE(t(1, 1) == Catch::Approx(0.27998174).margin(1E-6));
 }

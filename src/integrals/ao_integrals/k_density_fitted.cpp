@@ -58,10 +58,9 @@ MODULE_RUN(KDensityFitted) {
     const auto& I_aik = eri_mod.run_as<pt_3c>(std::move(aux_v_ik));
     const auto& I_ajl = eri_mod.run_as<pt_3c>(std::move(aux_v_jl));
 
-    simde::type::tensor temp, k;
-    // Failing at the moment
-    // temp("a,i,l") = p("k,l") * I_aik("a,i,k");
-    // k("i,j")      = temp("a,i,l") * I_ajl("a,j,l");
+    simde::type::tensor k;
+    k("a,i,l") = p("k,l") * I_aik("a,i,k");
+    k("i,j")   = k("a,i,l") * I_ajl("a,j,l");
 
     auto rv = results();
     return pt::wrap_results(rv, std::move(k));

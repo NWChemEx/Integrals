@@ -57,10 +57,9 @@ MODULE_RUN(JDensityFitted) {
     const auto& I_akl = eri_mod.run_as<pt_3c>(std::move(aux_v_kl));
     const auto& I_aij = eri_mod.run_as<pt_3c>(std::move(aux_v_ij));
 
-    simde::type::tensor temp, j;
-    // Failing at the moment
-    // temp("a") = p("k,l") * I_akl("a,k,l");
-    // j("i,j")  = temp("a") * I_aij("a,i,j");
+    simde::type::tensor j;
+    j("a")   = p("k,l") * I_akl("a,k,l");
+    j("i,j") = j("a") * I_aij("a,i,j");
 
     auto rv = results();
     return pt::wrap_results(rv, std::move(j));

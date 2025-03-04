@@ -40,5 +40,9 @@ TEST_CASE("Density Fitted J builder") {
     mm.change_input("Density Fitted J builder", "Auxiliary Basis Set", aos);
     const auto& T = mm.at("Density Fitted J builder").run_as<pt>(braket);
 
-    // auto t = test::eigen_buffer<2>(T.buffer());
+    auto t = test::eigen_tensor<2>(T.buffer());
+    REQUIRE(t(0, 0) == Catch::Approx(0.50515668).margin(1E-6));
+    REQUIRE(t(0, 1) == Catch::Approx(0.22344536).margin(1E-6));
+    REQUIRE(t(1, 0) == Catch::Approx(0.22344536).margin(1E-6));
+    REQUIRE(t(1, 1) == Catch::Approx(0.50515668).margin(1E-6));
 }
