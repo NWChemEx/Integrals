@@ -24,25 +24,39 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include <unsupported/Eigen/CXX11/Tensor>
+
 namespace test {
+
+template<typename FloatType, std::size_t N, std::size_t... Is>
+auto eigen_tensor_(const tensorwrapper::buffer::BufferBase& buffer,
+                   std::array<int, N> extents, std::index_sequence<Is...>) {
+    const auto& b = tensorwrapper::allocator::Eigen<FloatType>::rebind(buffer);
+    using eigen_type = Eigen::Tensor<const FloatType, N, Eigen::RowMajor>;
+    return Eigen::TensorMap<eigen_type>(b.data(), extents[Is]...);
+}
 
 // Checking eigen outputs
 template<std::size_t N, typename FloatType = double>
-auto eigen_buffer(const tensorwrapper::buffer::BufferBase& buffer) {
-    return static_cast<const tensorwrapper::buffer::Eigen<FloatType, N>&>(
-      buffer);
+auto eigen_tensor(const tensorwrapper::buffer::BufferBase& buffer) {
+    std::array<int, N> extents;
+    auto shape = buffer.layout().shape().as_smooth();
+    for(std::size_t i = 0; i < N; ++i) extents[i] = shape.extent(i);
+    return eigen_tensor_<FloatType>(buffer, extents,
+                                    std::make_index_sequence<N>());
 }
 
-template<typename FloatType, unsigned short Rank>
-auto trace(const tensorwrapper::buffer::Eigen<FloatType, Rank>& t) {
-    Eigen::Tensor<FloatType, 0, Eigen::RowMajor> trace = t.value().trace();
+template<unsigned short Rank, typename FloatType = double>
+auto trace(const tensorwrapper::buffer::BufferBase& buffer) {
+    auto t = eigen_tensor<Rank, FloatType>(buffer);
+    Eigen::Tensor<FloatType, 0, Eigen::RowMajor> trace = t.trace();
     return trace.coeff();
 }
 
-template<typename FloatType, unsigned short Rank>
-auto norm(const tensorwrapper::buffer::Eigen<FloatType, Rank>& t) {
-    Eigen::Tensor<FloatType, 0, Eigen::RowMajor> norm =
-      t.value().square().sum().sqrt();
+template<unsigned short Rank, typename FloatType = double>
+auto norm(const tensorwrapper::buffer::BufferBase& buffer) {
+    auto t = eigen_tensor<Rank, FloatType>(buffer);
+    Eigen::Tensor<FloatType, 0, Eigen::RowMajor> norm = t.square().sum().sqrt();
     return norm.coeff();
 }
 

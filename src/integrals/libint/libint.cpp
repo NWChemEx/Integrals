@@ -26,39 +26,37 @@
 namespace integrals::libint {
 namespace {
 
-template<typename FloatType, unsigned int N>
+template<typename FloatType>
 auto build_eigen_buffer(const std::vector<libint2::BasisSet>& basis_sets,
-                        double thresh) {
+                        parallelzone::runtime::RuntimeView& rv, double thresh) {
     FloatType initial_value;
     if constexpr(std::is_same_v<FloatType, double>) {
         initial_value = 0.0;
     } else { // Presumably sigma::UDouble
         initial_value = FloatType(0.0, thresh);
     }
-    Eigen::array<Eigen::Index, N> dims_bfs;
-    for(decltype(N) i = 0; i < N; ++i) dims_bfs[i] = basis_sets[i].nbf();
+    auto N = basis_sets.size();
+    std::vector<decltype(N)> dims(N);
+    for(decltype(N) i = 0; i < N; ++i) dims[i] = basis_sets[i].nbf();
 
     using shape_t  = tensorwrapper::shape::Smooth;
     using layout_t = tensorwrapper::layout::Physical;
-    using buffer_t = tensorwrapper::buffer::Eigen<FloatType, N>;
-    using data_t   = typename buffer_t::data_type;
 
-    shape_t s{dims_bfs.begin(), dims_bfs.end()};
+    shape_t s{dims.begin(), dims.end()};
     layout_t l(s);
-    data_t d(dims_bfs);
-    buffer_t b{d, l};
-    b.value().setConstant(initial_value);
-    return b;
+    tensorwrapper::allocator::Eigen<FloatType> alloc(rv);
+    return alloc.construct(l, initial_value);
 }
 
-template<typename FloatType, unsigned int N>
+template<std::size_t N, typename FloatType>
 auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
-                 const chemist::qm_operator::OperatorBase& op, double thresh) {
+                 const chemist::qm_operator::OperatorBase& op,
+                 parallelzone::runtime::RuntimeView& rv, double thresh) {
     // Dimensional information
     std::vector<std::size_t> dims_shells(N);
     for(decltype(N) i = 0; i < N; ++i) dims_shells[i] = basis_sets[i].size();
 
-    auto b = build_eigen_buffer<FloatType, N>(basis_sets, thresh);
+    auto pbuffer = build_eigen_buffer<FloatType>(basis_sets, rv, thresh);
 
     // Make libint engine
     LibintVisitor visitor(basis_sets, thresh);
@@ -77,7 +75,7 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
             auto ord   = detail_::shells2ord(basis_sets, shells);
             auto n_ord = ord.size();
             for(decltype(n_ord) i_ord = 0; i_ord < n_ord; ++i_ord) {
-                b.value().data()[ord[i_ord]] += vals[i_ord];
+                pbuffer->data()[ord[i_ord]] += vals[i_ord];
             }
         }
 
@@ -93,7 +91,8 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
         }
     }
 
-    return simde::type::tensor(b.layout().shape().clone(), b);
+    auto pshape = pbuffer->layout().shape().clone();
+    return simde::type::tensor(std::move(pshape), std::move(pbuffer));
 }
 
 } // namespace
@@ -122,6 +121,7 @@ TEMPLATED_MODULE_RUN(Libint, BraKetType) {
     auto bra             = braket.bra();
     auto ket             = braket.ket();
     auto& op             = braket.op();
+    auto& rv             = this->get_runtime();
 
     // Gather information from Bra, Ket, and Op
     auto basis_sets = detail_::get_basis_sets(bra, ket);
@@ -130,16 +130,17 @@ TEMPLATED_MODULE_RUN(Libint, BraKetType) {
     simde::type::tensor t;
     if(with_uq) {
         if constexpr(integrals::type::has_sigma()) {
-            t = fill_tensor<type::uncertain_double, N>(basis_sets, op, thresh);
+            t = fill_tensor<N, type::uncertain_double>(basis_sets, op, rv,
+                                                       thresh);
         } else {
             throw std::runtime_error("Sigma support not enabled!");
         }
     } else {
-        t = fill_tensor<double, N>(basis_sets, op, thresh);
+        t = fill_tensor<N, double>(basis_sets, op, rv, thresh);
     }
 
-    auto rv = results();
-    return my_pt::wrap_results(rv, t);
+    auto result = results();
+    return my_pt::wrap_results(result, t);
 }
 
 #define LIBINT(bra, op, ket) Libint<braket<bra, op, ket>>

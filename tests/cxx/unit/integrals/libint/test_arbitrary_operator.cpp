@@ -76,10 +76,9 @@ TEST_CASE("OperatorBase") {
             auto T = mod.run_as<test_pt>(braket);
 
             // Check output
-            auto t = test::eigen_buffer<2>(T.buffer());
-            REQUIRE(test::trace(t) ==
+            REQUIRE(test::trace<2>(T.buffer()) ==
                     Catch::Approx(124.7011973877891364).margin(1.0e-16));
-            REQUIRE(test::norm(t) ==
+            REQUIRE(test::norm<2>(T.buffer()) ==
                     Catch::Approx(90.2562579028763707).margin(1.0e-16));
         }
 
@@ -89,14 +88,13 @@ TEST_CASE("OperatorBase") {
                 auto T = mod.run_as<test_pt>(braket);
 
                 // Check output
-                auto t = test::eigen_buffer<2, udouble>(T.buffer());
-                REQUIRE(unwrap_mean(test::trace(t)) ==
+                REQUIRE(unwrap_mean(test::trace<2, udouble>(T.buffer())) ==
                         Catch::Approx(124.7011973877891364).margin(1.0e-16));
-                REQUIRE(unwrap_sd(test::trace(t)) ==
+                REQUIRE(unwrap_sd(test::trace<2, udouble>(T.buffer())) ==
                         Catch::Approx(7e-16).margin(1.0e-16));
-                REQUIRE(unwrap_mean(test::norm(t)) ==
+                REQUIRE(unwrap_mean(test::norm<2, udouble>(T.buffer())) ==
                         Catch::Approx(90.2562579028763707).margin(1.0e-16));
-                REQUIRE(unwrap_sd(test::norm(t)) ==
+                REQUIRE(unwrap_sd(test::norm<2, udouble>(T.buffer())) ==
                         Catch::Approx(3e-16).margin(1.0e-16));
             }
         }
@@ -115,10 +113,9 @@ TEST_CASE("OperatorBase") {
             auto T = mod.run_as<test_pt>(braket);
 
             // Check output
-            auto t = test::eigen_buffer<3>(T.buffer());
-            REQUIRE(test::trace(t) ==
+            REQUIRE(test::trace<3>(T.buffer()) ==
                     Catch::Approx(16.8245948391706577).margin(1.0e-16));
-            REQUIRE(test::norm(t) ==
+            REQUIRE(test::norm<3>(T.buffer()) ==
                     Catch::Approx(20.6560572032543597).margin(1.0e-16));
         }
 
@@ -129,14 +126,14 @@ TEST_CASE("OperatorBase") {
                 auto T = mod.run_as<test_pt>(braket);
 
                 // Check output
-                auto t = test::eigen_buffer<3, udouble>(T.buffer());
-                REQUIRE(unwrap_mean(test::trace(t)) ==
+                auto& t = T.buffer();
+                REQUIRE(unwrap_mean(test::trace<3, udouble>(t)) ==
                         Catch::Approx(16.8245948391706577).margin(1.0e-16));
-                REQUIRE(unwrap_sd(test::trace(t)) ==
+                REQUIRE(unwrap_sd(test::trace<3, udouble>(t)) ==
                         Catch::Approx(7e-16).margin(1.0e-16));
-                REQUIRE(unwrap_mean(test::norm(t)) ==
+                REQUIRE(unwrap_mean(test::norm<3, udouble>(t)) ==
                         Catch::Approx(20.6560572032543597).margin(1.0e-16));
-                REQUIRE(unwrap_sd(test::norm(t)) ==
+                REQUIRE(unwrap_sd(test::norm<3, udouble>(t)) ==
                         Catch::Approx(7e-16).margin(1.0e-16));
             }
         }
@@ -157,10 +154,10 @@ TEST_CASE("OperatorBase") {
             auto T = mod.run_as<test_pt>(braket);
 
             // Check output
-            auto t = test::eigen_buffer<4>(T.buffer());
-            REQUIRE(test::trace(t) ==
+            auto& t = T.buffer();
+            REQUIRE(test::trace<4>(t) ==
                     Catch::Approx(9.7919608941952063).margin(1.0e-16));
-            REQUIRE(test::norm(t) ==
+            REQUIRE(test::norm<4>(t) ==
                     Catch::Approx(7.7796143419802553).margin(1.0e-16));
         }
 
@@ -171,14 +168,14 @@ TEST_CASE("OperatorBase") {
                 auto T = mod.run_as<test_pt>(braket);
 
                 // Check output
-                auto t = test::eigen_buffer<4, udouble>(T.buffer());
-                REQUIRE(unwrap_mean(test::trace(t)) ==
+                auto& t = T.buffer();
+                REQUIRE(unwrap_mean(test::trace<4, udouble>(t)) ==
                         Catch::Approx(9.7919608941952063).margin(1.0e-16));
-                REQUIRE(unwrap_sd(test::trace(t)) ==
+                REQUIRE(unwrap_sd(test::trace<4, udouble>(t)) ==
                         Catch::Approx(7e-16).margin(1.0e-16));
-                REQUIRE(unwrap_mean(test::norm(t)) ==
+                REQUIRE(unwrap_mean(test::norm<4, udouble>(t)) ==
                         Catch::Approx(7.7796143419802553).margin(1.0e-16));
-                REQUIRE(unwrap_sd(test::norm(t)) ==
+                REQUIRE(unwrap_sd(test::norm<4, udouble>(t)) ==
                         Catch::Approx(11e-16).margin(1.0e-16));
             }
         }
