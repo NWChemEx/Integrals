@@ -23,12 +23,45 @@ using pt = simde::ERI2;
 
 namespace {
 
+struct Kernel {
+    template<typename FloatType>
+    auto run(const tensorwrapper::buffer::BufferBase& I,
+             parallelzone::runtime::RuntimeView& rv) {
+        // Unwrap buffer info
+        tensorwrapper::allocator::Eigen<FloatType> allocator(rv);
+        const auto& eigen_I = allocator.rebind(I);
+        const auto* pI      = eigen_I.data();
+        const auto& shape_I = eigen_I.layout().shape().as_smooth();
+        auto rows           = shape_I.extent(0);
+        auto cols           = shape_I.extent(1);
+
+        // Cholesky Decomp
+        constexpr auto rmajor = Eigen::RowMajor;
+        constexpr auto edynam = Eigen::Dynamic;
+        using matrix_type = Eigen::Matrix<FloatType, edynam, edynam, rmajor>;
+        using map_type    = Eigen::Map<const matrix_type>;
+        map_type I_map(pI, rows, cols);
+        Eigen::LLT<matrix_type> lltOfI(I_map);
+        matrix_type U    = lltOfI.matrixU();
+        matrix_type Linv = U.inverse().transpose();
+
+        // Wrap result
+        tensorwrapper::shape::Smooth matrix_shape{rows, cols};
+        tensorwrapper::layout::Physical matrix_layout(matrix_shape);
+        auto pM_buffer = allocator.allocate(matrix_layout);
+        for(auto i = 0; i < rows; ++i) {
+            for(auto j = 0; j < cols; ++j) { pM_buffer->at(i, j) = Linv(i, j); }
+        }
+        return simde::type::tensor(matrix_shape, std::move(pM_buffer));
+    }
+};
+
 auto desc = R"(
 Inverse Coulomb Metric
 ---------------------
 )";
 
-}
+} // namespace
 
 MODULE_CTOR(CoulombMetric) {
     description(desc);
@@ -43,29 +76,12 @@ MODULE_RUN(CoulombMetric) {
     // Get ERI2
     const auto& I = eri2_mod.run_as<pt>(braket);
 
-    // Cholesky Decomp
-    tensorwrapper::allocator::Eigen<double> allocator(get_runtime());
-    const auto& eigen_I = allocator.rebind(I.buffer());
-    const auto* pI      = eigen_I.data();
-    const auto& shape_I = eigen_I.layout().shape().as_smooth();
-    auto rows           = shape_I.extent(0);
-    auto cols           = shape_I.extent(1);
-
-    using emat_t = Eigen::MatrixXd;
-    Eigen::Map<const emat_t> I_map(pI, rows, cols);
-    Eigen::LLT<emat_t> lltOfI(I_map);
-    emat_t U    = lltOfI.matrixU();
-    emat_t Linv = U.inverse().transpose();
-
-    // Wrap result
-    tensorwrapper::shape::Smooth matrix_shape{rows, cols};
-    tensorwrapper::layout::Physical matrix_layout(matrix_shape);
-    auto pM_buffer = allocator.allocate(matrix_layout);
-
-    for(auto i = 0; i < rows; ++i) {
-        for(auto j = 0; j < cols; ++j) { pM_buffer->at(i, j) = Linv(i, j); }
-    }
-    simde::type::tensor M(matrix_shape, std::move(pM_buffer));
+    // Compute metric
+    using tensorwrapper::utilities::floating_point_dispatch;
+    auto r = get_runtime();
+    Kernel k;
+    const auto& I_buffer = I.buffer();
+    auto M               = floating_point_dispatch(k, I_buffer, r);
 
     auto rv = results();
     return pt::wrap_results(rv, M);
