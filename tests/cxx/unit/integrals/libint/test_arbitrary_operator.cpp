@@ -177,6 +177,13 @@ TEST_CASE("OperatorBase") {
                         Catch::Approx(7.7796143419802553).margin(1.0e-16));
                 REQUIRE(unwrap_sd(test::norm<4, udouble>(t)) ==
                         Catch::Approx(11e-16).margin(1.0e-16));
+
+                // Call module
+                auto& mod_uq = mm.at("Evaluate 4-Index BraKet (UQ)");
+                mod_uq.change_input("Threshold", 1.0e-6);
+                auto T_UQ = mod_uq.run_as<test_pt>(braket);
+                std::cout << std::fixed << std::setprecision(6)
+                          << T_UQ.buffer() << std::endl;
             }
         }
     }

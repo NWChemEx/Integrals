@@ -16,6 +16,7 @@
 
 #include "ao_integrals/ao_integrals.hpp"
 #include "libint/libint.hpp"
+#include "libint/libint_uq.hpp"
 #include <integrals/integrals_mm.hpp>
 
 namespace integrals {
@@ -39,6 +40,7 @@ void set_defaults(pluginplay::ModuleManager& mm) {
 void load_modules(pluginplay::ModuleManager& mm) {
     ao_integrals::load_modules(mm);
     libint::load_modules(mm);
+    libint::uq::load_modules(mm);
     set_defaults(mm);
 }
 
