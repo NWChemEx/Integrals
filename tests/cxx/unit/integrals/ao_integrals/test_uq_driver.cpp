@@ -16,6 +16,30 @@
 
 #include "../testing.hpp"
 
+template<typename FloatType>
+auto corr_answer(const simde::type::tensor& T) {
+    simde::type::tensor T_corr(T);
+    using alloc_type           = tensorwrapper::allocator::Eigen<FloatType>;
+    auto& corr_buffer          = alloc_type::rebind(T_corr.buffer());
+    corr_buffer.at(0, 0, 0, 0) = FloatType{0.774606, 0};
+    corr_buffer.at(0, 0, 0, 1) = FloatType{0.265558, 2.49687e-06};
+    corr_buffer.at(0, 0, 1, 0) = FloatType{0.265558, 2.49687e-06};
+    corr_buffer.at(0, 0, 1, 1) = FloatType{0.446701, 0};
+    corr_buffer.at(0, 1, 0, 0) = FloatType{0.265558, 2.49687e-06};
+    corr_buffer.at(0, 1, 0, 1) = FloatType{0.120666, 1.10748e-05};
+    corr_buffer.at(0, 1, 1, 0) = FloatType{0.120666, 1.10748e-05};
+    corr_buffer.at(0, 1, 1, 1) = FloatType{0.265558, 2.49687e-06};
+    corr_buffer.at(1, 0, 0, 0) = FloatType{0.265558, 2.49687e-06};
+    corr_buffer.at(1, 0, 0, 1) = FloatType{0.120666, 1.10748e-05};
+    corr_buffer.at(1, 0, 1, 0) = FloatType{0.120666, 1.10748e-05};
+    corr_buffer.at(1, 0, 1, 1) = FloatType{0.265558, 2.49687e-06};
+    corr_buffer.at(1, 1, 0, 0) = FloatType{0.446701, 0};
+    corr_buffer.at(1, 1, 0, 1) = FloatType{0.265558, 2.49687e-06};
+    corr_buffer.at(1, 1, 1, 0) = FloatType{0.265558, 2.49687e-06};
+    corr_buffer.at(1, 1, 1, 1) = FloatType{0.774606, 0};
+    return T_corr;
+}
+
 TEST_CASE("UQ Driver") {
     using float_type = tensorwrapper::types::udouble;
     if constexpr(tensorwrapper::types::is_uncertain_v<float_type>) {
@@ -43,29 +67,8 @@ TEST_CASE("UQ Driver") {
         chemist::braket::BraKet braket(aos_squared, op, aos_squared);
 
         // Call module
-        auto T = mm.at("UQ Driver").run_as<test_pt>(braket);
-
-        simde::type::tensor T_corr(T);
-
-        using alloc_type  = tensorwrapper::allocator::Eigen<float_type>;
-        auto& corr_buffer = alloc_type::rebind(T_corr.buffer());
-        corr_buffer.at(0, 0, 0, 0) = float_type{0.774606, 0};
-        corr_buffer.at(0, 0, 0, 1) = float_type{0.265558, 2.49687e-06};
-        corr_buffer.at(0, 0, 1, 0) = float_type{0.265558, 2.49687e-06};
-        corr_buffer.at(0, 0, 1, 1) = float_type{0.446701, 0};
-        corr_buffer.at(0, 1, 0, 0) = float_type{0.265558, 2.49687e-06};
-        corr_buffer.at(0, 1, 0, 1) = float_type{0.120666, 1.10748e-05};
-        corr_buffer.at(0, 1, 1, 0) = float_type{0.120666, 1.10748e-05};
-        corr_buffer.at(0, 1, 1, 1) = float_type{0.265558, 2.49687e-06};
-        corr_buffer.at(1, 0, 0, 0) = float_type{0.265558, 2.49687e-06};
-        corr_buffer.at(1, 0, 0, 1) = float_type{0.120666, 1.10748e-05};
-        corr_buffer.at(1, 0, 1, 0) = float_type{0.120666, 1.10748e-05};
-        corr_buffer.at(1, 0, 1, 1) = float_type{0.265558, 2.49687e-06};
-        corr_buffer.at(1, 1, 0, 0) = float_type{0.446701, 0};
-        corr_buffer.at(1, 1, 0, 1) = float_type{0.265558, 2.49687e-06};
-        corr_buffer.at(1, 1, 1, 0) = float_type{0.265558, 2.49687e-06};
-        corr_buffer.at(1, 1, 1, 1) = float_type{0.774606, 0};
-
+        auto T      = mm.at("UQ Driver").run_as<test_pt>(braket);
+        auto T_corr = corr_answer<float_type>(T);
         using tensorwrapper::operations::approximately_equal;
         REQUIRE(approximately_equal(T_corr, T, 1E-6));
     }
