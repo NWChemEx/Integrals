@@ -40,6 +40,7 @@ void load_modules(pluginplay::ModuleManager& mm) {
     ao_integrals::load_modules(mm);
     libint::load_modules(mm);
     set_defaults(mm);
+    ao_integrals::set_defaults(mm);
 }
 
 } // namespace integrals
