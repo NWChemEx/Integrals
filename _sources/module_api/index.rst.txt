@@ -21,3 +21,4 @@ Modules API
    Kinetic
    Nuclear
    Overlap
+   UQ_Driver

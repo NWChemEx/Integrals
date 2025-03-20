@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Density Fitted K builder &mdash; Integrals v0.0.28 documentation</title>
+  <title>UQ Driver &mdash; Integrals v0.0.28 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,8 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Density Fitting Integral" href="Density_Fitting_Integral.html" />
-    <link rel="prev" title="Density Fitted J builder" href="Density_Fitted_J_builder.html" /> 
+    <link rel="prev" title="Overlap" href="Overlap.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,21 +50,7 @@
 <li class="toctree-l2"><a class="reference internal" href="AO_integral_driver.html">AO integral driver</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Coulomb_Metric.html">Coulomb Metric</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Density_Fitted_J_builder.html">Density Fitted J builder</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Density Fitted K builder</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Density Fitted K Builder</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#please-cite">Please Cite</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#property-types">Property Types</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-inputs">Module Inputs</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#auxiliary-basis-set">Auxiliary Basis Set</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#braket">BraKet</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#module-results">Module Results</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="Density_Fitted_K_builder.html">Density Fitted K builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Density_Fitting_Integral.html">Density Fitting Integral</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ERI2.html">ERI2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ERI3.html">ERI3</a></li>
@@ -78,7 +63,22 @@
 <li class="toctree-l2"><a class="reference internal" href="Kinetic.html">Kinetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Nuclear.html">Nuclear</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Overlap.html">Overlap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="UQ_Driver.html">UQ Driver</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">UQ Driver</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#uq-integrals-driver">UQ Integrals Driver</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#please-cite">Please Cite</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#property-types">Property Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-inputs">Module Inputs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#benchmark-precision">benchmark precision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#braket">BraKet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#precision">precision</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-results">Module Results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference external" href="https://nwchemex.github.io/Integrals/integrals_cxx_api/index.html">C++ API</a></li>
@@ -99,9 +99,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">Modules API</a></li>
-      <li class="breadcrumb-item active">Density Fitted K builder</li>
+      <li class="breadcrumb-item active">UQ Driver</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/module_api/Density_Fitted_K_builder.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/module_api/UQ_Driver.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -109,10 +109,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="density-fitted-k-builder">
-<h1>Density Fitted K builder<a class="headerlink" href="#density-fitted-k-builder" title="Link to this heading"></a></h1>
-<section id="id1">
-<h2>Density Fitted K Builder<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+  <section id="uq-driver">
+<h1>UQ Driver<a class="headerlink" href="#uq-driver" title="Link to this heading"></a></h1>
+<section id="uq-integrals-driver">
+<h2>UQ Integrals Driver<a class="headerlink" href="#uq-integrals-driver" title="Link to this heading"></a></h2>
 <section id="please-cite">
 <h3>Please Cite<a class="headerlink" href="#please-cite" title="Link to this heading"></a></h3>
 <p>No citations</p>
@@ -121,7 +121,7 @@
 <h3>Property Types<a class="headerlink" href="#property-types" title="Link to this heading"></a></h3>
 <p>The following is a list of property types that this module satisfies.</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">simde::EvaluateBraKet&lt;chemist::braket::BraKet&lt;chemist::wavefunction::AOs,</span> <span class="pre">chemist::qm_operator::Exchange&lt;chemist::Electron,</span> <span class="pre">chemist::DecomposableDensity&lt;chemist::Electron&gt;&gt;,</span> <span class="pre">chemist::wavefunction::AOs&gt;&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">simde::EvaluateBraKet&lt;chemist::braket::BraKet&lt;utilities::dsl::Multiply&lt;chemist::wavefunction::AOs,</span> <span class="pre">chemist::wavefunction::AOs&gt;,</span> <span class="pre">chemist::qm_operator::Coulomb&lt;chemist::Electron,</span> <span class="pre">chemist::Electron&gt;,</span> <span class="pre">utilities::dsl::Multiply&lt;chemist::wavefunction::AOs,</span> <span class="pre">chemist::wavefunction::AOs&gt;&gt;&gt;</span></code></p></li>
 </ul>
 </section>
 <section id="module-inputs">
@@ -147,12 +147,16 @@ module. The columns are:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Auxiliary Basis Set</p></td>
-<td><p>N/A</p></td>
+<tr class="row-even"><td><p>benchmark precision</p></td>
+<td><p>1e-16</p></td>
 <td><p>N/A</p></td>
 </tr>
 <tr class="row-odd"><td><p>BraKet</p></td>
 <td><p>N/A</p></td>
+<td><p>N/A</p></td>
+</tr>
+<tr class="row-even"><td><p>precision</p></td>
+<td><p>1e-16</p></td>
 <td><p>N/A</p></td>
 </tr>
 </tbody>
@@ -173,16 +177,16 @@ subsection we list:</p>
 </section>
 </section>
 </section>
-<section id="auxiliary-basis-set">
-<h2>Auxiliary Basis Set<a class="headerlink" href="#auxiliary-basis-set" title="Link to this heading"></a></h2>
+<section id="benchmark-precision">
+<h2>benchmark precision<a class="headerlink" href="#benchmark-precision" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Description : N/A</p></li>
-<li><p>Default Value : N/A</p></li>
+<li><p>Default Value : 1e-16</p></li>
 <li><p>Optional? : False</p></li>
 <li><p>Opaque? : True</p></li>
 <li><p>Domain Restrictions :</p>
 <ul>
-<li><p>Type == chemist::wavefunction::AOs</p></li>
+<li><p>Type == double</p></li>
 </ul>
 </li>
 </ul>
@@ -196,7 +200,21 @@ subsection we list:</p>
 <li><p>Opaque? : True</p></li>
 <li><p>Domain Restrictions :</p>
 <ul>
-<li><p>Type == chemist::braket::BraKet&lt;chemist::wavefunction::AOs, chemist::qm_operator::Exchange&lt;chemist::Electron, chemist::DecomposableDensity&lt;chemist::Electron&gt;&gt;, chemist::wavefunction::AOs&gt;</p></li>
+<li><p>Type == chemist::braket::BraKet&lt;utilities::dsl::Multiply&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;, chemist::qm_operator::Coulomb&lt;chemist::Electron, chemist::Electron&gt;, utilities::dsl::Multiply&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;&gt;</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="precision">
+<h2>precision<a class="headerlink" href="#precision" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Description : N/A</p></li>
+<li><p>Default Value : 1e-16</p></li>
+<li><p>Optional? : False</p></li>
+<li><p>Opaque? : True</p></li>
+<li><p>Domain Restrictions :</p>
+<ul>
+<li><p>Type == double</p></li>
 </ul>
 </li>
 </ul>
@@ -247,8 +265,8 @@ submodule we have listed:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>DF ERI</p></td>
-<td><p>simde::EvaluateBraKet&lt;chemist::braket::BraKet&lt;chemist::wavefunction::AOs, chemist::qm_operator::Coulomb&lt;chemist::Electron, chemist::Electron&gt;, utilities::dsl::Multiply&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;&gt;&gt;</p></td>
+<tr class="row-even"><td><p>ERIs</p></td>
+<td><p>simde::EvaluateBraKet&lt;chemist::braket::BraKet&lt;utilities::dsl::Multiply&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;, chemist::qm_operator::Coulomb&lt;chemist::Electron, chemist::Electron&gt;, utilities::dsl::Multiply&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;&gt;&gt;</p></td>
 <td><p>N/A</p></td>
 </tr>
 </tbody>
@@ -261,8 +279,7 @@ submodule we have listed:</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="Density_Fitted_J_builder.html" class="btn btn-neutral float-left" title="Density Fitted J builder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="Density_Fitting_Integral.html" class="btn btn-neutral float-right" title="Density Fitting Integral" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Overlap.html" class="btn btn-neutral float-left" title="Overlap" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
