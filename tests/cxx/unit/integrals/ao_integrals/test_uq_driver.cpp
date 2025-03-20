@@ -49,22 +49,22 @@ TEST_CASE("UQ Driver") {
 
         using alloc_type  = tensorwrapper::allocator::Eigen<float_type>;
         auto& corr_buffer = alloc_type::rebind(T_corr.buffer());
-        corr_buffer.at(0, 0, 0, 0) = float_type(0.774606, 0);
-        corr_buffer.at(0, 0, 0, 1) = float_type(0.265558, 2.49687e-06);
-        corr_buffer.at(0, 0, 1, 0) = float_type(0.265558, 2.49687e-06);
-        corr_buffer.at(0, 0, 1, 1) = float_type(0.446701, 0);
-        corr_buffer.at(0, 1, 0, 0) = float_type(0.265558, 2.49687e-06);
-        corr_buffer.at(0, 1, 0, 1) = float_type(0.120666, 1.10748e-05);
-        corr_buffer.at(0, 1, 1, 0) = float_type(0.120666, 1.10748e-05);
-        corr_buffer.at(0, 1, 1, 1) = float_type(0.265558, 2.49687e-06);
-        corr_buffer.at(1, 0, 0, 0) = float_type(0.265558, 2.49687e-06);
-        corr_buffer.at(1, 0, 0, 1) = float_type(0.120666, 1.10748e-05);
-        corr_buffer.at(1, 0, 1, 0) = float_type(0.120666, 1.10748e-05);
-        corr_buffer.at(1, 0, 1, 1) = float_type(0.265558, 2.49687e-06);
-        corr_buffer.at(1, 1, 0, 0) = float_type(0.446701, 0);
-        corr_buffer.at(1, 1, 0, 1) = float_type(0.265558, 2.49687e-06);
-        corr_buffer.at(1, 1, 1, 0) = float_type(0.265558, 2.49687e-06);
-        corr_buffer.at(1, 1, 1, 1) = float_type(0.774606, 0);
+        corr_buffer.at(0, 0, 0, 0) = float_type{0.774606, 0};
+        corr_buffer.at(0, 0, 0, 1) = float_type{0.265558, 2.49687e-06};
+        corr_buffer.at(0, 0, 1, 0) = float_type{0.265558, 2.49687e-06};
+        corr_buffer.at(0, 0, 1, 1) = float_type{0.446701, 0};
+        corr_buffer.at(0, 1, 0, 0) = float_type{0.265558, 2.49687e-06};
+        corr_buffer.at(0, 1, 0, 1) = float_type{0.120666, 1.10748e-05};
+        corr_buffer.at(0, 1, 1, 0) = float_type{0.120666, 1.10748e-05};
+        corr_buffer.at(0, 1, 1, 1) = float_type{0.265558, 2.49687e-06};
+        corr_buffer.at(1, 0, 0, 0) = float_type{0.265558, 2.49687e-06};
+        corr_buffer.at(1, 0, 0, 1) = float_type{0.120666, 1.10748e-05};
+        corr_buffer.at(1, 0, 1, 0) = float_type{0.120666, 1.10748e-05};
+        corr_buffer.at(1, 0, 1, 1) = float_type{0.265558, 2.49687e-06};
+        corr_buffer.at(1, 1, 0, 0) = float_type{0.446701, 0};
+        corr_buffer.at(1, 1, 0, 1) = float_type{0.265558, 2.49687e-06};
+        corr_buffer.at(1, 1, 1, 0) = float_type{0.265558, 2.49687e-06};
+        corr_buffer.at(1, 1, 1, 1) = float_type{0.774606, 0};
 
         using tensorwrapper::operations::approximately_equal;
         REQUIRE(approximately_equal(T_corr, T, 1E-6));
