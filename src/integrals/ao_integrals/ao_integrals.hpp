@@ -26,6 +26,7 @@ DECLARE_MODULE(JDensityFitted);
 DECLARE_MODULE(KDensityFitted);
 DECLARE_MODULE(DFIntegral);
 DECLARE_MODULE(CoulombMetric);
+DECLARE_MODULE(UQDriver);
 
 inline void set_defaults(pluginplay::ModuleManager& mm) {
     mm.change_submod("AO integral driver", "Coulomb matrix",
@@ -38,6 +39,7 @@ inline void set_defaults(pluginplay::ModuleManager& mm) {
                      "Density Fitting Integral");
     mm.change_submod("Density Fitting Integral", "Coulomb Metric",
                      "Coulomb Metric");
+    mm.change_submod("UQ Driver", "ERIs", "ERI4");
 }
 
 inline void load_modules(pluginplay::ModuleManager& mm) {
@@ -48,7 +50,7 @@ inline void load_modules(pluginplay::ModuleManager& mm) {
     mm.add_module<KDensityFitted>("Density Fitted K builder");
     mm.add_module<DFIntegral>("Density Fitting Integral");
     mm.add_module<CoulombMetric>("Coulomb Metric");
-    set_defaults(mm);
+    mm.add_module<UQDriver>("UQ Driver");
 }
 
 } // namespace integrals::ao_integrals
