@@ -64,15 +64,15 @@ std::vector<libint2::BasisSet> get_basis_sets(const BraType& bra,
     if constexpr(std::is_same_v<BraType, aos>) {
         basis_sets.push_back(make_libint_basis_set(bra.ao_basis_set()));
     } else if constexpr(std::is_same_v<BraType, aos_squared>) {
-        basis_sets.push_back(make_libint_basis_set(bra.lhs().ao_basis_set()));
-        basis_sets.push_back(make_libint_basis_set(bra.rhs().ao_basis_set()));
+        basis_sets.push_back(make_libint_basis_set(bra.first.ao_basis_set()));
+        basis_sets.push_back(make_libint_basis_set(bra.second.ao_basis_set()));
     }
 
     if constexpr(std::is_same_v<KetType, aos>) {
         basis_sets.push_back(make_libint_basis_set(ket.ao_basis_set()));
     } else if constexpr(std::is_same_v<KetType, aos_squared>) {
-        basis_sets.push_back(make_libint_basis_set(ket.lhs().ao_basis_set()));
-        basis_sets.push_back(make_libint_basis_set(ket.rhs().ao_basis_set()));
+        basis_sets.push_back(make_libint_basis_set(ket.first.ao_basis_set()));
+        basis_sets.push_back(make_libint_basis_set(ket.second.ao_basis_set()));
     }
 
     return basis_sets;
