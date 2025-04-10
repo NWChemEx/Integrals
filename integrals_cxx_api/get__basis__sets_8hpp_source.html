@@ -22,7 +22,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">integrals
-   &#160;<span id="projectnumber">0.0.28</span>
+   &#160;<span id="projectnumber">0.0.29</span>
    </div>
   </td>
  </tr>
@@ -120,15 +120,15 @@ $(function() {
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordflow">if</span> constexpr(std::is_same_v&lt;BraType, aos&gt;) {</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        basis_sets.push_back(<a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(bra.ao_basis_set()));</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> constexpr(std::is_same_v&lt;BraType, aos_squared&gt;) {</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        basis_sets.push_back(<a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(bra.lhs().ao_basis_set()));</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        basis_sets.push_back(<a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(bra.rhs().ao_basis_set()));</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        basis_sets.push_back(<a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(bra.first.ao_basis_set()));</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        basis_sets.push_back(<a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(bra.second.ao_basis_set()));</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    }</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordflow">if</span> constexpr(std::is_same_v&lt;KetType, aos&gt;) {</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        basis_sets.push_back(<a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(ket.ao_basis_set()));</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> constexpr(std::is_same_v&lt;KetType, aos_squared&gt;) {</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        basis_sets.push_back(<a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(ket.lhs().ao_basis_set()));</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        basis_sets.push_back(<a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(ket.rhs().ao_basis_set()));</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        basis_sets.push_back(<a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(ket.first.ao_basis_set()));</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        basis_sets.push_back(<a class="code" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(ket.second.ao_basis_set()));</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    }</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordflow">return</span> basis_sets;</div>

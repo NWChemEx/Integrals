@@ -23,7 +23,7 @@ Property Types
 
 The following is a list of property types that this module satisfies.
 
-- ``simde::EvaluateBraKet<chemist::braket::BraKet<utilities::dsl::Multiply<chemist::wavefunction::AOs, chemist::wavefunction::AOs>, chemist::qm_operator::Coulomb<chemist::Electron, chemist::Electron>, utilities::dsl::Multiply<chemist::wavefunction::AOs, chemist::wavefunction::AOs>>>``
+- ``simde::EvaluateBraKet<chemist::braket::BraKet<std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>, chemist::qm_operator::Coulomb<chemist::Electron, chemist::Electron>, std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>>>``
 
 *************
 Module Inputs
@@ -88,7 +88,7 @@ BraKet
 - Opaque? : True
 - Domain Restrictions :
 
-  - Type == chemist::braket::BraKet<utilities::dsl::Multiply<chemist::wavefunction::AOs, chemist::wavefunction::AOs>, chemist::qm_operator::Coulomb<chemist::Electron, chemist::Electron>, utilities::dsl::Multiply<chemist::wavefunction::AOs, chemist::wavefunction::AOs>>
+  - Type == chemist::braket::BraKet<std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>, chemist::qm_operator::Coulomb<chemist::Electron, chemist::Electron>, std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>>
 
 precision
 ---------
@@ -137,8 +137,8 @@ submodule we have listed:
 - Property Type : The property type that the submodule must satisfy.
 - Description : How the module will use the submodule.
 
-+------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------+
-| Key  | Property Type                                                                                                                                                                                                                                                                           | Description |
-+======+=========================================================================================================================================================================================================================================================================================+=============+
-| ERIs | simde::EvaluateBraKet<chemist::braket::BraKet<utilities::dsl::Multiply<chemist::wavefunction::AOs, chemist::wavefunction::AOs>, chemist::qm_operator::Coulomb<chemist::Electron, chemist::Electron>, utilities::dsl::Multiply<chemist::wavefunction::AOs, chemist::wavefunction::AOs>>> | N/A         |
-+------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------+
++------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------+
+| Key  | Property Type                                                                                                                                                                                                                                             | Description |
++======+===========================================================================================================================================================================================================================================================+=============+
+| ERIs | simde::EvaluateBraKet<chemist::braket::BraKet<std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>, chemist::qm_operator::Coulomb<chemist::Electron, chemist::Electron>, std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>>> | N/A         |
++------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------+
