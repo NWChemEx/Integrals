@@ -33,7 +33,7 @@ auto eigen_tensor_(const tensorwrapper::buffer::BufferBase& buffer,
                    std::array<int, N> extents, std::index_sequence<Is...>) {
     const auto& b = tensorwrapper::allocator::Eigen<FloatType>::rebind(buffer);
     using eigen_type = Eigen::Tensor<const FloatType, N, Eigen::RowMajor>;
-    return Eigen::TensorMap<eigen_type>(b.data(), extents[Is]...);
+    return Eigen::TensorMap<eigen_type>(b.get_immutable_data(), extents[Is]...);
 }
 
 // Checking eigen outputs

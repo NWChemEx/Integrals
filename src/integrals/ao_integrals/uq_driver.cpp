@@ -34,9 +34,9 @@ struct Kernel {
 
             auto rv_buffer = alloc.allocate(t_eigen.layout());
             for(std::size_t i = 0; i < t_eigen.size(); ++i) {
-                const auto elem          = (t_eigen.data() + i)->mean();
-                const auto elem_error    = (error_eigen.data() + i)->mean();
-                *(rv_buffer->data() + i) = FloatType(elem, elem_error);
+                const auto elem       = t_eigen.get_data(i).mean();
+                const auto elem_error = error_eigen.get_data(i).mean();
+                rv_buffer->set_data(i, FloatType(elem, elem_error));
             }
 
             const auto& shape = t_eigen.layout().shape();

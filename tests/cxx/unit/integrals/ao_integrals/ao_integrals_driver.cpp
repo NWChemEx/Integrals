@@ -26,15 +26,15 @@ void compare_matrices(const tensor& A, const tensor& A_corr) {
     const auto& A_corr_buffer = alloc_type::rebind(A_corr.buffer());
 
     const auto tol = 1E-6;
-    auto A00       = A_buffer.at(0, 0);
-    auto A01       = A_buffer.at(0, 1);
-    auto A10       = A_buffer.at(1, 0);
-    auto A11       = A_buffer.at(1, 1);
+    auto A00       = A_buffer.get_elem({0, 0});
+    auto A01       = A_buffer.get_elem({0, 1});
+    auto A10       = A_buffer.get_elem({1, 0});
+    auto A11       = A_buffer.get_elem({1, 1});
 
-    REQUIRE(A00 == Catch::Approx(A_corr_buffer.at(0, 0)).margin(tol));
-    REQUIRE(A01 == Catch::Approx(A_corr_buffer.at(0, 1)).margin(tol));
-    REQUIRE(A10 == Catch::Approx(A_corr_buffer.at(1, 0)).margin(tol));
-    REQUIRE(A11 == Catch::Approx(A_corr_buffer.at(1, 1)).margin(tol));
+    REQUIRE(A00 == Catch::Approx(A_corr_buffer.get_elem({0, 0})).margin(tol));
+    REQUIRE(A01 == Catch::Approx(A_corr_buffer.get_elem({0, 1})).margin(tol));
+    REQUIRE(A10 == Catch::Approx(A_corr_buffer.get_elem({1, 0})).margin(tol));
+    REQUIRE(A11 == Catch::Approx(A_corr_buffer.get_elem({1, 1})).margin(tol));
 }
 
 } // namespace
