@@ -75,7 +75,8 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
             auto ord   = detail_::shells2ord(basis_sets, shells);
             auto n_ord = ord.size();
             for(decltype(n_ord) i_ord = 0; i_ord < n_ord; ++i_ord) {
-                pbuffer->data()[ord[i_ord]] += vals[i_ord];
+                auto update = pbuffer->get_data(ord[i_ord]) + vals[i_ord];
+                pbuffer->set_data(ord[i_ord], update);
             }
         }
 

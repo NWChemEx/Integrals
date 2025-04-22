@@ -22,24 +22,24 @@ auto corr_answer(const simde::type::tensor& T) {
         return T;
     } else {
         simde::type::tensor T_corr(T);
-        using alloc_type           = tensorwrapper::allocator::Eigen<FloatType>;
-        auto& corr_buffer          = alloc_type::rebind(T_corr.buffer());
-        corr_buffer.at(0, 0, 0, 0) = FloatType{0.774606, 0};
-        corr_buffer.at(0, 0, 0, 1) = FloatType{0.265558, 2.49687e-06};
-        corr_buffer.at(0, 0, 1, 0) = FloatType{0.265558, 2.49687e-06};
-        corr_buffer.at(0, 0, 1, 1) = FloatType{0.446701, 0};
-        corr_buffer.at(0, 1, 0, 0) = FloatType{0.265558, 2.49687e-06};
-        corr_buffer.at(0, 1, 0, 1) = FloatType{0.120666, 1.10748e-05};
-        corr_buffer.at(0, 1, 1, 0) = FloatType{0.120666, 1.10748e-05};
-        corr_buffer.at(0, 1, 1, 1) = FloatType{0.265558, 2.49687e-06};
-        corr_buffer.at(1, 0, 0, 0) = FloatType{0.265558, 2.49687e-06};
-        corr_buffer.at(1, 0, 0, 1) = FloatType{0.120666, 1.10748e-05};
-        corr_buffer.at(1, 0, 1, 0) = FloatType{0.120666, 1.10748e-05};
-        corr_buffer.at(1, 0, 1, 1) = FloatType{0.265558, 2.49687e-06};
-        corr_buffer.at(1, 1, 0, 0) = FloatType{0.446701, 0};
-        corr_buffer.at(1, 1, 0, 1) = FloatType{0.265558, 2.49687e-06};
-        corr_buffer.at(1, 1, 1, 0) = FloatType{0.265558, 2.49687e-06};
-        corr_buffer.at(1, 1, 1, 1) = FloatType{0.774606, 0};
+        using alloc_type  = tensorwrapper::allocator::Eigen<FloatType>;
+        auto& corr_buffer = alloc_type::rebind(T_corr.buffer());
+        corr_buffer.set_elem({0, 0, 0, 0}, FloatType{0.774606, 0});
+        corr_buffer.set_elem({0, 0, 0, 1}, FloatType{0.265558, 2.49687e-06});
+        corr_buffer.set_elem({0, 0, 1, 0}, FloatType{0.265558, 2.49687e-06});
+        corr_buffer.set_elem({0, 0, 1, 1}, FloatType{0.446701, 0});
+        corr_buffer.set_elem({0, 1, 0, 0}, FloatType{0.265558, 2.49687e-06});
+        corr_buffer.set_elem({0, 1, 0, 1}, FloatType{0.120666, 1.10748e-05});
+        corr_buffer.set_elem({0, 1, 1, 0}, FloatType{0.120666, 1.10748e-05});
+        corr_buffer.set_elem({0, 1, 1, 1}, FloatType{0.265558, 2.49687e-06});
+        corr_buffer.set_elem({1, 0, 0, 0}, FloatType{0.265558, 2.49687e-06});
+        corr_buffer.set_elem({1, 0, 0, 1}, FloatType{0.120666, 1.10748e-05});
+        corr_buffer.set_elem({1, 0, 1, 0}, FloatType{0.120666, 1.10748e-05});
+        corr_buffer.set_elem({1, 0, 1, 1}, FloatType{0.265558, 2.49687e-06});
+        corr_buffer.set_elem({1, 1, 0, 0}, FloatType{0.446701, 0});
+        corr_buffer.set_elem({1, 1, 0, 1}, FloatType{0.265558, 2.49687e-06});
+        corr_buffer.set_elem({1, 1, 1, 0}, FloatType{0.265558, 2.49687e-06});
+        corr_buffer.set_elem({1, 1, 1, 1}, FloatType{0.774606, 0});
         return T_corr;
     }
 }

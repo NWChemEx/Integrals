@@ -30,7 +30,7 @@ struct Kernel {
         // Unwrap buffer info
         tensorwrapper::allocator::Eigen<FloatType> allocator(rv);
         const auto& eigen_I = allocator.rebind(I);
-        const auto* pI      = eigen_I.data();
+        const auto* pI      = eigen_I.get_immutable_data();
         const auto& shape_I = eigen_I.layout().shape().as_smooth();
         auto rows           = shape_I.extent(0);
         auto cols           = shape_I.extent(1);
@@ -49,8 +49,10 @@ struct Kernel {
         tensorwrapper::shape::Smooth matrix_shape{rows, cols};
         tensorwrapper::layout::Physical matrix_layout(matrix_shape);
         auto pM_buffer = allocator.allocate(matrix_layout);
-        for(auto i = 0; i < rows; ++i) {
-            for(auto j = 0; j < cols; ++j) { pM_buffer->at(i, j) = Linv(i, j); }
+        for(decltype(rows) i = 0; i < rows; ++i) {
+            for(decltype(cols) j = 0; j < cols; ++j) {
+                pM_buffer->set_elem({i, j}, Linv(i, j));
+            }
         }
         return simde::type::tensor(matrix_shape, std::move(pM_buffer));
     }
