@@ -15,19 +15,30 @@
  */
 
 #include "../testing.hpp"
+#include <iomanip>
 
 TEST_CASE("ERI4") {
+    // --- Setup (ignore) ---
     using test_pt = simde::ERI4;
-
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
     REQUIRE(mm.count("ERI4"));
+    auto mol = test::water_molecule();
 
-    // Get basis set
-    auto mol  = test::water_molecule();
+    // --- Parameters you can tweak ---
+    // This is the target precision the ERIs will be built to
+    mm.change_input("ERI4", "Threshold", 1.0E-16);
+
+    // This is the basis set used to construct the ERIs
     auto aobs = test::water_sto3g_basis_set();
 
-    // Make AOS object
+    // This is the file the tensor will be written to
+    std::ofstream file("water_sto3g_16.json");
+
+    // This controls the precision to which tensor elements are printed
+    file << std::fixed << std::setprecision(16);
+
+    // --- Carries out the calculation (ignore) ---
     simde::type::aos aos(aobs);
     simde::type::aos_squared aos_squared(aos, aos);
 
@@ -40,8 +51,12 @@ TEST_CASE("ERI4") {
     // Call module
     auto T = mm.at("ERI4").run_as<test_pt>(braket);
 
+    tensorwrapper::utilities::to_json(file, T);
+    file.close();
+
     // Check output
     auto& t = T.buffer();
+
     REQUIRE(test::trace<4>(t) ==
             Catch::Approx(9.7919608941952063).margin(1.0e-16));
     REQUIRE(test::norm<4>(t) ==
