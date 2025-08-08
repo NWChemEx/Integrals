@@ -21,5 +21,3 @@ Welcome to Integral's documentation!
 
    module_api/index
    C++ API <https://nwchemex.github.io/Integrals/integrals_cxx_api/index.html>
-
-

@@ -92,7 +92,7 @@ if("${BUILD_TESTING}")
         INCLUDE_DIRS "${INTEGRALS_SOURCE_DIR}/${PROJECT_NAME}"
         DEPENDS Catch2 ${PROJECT_NAME}
     )
-    
+
     nwx_pybind11_tests(
         py_integrals "${PYTHON_TEST_DIR}/unit_tests/test_integrals.py"
         SUBMODULES pluginplay chemist parallelzone simde
