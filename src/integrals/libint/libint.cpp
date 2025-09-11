@@ -23,6 +23,8 @@
 #include "libint_visitor.hpp"
 #include <type_traits>
 
+#include <omp.h>
+
 namespace integrals::libint {
 namespace {
 
@@ -52,42 +54,54 @@ template<std::size_t N, typename FloatType>
 auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
                  const chemist::qm_operator::OperatorBase& op,
                  parallelzone::runtime::RuntimeView& rv, double thresh) {
+    using size_type = decltype(N);
+
     // Dimensional information
-    std::vector<std::size_t> dims_shells(N);
-    for(decltype(N) i = 0; i < N; ++i) dims_shells[i] = basis_sets[i].size();
+    std::vector<size_type> dim_stepsizes(N, 1);
+    size_type num_shell_combinations = 1;
 
-    auto pbuffer = build_eigen_buffer<FloatType>(basis_sets, rv, thresh);
+    for(size_type i = 0; i < N; ++i) {
+        num_shell_combinations *= basis_sets[i].size();
+        for(size_type j = i; j < N - 1; ++j) {
+            dim_stepsizes[i] *= basis_sets[j].size();
+        }
+    }
 
-    // Make libint engine
+    // Make an engine for each thread
+    int num_threads;
+#pragma omp parallel
+    { num_threads = omp_get_num_threads(); }
+    std::vector<libint2::Engine> engines(num_threads);
     LibintVisitor visitor(basis_sets, thresh);
     op.visit(visitor);
-    auto engine     = visitor.engine();
-    const auto& buf = engine.results();
+    for(size_type i = 0; i != num_threads; ++i) {
+        engines[i] = visitor.engine();
+    }
 
     // Fill in values
-    std::vector<std::size_t> shells(N, 0);
-    while(shells[0] < dims_shells[0]) {
-        detail_::run_engine_(engine, basis_sets, shells,
+    auto pbuffer = build_eigen_buffer<FloatType>(basis_sets, rv, thresh);
+#pragma omp parallel for
+    for(size_type i_pair = 0; i_pair != num_shell_combinations; ++i_pair) {
+        auto thread_id = omp_get_thread_num();
+
+        std::vector<size_type> shells(N, 0);
+        auto shell_ord = i_pair;
+        for(size_type i = 0; i < N; ++i) {
+            shells[i] = shell_ord / dim_stepsizes[i];
+            shell_ord = shell_ord % dim_stepsizes[i];
+        }
+
+        detail_::run_engine_(engines[thread_id], basis_sets, shells,
                              std::make_index_sequence<N>());
 
-        auto vals = buf[0];
+        const auto& buf = engines[thread_id].results();
+        auto vals       = buf[0];
         if(vals) {
             auto ord   = detail_::shells2ord(basis_sets, shells);
             auto n_ord = ord.size();
             for(decltype(n_ord) i_ord = 0; i_ord < n_ord; ++i_ord) {
                 auto update = pbuffer->get_data(ord[i_ord]) + vals[i_ord];
                 pbuffer->set_data(ord[i_ord], update);
-            }
-        }
-
-        // Increment index
-        shells[N - 1] += 1;
-        for(decltype(N) i = 1; i < N; ++i) {
-            if(shells[N - i] >= dims_shells[N - i]) {
-                // Reset this dimension and increment the next one
-                // shells[0] accumulates until we reach the end
-                shells[N - i] = 0;
-                shells[N - i - 1] += 1;
             }
         }
     }

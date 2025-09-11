@@ -60,11 +60,13 @@ cmaize_find_or_build_dependency(
                ENABLE_SIGMA=${ENABLE_SIGMA}
 )
 
+find_package( OpenMP  REQUIRED )
+
 cmaize_add_library(
     ${PROJECT_NAME}
     SOURCE_DIR "${INTEGRALS_SOURCE_DIR}/${PROJECT_NAME}"
     INCLUDE_DIRS "${INTEGRALS_INCLUDE_DIR}/${PROJECT_NAME}"
-    DEPENDS Libint2 simde
+    DEPENDS Libint2 OpenMP::OpenMP_CXX simde
 )
 
 include(nwx_pybind11)
