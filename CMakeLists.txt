@@ -39,6 +39,7 @@ cmaize_option_list(
     BUILD_TESTING OFF "Should we build the tests?"
     BUILD_PYBIND11_PYBINDINGS ON "Build pybind11 python3 bindings?"
     ENABLE_SIGMA OFF "Should we enable Sigma for uncertainty tracking?"
+    INTEGRALS_ENABLE_OPENMP OFF "Should we enable OpenMP for threading?"
 )
 
 # Can't build from github due to Libint setup.
@@ -60,11 +61,18 @@ cmaize_find_or_build_dependency(
                ENABLE_SIGMA=${ENABLE_SIGMA}
 )
 
+set(project_depends Libint2 simde)
+
+if("${INTEGRALS_ENABLE_OPENMP}")
+find_package(OpenMP REQUIRED)
+list(APPEND project_depends OpenMP::OpenMP_CXX)
+endif()
+
 cmaize_add_library(
     ${PROJECT_NAME}
     SOURCE_DIR "${INTEGRALS_SOURCE_DIR}/${PROJECT_NAME}"
     INCLUDE_DIRS "${INTEGRALS_INCLUDE_DIR}/${PROJECT_NAME}"
-    DEPENDS Libint2 simde
+    DEPENDS "${project_depends}"
 )
 
 include(nwx_pybind11)
