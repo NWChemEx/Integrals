@@ -64,7 +64,7 @@ cmaize_find_or_build_dependency(
 set(project_depends Libint2 simde)
 
 if("${INTEGRALS_ENABLE_OPENMP}")
-find_package( OpenMP  REQUIRED )
+find_package(OpenMP REQUIRED)
 list(APPEND project_depends OpenMP::OpenMP_CXX)
 endif()
 
