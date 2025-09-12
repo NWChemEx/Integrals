@@ -23,10 +23,29 @@
 #include "libint_visitor.hpp"
 #include <type_traits>
 
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 
 namespace integrals::libint {
 namespace {
+
+#ifdef _OPENMP
+int get_num_threads() {
+    int num_threads;
+#pragma omp parallel
+    { num_threads = omp_get_num_threads(); }
+    return num_threads;
+}
+
+int get_thread_num() { return omp_get_thread_num(); }
+#else
+
+int get_num_threads() { return 1; }
+
+int get_thread_num() { return 0; }
+
+#endif
 
 template<typename FloatType>
 auto build_eigen_buffer(const std::vector<libint2::BasisSet>& basis_sets,
@@ -68,9 +87,7 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
     }
 
     // Make an engine for each thread
-    int num_threads;
-#pragma omp parallel
-    { num_threads = omp_get_num_threads(); }
+    int num_threads = get_num_threads();
     std::vector<libint2::Engine> engines(num_threads);
     LibintVisitor visitor(basis_sets, thresh);
     op.visit(visitor);
@@ -82,9 +99,9 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
     auto pbuffer = build_eigen_buffer<FloatType>(basis_sets, rv, thresh);
 #pragma omp parallel for
     for(size_type i_pair = 0; i_pair != num_shell_combinations; ++i_pair) {
-        auto thread_id = omp_get_thread_num();
+        auto thread_id = get_thread_num();
 
-        std::vector<size_type> shells(N, 0);
+        std::vector<size_type> shells(N);
         auto shell_ord = i_pair;
         for(size_type i = 0; i < N; ++i) {
             shells[i] = shell_ord / dim_stepsizes[i];
