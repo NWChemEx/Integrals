@@ -39,3 +39,9 @@ jobs:
     with:
       compilers: '["gcc-11", "clang-14"]'
       repo_toolchain: ".github/enable_sigma.cmake"
+
+  test_enable_openmp:
+    uses: NWChemEx/.github/.github/workflows/test_nwx_library.yaml@master
+    with:
+      compilers: '["gcc-11", "clang-14"]'
+      repo_toolchain: ".github/enable_openmp.cmake"
