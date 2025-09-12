@@ -91,13 +91,13 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
     std::vector<libint2::Engine> engines(num_threads);
     LibintVisitor visitor(basis_sets, thresh);
     op.visit(visitor);
-    for(size_type i = 0; i != num_threads; ++i) {
-        engines[i] = visitor.engine();
-    }
+    for(int i = 0; i != num_threads; ++i) { engines[i] = visitor.engine(); }
 
     // Fill in values
     auto pbuffer = build_eigen_buffer<FloatType>(basis_sets, rv, thresh);
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
     for(size_type i_pair = 0; i_pair != num_shell_combinations; ++i_pair) {
         auto thread_id = get_thread_num();
 
