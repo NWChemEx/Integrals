@@ -32,16 +32,16 @@ jobs:
   test_library:
     uses: NWChemEx/.github/.github/workflows/test_nwx_library.yaml@master
     with:
-      compilers: '["gcc-11", "clang-14"]'
+      compilers: '["gcc-14", "clang-18"]'
 
   test_enable_sigma:
     uses: NWChemEx/.github/.github/workflows/test_nwx_library.yaml@master
     with:
-      compilers: '["gcc-11", "clang-14"]'
+      compilers: '["gcc-14", "clang-18"]'
       repo_toolchain: ".github/enable_sigma.cmake"
 
   test_enable_openmp:
     uses: NWChemEx/.github/.github/workflows/test_nwx_library.yaml@master
     with:
-      compilers: '["gcc-11", "clang-14"]'
+      compilers: '["gcc-14", "clang-18"]'
       repo_toolchain: ".github/enable_openmp.cmake"

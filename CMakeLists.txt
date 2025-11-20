@@ -22,6 +22,7 @@ include(cmake/get_nwx_cmake.cmake)
 include(get_version_from_git)
 get_version_from_git(integrals_version "${CMAKE_CURRENT_LIST_DIR}")
 project(integrals VERSION "${integrals_version}" LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 20)
 
 include(nwx_versions)
 include(get_cmaize)
