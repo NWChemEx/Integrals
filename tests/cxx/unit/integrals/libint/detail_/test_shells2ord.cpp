@@ -16,6 +16,7 @@
 
 #include "integrals/libint/detail_/shells2ord.hpp"
 #include "libint_basis_set_water.hpp"
+#undef DEPRECATED
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("shells2ord") {
