@@ -16,6 +16,7 @@
 
 #include "integrals/libint/detail_/make_libint_basis_set.hpp"
 #include "libint_basis_set_water.hpp"
+#undef DEPRECATED
 // Must be last due to conflicting macros
 #include "../../testing.hpp"
 
