@@ -14,12 +14,10 @@
   ~ limitations under the License.
 -->
 
-[![Actions](https://github.com/NWChemEx/Integrals/workflows/C_C++_CI/badge.svg)](https://github.com/NWChemEx/Integrals)
-
-[![Codecov](https://codecov.io/github/NWChemEx/Integrals/branch/master/graphs/sunburst.svg?token=5ChSH9Fq4j)](https://codecov.io/github/NWChemEx/Integrals/branch/master)
-
 Integrals
 ===========
+
+[![Nightly Workflow](https://github.com/NWChemEx/Integrals/actions/workflows/nightly.yaml/badge.svg)](https://github.com/NWChemEx/Integrals/actions/workflows/nightly.yaml)
 
 Repository for the generic integral API and implementations for specific integral libraries.
 
