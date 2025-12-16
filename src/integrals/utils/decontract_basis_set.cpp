@@ -38,7 +38,7 @@ MODULE_RUN(DecontractBasisSet) {
 
     // Loop over the shells in each atomic basis set and decontract them.
     // For each primitive in a contracted Gaussian, make a new shell with
-    // that only that primitive.
+    // only that primitive.
     mol_basis_t output_bs;
     for(const auto& abs : input_bs) {
         abs_t new_abs(abs.basis_set_name(), abs.atomic_number(),
