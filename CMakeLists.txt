@@ -42,12 +42,9 @@ cmaize_option_list(
     INTEGRALS_ENABLE_OPENMP OFF "Should we enable OpenMP for threading?"
 )
 
-# Can't build from github due to Libint setup.
-# Will find prebuilt. Probably for the best.
-cmaize_find_or_build_dependency(
+# Libint needs to be prebuilt.
+cmaize_find_dependency(
     Libint2
-    URL github.com/evaleev/libint
-    BUILD_TARGET int2
     FIND_TARGET Libint2::int2
 )
 
