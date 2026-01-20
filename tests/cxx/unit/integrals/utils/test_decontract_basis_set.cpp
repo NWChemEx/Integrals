@@ -18,7 +18,7 @@
 #include <integrals/property_types.hpp>
 
 TEST_CASE("DecontractBasisSet") {
-    using test_pt = integrals::property_types::decontract_basis_set;
+    using test_pt = integrals::property_types::DecontractBasisSet;
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);

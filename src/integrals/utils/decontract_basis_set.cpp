@@ -19,7 +19,7 @@
 
 namespace integrals::utils {
 
-using pt          = integrals::property_types::decontract_basis_set;
+using pt          = integrals::property_types::DecontractBasisSet;
 using mol_basis_t = simde::type::ao_basis_set;
 using abs_t       = simde::type::atomic_basis_set;
 using cg_t        = simde::type::contracted_gaussian;

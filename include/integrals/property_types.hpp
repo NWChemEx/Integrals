@@ -30,7 +30,7 @@
  */
 namespace integrals::property_types {
 
-using decontract_basis_set =
+using DecontractBasisSet =
   simde::Convert<simde::type::ao_basis_set, simde::type::ao_basis_set>;
 
 } // end namespace integrals::property_types
