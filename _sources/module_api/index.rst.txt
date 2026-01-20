@@ -7,6 +7,7 @@ Modules API
 
    AO_integral_driver
    Coulomb_Metric
+   Decontract_Basis_Set
    Density_Fitted_J_builder
    Density_Fitted_K_builder
    Density_Fitting_Integral

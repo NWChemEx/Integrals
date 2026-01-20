@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ERI2 &mdash; Integrals 1.0.0 documentation</title>
+  <title>Decontract Basis Set &mdash; Integrals 1.0.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ERI3" href="ERI3.html" />
-    <link rel="prev" title="Density Fitting Integral" href="Density_Fitting_Integral.html" /> 
+    <link rel="next" title="Density Fitted J builder" href="Density_Fitted_J_builder.html" />
+    <link rel="prev" title="Coulomb Metric" href="Coulomb_Metric.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,11 +50,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Modules API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="AO_integral_driver.html">AO integral driver</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Coulomb_Metric.html">Coulomb Metric</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Decontract_Basis_Set.html">Decontract Basis Set</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Density_Fitted_J_builder.html">Density Fitted J builder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Density_Fitted_K_builder.html">Density Fitted K builder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Density_Fitting_Integral.html">Density Fitting Integral</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">ERI2</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Decontract Basis Set</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#please-cite">Please Cite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#property-types">Property Types</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-inputs">Module Inputs</a><ul>
@@ -66,6 +62,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="Density_Fitted_J_builder.html">Density Fitted J builder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Density_Fitted_K_builder.html">Density Fitted K builder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Density_Fitting_Integral.html">Density Fitting Integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ERI2.html">ERI2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ERI3.html">ERI3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ERI4.html">ERI4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Evaluate_2-Index_BraKet.html">Evaluate 2-Index BraKet</a></li>
@@ -97,9 +97,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">Modules API</a></li>
-      <li class="breadcrumb-item active">ERI2</li>
+      <li class="breadcrumb-item active">Decontract Basis Set</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/module_api/ERI2.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/module_api/Decontract_Basis_Set.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -107,9 +107,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="eri2">
-<h1>ERI2<a class="headerlink" href="#eri2" title="Link to this heading"></a></h1>
-<p>Driver for computing integrals with Libint</p>
+  <section id="decontract-basis-set">
+<h1>Decontract Basis Set<a class="headerlink" href="#decontract-basis-set" title="Link to this heading"></a></h1>
+<p>Decontracts the input AO basis set</p>
 <section id="please-cite">
 <h2>Please Cite<a class="headerlink" href="#please-cite" title="Link to this heading"></a></h2>
 <p>No citations</p>
@@ -118,7 +118,7 @@
 <h2>Property Types<a class="headerlink" href="#property-types" title="Link to this heading"></a></h2>
 <p>The following is a list of property types that this module satisfies.</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">simde::EvaluateBraKet&lt;chemist::braket::BraKet&lt;chemist::wavefunction::AOs,</span> <span class="pre">chemist::qm_operator::Coulomb&lt;chemist::Electron,</span> <span class="pre">chemist::Electron&gt;,</span> <span class="pre">chemist::wavefunction::AOs&gt;&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">simde::Convert&lt;chemist::basis_set::AOBasisSet&lt;chemist::basis_set::AtomicBasisSet&lt;chemist::basis_set::Shell&lt;chemist::basis_set::ContractedGaussian&lt;chemist::basis_set::Primitive&lt;double&gt;&gt;&gt;&gt;&gt;,</span> <span class="pre">chemist::basis_set::AOBasisSet&lt;chemist::basis_set::AtomicBasisSet&lt;chemist::basis_set::Shell&lt;chemist::basis_set::ContractedGaussian&lt;chemist::basis_set::Primitive&lt;double&gt;&gt;&gt;&gt;&gt;&gt;</span></code></p></li>
 </ul>
 </section>
 <section id="module-inputs">
@@ -144,16 +144,8 @@ module. The columns are:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>BraKet</p></td>
+<tr class="row-even"><td><p>Object to convert from</p></td>
 <td><p>N/A</p></td>
-<td><p>N/A</p></td>
-</tr>
-<tr class="row-odd"><td><p>Threshold</p></td>
-<td><p>1e-16</p></td>
-<td><p>The target precision with which the integrals will be computed</p></td>
-</tr>
-<tr class="row-even"><td><p>With UQ?</p></td>
-<td><p>0</p></td>
 <td><p>N/A</p></td>
 </tr>
 </tbody>
@@ -171,8 +163,8 @@ subsection we list:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">Opaque?</span></code> : Does the value of the input influence memoization?.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Domain</span> <span class="pre">Restrictions</span></code> : Criteria a value must obey to be deemed valid.</p></li>
 </ul>
-<section id="braket">
-<h4>BraKet<a class="headerlink" href="#braket" title="Link to this heading"></a></h4>
+<section id="object-to-convert-from">
+<h4>Object to convert from<a class="headerlink" href="#object-to-convert-from" title="Link to this heading"></a></h4>
 <ul class="simple">
 <li><p>Description : N/A</p></li>
 <li><p>Default Value : N/A</p></li>
@@ -180,35 +172,7 @@ subsection we list:</p>
 <li><p>Opaque? : True</p></li>
 <li><p>Domain Restrictions :</p>
 <ul>
-<li><p>Type == chemist::braket::BraKet&lt;chemist::wavefunction::AOs, chemist::qm_operator::Coulomb&lt;chemist::Electron, chemist::Electron&gt;, chemist::wavefunction::AOs&gt;</p></li>
-</ul>
-</li>
-</ul>
-</section>
-<section id="threshold">
-<h4>Threshold<a class="headerlink" href="#threshold" title="Link to this heading"></a></h4>
-<ul class="simple">
-<li><p>Description : The target precision with which the integrals will be computed</p></li>
-<li><p>Default Value : 1e-16</p></li>
-<li><p>Optional? : False</p></li>
-<li><p>Opaque? : True</p></li>
-<li><p>Domain Restrictions :</p>
-<ul>
-<li><p>Type == double</p></li>
-</ul>
-</li>
-</ul>
-</section>
-<section id="with-uq">
-<h4>With UQ?<a class="headerlink" href="#with-uq" title="Link to this heading"></a></h4>
-<ul class="simple">
-<li><p>Description : N/A</p></li>
-<li><p>Default Value : 0</p></li>
-<li><p>Optional? : False</p></li>
-<li><p>Opaque? : True</p></li>
-<li><p>Domain Restrictions :</p>
-<ul>
-<li><p>Type == bool</p></li>
+<li><p>Type == chemist::basis_set::AOBasisSet&lt;chemist::basis_set::AtomicBasisSet&lt;chemist::basis_set::Shell&lt;chemist::basis_set::ContractedGaussian&lt;chemist::basis_set::Primitive&lt;double&gt;&gt;&gt;&gt;&gt;</p></li>
 </ul>
 </li>
 </ul>
@@ -238,8 +202,8 @@ the Module class’s advanced API.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>tensor representation</p></td>
-<td><p>tensorwrapper::Tensor</p></td>
+<tr class="row-even"><td><p>Converted object</p></td>
+<td><p>chemist::basis_set::AOBasisSet&lt;chemist::basis_set::AtomicBasisSet&lt;chemist::basis_set::Shell&lt;chemist::basis_set::ContractedGaussian&lt;chemist::basis_set::Primitive&lt;double&gt;&gt;&gt;&gt;&gt;</p></td>
 <td><p>N/A</p></td>
 </tr>
 </tbody>
@@ -255,8 +219,8 @@ the Module class’s advanced API.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="Density_Fitting_Integral.html" class="btn btn-neutral float-left" title="Density Fitting Integral" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="ERI3.html" class="btn btn-neutral float-right" title="ERI3" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Coulomb_Metric.html" class="btn btn-neutral float-left" title="Coulomb Metric" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Density_Fitted_J_builder.html" class="btn btn-neutral float-right" title="Density Fitted J builder" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
