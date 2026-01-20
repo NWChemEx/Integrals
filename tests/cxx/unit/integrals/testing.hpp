@@ -112,6 +112,60 @@ inline simde::type::ao_basis_set water_sto3g_basis_set() {
     return bs;
 }
 
+inline simde::type::ao_basis_set water_decontracted_sto3g_basis_set() {
+    using ao_basis_t     = simde::type::ao_basis_set;
+    using atomic_basis_t = simde::type::atomic_basis_set;
+    using cg_t           = simde::type::contracted_gaussian;
+    using point_t        = simde::type::point;
+    using doubles_t      = std::vector<double>;
+
+    auto mol   = water_molecule();
+    point_t r0 = mol[0].as_nucleus();
+    point_t r1 = mol[1].as_nucleus();
+    point_t r2 = mol[2].as_nucleus();
+
+    // This is the only coefficient needed.
+    doubles_t cs{1.0};
+
+    atomic_basis_t o("sto-3g", 8, r0);
+    doubles_t es0{130.7093200, 23.8088610, 6.4436083};
+    doubles_t es1{5.0331513, 1.1695961, 0.3803890};
+
+    // Loops are ordered to match the order they would be decontracted in.
+    for(double e : es0) {
+        cg_t cg(cs.begin(), cs.end(), &e, &e + 1, r0);
+        o.add_shell(chemist::ShellType::pure, 0, cg);
+    }
+    for(double e : es1) {
+        cg_t cg(cs.begin(), cs.end(), &e, &e + 1, r0);
+        o.add_shell(chemist::ShellType::pure, 0, cg);
+    }
+    for(double e : es1) {
+        cg_t cg(cs.begin(), cs.end(), &e, &e + 1, r0);
+        o.add_shell(chemist::ShellType::pure, 1, cg);
+    }
+
+    atomic_basis_t h0("sto-3g", 1, r1);
+    atomic_basis_t h1("sto-3g", 1, r2);
+    doubles_t es2{3.425250914, 0.6239137298, 0.1688554040};
+
+    // Again, the loops are to replicate the decontraction order.
+    for(double e : es2) {
+        cg_t cg(cs.begin(), cs.end(), &e, &e + 1, r1);
+        h0.add_shell(chemist::ShellType::pure, 0, cg);
+    }
+    for(double e : es2) {
+        cg_t cg(cs.begin(), cs.end(), &e, &e + 1, r2);
+        h1.add_shell(chemist::ShellType::pure, 0, cg);
+    }
+
+    ao_basis_t bs;
+    bs.add_center(o);
+    bs.add_center(h0);
+    bs.add_center(h1);
+    return bs;
+}
+
 // Inputs for H2 tests
 inline simde::type::molecule h2_molecule() {
     using atom_t     = simde::type::atom;
