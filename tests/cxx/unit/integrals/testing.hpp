@@ -31,9 +31,10 @@ namespace test {
 template<typename FloatType, std::size_t N, std::size_t... Is>
 auto eigen_tensor_(const tensorwrapper::buffer::BufferBase& buffer,
                    std::array<int, N> extents, std::index_sequence<Is...>) {
-    const auto& b = tensorwrapper::allocator::Eigen<FloatType>::rebind(buffer);
+    using namespace tensorwrapper;
+    const auto pdata = buffer::get_raw_data<FloatType>(buffer);
     using eigen_type = Eigen::Tensor<const FloatType, N, Eigen::RowMajor>;
-    return Eigen::TensorMap<eigen_type>(b.get_immutable_data(), extents[Is]...);
+    return Eigen::TensorMap<eigen_type>(pdata.data(), extents[Is]...);
 }
 
 // Checking eigen outputs

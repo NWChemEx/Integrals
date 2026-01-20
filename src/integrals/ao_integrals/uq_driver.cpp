@@ -16,36 +16,43 @@
 
 #include "ao_integrals.hpp"
 
+using namespace tensorwrapper;
+
 namespace integrals::ao_integrals {
 namespace {
 
 struct Kernel {
-    using buffer_base_type = tensorwrapper::buffer::BufferBase;
+    using shape_type = buffer::Contiguous::shape_type;
+    Kernel(shape_type shape) : m_shape(std::move(shape)) {}
+
+    template<typename FloatType0, typename FloatType1>
+    Tensor operator()(const std::span<FloatType0> t,
+                      const std::span<FloatType1> error) {
+        throw std::runtime_error(
+          "UQ Integrals Driver kernel only supports same float types");
+    }
+
     template<typename FloatType>
-    auto run(const buffer_base_type& t, const buffer_base_type& error) {
-        tensorwrapper::Tensor rv;
+    auto operator()(const std::span<FloatType> t,
+                    const std::span<FloatType> error) {
+        Tensor rv;
 
-        if constexpr(tensorwrapper::types::is_uncertain_v<FloatType>) {
-            using alloc_type = tensorwrapper::allocator::Eigen<FloatType>;
-            alloc_type alloc(t.allocator().runtime());
-
-            const auto& t_eigen     = alloc.rebind(t);
-            const auto& error_eigen = alloc.rebind(error);
-
-            auto rv_buffer = alloc.allocate(t_eigen.layout());
-            for(std::size_t i = 0; i < t_eigen.size(); ++i) {
-                const auto elem       = t_eigen.get_data(i).mean();
-                const auto elem_error = error_eigen.get_data(i).mean();
-                rv_buffer->set_data(i, FloatType(elem, elem_error));
+        if constexpr(types::is_uncertain_v<FloatType>) {
+            auto rv_buffer = buffer::make_contiguous<FloatType>(m_shape);
+            auto rv_data   = buffer::get_raw_data<FloatType>(rv_buffer);
+            for(std::size_t i = 0; i < t.size(); ++i) {
+                const auto elem       = t[i].mean();
+                const auto elem_error = error[i].mean();
+                rv_data[i]            = FloatType(elem, elem_error);
             }
 
-            const auto& shape = t_eigen.layout().shape();
-            rv = tensorwrapper::Tensor(shape, std::move(rv_buffer));
+            rv = tensorwrapper::Tensor(m_shape, std::move(rv_buffer));
         } else {
             throw std::runtime_error("Expected an uncertain type");
         }
         return rv;
     }
+    shape_type m_shape;
 };
 
 const auto desc = R"(
@@ -86,9 +93,12 @@ MODULE_RUN(UQDriver) {
     simde::type::tensor error;
     error("m,n,l,s") = t("m,n,l,s") - t_0("m,n,l,s");
 
-    using tensorwrapper::utilities::floating_point_dispatch;
-    Kernel k;
-    auto t_w_error = floating_point_dispatch(k, t.buffer(), error.buffer());
+    using buffer::visit_contiguous_buffer;
+    shape::Smooth shape = t.buffer().layout().shape().as_smooth().make_smooth();
+    Kernel k(shape);
+    auto t_buffer     = make_contiguous(t.buffer());
+    auto error_buffer = make_contiguous(error.buffer());
+    auto t_w_error    = visit_contiguous_buffer(k, t_buffer, error_buffer);
 
     auto rv = results();
     return eri_pt::wrap_results(rv, t_w_error);
