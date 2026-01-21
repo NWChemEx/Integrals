@@ -100,7 +100,7 @@ if("${BUILD_TESTING}")
 
     nwx_pybind11_tests(
         py_integrals "${PYTHON_TEST_DIR}/unit_tests/test_integrals.py"
-        SUBMODULES pluginplay chemist parallelzone simde
+        SUBMODULES pluginplay chemist tensorwrapper parallelzone simde
     )
 endif()
 

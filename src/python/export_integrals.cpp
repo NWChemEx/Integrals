@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+#include "export_property_types.hpp"
 #include <integrals/integrals_mm.hpp>
 #include <pluginplay/plugin/plugin.hpp>
 #include <pybind11/pybind11.h>
 
 namespace integrals {
 
-EXPORT_PLUGIN(integrals, m) {}
+EXPORT_PLUGIN(integrals, m) { export_property_types(m); }
 
 } // namespace integrals

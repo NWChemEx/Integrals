@@ -21,7 +21,7 @@
  * types are added in the future.
  */
 #pragma once
-#include <pluginplay/plugin/plugin.hpp>
+#include <simde/types.hpp>
 #include <simde/utils/convert.hpp>
 
 /** @namespace integrals::property_types
@@ -30,7 +30,7 @@
  */
 namespace integrals::property_types {
 
-using decontract_basis_set =
+using DecontractBasisSet =
   simde::Convert<simde::type::ao_basis_set, simde::type::ao_basis_set>;
 
 } // end namespace integrals::property_types
