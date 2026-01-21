@@ -21,7 +21,7 @@
  * types are added in the future.
  */
 #pragma once
-#include <pluginplay/plugin/plugin.hpp>
+#include <simde/types.hpp>
 #include <simde/utils/convert.hpp>
 
 /** @namespace integrals::property_types
