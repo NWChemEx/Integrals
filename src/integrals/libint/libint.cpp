@@ -94,11 +94,11 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
 
     // Fill in values
     auto pbuffer = build_eigen_buffer<FloatType>(basis_sets, rv, thresh);
+    auto data    = pbuffer->get_mutable_data();
+    auto span    = wtf::buffer::contiguous_buffer_cast<FloatType>(data);
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    auto data = pbuffer->get_mutable_data();
-    auto span = wtf::buffer::contiguous_buffer_cast<FloatType>(data);
     for(size_type i_pair = 0; i_pair != num_shell_combinations; ++i_pair) {
         auto thread_id = get_thread_num();
 
