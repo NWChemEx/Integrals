@@ -61,8 +61,7 @@ auto build_eigen_buffer(const std::vector<libint2::BasisSet>& basis_sets,
     for(decltype(N) i = 0; i < N; ++i) dims[i] = basis_sets[i].nbf();
 
     using namespace tensorwrapper;
-    using shape_t  = shape::Smooth;
-    using layout_t = layout::Physical;
+    using shape_t = shape::Smooth;
 
     shape_t s{dims.begin(), dims.end()};
     auto buffer = buffer::make_contiguous<FloatType>(s, initial_value);
