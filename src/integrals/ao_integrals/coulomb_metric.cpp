@@ -24,38 +24,40 @@ using pt = simde::ERI2;
 namespace {
 
 struct Kernel {
+    using const_shape_view =
+      tensorwrapper::buffer::Contiguous::const_shape_view;
+
+    explicit Kernel(const_shape_view shape) : m_shape(shape) {}
+
     template<typename FloatType>
-    auto run(const tensorwrapper::buffer::BufferBase& I,
-             parallelzone::runtime::RuntimeView& rv) {
-        // Unwrap buffer info
-        tensorwrapper::allocator::Eigen<FloatType> allocator(rv);
-        const auto& eigen_I = allocator.rebind(I);
-        const auto* pI      = eigen_I.get_immutable_data();
-        const auto& shape_I = eigen_I.layout().shape().as_smooth();
-        auto rows           = shape_I.extent(0);
-        auto cols           = shape_I.extent(1);
+    simde::type::tensor operator()(const std::span<FloatType> I) {
+        using clean_type = std::decay_t<FloatType>;
+        auto rows        = m_shape.extent(0);
+        auto cols        = m_shape.extent(1);
 
         // Cholesky Decomp
         constexpr auto rmajor = Eigen::RowMajor;
         constexpr auto edynam = Eigen::Dynamic;
-        using matrix_type = Eigen::Matrix<FloatType, edynam, edynam, rmajor>;
+        using matrix_type = Eigen::Matrix<clean_type, edynam, edynam, rmajor>;
         using map_type    = Eigen::Map<const matrix_type>;
-        map_type I_map(pI, rows, cols);
+        map_type I_map(I.data(), rows, cols);
         Eigen::LLT<matrix_type> lltOfI(I_map);
         matrix_type U    = lltOfI.matrixU();
         matrix_type Linv = U.inverse().transpose();
 
         // Wrap result
         tensorwrapper::shape::Smooth matrix_shape{rows, cols};
-        tensorwrapper::layout::Physical matrix_layout(matrix_shape);
-        auto pM_buffer = allocator.allocate(matrix_layout);
+        auto pM_buffer =
+          tensorwrapper::buffer::make_contiguous<FloatType>(matrix_shape);
         for(decltype(rows) i = 0; i < rows; ++i) {
             for(decltype(cols) j = 0; j < cols; ++j) {
-                pM_buffer->set_elem({i, j}, Linv(i, j));
+                pM_buffer.set_elem({i, j}, Linv(i, j));
             }
         }
         return simde::type::tensor(matrix_shape, std::move(pM_buffer));
     }
+
+    const_shape_view m_shape;
 };
 
 auto desc = R"(
@@ -79,11 +81,9 @@ MODULE_RUN(CoulombMetric) {
     const auto& I = eri2_mod.run_as<pt>(braket);
 
     // Compute metric
-    using tensorwrapper::utilities::floating_point_dispatch;
-    auto r = get_runtime();
-    Kernel k;
-    const auto& I_buffer = I.buffer();
-    auto M               = floating_point_dispatch(k, I_buffer, r);
+    const auto& I_buffer = tensorwrapper::buffer::make_contiguous(I.buffer());
+    Kernel k(I_buffer.shape());
+    auto M = tensorwrapper::buffer::visit_contiguous_buffer(k, I_buffer);
 
     auto rv = results();
     return pt::wrap_results(rv, M);

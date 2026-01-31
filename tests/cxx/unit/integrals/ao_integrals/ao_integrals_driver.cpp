@@ -21,20 +21,26 @@ using simde::type::tensor;
 namespace {
 
 void compare_matrices(const tensor& A, const tensor& A_corr) {
-    using alloc_type          = tensorwrapper::allocator::Eigen<double>;
-    const auto& A_buffer      = alloc_type::rebind(A.buffer());
-    const auto& A_corr_buffer = alloc_type::rebind(A_corr.buffer());
+    using namespace tensorwrapper::buffer;
+    using namespace wtf::fp;
+    const auto& A_buffer      = make_contiguous(A.buffer());
+    const auto& A_corr_buffer = make_contiguous(A_corr.buffer());
 
     const auto tol = 1E-6;
-    auto A00       = A_buffer.get_elem({0, 0});
-    auto A01       = A_buffer.get_elem({0, 1});
-    auto A10       = A_buffer.get_elem({1, 0});
-    auto A11       = A_buffer.get_elem({1, 1});
+    using fp_type  = double;
+    auto A00       = float_cast<fp_type>(A_buffer.get_elem({0, 0}));
+    auto A01       = float_cast<fp_type>(A_buffer.get_elem({0, 1}));
+    auto A10       = float_cast<fp_type>(A_buffer.get_elem({1, 0}));
+    auto A11       = float_cast<fp_type>(A_buffer.get_elem({1, 1}));
+    auto A00_corr  = float_cast<fp_type>(A_corr_buffer.get_elem({0, 0}));
+    auto A01_corr  = float_cast<fp_type>(A_corr_buffer.get_elem({0, 1}));
+    auto A10_corr  = float_cast<fp_type>(A_corr_buffer.get_elem({1, 0}));
+    auto A11_corr  = float_cast<fp_type>(A_corr_buffer.get_elem({1, 1}));
 
-    REQUIRE(A00 == Catch::Approx(A_corr_buffer.get_elem({0, 0})).margin(tol));
-    REQUIRE(A01 == Catch::Approx(A_corr_buffer.get_elem({0, 1})).margin(tol));
-    REQUIRE(A10 == Catch::Approx(A_corr_buffer.get_elem({1, 0})).margin(tol));
-    REQUIRE(A11 == Catch::Approx(A_corr_buffer.get_elem({1, 1})).margin(tol));
+    REQUIRE(A00 == Catch::Approx(A00_corr).margin(tol));
+    REQUIRE(A01 == Catch::Approx(A01_corr).margin(tol));
+    REQUIRE(A10 == Catch::Approx(A10_corr).margin(tol));
+    REQUIRE(A11 == Catch::Approx(A11_corr).margin(tol));
 }
 
 } // namespace

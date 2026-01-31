@@ -16,14 +16,15 @@
 
 #include "../testing.hpp"
 
+using namespace tensorwrapper;
+
 template<typename FloatType>
 auto corr_answer(const simde::type::tensor& T) {
     if constexpr(std::is_same_v<FloatType, double>) {
         return T;
     } else {
         simde::type::tensor T_corr(T);
-        using alloc_type  = tensorwrapper::allocator::Eigen<FloatType>;
-        auto& corr_buffer = alloc_type::rebind(T_corr.buffer());
+        auto& corr_buffer = buffer::make_contiguous(T_corr.buffer());
         corr_buffer.set_elem({0, 0, 0, 0}, FloatType{0.774606, 0});
         corr_buffer.set_elem({0, 0, 0, 1}, FloatType{0.265558, 2.49687e-06});
         corr_buffer.set_elem({0, 0, 1, 0}, FloatType{0.265558, 2.49687e-06});

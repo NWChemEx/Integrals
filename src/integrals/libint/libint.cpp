@@ -60,13 +60,12 @@ auto build_eigen_buffer(const std::vector<libint2::BasisSet>& basis_sets,
     std::vector<decltype(N)> dims(N);
     for(decltype(N) i = 0; i < N; ++i) dims[i] = basis_sets[i].nbf();
 
-    using shape_t  = tensorwrapper::shape::Smooth;
-    using layout_t = tensorwrapper::layout::Physical;
+    using namespace tensorwrapper;
+    using shape_t = shape::Smooth;
 
     shape_t s{dims.begin(), dims.end()};
-    layout_t l(s);
-    tensorwrapper::allocator::Eigen<FloatType> alloc(rv);
-    return alloc.construct(l, initial_value);
+    auto buffer = buffer::make_contiguous<FloatType>(s, initial_value);
+    return std::make_unique<buffer::Contiguous>(std::move(buffer));
 }
 
 template<std::size_t N, typename FloatType>
@@ -95,6 +94,8 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
 
     // Fill in values
     auto pbuffer = build_eigen_buffer<FloatType>(basis_sets, rv, thresh);
+    auto data    = pbuffer->get_mutable_data();
+    auto span    = wtf::buffer::contiguous_buffer_cast<FloatType>(data);
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
@@ -117,8 +118,8 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
             auto ord   = detail_::shells2ord(basis_sets, shells);
             auto n_ord = ord.size();
             for(decltype(n_ord) i_ord = 0; i_ord < n_ord; ++i_ord) {
-                auto update = pbuffer->get_data(ord[i_ord]) + vals[i_ord];
-                pbuffer->set_data(ord[i_ord], update);
+                auto update      = span[ord[i_ord]] + vals[i_ord];
+                span[ord[i_ord]] = update;
             }
         }
     }
