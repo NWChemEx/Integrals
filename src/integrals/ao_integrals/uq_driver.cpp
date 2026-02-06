@@ -15,6 +15,7 @@
  */
 
 #include "ao_integrals.hpp"
+#include <integrals/integrals.hpp>
 
 using namespace tensorwrapper;
 
@@ -37,19 +38,21 @@ struct Kernel {
                     const std::span<FloatType> error) {
         Tensor rv;
 
-        if constexpr(types::is_uncertain_v<FloatType>) {
-            auto rv_buffer = buffer::make_contiguous<FloatType>(m_shape);
-            auto rv_data   = buffer::get_raw_data<FloatType>(rv_buffer);
-            for(std::size_t i = 0; i < t.size(); ++i) {
-                const auto elem       = t[i].mean();
-                const auto elem_error = error[i].mean();
-                rv_data[i]            = FloatType(elem, elem_error);
-            }
-
-            rv = tensorwrapper::Tensor(m_shape, std::move(rv_buffer));
+        using float_type = std::decay_t<FloatType>;
+        if constexpr(types::is_uncertain_v<float_type>) {
+            throw std::runtime_error("Did not expect an uncertain type");
         } else {
-            throw std::runtime_error("Expected an uncertain type");
+            using uq_type  = sigma::Uncertain<float_type>;
+            auto rv_buffer = buffer::make_contiguous<uq_type>(m_shape);
+            auto rv_data   = buffer::get_raw_data<uq_type>(rv_buffer);
+            for(std::size_t i = 0; i < t.size(); ++i) {
+                const auto elem       = t[i];
+                const auto elem_error = error[i];
+                rv_data[i]            = uq_type(elem, elem_error);
+            }
+            rv = tensorwrapper::Tensor(m_shape, std::move(rv_buffer));
         }
+
         return rv;
     }
     shape_type m_shape;
@@ -63,35 +66,24 @@ UQ Integrals Driver
 
 } // namespace
 
-using eri_pt = simde::ERI4;
+using eri_pt   = simde::ERI4;
+using error_pt = integrals::property_types::Uncertainty<eri_pt>;
 
 MODULE_CTOR(UQDriver) {
     satisfies_property_type<eri_pt>();
     description(desc);
     add_submodule<eri_pt>("ERIs");
-    add_input<double>("benchmark precision").set_default(1.0e-16);
-    add_input<double>("precision").set_default(1.0e-16);
+    add_submodule<error_pt>("ERI Error");
 }
 
 MODULE_RUN(UQDriver) {
-    auto tau_0 = inputs.at("benchmark precision").value<double>();
-    auto tau   = inputs.at("precision").value<double>();
+    const auto& [braket] = eri_pt::unwrap_inputs(inputs);
 
     auto& eri_mod = submods.at("ERIs").value();
+    auto tol      = eri_mod.inputs().at("Threshold").value<double>();
 
-    auto benchmark_mod = eri_mod.unlocked_copy();
-    benchmark_mod.change_input("Threshold", tau_0);
-    benchmark_mod.change_input("With UQ?", true);
-
-    auto normal_mod = eri_mod.unlocked_copy();
-    normal_mod.change_input("Threshold", tau);
-    normal_mod.change_input("With UQ?", true);
-
-    const auto& [t_0] = eri_pt::unwrap_results(benchmark_mod.run(inputs));
-    const auto& [t]   = eri_pt::unwrap_results(normal_mod.run(inputs));
-
-    simde::type::tensor error;
-    error("m,n,l,s") = t("m,n,l,s") - t_0("m,n,l,s");
+    const auto& t     = eri_mod.run_as<eri_pt>(braket);
+    const auto& error = submods.at("ERI Error").run_as<error_pt>(braket, tol);
 
     using buffer::visit_contiguous_buffer;
     shape::Smooth shape = t.buffer().layout().shape().as_smooth().make_smooth();

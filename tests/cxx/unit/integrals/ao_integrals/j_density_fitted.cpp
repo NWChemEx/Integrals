@@ -21,6 +21,7 @@ TEST_CASE("Density Fitted J builder") {
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
+    integrals::set_defaults(mm);
     REQUIRE(mm.count("Density Fitted J builder"));
 
     // Get basis set

@@ -21,6 +21,7 @@ TEST_CASE("Four center J builder") {
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
+    integrals::set_defaults(mm);
     REQUIRE(mm.count("Four center J builder"));
 
     // Get basis set

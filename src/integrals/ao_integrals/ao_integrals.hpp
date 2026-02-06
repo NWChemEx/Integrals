@@ -40,6 +40,7 @@ inline void set_defaults(pluginplay::ModuleManager& mm) {
     mm.change_submod("Density Fitting Integral", "Coulomb Metric",
                      "Coulomb Metric");
     mm.change_submod("UQ Driver", "ERIs", "ERI4");
+    mm.change_submod("UQ Driver", "ERI Error", "Analytic Error");
 }
 
 inline void load_modules(pluginplay::ModuleManager& mm) {

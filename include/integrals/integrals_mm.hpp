@@ -27,4 +27,6 @@ namespace integrals {
  */
 DECLARE_PLUGIN(integrals);
 
+void set_defaults(pluginplay::ModuleManager&);
+
 } // end namespace integrals

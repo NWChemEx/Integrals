@@ -21,6 +21,7 @@ TEST_CASE("Density Fitting Integral") {
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
+    integrals::set_defaults(mm);
     REQUIRE(mm.count("Density Fitting Integral"));
 
     // Get basis set

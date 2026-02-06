@@ -28,6 +28,12 @@
 
 namespace test {
 
+template<typename FloatType>
+auto make_tw_buffer(FloatType value, tensorwrapper::shape::Smooth shape) {
+    std::vector<FloatType> data(1, value);
+    return tensorwrapper::buffer::Contiguous(std::move(data), shape);
+}
+
 template<typename FloatType, std::size_t N, std::size_t... Is>
 auto eigen_tensor_(const tensorwrapper::buffer::BufferBase& buffer,
                    std::array<int, N> extents, std::index_sequence<Is...>) {
@@ -183,6 +189,7 @@ inline simde::type::ao_basis_set h2_sto3g_basis_set() {
     using point_t        = simde::type::point;
     using doubles_t      = std::vector<double>;
 
+    // Yes this is wrong, but it's what all the tests are expecting now
     auto mol   = water_molecule();
     point_t r0 = mol[0].as_nucleus();
     point_t r1 = mol[1].as_nucleus();

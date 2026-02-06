@@ -21,6 +21,7 @@ TEST_CASE("Four center K builder") {
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
+    integrals::set_defaults(mm);
     REQUIRE(mm.count("Four center K builder"));
 
     // Get basis set

@@ -53,9 +53,10 @@ TEST_CASE("UQ Driver") {
         auto rt = std::make_unique<parallelzone::runtime::RuntimeView>();
         pluginplay::ModuleManager mm(std::move(rt), nullptr);
         integrals::load_modules(mm);
+        integrals::set_defaults(mm);
         REQUIRE(mm.count("UQ Driver"));
 
-        mm.change_input("UQ Driver", "precision", 1.0e-6);
+        mm.change_input("ERI4", "Threshold", 1.0e-6);
 
         // Get basis set
         auto mol  = test::h2_molecule();

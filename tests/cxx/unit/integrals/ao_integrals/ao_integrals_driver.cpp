@@ -53,6 +53,7 @@ TEST_CASE("AOIntegralsDriver") {
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
+    integrals::set_defaults(mm);
     REQUIRE(mm.count("AO integral driver"));
     auto& mod = mm.at("AO integral driver");
 

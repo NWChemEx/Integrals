@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NWChemEx-Project
+ * Copyright 2026 NWChemEx-Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/** @file integrals.hpp
- *
- *  This is a convenience header which brings in the entire public API of the
- *  integrals library. It should not be included anywhere in the integrals
- *  source files or public header files (it's okay to use it in the tests if
- *  your unit test also needs most of the headers included by it).
- */
-#pragma once
-#include <integrals/integrals_mm.hpp>
+#include "test_error.hpp"
 #include <integrals/property_types.hpp>
 
-/** @namespace integrals
- *
- *  @brief The primary namespace for the Integrals library
- */
-namespace integrals {} // end namespace integrals
+using pt = integrals::property_types::PrimitivePairEstimator;
+using namespace integrals::libint::test;
+TEST_CASE("CauchySchwarzPrimitiveEstimator") {
+    pluginplay::ModuleManager mm;
+    integrals::load_modules(mm);
+    integrals::set_defaults(mm);
+    auto& mod                     = mm.at("CauchySchwarz Estimator");
+    auto [bra0, bra1, ket0, ket1] = get_h2_dimer_0312_bases();
+
+    auto Q_ab = mod.run_as<pt>(bra0, bra1);
+    auto Q_cd = mod.run_as<pt>(ket0, ket1);
+    // std::cout << Q_ab << std::endl;
+}

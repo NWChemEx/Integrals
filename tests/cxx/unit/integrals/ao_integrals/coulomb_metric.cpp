@@ -21,6 +21,7 @@ TEST_CASE("Coulomb Metric") {
 
     pluginplay::ModuleManager mm;
     integrals::load_modules(mm);
+    integrals::set_defaults(mm);
     REQUIRE(mm.count("Coulomb Metric"));
 
     // Get basis set

@@ -192,7 +192,12 @@ EXTERN_LIBINT(aos_squared, v_ee_type, aos_squared);
 #undef EXTERN_LIBINT
 
 void set_defaults(pluginplay::ModuleManager& mm) {
-    // Set any default associations
+    mm.change_submod("Primitive Error Model", "Primitive Pair Estimator",
+                     "Black Box Primitive Pair Estimator");
+    mm.change_submod("CauchySchwarz Estimator", "Decontract Basis Set",
+                     "Decontract Basis Set");
+    mm.change_submod("CauchySchwarz Estimator", "ERI4", "ERI4");
+    mm.change_submod("Analytic Error", "ERI4s", "ERI4");
 }
 
 #define LOAD_LIBINT(bra, op, ket, key) mm.add_module<LIBINT(bra, op, ket)>(key)
@@ -208,7 +213,11 @@ void load_modules(pluginplay::ModuleManager& mm) {
     LOAD_LIBINT(aos, v_ee_type, aos, "ERI2");
     LOAD_LIBINT(aos, v_ee_type, aos_squared, "ERI3");
     LOAD_LIBINT(aos_squared, v_ee_type, aos_squared, "ERI4");
-    set_defaults(mm);
+    mm.add_module<BlackBoxPrimitiveEstimator>(
+      "Black Box Primitive Pair Estimator");
+    mm.add_module<CauchySchwarzPrimitiveEstimator>("CauchySchwarz Estimator");
+    mm.add_module<PrimitiveErrorModel>("Primitive Error Model");
+    mm.add_module<AnalyticError>("Analytic Error");
 }
 
 #undef LOAD_LIBINT
