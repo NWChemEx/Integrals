@@ -35,6 +35,8 @@ using simde::type::t_e_type;
 using simde::type::v_ee_type;
 using simde::type::v_en_type;
 
+DECLARE_MODULE(PrimitiveContractor);
+
 /** @brief The Module for computing AO Integrals
  *
  *  @tparam BraKetType The type of the BraKet input

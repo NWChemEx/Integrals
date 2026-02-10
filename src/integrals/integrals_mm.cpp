@@ -42,6 +42,7 @@ void load_modules(pluginplay::ModuleManager& mm) {
     libint::load_modules(mm);
     utils::load_modules(mm);
     set_defaults(mm);
+    libint::set_defaults(mm);
     ao_integrals::set_defaults(mm);
 }
 

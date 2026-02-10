@@ -191,9 +191,7 @@ EXTERN_LIBINT(aos_squared, v_ee_type, aos_squared);
 
 #undef EXTERN_LIBINT
 
-void set_defaults(pluginplay::ModuleManager& mm) {
-    // Set any default associations
-}
+void set_defaults(pluginplay::ModuleManager& mm) {}
 
 #define LOAD_LIBINT(bra, op, ket, key) mm.add_module<LIBINT(bra, op, ket)>(key)
 
@@ -208,7 +206,6 @@ void load_modules(pluginplay::ModuleManager& mm) {
     LOAD_LIBINT(aos, v_ee_type, aos, "ERI2");
     LOAD_LIBINT(aos, v_ee_type, aos_squared, "ERI3");
     LOAD_LIBINT(aos_squared, v_ee_type, aos_squared, "ERI4");
-    set_defaults(mm);
 }
 
 #undef LOAD_LIBINT

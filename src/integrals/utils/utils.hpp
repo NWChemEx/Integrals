@@ -30,11 +30,17 @@
 namespace integrals::utils {
 
 DECLARE_MODULE(DecontractBasisSet);
+DECLARE_MODULE(PrimitiveContractor);
 
-inline void set_defaults(pluginplay::ModuleManager& mm) {}
+inline void set_defaults(pluginplay::ModuleManager& mm) {
+    mm.change_submod("Primitive Contractor", "Decontractor",
+                     "Decontract Basis Set");
+    mm.change_submod("Primitive Contractor", "Primitive ERI4", "ERI4");
+}
 
 inline void load_modules(pluginplay::ModuleManager& mm) {
     mm.add_module<DecontractBasisSet>("Decontract Basis Set");
+    mm.add_module<PrimitiveContractor>("Primitive Contractor");
     set_defaults(mm);
 }
 
