@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-#include "../testing.hpp"
+#include "../testing/testing.hpp"
+
+using namespace integrals;
 
 TEST_CASE("Overlap") {
     using test_pt = simde::aos_s_e_aos;
 
     pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
+    load_modules(mm);
     REQUIRE(mm.count("Overlap"));
 
     // Get basis set
-    auto mol  = test::water_molecule();
-    auto aobs = test::water_sto3g_basis_set();
+    auto mol  = testing::water_molecule();
+    auto aobs = testing::water_sto3g_basis_set();
 
     // Make AOS object
     simde::type::aos aos(aobs);
@@ -41,8 +43,8 @@ TEST_CASE("Overlap") {
 
     // Check output
     auto& t = S.buffer();
-    REQUIRE(test::trace<2>(t) ==
+    REQUIRE(testing::trace<2>(t) ==
             Catch::Approx(7.00000000000000266).margin(1.0e-16));
-    REQUIRE(test::norm<2>(t) ==
+    REQUIRE(testing::norm<2>(t) ==
             Catch::Approx(2.87134497074907324).margin(1.0e-16));
 }

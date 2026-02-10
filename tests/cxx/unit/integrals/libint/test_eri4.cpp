@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-#include "../testing.hpp"
+#include "../testing/testing.hpp"
+
+using namespace integrals;
 
 TEST_CASE("ERI4") {
     using test_pt = simde::ERI4;
 
     pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
+    load_modules(mm);
     REQUIRE(mm.count("ERI4"));
 
     // Get basis set
-    auto mol  = test::water_molecule();
-    auto aobs = test::water_sto3g_basis_set();
+    auto mol  = testing::water_molecule();
+    auto aobs = testing::water_sto3g_basis_set();
 
     // Make AOS object
     simde::type::aos aos(aobs);
@@ -42,8 +44,8 @@ TEST_CASE("ERI4") {
 
     // Check output
     auto& t = T.buffer();
-    REQUIRE(test::trace<4>(t) ==
+    REQUIRE(testing::trace<4>(t) ==
             Catch::Approx(9.7919608941952063).margin(1.0e-16));
-    REQUIRE(test::norm<4>(t) ==
+    REQUIRE(testing::norm<4>(t) ==
             Catch::Approx(7.7796143419802553).margin(1.0e-16));
 }

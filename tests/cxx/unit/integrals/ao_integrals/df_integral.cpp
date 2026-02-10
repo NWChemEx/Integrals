@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-#include "../testing.hpp"
+#include "../testing/testing.hpp"
+
+using namespace integrals;
 
 TEST_CASE("Density Fitting Integral") {
     using test_pt = simde::ERI3;
@@ -24,8 +26,8 @@ TEST_CASE("Density Fitting Integral") {
     REQUIRE(mm.count("Density Fitting Integral"));
 
     // Get basis set
-    auto mol  = test::h2_molecule();
-    auto aobs = test::h2_sto3g_basis_set();
+    auto mol  = integrals::testing::h2_molecule();
+    auto aobs = integrals::testing::h2_sto3g_basis_set();
 
     // Make AOS object
     simde::type::aos aos(aobs);
@@ -40,7 +42,7 @@ TEST_CASE("Density Fitting Integral") {
     // Call module
     auto T = mm.at("Density Fitting Integral").run_as<test_pt>(braket);
 
-    auto t = test::eigen_tensor<3>(T.buffer());
+    auto t = testing::eigen_tensor<3>(T.buffer());
     REQUIRE(t(0, 0, 0) == Catch::Approx(0.81362039).margin(1E-6));
     REQUIRE(t(0, 0, 1) == Catch::Approx(0.31266336).margin(1E-6));
     REQUIRE(t(0, 1, 0) == Catch::Approx(0.31266336).margin(1E-6));

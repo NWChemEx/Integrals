@@ -17,7 +17,7 @@
 #pragma once
 #include <libint2.hpp>
 
-namespace test {
+namespace integrals::testing {
 
 /// Constructor for Atom
 inline libint2::Atom make_atom(int Z, double x, double y, double z) {
@@ -68,4 +68,4 @@ inline libint2::BasisSet water_basis_set() {
     return basis_t(atoms, shells);
 }
 
-} // namespace test
+} // namespace integrals::testing

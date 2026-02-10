@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-#include "../testing.hpp"
+#include "../testing/testing.hpp"
+
+using namespace integrals;
 
 TEST_CASE("Density Fitted J builder") {
     using pt = simde::aos_j_e_aos;
 
     pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
+    load_modules(mm);
     REQUIRE(mm.count("Density Fitted J builder"));
 
     // Get basis set
-    auto mol  = test::h2_molecule();
-    auto aobs = test::h2_sto3g_basis_set();
+    auto mol  = testing::h2_molecule();
+    auto aobs = testing::h2_sto3g_basis_set();
 
     // Make AOS object
     simde::type::aos aos(aobs);
 
     // Make Operator
-    simde::type::j_e_type op(simde::type::electron{}, test::h2_density());
+    simde::type::j_e_type op(simde::type::electron{}, testing::h2_density());
 
     // Make BraKet Input
     chemist::braket::BraKet braket(aos, op, aos);
@@ -40,7 +42,7 @@ TEST_CASE("Density Fitted J builder") {
     mm.change_input("Density Fitted J builder", "Auxiliary Basis Set", aos);
     const auto& T = mm.at("Density Fitted J builder").run_as<pt>(braket);
 
-    auto t = test::eigen_tensor<2>(T.buffer());
+    auto t = testing::eigen_tensor<2>(T.buffer());
     REQUIRE(t(0, 0) == Catch::Approx(0.50515668).margin(1E-6));
     REQUIRE(t(0, 1) == Catch::Approx(0.22344536).margin(1E-6));
     REQUIRE(t(1, 0) == Catch::Approx(0.22344536).margin(1E-6));

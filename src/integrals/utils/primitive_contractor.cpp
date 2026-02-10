@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include <integrals/integrals.hpp>
 
 namespace integrals::utils {
 namespace {
@@ -21,7 +22,7 @@ using eris4_pt      = simde::ERI4;
 MODULE_CTOR(PrimitiveContractor) {
     satisfies_property_type<eris4_pt>();
     description(desc);
-    add_submodule<decontract_pt>("Decontract Basis Set")
+    add_submodule<decontract_pt>("Decontracter")
       .set_description("Used to decontract the bases");
     add_submodule<eris4_pt>("Primitive ERI4")
       .set_description("Used to build the ERIs in the primitive bases");
@@ -36,7 +37,7 @@ MODULE_RUN(PrimitiveContractor) {
     const auto& ket1     = braket.ket().second.ao_basis_set();
 
     // Step 1: Decontract the basis sets
-    auto& dec_mod   = submods.at("Decontract Basis Set");
+    auto& dec_mod   = submods.at("Decontracter");
     auto bra0_prims = dec_mod.run_as<decontract_pt>(bra0);
     auto bra1_prims = dec_mod.run_as<decontract_pt>(bra1);
     auto ket0_prims = dec_mod.run_as<decontract_pt>(ket0);
@@ -46,7 +47,7 @@ MODULE_RUN(PrimitiveContractor) {
     simde::type::aos_squared bra_prims(bra0_prims, bra1_prims);
     simde::type::aos_squared ket_prims(ket0_prims, ket1_prims);
     chemist::braket::BraKet mnls(bra_prims, v_ee, ket_prims);
-    auto ints = mm.at("Primitive ERI4").run_as<eris4_pt>(mnls);
+    auto ints = submods.at("Primitive ERI4").run_as<eris4_pt>(mnls);
 
     // TODO: Goes away when we can slice the tensor
     const auto& buffer = tensorwrapper::buffer::make_contiguous(ints.buffer());

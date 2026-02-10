@@ -18,12 +18,14 @@
 #include "libint_basis_set_water.hpp"
 #undef DEPRECATED
 // Must be last due to conflicting macros
-#include "../../testing.hpp"
+#include "../../testing/testing.hpp"
+
+using namespace integrals;
 
 TEST_CASE("make_libint_basis_set") {
     using integrals::libint::detail_::make_libint_basis_set;
-    auto aobs        = test::water_sto3g_basis_set();
+    auto aobs        = testing::water_sto3g_basis_set();
     auto libint_bs   = make_libint_basis_set(aobs);
-    auto libint_corr = test::water_basis_set();
+    auto libint_corr = testing::water_basis_set();
     REQUIRE(libint_bs == libint_corr);
 }

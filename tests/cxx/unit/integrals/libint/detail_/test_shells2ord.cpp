@@ -19,9 +19,11 @@
 #undef DEPRECATED
 #include <catch2/catch_test_macros.hpp>
 
+using namespace integrals;
+
 TEST_CASE("shells2ord") {
-    using integrals::libint::detail_::shells2ord;
-    auto aobs = test::water_basis_set();
+    using libint::detail_::shells2ord;
+    auto aobs = testing::water_basis_set();
     std::vector<libint2::BasisSet> basis_sets{aobs, aobs};
     std::vector<std::size_t> shells{2, 2};
     auto out                      = shells2ord(basis_sets, shells);

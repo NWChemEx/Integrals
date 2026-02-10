@@ -33,7 +33,7 @@ DECLARE_MODULE(DecontractBasisSet);
 DECLARE_MODULE(PrimitiveContractor);
 
 inline void set_defaults(pluginplay::ModuleManager& mm) {
-    mm.change_submod("Primitive Contractor", "Decontractor",
+    mm.change_submod("Primitive Contractor", "Decontracter",
                      "Decontract Basis Set");
     mm.change_submod("Primitive Contractor", "Primitive ERI4", "ERI4");
 }

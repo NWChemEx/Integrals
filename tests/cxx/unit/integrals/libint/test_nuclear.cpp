@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-#include "../testing.hpp"
+#include "../testing/testing.hpp"
+
+using namespace integrals;
 
 TEST_CASE("Nuclear") {
     using test_pt = simde::aos_v_en_aos;
 
     pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
+    load_modules(mm);
     REQUIRE(mm.count("Nuclear"));
 
     // Get basis set
-    auto mol  = test::water_molecule();
-    auto aobs = test::water_sto3g_basis_set();
+    auto mol  = testing::water_molecule();
+    auto aobs = testing::water_sto3g_basis_set();
 
     // Make AOS object
     simde::type::aos aos(aobs);
@@ -41,8 +43,8 @@ TEST_CASE("Nuclear") {
 
     // Check output
     auto& t = T.buffer();
-    REQUIRE(test::trace<2>(t) ==
+    REQUIRE(testing::trace<2>(t) ==
             Catch::Approx(-111.9975421879705664).margin(1.0e-16));
-    REQUIRE(test::norm<2>(t) ==
+    REQUIRE(testing::norm<2>(t) ==
             Catch::Approx(66.4857539908047528).margin(1.0e-16));
 }

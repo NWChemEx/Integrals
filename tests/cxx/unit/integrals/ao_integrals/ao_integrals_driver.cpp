@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "../testing.hpp"
+#include "../testing/testing.hpp"
 
 using simde::type::tensor;
 
@@ -57,15 +57,15 @@ TEST_CASE("AOIntegralsDriver") {
     auto& mod = mm.at("AO integral driver");
 
     // Get basis set
-    auto mol  = test::h2_molecule();
-    auto aobs = test::h2_sto3g_basis_set();
+    auto mol  = integrals::testing::h2_molecule();
+    auto aobs = integrals::testing::h2_sto3g_basis_set();
 
     // Make AOS object
     simde::type::aos aos(aobs);
 
     // Operator Inputs
     simde::type::electron e;
-    auto rho = test::h2_density();
+    auto rho = integrals::testing::h2_density();
 
     SECTION("Calling Kinetic") {
         auto& tmod = mm.at("Kinetic");
