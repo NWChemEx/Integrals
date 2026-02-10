@@ -10,7 +10,8 @@ const auto desc = "Compute uncertainty estimates for ERI4 integrals";
 // Sums contributions Q_abQ_cd when Q_ab or Q_cd is below tol
 template<typename ShellsType, typename OffsetTypes, typename TensorType>
 auto shell_block_error(ShellsType&& shells, OffsetTypes&& prim_offsets, 
-TensorType&& Q_ab, TensorType&& Q_cd, double tol){
+TensorType&& Q_ab, TensorType&& Q_cd, 
+TensorType&& K_ab, TensorType&& K_cd, double tol){
     // Get the number of primitives in each shell
     const auto n_prim0 = shells[0].n_primitives();
     const auto n_prim1 = shells[1].n_primitives();
@@ -37,9 +38,12 @@ TensorType&& Q_ab, TensorType&& Q_cd, double tol){
             // Was the Q_ab element neglected for primitive pair (p0, p1)?
             std::vector i01{p0, p1};
 
+            auto K_01 = float_cast<float_type>(K_ab.get_elem(i01));
+            auto K_01_mag = std::fabs(K_01);
+            bool K_01_neglected = K_01_mag < tol;
             auto Q_01 = float_cast<float_type>(Q_ab.get_elem(i01));
             auto Q_01_mag = std::fabs(Q_01);
-            
+
             for(prim[2] = 0; prim[2] < n_prim2; ++prim[2]){
                 const auto p2 = prim_offsets[2] + prim[2];
         
@@ -48,12 +52,18 @@ TensorType&& Q_ab, TensorType&& Q_cd, double tol){
         
                     // Was the Q_cd element neglected for pair (p2, p3)?
                     std::vector i23{p2, p3};
+                    auto K_23 = float_cast<float_type>(K_cd.get_elem(i23));
+                    auto K_23_mag = std::fabs(K_23);
+                    bool K_23_neglected = K_23_mag < tol;
                     auto Q_23 = float_cast<float_type>(Q_cd.get_elem(i23));
                     auto Q_23_mag = std::fabs(Q_23);
-                    
+
+                    auto prod_neglected = K_01_mag * K_23_mag < tol;
+
                     // If either was neglected we pick up an error Q_01 * Q_23
-                    if(Q_01_mag * Q_23_mag < tol)
+                    if(K_01_neglected || K_23_neglected || prod_neglected){
                         error += Q_01_mag * Q_23_mag;
+                    }
                 } // End loop over prim[3]
             } // End loop over prim[2]
         } // End loop over prim[1]
@@ -108,7 +118,10 @@ MODULE_CTOR(PrimitiveErrorModel) {
     description(desc);
     // TODO citation for Chemist paper
 
-    add_submodule<pair_estimator_pt>("Primitive Pair Estimator")
+    add_submodule<pair_estimator_pt>("Black Box Primitive Pair Estimator")
+      .set_description("The module used to estimate the contributions of "
+                       "primitive pairs to the overall integral values");
+        add_submodule<pair_estimator_pt>("Primitive Pair Estimator")
       .set_description("The module used to estimate the contributions of "
                        "primitive pairs to the overall integral values");
 }
@@ -121,15 +134,23 @@ MODULE_RUN(PrimitiveErrorModel) {
     const auto ket0 = braket.ket().first.ao_basis_set();
     const auto ket1 = braket.ket().second.ao_basis_set();
 
-    // Get the Q_ab and Q_cd tensors
+    // Get the Q_ab and Q_cd tensors (used to estimate error)
     auto& estimator = submods.at("Primitive Pair Estimator");
     const auto& Q_ab_tw = estimator.run_as<pair_estimator_pt>(bra0, bra1);
     const auto& Q_cd_tw = estimator.run_as<pair_estimator_pt>(ket0, ket1);
+
+    // Get the K_ab and K_cd tensors (used to determine which primitives are
+    // neglected)
+    auto& estimator2 = submods.at("Black Box Primitive Pair Estimator");
+    const auto& K_ab_tw = estimator2.run_as<pair_estimator_pt>(bra0, bra1);
+    const auto& K_cd_tw = estimator2.run_as<pair_estimator_pt>(ket0, ket1);
 
     // XXX: Workaround for needing the contiguous buffers to access elements
     using tensorwrapper::buffer::make_contiguous;
     const auto& Q_ab = make_contiguous(Q_ab_tw.buffer());
     const auto& Q_cd = make_contiguous(Q_cd_tw.buffer());
+    const auto& K_ab = make_contiguous(K_ab_tw.buffer());
+    const auto& K_cd = make_contiguous(K_cd_tw.buffer());
 
     // Get the number of AOs in each basis set
     const auto n_mu = bra0.n_aos();
@@ -174,7 +195,7 @@ MODULE_RUN(PrimitiveErrorModel) {
                     shells[3] = ket1.shell(shell_i[3]);
 
                     auto shell_error = 
-                        shell_block_error(shells, prim_offset, Q_ab, Q_cd, tol);
+                        shell_block_error(shells, prim_offset, Q_ab, Q_cd, K_ab, K_cd, tol);
                     fill_ao_block(shells, ao_offsets, buffer, shell_error);        
                         
                     prim_offset[3] += shells[3].n_primitives();

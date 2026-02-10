@@ -30,12 +30,23 @@ TEST_CASE("PrimitiveErrorModel") {
     SECTION("H2 2") {
         float_type tol                = 1.0e-10;
         auto [bra0, bra1, ket0, ket1] = get_h2_dimer_0312_bases();
+        auto value = manual_contract_shell(bra0, bra1, ket0, ket1, mm);
+        std::cout << "Screened value: " << value << std::endl;
 
         simde::type::aos_squared bra(bra0, bra1);
         simde::type::aos_squared ket(ket0, ket1);
         chemist::braket::BraKet mnls(bra, v_ee, ket);
-        auto error = mod.run_as<pt>(mnls, tol);
 
-        auto corr = mm.at("Analytic Error").run_as<pt>(mnls, tol);
+        auto error = mod.run_as<pt>(mnls, tol);
+        auto corr  = mm.at("Analytic Error").run_as<pt>(mnls, tol);
+
+        auto eri4_mod = mm.at("ERI4").unlocked_copy();
+        eri4_mod.change_input("Threshold", float_type(1E-16));
+        auto i_value = eri4_mod.run_as<eri4_pt>(mnls);
+        std::cout << "Corr Screened Value: " << i_value << std::endl;
+
+        // Our value:      0.0002263495591894
+        // Libint's value: 0.0002263440759384
+        // No screening:   0.0002263495626484
     }
 }

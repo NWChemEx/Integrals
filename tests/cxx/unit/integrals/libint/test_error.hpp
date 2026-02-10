@@ -32,6 +32,20 @@ inline auto get_h2_dimer_0312_bases() {
     return std::make_tuple(bra0, bra1, ket0, ket1);
 }
 
+template<typename T>
+double black_box_pair_metric(const T& prim_i, const T& prim_j) {
+    auto ci       = prim_i.coefficient();
+    auto cj       = prim_j.coefficient();
+    auto zeta_i   = prim_i.exponent();
+    auto zeta_j   = prim_j.exponent();
+    auto dx       = prim_i.center().x() - prim_j.center().x();
+    auto dy       = prim_i.center().y() - prim_j.center().y();
+    auto dz       = prim_i.center().z() - prim_j.center().z();
+    auto dr       = std::sqrt(dx * dx + dy * dy + dz * dz);
+    auto exponent = (-zeta_i * zeta_j / (zeta_i + zeta_j)) * dr * dr;
+    return ci * cj * std::exp(exponent);
+}
+
 /* Given four 1 shell basis sets, this function will create the shell quartet
    in the AO basis set by contracting the primitive integrals with the
    primitive coefficients. This is a sanity check more than anything else.
@@ -51,27 +65,59 @@ inline auto manual_contract_shell(const BasisType& bra0, const BasisType& bra1,
     simde::type::aos_squared ket_prims(ket0_prims, ket1_prims);
     chemist::braket::BraKet mnls(bra_prims, v_ee, ket_prims);
     auto ints = mm.at("ERI4").run_as<simde::ERI4>(mnls);
+    // auto K_mod    = mm.at("Black Box Primitive Pair Estimator");
+    // using prim_pt = integrals::property_types::PrimitivePairEstimator;
+    // auto K_ab     = K_mod.run_as<prim_pt>(bra0, bra1);
+    // auto K_cd     = K_mod.run_as<prim_pt>(ket0, ket1);
 
     const auto& buffer = tensorwrapper::buffer::make_contiguous(ints.buffer());
+    // const auto& K01    =
+    // tensorwrapper::buffer::make_contiguous(K_ab.buffer()); const auto& K23 =
+    // tensorwrapper::buffer::make_contiguous(K_cd.buffer());
 
     // TODO: expand to higher angular momentum
     double value = 0.0;
+    double tol   = 1e-10;
+    double error = 0.0;
+    using wtf::fp::float_cast;
     for(std::size_t i = 0; i < bra0_prims.n_primitives(); ++i) {
-        auto ci = bra0.primitive(i).coefficient();
+        const auto prim_i = bra0.primitive(i);
+        auto ci           = prim_i.coefficient();
+
         for(std::size_t j = 0; j < bra1_prims.n_primitives(); ++j) {
-            auto cj = bra1.primitive(j).coefficient();
+            const auto prim_j = bra1.primitive(j);
+            auto cj           = prim_j.coefficient();
+
+            auto kij = black_box_pair_metric(prim_i, prim_j);
+
+            bool is01good = kij > tol;
+
             for(std::size_t k = 0; k < ket0_prims.n_primitives(); ++k) {
-                auto ck = ket0.primitive(k).coefficient();
+                const auto prim_k = ket0.primitive(k);
+                auto ck           = prim_k.coefficient();
+
                 for(std::size_t l = 0; l < ket1_prims.n_primitives(); ++l) {
-                    auto cl     = ket1.primitive(l).coefficient();
+                    const auto prim_l = ket1.primitive(l);
+                    auto cl           = prim_l.coefficient();
+
+                    auto kkl       = black_box_pair_metric(prim_k, prim_l);
+                    bool is23good  = kkl > tol;
+                    bool both_good = (kij * kkl) > tol;
+
                     auto erased = buffer.get_elem({i, j, k, l});
                     auto val    = wtf::fp::float_cast<double>(erased);
-                    value += ci * cj * ck * cl * val;
+                    double Iijk = ci * cj * ck * cl * val;
+                    if(is01good && is23good && both_good) {
+                        value += Iijk;
+                    } else {
+                        error += std::fabs(Iijk);
+                    }
                 }
             }
         }
     }
-    return value;
+    std::cout << "Computed error: " << simde::type::tensor(error) << std::endl;
+    return simde::type::tensor(value);
 }
 
 } // namespace integrals::libint::test
