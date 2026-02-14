@@ -24,6 +24,9 @@ namespace integrals::utils {
  *      ++sqi; // Move on to the next quartet
  *  }
  *  ```
+ *
+ *  N.b., this iterator does not keep the AO basis sets alive, so the caller
+ *  must ensure that the basis sets outlive the iterator.
  */
 template<typename AOBasisSetType>
 class ShellQuartetIterator {
