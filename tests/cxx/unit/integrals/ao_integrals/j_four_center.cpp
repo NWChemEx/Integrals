@@ -21,8 +21,7 @@ using namespace integrals;
 TEST_CASE("Four center J builder") {
     using pt = simde::aos_j_e_aos;
 
-    pluginplay::ModuleManager mm;
-    load_modules(mm);
+    auto mm = integrals::testing::initialize_integrals();
     REQUIRE(mm.count("Four center J builder"));
 
     // Get basis set

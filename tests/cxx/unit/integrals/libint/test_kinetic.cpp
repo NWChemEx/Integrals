@@ -21,8 +21,7 @@ using namespace integrals;
 TEST_CASE("Kinetic") {
     using test_pt = simde::aos_t_e_aos;
 
-    pluginplay::ModuleManager mm;
-    load_modules(mm);
+    auto mm = integrals::testing::initialize_integrals();
     REQUIRE(mm.count("Kinetic"));
 
     // Get basis set

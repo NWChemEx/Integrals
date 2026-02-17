@@ -21,8 +21,7 @@ using namespace integrals;
 TEST_CASE("Overlap") {
     using test_pt = simde::aos_s_e_aos;
 
-    pluginplay::ModuleManager mm;
-    load_modules(mm);
+    auto mm = integrals::testing::initialize_integrals();
     REQUIRE(mm.count("Overlap"));
 
     // Get basis set

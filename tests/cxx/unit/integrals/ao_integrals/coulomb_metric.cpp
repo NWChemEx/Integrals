@@ -19,8 +19,7 @@
 TEST_CASE("Coulomb Metric") {
     using test_pt = simde::ERI2;
 
-    pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
+    auto mm = integrals::testing::initialize_integrals();
     REQUIRE(mm.count("Coulomb Metric"));
 
     // Get basis set

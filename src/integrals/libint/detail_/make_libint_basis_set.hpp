@@ -57,6 +57,8 @@ inline auto make_libint_basis_set(const simde::type::ao_basis_set& bs) {
     /// Origin for shell construction
     std::array<double, 3> origin = {0.0, 0.0, 0.0};
 
+    libint2::Shell::do_enforce_unit_normalization(false);
+
     /// Convert centers and their shells to libint equivalents.
     auto n_bs = bs.size();
     for(decltype(n_bs) abs_i = 0; abs_i < n_bs; ++abs_i) {

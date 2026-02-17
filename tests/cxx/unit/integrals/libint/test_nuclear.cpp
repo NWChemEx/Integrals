@@ -21,8 +21,7 @@ using namespace integrals;
 TEST_CASE("Nuclear") {
     using test_pt = simde::aos_v_en_aos;
 
-    pluginplay::ModuleManager mm;
-    load_modules(mm);
+    auto mm = integrals::testing::initialize_integrals();
     REQUIRE(mm.count("Nuclear"));
 
     // Get basis set

@@ -53,7 +53,8 @@ TEST_CASE("UQ Driver") {
 
         auto rt = std::make_unique<parallelzone::runtime::RuntimeView>();
         pluginplay::ModuleManager mm(std::move(rt), nullptr);
-        load_modules(mm);
+        integrals::load_modules(mm);
+        integrals::set_defaults(mm);
         REQUIRE(mm.count("UQ Driver"));
 
         mm.change_input("UQ Driver", "precision", 1.0e-6);

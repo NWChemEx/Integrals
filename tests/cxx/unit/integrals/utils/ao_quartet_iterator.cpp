@@ -13,18 +13,28 @@ using offset_type         = iterator_type::offset_value;
 namespace {
 
 template<typename IteratorType>
+void test_out_of_range(IteratorType&& aqi) {
+    REQUIRE_THROWS_AS(aqi.shell_offsets(), std::out_of_range);
+    REQUIRE_THROWS_AS(aqi.shell_quartet(), std::out_of_range);
+    REQUIRE_THROWS_AS(aqi.absolute_ao_offsets(), std::out_of_range);
+    REQUIRE_THROWS_AS(aqi.relative_ao_offsets(), std::out_of_range);
+}
+
+template<typename IteratorType, typename ShellTypes>
 void test_quartet(IteratorType& aqi, offset_type corr_shell_offsets,
-                  offset_type corr_rel_ao_offsets,
+                  ShellTypes&& corr_shells, offset_type corr_rel_ao_offsets,
                   offset_type corr_abs_ao_offsets) {
     REQUIRE(aqi);
 
     auto shell_offsets  = aqi.shell_offsets();
+    auto shell_quartet  = aqi.shell_quartet();
     auto abs_ao_offsets = aqi.absolute_ao_offsets();
     auto rel_ao_offsets = aqi.relative_ao_offsets();
     for(std::size_t i = 0; i < 4; ++i) {
         REQUIRE(shell_offsets[i] == corr_shell_offsets[i]);
         REQUIRE(rel_ao_offsets[i] == corr_rel_ao_offsets[i]);
         REQUIRE(abs_ao_offsets[i] == corr_abs_ao_offsets[i]);
+        REQUIRE(shell_quartet[i] == corr_shells[i]);
     }
 }
 
@@ -57,7 +67,8 @@ void test_h2_sto3g_shell_quartet(IteratorType& aqi, AOTypes&& aos) {
                             corr_abs_index[i] += ao_off[i];
                         }
 
-                        test_quartet(aqi, corr_shell_offset, ao_off,
+                        test_quartet(aqi, corr_shell_offset,
+                                     sqi.current_quartet(), ao_off,
                                      corr_abs_index);
                         ++aqi;
                     }
@@ -68,10 +79,7 @@ void test_h2_sto3g_shell_quartet(IteratorType& aqi, AOTypes&& aos) {
         ++sqi;
     }
     REQUIRE_FALSE(aqi);
-
-    REQUIRE_THROWS_AS(aqi.shell_offsets(), std::out_of_range);
-    REQUIRE_THROWS_AS(aqi.absolute_ao_offsets(), std::out_of_range);
-    REQUIRE_THROWS_AS(aqi.relative_ao_offsets(), std::out_of_range);
+    test_out_of_range(aqi);
 }
 } // namespace
 
@@ -81,69 +89,68 @@ TEMPLATE_LIST_TEST_CASE("AOQuartetIterator", "", itr_types) {
     SECTION("Constructing with empty basis sets") {
         ao_type bra0, bra1, ket0, ket1;
         TestType aqi(bra0, bra1, ket0, ket1);
-        REQUIRE_THROWS_AS(aqi.shell_offsets(), std::out_of_range);
-        REQUIRE_THROWS_AS(aqi.relative_ao_offsets(), std::out_of_range);
-        REQUIRE_THROWS_AS(aqi.absolute_ao_offsets(), std::out_of_range);
+        test_out_of_range(aqi);
         REQUIRE_FALSE(aqi);
     }
 
     SECTION("Iterating over a single shell quartet") {
         auto&& [bra0, bra1, ket0, ket1] = testing::get_h2_dimer_0312_bases();
         offset_type corr_shell_offset{0, 0, 0, 0};
+        std::array corr_shells = {bra0.shell(0), bra1.shell(0), ket0.shell(0),
+                                  ket1.shell(0)};
+
         SECTION("(ss|ss)") {
             offset_type corr_rel_ao_offset{0, 0, 0, 0};
             offset_type corr_abs_ao_offset{0, 0, 0, 0};
 
             TestType aqi(bra0, bra1, ket0, ket1);
-            test_quartet(aqi, corr_shell_offset, corr_rel_ao_offset,
-                         corr_abs_ao_offset);
+            test_quartet(aqi, corr_shell_offset, corr_shells,
+                         corr_rel_ao_offset, corr_abs_ao_offset);
             ++aqi;
             REQUIRE_FALSE(aqi);
-            REQUIRE_THROWS_AS(aqi.shell_offsets(), std::out_of_range);
-            REQUIRE_THROWS_AS(aqi.relative_ao_offsets(), std::out_of_range);
-            REQUIRE_THROWS_AS(aqi.absolute_ao_offsets(), std::out_of_range);
+            test_out_of_range(aqi);
         }
         SECTION("(ps|ss)") {
             offset_type corr_rel_ao_offset{0, 0, 0, 0};
             offset_type corr_abs_ao_offset{0, 0, 0, 0};
             bra0.shell(0).l() = 1;
+            corr_shells[0]    = bra0.shell(0);
 
             TestType aqi(bra0, bra1, ket0, ket1);
             for(std::size_t i = 0; i < 3; ++i) {
                 corr_rel_ao_offset[0] = i;
                 corr_abs_ao_offset[0] = i;
-                test_quartet(aqi, corr_shell_offset, corr_rel_ao_offset,
-                             corr_abs_ao_offset);
+                test_quartet(aqi, corr_shell_offset, corr_shells,
+                             corr_rel_ao_offset, corr_abs_ao_offset);
                 ++aqi;
             }
             REQUIRE_FALSE(aqi);
-            REQUIRE_THROWS_AS(aqi.shell_offsets(), std::out_of_range);
-            REQUIRE_THROWS_AS(aqi.relative_ao_offsets(), std::out_of_range);
-            REQUIRE_THROWS_AS(aqi.absolute_ao_offsets(), std::out_of_range);
+            test_out_of_range(aqi);
         }
         SECTION("(sd|ss)") {
             offset_type corr_rel_ao_offset{0, 0, 0, 0};
             offset_type corr_abs_ao_offset{0, 0, 0, 0};
             bra1.shell(0).l() = 2;
+            corr_shells[1]    = bra1.shell(0);
 
             TestType aqi(bra0, bra1, ket0, ket1);
             for(std::size_t i = 0; i < 6; ++i) {
                 corr_rel_ao_offset[1] = i;
                 corr_abs_ao_offset[1] = i;
-                test_quartet(aqi, corr_shell_offset, corr_rel_ao_offset,
-                             corr_abs_ao_offset);
+                test_quartet(aqi, corr_shell_offset, corr_shells,
+                             corr_rel_ao_offset, corr_abs_ao_offset);
                 ++aqi;
             }
             REQUIRE_FALSE(aqi);
-            REQUIRE_THROWS_AS(aqi.shell_offsets(), std::out_of_range);
-            REQUIRE_THROWS_AS(aqi.relative_ao_offsets(), std::out_of_range);
-            REQUIRE_THROWS_AS(aqi.absolute_ao_offsets(), std::out_of_range);
+            test_out_of_range(aqi);
         }
         SECTION("(sd|ps)") {
             offset_type corr_rel_ao_offset{0, 0, 0, 0};
             offset_type corr_abs_ao_offset{0, 0, 0, 0};
             ket0.shell(0).l() = 1;
             bra1.shell(0).l() = 2;
+            corr_shells[1]    = bra1.shell(0);
+            corr_shells[2]    = ket0.shell(0);
 
             TestType aqi(bra0, bra1, ket0, ket1);
             for(std::size_t i = 0; i < 6; ++i) {
@@ -152,15 +159,13 @@ TEMPLATE_LIST_TEST_CASE("AOQuartetIterator", "", itr_types) {
                 for(std::size_t j = 0; j < 3; ++j) {
                     corr_rel_ao_offset[2] = j;
                     corr_abs_ao_offset[2] = j;
-                    test_quartet(aqi, corr_shell_offset, corr_rel_ao_offset,
-                                 corr_abs_ao_offset);
+                    test_quartet(aqi, corr_shell_offset, corr_shells,
+                                 corr_rel_ao_offset, corr_abs_ao_offset);
                     ++aqi;
                 }
             }
             REQUIRE_FALSE(aqi);
-            REQUIRE_THROWS_AS(aqi.shell_offsets(), std::out_of_range);
-            REQUIRE_THROWS_AS(aqi.relative_ao_offsets(), std::out_of_range);
-            REQUIRE_THROWS_AS(aqi.absolute_ao_offsets(), std::out_of_range);
+            test_out_of_range(aqi);
         }
     }
 

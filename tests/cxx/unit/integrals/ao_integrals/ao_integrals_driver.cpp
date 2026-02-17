@@ -51,8 +51,7 @@ TEST_CASE("AOIntegralsDriver") {
       chemist::braket::BraKet<simde::type::aos, simde::type::op_base_type,
                               simde::type::aos>;
 
-    pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
+    auto mm = integrals::testing::initialize_integrals();
     REQUIRE(mm.count("AO integral driver"));
     auto& mod = mm.at("AO integral driver");
 

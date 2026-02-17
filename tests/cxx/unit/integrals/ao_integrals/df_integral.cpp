@@ -21,8 +21,7 @@ using namespace integrals;
 TEST_CASE("Density Fitting Integral") {
     using test_pt = simde::ERI3;
 
-    pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
+    auto mm = integrals::testing::initialize_integrals();
     REQUIRE(mm.count("Density Fitting Integral"));
 
     // Get basis set

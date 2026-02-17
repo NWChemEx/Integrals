@@ -46,8 +46,7 @@ TEST_CASE("OperatorBase") {
     using op_t          = simde::type::v_ee_type;
     using op_base_t     = simde::type::op_base_type;
 
-    pluginplay::ModuleManager mm;
-    load_modules(mm);
+    auto mm = integrals::testing::initialize_integrals();
     REQUIRE(mm.count("Evaluate 2-Index BraKet"));
     REQUIRE(mm.count("Evaluate 3-Index BraKet"));
     REQUIRE(mm.count("Evaluate 4-Index BraKet"));

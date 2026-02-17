@@ -28,6 +28,13 @@
 
 namespace integrals::testing {
 
+inline auto initialize_integrals() {
+    auto mm = pluginplay::ModuleManager();
+    integrals::load_modules(mm);
+    integrals::set_defaults(mm);
+    return mm;
+}
+
 template<typename FloatType, std::size_t N, std::size_t... Is>
 auto eigen_tensor_(const tensorwrapper::buffer::BufferBase& buffer,
                    std::array<int, N> extents, std::index_sequence<Is...>) {

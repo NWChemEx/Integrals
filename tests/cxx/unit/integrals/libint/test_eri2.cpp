@@ -21,8 +21,7 @@ using namespace integrals;
 TEST_CASE("ERI2") {
     using test_pt = simde::ERI2;
 
-    pluginplay::ModuleManager mm;
-    load_modules(mm);
+    auto mm = integrals::testing::initialize_integrals();
     REQUIRE(mm.count("ERI2"));
 
     // Get basis set

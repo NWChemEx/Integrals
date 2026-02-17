@@ -59,6 +59,11 @@ public:
         return m_shell_quartet_iterator_.shell_offsets();
     }
 
+    /// The shells in the current quartet
+    decltype(auto) shell_quartet() {
+        return m_shell_quartet_iterator_.current_quartet();
+    }
+
     /** @brief Offsets such that first AO quartet in THIS shell is (00|00). */
     decltype(auto) relative_ao_offsets() const {
         assert_offsets_();

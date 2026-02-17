@@ -28,6 +28,10 @@ namespace integrals {
  *  @throw none No throw guarantee
  */
 void set_defaults(pluginplay::ModuleManager& mm) {
+    ao_integrals::set_defaults(mm);
+    libint::set_defaults(mm);
+    utils::set_defaults(mm);
+
     mm.change_submod("AO integral driver", "Kinetic", "Kinetic");
     mm.change_submod("AO integral driver", "Electron-Nuclear attraction",
                      "Nuclear");
@@ -41,9 +45,6 @@ void load_modules(pluginplay::ModuleManager& mm) {
     ao_integrals::load_modules(mm);
     libint::load_modules(mm);
     utils::load_modules(mm);
-    set_defaults(mm);
-    libint::set_defaults(mm);
-    ao_integrals::set_defaults(mm);
 }
 
 } // namespace integrals

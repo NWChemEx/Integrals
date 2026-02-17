@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <stdexcept>
 #include <type_traits>
 
 namespace integrals::utils {
