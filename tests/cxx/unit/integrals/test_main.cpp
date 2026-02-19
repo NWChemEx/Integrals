@@ -152,21 +152,25 @@ int main(int argc, char* argv[]) {
     double prim_screened = 0.0;
     double error         = 0.0;
     for(std::size_t i = 0; i < 3; ++i) {
-        const auto c0     = coeffs[i];
+        const auto c0p    = coeffs[i];
+        const auto c0     = shells[0].contr[0].coeff[i];
         const auto& prim0 = decon_shells[0][i];
 
         for(std::size_t j = 0; j < 3; ++j) {
-            const auto c1           = coeffs[j];
+            const auto c1p          = coeffs[j];
+            const auto c1           = shells[1].contr[0].coeff[j];
             const auto& prim1       = decon_shells[1][j];
             const auto K01          = c0 * c1 * make_k(i, j, 0, 1);
             const bool K01_is_small = std::abs(K01) < tol;
 
             for(std::size_t k = 0; k < 3; ++k) {
-                const auto c2     = coeffs[k];
+                const auto c2p    = coeffs[k];
+                const auto c2     = shells[2].contr[0].coeff[k];
                 const auto& prim2 = decon_shells[2][k];
 
                 for(std::size_t l = 0; l < 3; ++l) {
-                    const auto c3            = coeffs[l];
+                    const auto c3p           = coeffs[l];
+                    const auto c3            = shells[3].contr[0].coeff[l];
                     const auto& prim3        = decon_shells[3][l];
                     const auto K23           = c2 * c3 * make_k(k, l, 2, 3);
                     const bool K23_is_small  = std::abs(K23) < tol;
@@ -175,7 +179,7 @@ int main(int argc, char* argv[]) {
                     engine.compute(prim0, prim1, prim2, prim3);
                     if(buf_vec[0] == nullptr) continue;
 
-                    auto p_ijkl = c0 * c1 * c2 * c3 * buf_vec[0][0];
+                    auto p_ijkl = c0p * c1p * c2p * c3p * buf_vec[0][0];
 
                     if(K01_is_small || K23_is_small || prod_is_small) {
                         error += p_ijkl;
