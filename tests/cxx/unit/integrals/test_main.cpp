@@ -42,10 +42,10 @@ auto make_shells() {
     std::array<float_type, 3> r2{1.638033502034240, 1.136556880358410, 0.0};
     std::array<float_type, 3> r3{3.0, 2.856777657019214, 3.0};
 
-    rv.push_back(shell_type(exponents, conts, r0));
-    rv.push_back(shell_type(exponents, conts, r1));
-    rv.push_back(shell_type(exponents, conts, r2));
-    rv.push_back(shell_type(exponents, conts, r3));
+    rv.push_back(shell_type(exponents, conts, r0, false));
+    rv.push_back(shell_type(exponents, conts, r1, false));
+    rv.push_back(shell_type(exponents, conts, r2, false));
+    rv.push_back(shell_type(exponents, conts, r3, false));
 
     return rv;
 }
@@ -76,21 +76,21 @@ auto make_decontracted_shells() {
     std::array<float_type, 3> r2{1.638033502034240, 1.136556880358410, 0.0};
     std::array<float_type, 3> r3{3.0, 2.856777657019214, 3.0};
 
-    rv[0].push_back(shell_type(e0, conts, r0));
-    rv[0].push_back(shell_type(e1, conts, r0));
-    rv[0].push_back(shell_type(e2, conts, r0));
+    rv[0].push_back(shell_type(e0, conts, r0, false));
+    rv[0].push_back(shell_type(e1, conts, r0, false));
+    rv[0].push_back(shell_type(e2, conts, r0, false));
 
-    rv[1].push_back(shell_type(e0, conts, r1));
-    rv[1].push_back(shell_type(e1, conts, r1));
-    rv[1].push_back(shell_type(e2, conts, r1));
+    rv[1].push_back(shell_type(e0, conts, r1, false));
+    rv[1].push_back(shell_type(e1, conts, r1, false));
+    rv[1].push_back(shell_type(e2, conts, r1, false));
 
-    rv[2].push_back(shell_type(e0, conts, r2));
-    rv[2].push_back(shell_type(e1, conts, r2));
-    rv[2].push_back(shell_type(e2, conts, r2));
+    rv[2].push_back(shell_type(e0, conts, r2, false));
+    rv[2].push_back(shell_type(e1, conts, r2, false));
+    rv[2].push_back(shell_type(e2, conts, r2, false));
 
-    rv[3].push_back(shell_type(e0, conts, r3));
-    rv[3].push_back(shell_type(e1, conts, r3));
-    rv[3].push_back(shell_type(e2, conts, r3));
+    rv[3].push_back(shell_type(e0, conts, r3, false));
+    rv[3].push_back(shell_type(e1, conts, r3, false));
+    rv[3].push_back(shell_type(e2, conts, r3, false));
 
     return rv;
 }
