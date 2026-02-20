@@ -41,7 +41,7 @@ MODULE_RUN(KFourCenter) {
     auto bra              = braket.bra();
     auto ket              = braket.ket();
     const auto& j_hat     = braket.op();
-    const auto& rho       = j_hat.rhs_particle();
+    const auto& rho       = j_hat.get_rhs_particle();
     const auto& p         = rho.value();
     auto rho_aos          = rho.basis_set();
     auto& eri_mod         = submods.at("Four-center ERI");
