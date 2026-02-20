@@ -21,10 +21,41 @@
 namespace integrals::libint {
 namespace {
 
-const auto desc = "";
+const auto desc = R"(
+Libint Black Box Primitive Pair Estimator 
+=========================================
 
+This module computes the matrix : math :`K_{ij}` where:
+
+.. math:: 
+
+   K_{ij} = c_i c_j \exp\left(-\frac{\zeta_i \zeta_j}{\zeta_i + \zeta_j} 
+   |\mathbf{R}_i - \mathbf{R}_j|^2\right)
+
+This is how Libint2 estimates the contribution of a pair of primitives to
+an integral.
+
+)";
+
+// Computes square of the distance between points a and b
+// (T should be libint::Atom like)
+template<typename T>
+auto distance_squared(T&& a, T&& b) {
+    auto dx = a.x - b.x;
+    auto dy = a.y - b.y;
+    auto dz = a.z - b.z;
+    return dx * dx + dy * dy + dz * dz;
 }
 
+template<typename T>
+auto compute_k(T zeta_i, T zeta_j, T coeff_i, T coeff_j, T dr2) {
+    const auto num   = -zeta_i * zeta_j;
+    const auto denom = zeta_i + zeta_j;
+    const auto ratio = num / denom;
+    return coeff_i * coeff_j * std::exp(ratio * dr2);
+}
+
+} // namespace
 using pt = integrals::property_types::PrimitivePairEstimator;
 
 MODULE_CTOR(BlackBoxPrimitiveEstimator) {
@@ -34,76 +65,81 @@ MODULE_CTOR(BlackBoxPrimitiveEstimator) {
 }
 
 MODULE_RUN(BlackBoxPrimitiveEstimator) {
-    const auto&& [bra_basis, ket_basis] = pt::unwrap_inputs(inputs);
+    const auto&& [bra, ket] = pt::unwrap_inputs(inputs);
 
-    const auto n_shells_bra = bra_basis.n_shells();
-    const auto n_prims_bra  = bra_basis.n_primitives();
-    const auto n_shells_ket = ket_basis.n_shells();
-    const auto n_prims_ket  = ket_basis.n_primitives();
+    using iter_type    = std::size_t;              // Type of each loop index
+    using index_array  = std::array<iter_type, 2>; // Type of a pair of indices
+    using index_vector = std::vector<iter_type>; // Type of a vector of indices
+    using float_type   = double;                 // TODO: Get from basis sets
 
+    index_array shells{0, 0}; // shells[0]/shells[1] indexes bra/ket shell
+    index_array n_shells{bra.n_shells(), ket_.n_shells()} // Number of shells
+
+    index_array prims{0, 0}; // prims[0]/prims[1] indexes bra/ket primitive
+    index_array n_prims{bra.n_primitives(), ket.n_primitives()};
+    index_array offsets{0, 0};   // Offset to the first primitive of the shell
+    index_vector abs_prim{0, 0}; // Absolute indices of the primitives
+
+    // Will be the result
+    tensorwrapper::shape::Smooth shape({n_prims[0], n_prims[1]});
+    std::vector<float_type> data(shape.size(), 0.0);
+    tensorwrapper::buffer::Contiguous buffer(std::move(data), shape);
+
+    // For now use the libint basis sets because they're properly normalized
     // TODO: Our basis really needs to handle normalization better...
-    auto bra = make_libint_basis_set(bra_basis);
-    auto ket = make_libint_basis_set(ket_basis);
+    auto bra_libint = make_libint_basis_set(bra);
+    auto ket_libint = make_libint_basis_set(ket);
 
-    // TODO: Use floating point type of the basis sets
-    using float_type = double;
-    std::vector<float_type> buffer(n_prims_bra * n_prims_ket, 0.0);
-
-    using iter_type = std::decay_t<decltype(n_bra)>; // Type of the loop index
-    iter_type bra_counter = 0;
-
-    for(iter_type bra_shell_i = 0; bra_shell_i < n_shells_bra; ++bra_shell_i) {
-        const auto& bra_shell = bra.at(bra_shell_i);
+    for(shells[0] = 0; shells[0] < n_shells[0]; ++shells[0]) {
+        const auto& bra_shell = bra_libint.at(shells[0]);
         assert(bra_shell.contr.size() == 1);
         const auto& bra_coeff        = bra_shell.contr[0].coeff;
         const auto& bra_alpha        = bra_shell.contr[0].alpha;
         const auto n_prims_bra_shell = bra_coeff.size();
 
-        for(iter_type bra_prim_i = 0; bra_prim_i < n_prims_bra_shell;
-            ++bra_prim_i) {
-            const auto bra_zeta   = bra_alpha[bra_prim_i];
-            const auto bra_coeff  = std::fabs(bra_coeff[bra_prim_i]);
+        for(prims[0] = 0; prims[0] < n_prims_bra_shell; ++prims[0]) {
+            const auto zeta0      = bra_alpha[prims[0]];
+            const auto coeff0     = std::fabs(bra_coeff[prims[0]]);
             const auto bra_center = bra_shell.O;
-            const auto bra_offset = (bra_counter + bra_prim_i) * n_prims_ket;
+            abs_prim[0]           = offsets[0] + prims[0];
 
-            iter_type ket_counter = 0;
-            for(iter_type ket_shell_i = 0; ket_shell_i < n_shells_ket;
-                ++ket_shell_i) {
-                const auto& ket_shell = ket.at(ket_shell_i);
+            offsets[1] = 0;
+            for(shells[1] = 0; shells[1] < n_shells[1]; ++shells[1]) {
+                const auto& ket_shell = ket.at(shells[1]);
                 assert(ket_shell.contr.size() == 1);
                 const auto& ket_coeff        = ket_shell.contr[0].coeff;
                 const auto& ket_alpha        = ket_shell.contr[0].alpha;
                 const auto n_prims_ket_shell = ket_coeff.size();
 
-                for(iter_type ket_prim_i = 0; ket_prim_i < n_prims_ket_shell;
-                    ++ket_prim_i) {
-                    const auto ket_zeta   = ket_alpha[ket_prim_i];
-                    const auto ket_coeff  = std::fabs(ket_coeff[ket_prim_i]);
+                for(prims[1] = 0; prims[1] < n_prims_ket_shell; ++prims[1]) {
+                    const auto zeta1      = ket_alpha[prims[1]];
+                    const auto coeff1     = std::fabs(ket_coeff[prims[1]]);
                     const auto ket_center = ket_shell.O;
-                    const auto ket_offset = ket_counter + ket_prim_i;
+                    abs_prim[1]           = ket_counter + ket_prim_i;
 
                     // This is "K bar" in Eq. 11 in the SI of the Chemist paper
-                    const auto dx  = bra_center.x - ket_center.x;
-                    const auto dy  = bra_center.y - ket_center.y;
-                    const auto dz  = bra_center.z - ket_center.z;
-                    const auto dr2 = dx * dx + dy * dy + dz * dz;
+                    auto dr2 = distance_squared(bra_center, ket_center);
+                    auto k01 = compute_k(zeta0, zeta1, coeff0, coeff1, dr2);
+                    buffer.set_element(abs_prim, k01);
+                } // loop over ket primitives
 
-                    const auto ratio =
-                      bra_zeta * ket_zeta / (bra_zeta + ket_zeta);
-                    const auto coeff = bra_coeff * ket_coeff;
-                    buffer[bra_offset + ket_offset] =
-                      coeff * std::exp(-1.0 * ratio * dist2);
-                }
                 ket_counter += n_prims_ket_shell;
-            }
-            bra_counter += n_prims_bra_shell;
-        }
-        tensorwrapper::shape::Smooth shape({n_bra, n_ket});
-        tensorwrapper::buffer::Contiguous tw_buffer(std::move(buffer), shape);
-        simde::type::tensor rv(shape, std::move(tw_buffer));
+            } // loop over ket shells
 
-        auto result = results();
-        return pt::wrap_results(result, rv);
-    }
+            // We ran over all ket primitives, so counter should be done too
+            assert(ket_counter == n_prims[1]);
+        } // loop over bra primitives
+
+        bra_counter += n_prims_bra_shell;
+    } // loop over bra shells
+
+    // We ran over all bra primitives, so counter should be done too
+    assert(bra_counter == n_prims[0]);
+
+    simde::type::tensor rv(shape, std::move(buffer));
+
+    auto result = results();
+    return pt::wrap_results(result, rv);
+}
 
 } // namespace integrals::libint
