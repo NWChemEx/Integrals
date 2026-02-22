@@ -13,50 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "testing.hpp"
+#include "../testing/testing.hpp"
 #include <integrals/property_types.hpp>
+
+using namespace integrals::testing;
+using tensorwrapper::operations::approximately_equal;
 
 using pt = integrals::property_types::PrimitivePairEstimator;
 
 namespace {
 
-// std::vector<double> h2_h2_corr{
-//   0.023817430147884473,   0.08261663936778646, 0.06861998972363427,
-//   1.4555047643750448e-05, 0.00844595180076824, 0.03423471319097009,
-//   0.08261663936778646,    0.28657621993836907, 0.23802538347833696,
-//   0.00844595180076824,    0.07444365105885908, 0.13404298325096972,
-//   0.06861998972363427,    0.23802538347833696, 0.19769987611740356,
-//   0.03423471319097009,    0.13404298325096972, 0.1372685140907819,
-//   1.4555047643750448e-05, 0.00844595180076824, 0.03423471319097009,
-//   0.023817430147884473,   0.08261663936778646, 0.06861998972363427,
-//   0.00844595180076824,    0.07444365105885908, 0.13404298325096972,
-//   0.08261663936778646,    0.28657621993836907, 0.23802538347833696,
-//   0.03423471319097009,    0.13404298325096972, 0.1372685140907819,
-//   0.06861998972363427,    0.23802538347833696, 0.19769987611740356};
+template<typename FloatType>
+auto corr_k01() {
+    std::vector<FloatType> buffer{3.693e-38,   4.76823e-13, 8.9425e-06,
+                                  4.76823e-13, 1.73977e-08, 3.39937e-05,
+                                  8.9425e-06,  3.39937e-05, 0.000112915};
+    tensorwrapper::shape::Smooth shape({3, 3});
+    tensorwrapper::buffer::Contiguous cont(std::move(buffer), shape);
+    return simde::type::tensor(std::move(cont), shape);
+}
 
-// } // namespace
+template<typename FloatType>
+auto corr_k23() {
+    std::vector<FloatType> buffer{4.07419e-12, 5.0571e-05,  0.00250317,
+                                  5.0571e-05,  0.000964263, 0.00356585,
+                                  0.00250317,  0.00356585,  0.00217062};
+
+    tensorwrapper::shape::Smooth shape({3, 3});
+    tensorwrapper::buffer::Contiguous cont(std::move(buffer), shape);
+    return simde::type::tensor(std::move(cont), shape);
+}
+
+} // namespace
 
 TEST_CASE("BlackBoxPrimitiveEstimator") {
-    pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
-    auto& mod     = mm.at("Black Box Primitive Pair Estimator");
-    auto h2_basis = test::h2_sto3g_basis_set();
+    auto mm   = initialize_integrals();
+    auto& mod = mm.at("Black Box Primitive Pair Estimator");
+    auto&& [bra0, bra1, ket0, ket1] = get_h2_dimer_0312_bases();
 
-    SECTION("H2 STO-3G") {
-        const auto& Kij = mod.run_as<pt>(h2_basis, h2_basis);
-        tensorwrapper::shape::Smooth shape{6, 6};
-        tensorwrapper::buffer::Contiguous corr(h2_h2_corr, shape);
-        REQUIRE(Kij.buffer().approximately_equal(corr, 1e-8));
+    using float_type = double;
+
+    SECTION("K(bra0, bra1)") {
+        auto K01  = mod.run_as<pt>(bra0, bra1);
+        auto corr = corr_k01<float_type>();
+        REQUIRE(approximately_equal(K01, corr, 1E-8));
     }
 
-    // Tests bra != ket
-    SECTION("Block of H2 STO-3G") {
-        simde::type::ao_basis_set h0_basis;
-        h0_basis.add_center(h2_basis.at(0));
-        const auto& Kij = mod.run_as<pt>(h0_basis, h2_basis);
-        tensorwrapper::shape::Smooth shape{3, 6};
-        std::vector<double> buffer(h2_h2_corr.begin(), h2_h2_corr.begin() + 18);
-        tensorwrapper::buffer::Contiguous corr(buffer, shape);
-        REQUIRE(Kij.buffer().approximately_equal(corr, 1e-8));
+    SECTION("K(ket0, ket1)") {
+        auto K23  = mod.run_as<pt>(ket0, ket1);
+        auto corr = corr_k23<float_type>();
+        REQUIRE(approximately_equal(K23, corr, 1E-8));
     }
 }

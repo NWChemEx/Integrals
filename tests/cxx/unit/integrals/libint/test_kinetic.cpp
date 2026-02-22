@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-#include "../testing.hpp"
+#include "../testing/testing.hpp"
+
+using namespace integrals::testing;
 
 TEST_CASE("Kinetic") {
     using test_pt = simde::aos_t_e_aos;
 
-    pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
+    auto mm = initialize_integrals();
     REQUIRE(mm.count("Kinetic"));
 
     // Get basis set
-    auto mol  = test::water_molecule();
-    auto aobs = test::water_sto3g_basis_set();
+    auto mol  = water_molecule();
+    auto aobs = water_sto3g_basis_set();
 
     // Make AOS object
     simde::type::aos aos(aobs);
@@ -41,8 +42,6 @@ TEST_CASE("Kinetic") {
 
     // Check output
     auto& t = T.buffer();
-    REQUIRE(test::trace<2>(t) ==
-            Catch::Approx(38.9175852621874441).margin(1.0e-16));
-    REQUIRE(test::norm<2>(t) ==
-            Catch::Approx(29.3665362218072552).margin(1.0e-16));
+    REQUIRE(trace<2>(t) == Catch::Approx(38.9175852621874441).margin(1.0e-16));
+    REQUIRE(norm<2>(t) == Catch::Approx(29.3665362218072552).margin(1.0e-16));
 }

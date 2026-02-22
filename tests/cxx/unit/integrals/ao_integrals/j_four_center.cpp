@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-#include "../testing.hpp"
+#include "../testing/testing.hpp"
+
+using namespace integrals::testing;
 
 TEST_CASE("Four center J builder") {
     using pt = simde::aos_j_e_aos;
 
-    pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
-    integrals::set_defaults(mm);
+    auto mm = initialize_integrals();
     REQUIRE(mm.count("Four center J builder"));
 
     // Get basis set
-    auto mol  = test::h2_molecule();
-    auto aobs = test::h2_sto3g_basis_set();
+    auto mol  = h2_molecule();
+    auto aobs = h2_sto3g_basis_set();
 
     // Make AOS object
     simde::type::aos aos(aobs);
 
     // Make Operator
-    simde::type::j_e_type op(simde::type::electron{}, test::h2_density());
+    simde::type::j_e_type op(simde::type::electron{}, h2_density());
 
     // Make BraKet Input
     chemist::braket::BraKet braket(aos, op, aos);
@@ -40,7 +40,7 @@ TEST_CASE("Four center J builder") {
     // Call module
     const auto& T = mm.at("Four center J builder").run_as<pt>(braket);
 
-    auto t = test::eigen_tensor<2>(T.buffer());
+    auto t = eigen_tensor<2>(T.buffer());
     REQUIRE(t(0, 0) == Catch::Approx(0.56044143).margin(1E-6));
     REQUIRE(t(0, 1) == Catch::Approx(0.24704427).margin(1E-6));
     REQUIRE(t(1, 0) == Catch::Approx(0.24704427).margin(1E-6));

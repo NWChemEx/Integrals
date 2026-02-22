@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#include "../testing.hpp"
+#include "../testing/testing.hpp"
+
+using namespace integrals::testing;
 
 TEST_CASE("Coulomb Metric") {
     using test_pt = simde::ERI2;
 
-    pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
-    integrals::set_defaults(mm);
+    auto mm = initialize_integrals();
     REQUIRE(mm.count("Coulomb Metric"));
 
     // Get basis set
-    auto mol  = test::h2_molecule();
-    auto aobs = test::h2_sto3g_basis_set();
+    auto mol  = h2_molecule();
+    auto aobs = h2_sto3g_basis_set();
 
     // Make AOS object
     simde::type::aos aos(aobs);
@@ -40,7 +40,7 @@ TEST_CASE("Coulomb Metric") {
     // Call module
     auto T = mm.at("Coulomb Metric").run_as<test_pt>(braket);
 
-    auto t = test::eigen_tensor<2>(T.buffer());
+    auto t = eigen_tensor<2>(T.buffer());
     REQUIRE(t(0, 0) == Catch::Approx(0.15824726).margin(1E-6));
     REQUIRE(t(0, 1) == Catch::Approx(0.0).margin(1E-6));
     REQUIRE(t(1, 0) == Catch::Approx(-0.23097095).margin(1E-6));

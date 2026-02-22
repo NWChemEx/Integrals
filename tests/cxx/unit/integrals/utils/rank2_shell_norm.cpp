@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "../libint/test_error.hpp"
+#include "../testing/testing.hpp"
 #include <integrals/utils/rank2_shell_norm.hpp>
 
-using namespace integrals::libint::test;
+using namespace integrals::testing;
 using namespace integrals::utils;
 
 using eri_pt    = simde::ERI4;

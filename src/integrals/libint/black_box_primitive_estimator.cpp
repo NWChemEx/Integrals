@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "detail_/make_libint_basis_set.hpp"
 #include "libint.hpp"
 #include <cmath>
 #include <integrals/property_types.hpp>
@@ -35,15 +36,18 @@ This module computes the matrix : math :`K_{ij}` where:
 This is how Libint2 estimates the contribution of a pair of primitives to
 an integral.
 
+N.B. The algorithm assumes that the bra and ket are different. If they are the
+same, we can save time by using the fact that the matrix is symmetric.
+
 )";
 
 // Computes square of the distance between points a and b
 // (T should be libint::Atom like)
 template<typename T>
 auto distance_squared(T&& a, T&& b) {
-    auto dx = a.x - b.x;
-    auto dy = a.y - b.y;
-    auto dz = a.z - b.z;
+    auto dx = a[0] - b[0];
+    auto dy = a[1] - b[1];
+    auto dz = a[2] - b[2];
     return dx * dx + dy * dy + dz * dz;
 }
 
@@ -73,7 +77,7 @@ MODULE_RUN(BlackBoxPrimitiveEstimator) {
     using float_type   = double;                 // TODO: Get from basis sets
 
     index_array shells{0, 0}; // shells[0]/shells[1] indexes bra/ket shell
-    index_array n_shells{bra.n_shells(), ket_.n_shells()} // Number of shells
+    index_array n_shells{bra.n_shells(), ket.n_shells()}; // Number of shells
 
     index_array prims{0, 0}; // prims[0]/prims[1] indexes bra/ket primitive
     index_array n_prims{bra.n_primitives(), ket.n_primitives()};
@@ -87,14 +91,14 @@ MODULE_RUN(BlackBoxPrimitiveEstimator) {
 
     // For now use the libint basis sets because they're properly normalized
     // TODO: Our basis really needs to handle normalization better...
-    auto bra_libint = make_libint_basis_set(bra);
-    auto ket_libint = make_libint_basis_set(ket);
+    auto bra_libint = detail_::make_libint_basis_set(bra);
+    auto ket_libint = detail_::make_libint_basis_set(ket);
 
     for(shells[0] = 0; shells[0] < n_shells[0]; ++shells[0]) {
         const auto& bra_shell = bra_libint.at(shells[0]);
-        assert(bra_shell.contr.size() == 1);
+        assert(bra_shell.contr.size() == 1); // No general contraction support
         const auto& bra_coeff        = bra_shell.contr[0].coeff;
-        const auto& bra_alpha        = bra_shell.contr[0].alpha;
+        const auto& bra_alpha        = bra_shell.alpha;
         const auto n_prims_bra_shell = bra_coeff.size();
 
         for(prims[0] = 0; prims[0] < n_prims_bra_shell; ++prims[0]) {
@@ -105,36 +109,36 @@ MODULE_RUN(BlackBoxPrimitiveEstimator) {
 
             offsets[1] = 0;
             for(shells[1] = 0; shells[1] < n_shells[1]; ++shells[1]) {
-                const auto& ket_shell = ket.at(shells[1]);
-                assert(ket_shell.contr.size() == 1);
+                const auto& ket_shell = ket_libint.at(shells[1]);
+                assert(ket_shell.contr.size() == 1); // No general contractions
                 const auto& ket_coeff        = ket_shell.contr[0].coeff;
-                const auto& ket_alpha        = ket_shell.contr[0].alpha;
+                const auto& ket_alpha        = ket_shell.alpha;
                 const auto n_prims_ket_shell = ket_coeff.size();
 
                 for(prims[1] = 0; prims[1] < n_prims_ket_shell; ++prims[1]) {
                     const auto zeta1      = ket_alpha[prims[1]];
                     const auto coeff1     = std::fabs(ket_coeff[prims[1]]);
                     const auto ket_center = ket_shell.O;
-                    abs_prim[1]           = ket_counter + ket_prim_i;
+                    abs_prim[1]           = offsets[1] + prims[1];
 
                     // This is "K bar" in Eq. 11 in the SI of the Chemist paper
                     auto dr2 = distance_squared(bra_center, ket_center);
                     auto k01 = compute_k(zeta0, zeta1, coeff0, coeff1, dr2);
-                    buffer.set_element(abs_prim, k01);
+                    buffer.set_elem(abs_prim, k01);
                 } // loop over ket primitives
 
-                ket_counter += n_prims_ket_shell;
+                offsets[1] += n_prims_ket_shell;
             } // loop over ket shells
 
             // We ran over all ket primitives, so counter should be done too
-            assert(ket_counter == n_prims[1]);
+            assert(offsets[1] == n_prims[1]);
         } // loop over bra primitives
 
-        bra_counter += n_prims_bra_shell;
+        offsets[0] += n_prims_bra_shell;
     } // loop over bra shells
 
     // We ran over all bra primitives, so counter should be done too
-    assert(bra_counter == n_prims[0]);
+    assert(offsets[0] == n_prims[0]);
 
     simde::type::tensor rv(shape, std::move(buffer));
 

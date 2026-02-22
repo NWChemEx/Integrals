@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-#include "../testing.hpp"
+#include "../testing/testing.hpp"
+
+using namespace integrals::testing;
 
 using namespace tensorwrapper;
 
@@ -59,8 +61,8 @@ TEST_CASE("UQ Driver") {
         mm.change_input("ERI4", "Threshold", 1.0e-6);
 
         // Get basis set
-        auto mol  = test::h2_molecule();
-        auto aobs = test::h2_sto3g_basis_set();
+        auto mol  = h2_molecule();
+        auto aobs = h2_sto3g_basis_set();
 
         // Make AOS object
         simde::type::aos aos(aobs);

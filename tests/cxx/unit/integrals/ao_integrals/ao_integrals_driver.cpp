@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#include "../testing.hpp"
+#include "../testing/testing.hpp"
 
 using simde::type::tensor;
+using namespace integrals::testing;
 
 namespace {
 
@@ -51,22 +52,20 @@ TEST_CASE("AOIntegralsDriver") {
       chemist::braket::BraKet<simde::type::aos, simde::type::op_base_type,
                               simde::type::aos>;
 
-    pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
-    integrals::set_defaults(mm);
+    auto mm = initialize_integrals();
     REQUIRE(mm.count("AO integral driver"));
     auto& mod = mm.at("AO integral driver");
 
     // Get basis set
-    auto mol  = test::h2_molecule();
-    auto aobs = test::h2_sto3g_basis_set();
+    auto mol  = h2_molecule();
+    auto aobs = h2_sto3g_basis_set();
 
     // Make AOS object
     simde::type::aos aos(aobs);
 
     // Operator Inputs
     simde::type::electron e;
-    auto rho = test::h2_density();
+    auto rho = h2_density();
 
     SECTION("Calling Kinetic") {
         auto& tmod = mm.at("Kinetic");
