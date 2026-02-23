@@ -199,8 +199,10 @@ void set_defaults(pluginplay::ModuleManager& mm) {
                      "CauchySchwarz Estimator");
     mm.change_submod("CauchySchwarz Estimator", "Decontract Basis Set",
                      "Decontract Basis Set");
-    mm.change_submod("CauchySchwarz Estimator", "ERI4", "ERI4");
-    mm.change_submod("Analytic Error", "ERI4s", "ERI4");
+    mm.copy_module("ERI4", "Benchmark ERI4");
+    mm.change_input("Benchmark ERI4", "Threshold", 1.0E-16);
+    mm.change_submod("CauchySchwarz Estimator", "ERI4", "Benchmark ERI4");
+    mm.change_submod("Analytic Error", "ERI4s", "Benchmark ERI4");
 }
 
 #define LOAD_LIBINT(bra, op, ket, key) mm.add_module<LIBINT(bra, op, ket)>(key)

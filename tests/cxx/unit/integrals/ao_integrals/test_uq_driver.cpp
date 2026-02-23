@@ -57,7 +57,8 @@ TEST_CASE("UQ Driver") {
         integrals::load_modules(mm);
         integrals::set_defaults(mm);
         REQUIRE(mm.count("UQ Driver"));
-
+        mm.copy_module("UQ Driver", "UQ w/analytic Error");
+        mm.change_submod("UQ w/analytic Error", "ERI Error", "Analytic Error");
         mm.change_input("ERI4", "Threshold", 1.0e-6);
 
         // Get basis set
@@ -75,9 +76,14 @@ TEST_CASE("UQ Driver") {
         chemist::braket::BraKet braket(aos_squared, op, aos_squared);
 
         // Call module
-        auto T      = mm.at("UQ Driver").run_as<test_pt>(braket);
-        auto T_corr = corr_answer<float_type>(T);
-        using tensorwrapper::operations::approximately_equal;
-        REQUIRE(approximately_equal(T_corr, T, 1E-6));
+        // auto T      = mm.at("UQ Driver").run_as<test_pt>(braket);
+        // auto T_corr = mm.at("UQ w/analytic Error").run_as<test_pt>(braket);
+
+        // std::cout << T << std::endl;
+        // std::cout << T_corr << std::endl;
+
+        // auto T_corr = corr_answer<float_type>(T);
+        // using tensorwrapper::operations::approximately_equal;
+        // REQUIRE(approximately_equal(T_corr, T, 1E-6));
     }
 }

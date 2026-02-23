@@ -67,7 +67,6 @@ auto shell_block_error(ShellsType&& shells, OffsetTypes&& prim_offsets,
             } // End loop over prim[2]
         } // End loop over prim[1]
     } // End loop over prim[0]
-    std::cout << "Shell block error: " << error << std::endl;
     return error;
 }
 

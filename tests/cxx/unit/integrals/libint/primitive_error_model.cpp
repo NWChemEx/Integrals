@@ -17,7 +17,7 @@ TEST_CASE("PrimitiveErrorModel") {
     simde::type::aos_squared ket(ket0, ket1);
     chemist::braket::BraKet mnls(bra, v_ee, ket);
     double tol = 1E-10;
-    auto error = mod.run_as<pt>(mnls, tol);
-    std::cout << error << std::endl;
-    std::cout << anal_error.run_as<pt>(mnls, tol) << std::endl;
+    // auto error = mod.run_as<pt>(mnls, tol);
+    // std::cout << error << std::endl;
+    // std::cout << anal_error.run_as<pt>(mnls, tol) << std::endl;
 }

@@ -54,6 +54,24 @@ PROPERTY_TYPE_RESULTS(PrimitivePairEstimator) {
     return rv;
 }
 
+DECLARE_PROPERTY_TYPE(PairScreener);
+PROPERTY_TYPE_INPUTS(PairScreener) {
+    using ao_basis = const simde::type::ao_basis_set&;
+    auto rv        = pluginplay::declare_input()
+                .add_field<ao_basis>("Bra Basis Set")
+                .add_field<ao_basis>("Ket Basis Set")
+                .add_field<double>("Tolerance");
+    return rv;
+}
+
+PROPERTY_TYPE_RESULTS(PairScreener) {
+    using index_vector = std::vector<std::size_t>;
+    using pair_vector  = std::vector<index_vector>;
+    auto rv            = pluginplay::declare_result().add_field<pair_vector>(
+      "Primitive Pairs Passing Screening");
+    return rv;
+}
+
 template<typename BasePT>
 DECLARE_TEMPLATED_PROPERTY_TYPE(Uncertainty, BasePT);
 
