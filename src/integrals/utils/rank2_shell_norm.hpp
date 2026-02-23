@@ -10,7 +10,7 @@ template<typename TensorType, typename IterType>
 auto rank2_shell_norm(TensorType&& buffer, std::array<IterType, 4> offsets,
                       std::array<IterType, 4> naos) {
     using float_type = double;
-    // Take the shell norm over the primitive integrals in this shell pair.
+
     float_type shell_norm = 0.0;
     std::array<IterType, 4> ao{0, 0, 0, 0};
     std::vector<IterType> abs_ao(4, 0); // Absolute indices

@@ -23,6 +23,11 @@ using pt = integrals::property_types::PrimitivePairEstimator;
 
 namespace {
 
+/* Correct values come from a MWE I made that recreates the integral screening
+ * using libint directly. Since the MWE exactly matches libint, I strongly
+ * believe these values are also correct.
+ */
+
 template<typename FloatType>
 auto corr_k01() {
     std::vector<FloatType> buffer{3.693e-38,   4.76823e-13, 8.9425e-06,
