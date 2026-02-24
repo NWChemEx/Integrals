@@ -1,5 +1,7 @@
 <map id="include/integrals/property_types.hpp" name="include/integrals/property_types.hpp">
-<area shape="rect" id="Node000001" title=" " alt="" coords="10,5,199,45"/>
-<area shape="rect" id="Node000002" href="$export__property__types_8hpp_source.html" title=" " alt="" coords="5,93,204,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,59,107,93,102,93,102,59"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="136,5,325,45"/>
+<area shape="rect" id="Node000002" href="$integrals_8hpp.html" title=" " alt="" coords="5,101,224,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,56,132,103,129,98,192,52"/>
+<area shape="rect" id="Node000003" href="$export__property__types_8hpp_source.html" title=" " alt="" coords="249,93,447,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="269,52,324,91,320,95,266,56"/>
 </map>

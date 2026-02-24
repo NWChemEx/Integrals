@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Overlap" href="Overlap.html" /> 
+    <link rel="prev" title="Screen Primitive Pairs" href="Screen_Primitive_Pairs.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -47,7 +47,10 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Modules API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Analytic_Error.html">Analytic Error</a></li>
 <li class="toctree-l2"><a class="reference internal" href="AO_integral_driver.html">AO integral driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Black_Box_Primitive_Pair_Estimator.html">Black Box Primitive Pair Estimator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CauchySchwarz_Estimator.html">CauchySchwarz Estimator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Coulomb_Metric.html">Coulomb Metric</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Decontract_Basis_Set.html">Decontract Basis Set</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Density_Fitted_J_builder.html">Density Fitted J builder</a></li>
@@ -64,6 +67,8 @@
 <li class="toctree-l2"><a class="reference internal" href="Kinetic.html">Kinetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Nuclear.html">Nuclear</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Overlap.html">Overlap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Primitive_Error_Model.html">Primitive Error Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Screen_Primitive_Pairs.html">Screen Primitive Pairs</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">UQ Driver</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#uq-integrals-driver">UQ Integrals Driver</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#please-cite">Please Cite</a></li>
@@ -71,9 +76,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#module-inputs">Module Inputs</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#benchmark-precision">benchmark precision</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#braket">BraKet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#precision">precision</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#braket">BraKet</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#module-results">Module Results</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
 </ul>
@@ -148,16 +151,8 @@ module. The columns are:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>benchmark precision</p></td>
-<td><p>1e-16</p></td>
+<tr class="row-even"><td><p>BraKet</p></td>
 <td><p>N/A</p></td>
-</tr>
-<tr class="row-odd"><td><p>BraKet</p></td>
-<td><p>N/A</p></td>
-<td><p>N/A</p></td>
-</tr>
-<tr class="row-even"><td><p>precision</p></td>
-<td><p>1e-16</p></td>
 <td><p>N/A</p></td>
 </tr>
 </tbody>
@@ -178,20 +173,6 @@ subsection we list:</p>
 </section>
 </section>
 </section>
-<section id="benchmark-precision">
-<h2>benchmark precision<a class="headerlink" href="#benchmark-precision" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>Description : N/A</p></li>
-<li><p>Default Value : 1e-16</p></li>
-<li><p>Optional? : False</p></li>
-<li><p>Opaque? : True</p></li>
-<li><p>Domain Restrictions :</p>
-<ul>
-<li><p>Type == double</p></li>
-</ul>
-</li>
-</ul>
-</section>
 <section id="braket">
 <h2>BraKet<a class="headerlink" href="#braket" title="Link to this heading"></a></h2>
 <ul class="simple">
@@ -202,20 +183,6 @@ subsection we list:</p>
 <li><p>Domain Restrictions :</p>
 <ul>
 <li><p>Type == chemist::braket::BraKet&lt;std::pair&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;, chemist::qm_operator::Coulomb&lt;chemist::Electron, chemist::Electron&gt;, std::pair&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;&gt;</p></li>
-</ul>
-</li>
-</ul>
-</section>
-<section id="precision">
-<h2>precision<a class="headerlink" href="#precision" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>Description : N/A</p></li>
-<li><p>Default Value : 1e-16</p></li>
-<li><p>Optional? : False</p></li>
-<li><p>Opaque? : True</p></li>
-<li><p>Domain Restrictions :</p>
-<ul>
-<li><p>Type == double</p></li>
 </ul>
 </li>
 </ul>
@@ -266,7 +233,11 @@ submodule we have listed:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>ERIs</p></td>
+<tr class="row-even"><td><p>ERI Error</p></td>
+<td><p>integrals::property_types::Uncertainty&lt;simde::EvaluateBraKet&lt;chemist::braket::BraKet&lt;std::pair&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;, chemist::qm_operator::Coulomb&lt;chemist::Electron, chemist::Electron&gt;, std::pair&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;&gt;&gt;&gt;</p></td>
+<td><p>N/A</p></td>
+</tr>
+<tr class="row-odd"><td><p>ERIs</p></td>
 <td><p>simde::EvaluateBraKet&lt;chemist::braket::BraKet&lt;std::pair&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;, chemist::qm_operator::Coulomb&lt;chemist::Electron, chemist::Electron&gt;, std::pair&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;&gt;&gt;</p></td>
 <td><p>N/A</p></td>
 </tr>
@@ -280,7 +251,7 @@ submodule we have listed:</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="Overlap.html" class="btn btn-neutral float-left" title="Overlap" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Screen_Primitive_Pairs.html" class="btn btn-neutral float-left" title="Screen Primitive Pairs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

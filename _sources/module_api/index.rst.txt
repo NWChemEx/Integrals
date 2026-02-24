@@ -5,7 +5,10 @@ Modules API
 .. toctree::
    :maxdepth: 1
 
+   Analytic_Error
    AO_integral_driver
+   Black_Box_Primitive_Pair_Estimator
+   CauchySchwarz_Estimator
    Coulomb_Metric
    Decontract_Basis_Set
    Density_Fitted_J_builder
@@ -22,4 +25,6 @@ Modules API
    Kinetic
    Nuclear
    Overlap
+   Primitive_Error_Model
+   Screen_Primitive_Pairs
    UQ_Driver

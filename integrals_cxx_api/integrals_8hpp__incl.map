@@ -1,7 +1,13 @@
 <map id="include/integrals/integrals.hpp" name="include/integrals/integrals.hpp">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,224,31"/>
-<area shape="rect" id="Node000002" href="$integrals__mm_8hpp_source.html" title=" " alt="" coords="45,79,185,119"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,31,117,65,112,65,112,31"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="11,167,218,192"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="117,119,117,153,112,153,112,119"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="95,5,314,31"/>
+<area shape="rect" id="Node000002" href="$integrals__mm_8hpp_source.html" title=" " alt="" coords="53,79,193,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,33,154,71,151,67,191,29"/>
+<area shape="rect" id="Node000004" href="$property__types_8hpp.html" title=" " alt="" coords="233,79,371,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="221,29,270,68,266,72,217,33"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,167,212,192"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="122,119,116,154,111,153,117,118"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="237,167,367,192"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="305,119,305,153,299,153,299,119"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="392,167,567,192"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="346,116,442,159,440,164,343,121"/>
 </map>

@@ -85,9 +85,9 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:aafa1169241ca9813c7fbd8e7b7d36002" id="r_aafa1169241ca9813c7fbd8e7b7d36002"><td class="memItemLeft" align="right" valign="top"><a id="aafa1169241ca9813c7fbd8e7b7d36002" name="aafa1169241ca9813c7fbd8e7b7d36002"></a>
+<tr class="memitem:a0d713d196716634923db86003dad359d" id="r_a0d713d196716634923db86003dad359d"><td class="memItemLeft" align="right" valign="top"><a id="a0d713d196716634923db86003dad359d" name="a0d713d196716634923db86003dad359d"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>pt</b> = integrals::property_types::DecontractBasisSet</td></tr>
-<tr class="separator:aafa1169241ca9813c7fbd8e7b7d36002"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a0d713d196716634923db86003dad359d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0905600fe8a84ef5e4c09a6c3103ac5d" id="r_a0905600fe8a84ef5e4c09a6c3103ac5d"><td class="memItemLeft" align="right" valign="top"><a id="a0905600fe8a84ef5e4c09a6c3103ac5d" name="a0905600fe8a84ef5e4c09a6c3103ac5d"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>mol_basis_t</b> = simde::type::ao_basis_set</td></tr>
 <tr class="separator:a0905600fe8a84ef5e4c09a6c3103ac5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -100,6 +100,9 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>cg_t</b> = simde::ty
 <tr class="memitem:a2f09e0746537d98d84c6c887df21c0ee" id="r_a2f09e0746537d98d84c6c887df21c0ee"><td class="memItemLeft" align="right" valign="top"><a id="a2f09e0746537d98d84c6c887df21c0ee" name="a2f09e0746537d98d84c6c887df21c0ee"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>doubles_t</b> = std::vector&lt; double &gt;</td></tr>
 <tr class="separator:a2f09e0746537d98d84c6c887df21c0ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a439afaeb3cae8c3449906c5af666da29" id="r_a439afaeb3cae8c3449906c5af666da29"><td class="memItemLeft" align="right" valign="top"><a id="a439afaeb3cae8c3449906c5af666da29" name="a439afaeb3cae8c3449906c5af666da29"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>pair_estimate_pt</b> = integrals::property_types::PrimitivePairEstimator</td></tr>
+<tr class="separator:a439afaeb3cae8c3449906c5af666da29"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -109,9 +112,22 @@ Functions</h2></td></tr>
 <tr class="memitem:a30a37b224b89dd79b553928c2a0227c1" id="r_a30a37b224b89dd79b553928c2a0227c1"><td class="memItemLeft" align="right" valign="top"><a id="a30a37b224b89dd79b553928c2a0227c1" name="a30a37b224b89dd79b553928c2a0227c1"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>MODULE_RUN</b> (DecontractBasisSet)</td></tr>
 <tr class="separator:a30a37b224b89dd79b553928c2a0227c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a528d18a3fcaf793e5a07b3e750f5bb2e" id="r_a528d18a3fcaf793e5a07b3e750f5bb2e"><td class="memTemplParams" colspan="2"><a id="a528d18a3fcaf793e5a07b3e750f5bb2e" name="a528d18a3fcaf793e5a07b3e750f5bb2e"></a>
+template&lt;typename TensorType , typename IterType &gt; </td></tr>
+<tr class="memitem:a528d18a3fcaf793e5a07b3e750f5bb2e"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>rank2_shell_norm</b> (TensorType &amp;&amp;buffer, std::array&lt; IterType, 4 &gt; offsets, std::array&lt; IterType, 4 &gt; naos)</td></tr>
+<tr class="separator:a528d18a3fcaf793e5a07b3e750f5bb2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a992c033faa7d046389b8513fcafb3f32" id="r_a992c033faa7d046389b8513fcafb3f32"><td class="memItemLeft" align="right" valign="top"><a id="a992c033faa7d046389b8513fcafb3f32" name="a992c033faa7d046389b8513fcafb3f32"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>MODULE_CTOR</b> (ScreenPrimitivePairs)</td></tr>
+<tr class="separator:a992c033faa7d046389b8513fcafb3f32"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ae0c80d65405ed4e9f1d3eb57108dd8" id="r_a0ae0c80d65405ed4e9f1d3eb57108dd8"><td class="memItemLeft" align="right" valign="top"><a id="a0ae0c80d65405ed4e9f1d3eb57108dd8" name="a0ae0c80d65405ed4e9f1d3eb57108dd8"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>MODULE_RUN</b> (ScreenPrimitivePairs)</td></tr>
+<tr class="separator:a0ae0c80d65405ed4e9f1d3eb57108dd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6efd5ac7c8038dae6ad1f9f61aa97a23" id="r_a6efd5ac7c8038dae6ad1f9f61aa97a23"><td class="memItemLeft" align="right" valign="top"><a id="a6efd5ac7c8038dae6ad1f9f61aa97a23" name="a6efd5ac7c8038dae6ad1f9f61aa97a23"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>DECLARE_MODULE</b> (DecontractBasisSet)</td></tr>
 <tr class="separator:a6efd5ac7c8038dae6ad1f9f61aa97a23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83bc61bba71adc02494d48f9639f7c0e" id="r_a83bc61bba71adc02494d48f9639f7c0e"><td class="memItemLeft" align="right" valign="top"><a id="a83bc61bba71adc02494d48f9639f7c0e" name="a83bc61bba71adc02494d48f9639f7c0e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>DECLARE_MODULE</b> (ScreenPrimitivePairs)</td></tr>
+<tr class="separator:a83bc61bba71adc02494d48f9639f7c0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4cf5732c0d6cccdf0f4150fb1827dcfb" id="r_a4cf5732c0d6cccdf0f4150fb1827dcfb"><td class="memItemLeft" align="right" valign="top"><a id="a4cf5732c0d6cccdf0f4150fb1827dcfb" name="a4cf5732c0d6cccdf0f4150fb1827dcfb"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_defaults</b> (pluginplay::ModuleManager &amp;mm)</td></tr>
 <tr class="separator:a4cf5732c0d6cccdf0f4150fb1827dcfb"><td class="memSeparator" colspan="2">&#160;</td></tr>

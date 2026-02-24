@@ -124,20 +124,21 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    mm.change_submod(<span class="stringliteral">&quot;Density Fitting Integral&quot;</span>, <span class="stringliteral">&quot;Coulomb Metric&quot;</span>,</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>                     <span class="stringliteral">&quot;Coulomb Metric&quot;</span>);</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    mm.change_submod(<span class="stringliteral">&quot;UQ Driver&quot;</span>, <span class="stringliteral">&quot;ERIs&quot;</span>, <span class="stringliteral">&quot;ERI4&quot;</span>);</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>}</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword">inline</span> <span class="keywordtype">void</span> load_modules(pluginplay::ModuleManager&amp; mm) {</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    mm.add_module&lt;AOIntegralsDriver&gt;(<span class="stringliteral">&quot;AO integral driver&quot;</span>);</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    mm.add_module&lt;JFourCenter&gt;(<span class="stringliteral">&quot;Four center J builder&quot;</span>);</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    mm.add_module&lt;KFourCenter&gt;(<span class="stringliteral">&quot;Four center K builder&quot;</span>);</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    mm.add_module&lt;JDensityFitted&gt;(<span class="stringliteral">&quot;Density Fitted J builder&quot;</span>);</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    mm.add_module&lt;KDensityFitted&gt;(<span class="stringliteral">&quot;Density Fitted K builder&quot;</span>);</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    mm.add_module&lt;DFIntegral&gt;(<span class="stringliteral">&quot;Density Fitting Integral&quot;</span>);</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    mm.add_module&lt;CoulombMetric&gt;(<span class="stringliteral">&quot;Coulomb Metric&quot;</span>);</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    mm.add_module&lt;UQDriver&gt;(<span class="stringliteral">&quot;UQ Driver&quot;</span>);</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>}</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>} <span class="comment">// namespace integrals::ao_integrals</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    mm.change_submod(<span class="stringliteral">&quot;UQ Driver&quot;</span>, <span class="stringliteral">&quot;ERI Error&quot;</span>, <span class="stringliteral">&quot;Primitive Error Model&quot;</span>);</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>}</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="keyword">inline</span> <span class="keywordtype">void</span> load_modules(pluginplay::ModuleManager&amp; mm) {</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    mm.add_module&lt;AOIntegralsDriver&gt;(<span class="stringliteral">&quot;AO integral driver&quot;</span>);</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    mm.add_module&lt;JFourCenter&gt;(<span class="stringliteral">&quot;Four center J builder&quot;</span>);</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    mm.add_module&lt;KFourCenter&gt;(<span class="stringliteral">&quot;Four center K builder&quot;</span>);</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    mm.add_module&lt;JDensityFitted&gt;(<span class="stringliteral">&quot;Density Fitted J builder&quot;</span>);</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    mm.add_module&lt;KDensityFitted&gt;(<span class="stringliteral">&quot;Density Fitted K builder&quot;</span>);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    mm.add_module&lt;DFIntegral&gt;(<span class="stringliteral">&quot;Density Fitting Integral&quot;</span>);</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    mm.add_module&lt;CoulombMetric&gt;(<span class="stringliteral">&quot;Coulomb Metric&quot;</span>);</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    mm.add_module&lt;UQDriver&gt;(<span class="stringliteral">&quot;UQ Driver&quot;</span>);</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>}</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>} <span class="comment">// namespace integrals::ao_integrals</span></div>
 </div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
