@@ -75,9 +75,9 @@ TEST_CASE("UQ Driver") {
         // Make BraKet Input
         chemist::braket::BraKet braket(aos_squared, op, aos_squared);
 
-        // Call module
-        // auto T      = mm.at("UQ Driver").run_as<test_pt>(braket);
-        // auto T_corr = mm.at("UQ w/analytic Error").run_as<test_pt>(braket);
+        // Call modules
+        auto T      = mm.at("UQ Driver").run_as<test_pt>(braket);
+        auto T_corr = mm.at("UQ w/analytic Error").run_as<test_pt>(braket);
 
         // std::cout << T << std::endl;
         // std::cout << T_corr << std::endl;

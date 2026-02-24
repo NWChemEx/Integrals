@@ -9,8 +9,7 @@ using tensorwrapper::operations::approximately_equal;
 namespace {
 
 template<typename FloatType>
-auto corr_error() {
-    FloatType diff = -0.0000000054867100;
+auto corr_error(FloatType diff) {
     tensorwrapper::shape::Smooth shape({1, 1, 1, 1});
     std::vector<FloatType> buffer(shape.size(), diff);
     tensorwrapper::buffer::Contiguous cont(std::move(buffer), shape);
@@ -34,7 +33,19 @@ TEST_CASE("AnalyticError") {
         chemist::braket::BraKet mnls(bra, v_ee, ket);
         float_type tol = 1.0e-10;
         auto error     = mod.run_as<pt>(mnls, tol);
-        auto corr      = corr_error<float_type>();
+        auto corr      = corr_error<float_type>(-0.0000000054867100);
+        REQUIRE(approximately_equal(error, corr, 1.0e-12));
+    }
+
+    SECTION("H2O/STO-3G (00|34)") {
+        auto [bra0, bra1, ket0, ket1] = get_h2o_0034_bases();
+
+        simde::type::aos_squared bra(bra0, bra1);
+        simde::type::aos_squared ket(ket0, ket1);
+        chemist::braket::BraKet mnls(bra, v_ee, ket);
+        float_type tol = 1.0e-10;
+        auto error     = mod.run_as<pt>(mnls, tol);
+        auto corr      = corr_error<float_type>(-0.0000000000315610);
         REQUIRE(approximately_equal(error, corr, 1.0e-12));
     }
 }

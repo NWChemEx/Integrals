@@ -59,6 +59,14 @@ auto compute_k(T zeta_i, T zeta_j, T coeff_i, T coeff_j, T dr2) {
     return coeff_i * coeff_j * std::exp(ratio * dr2);
 }
 
+template<typename T>
+auto compute_ln_k(T zeta_i, T zeta_j, T coeff_i, T coeff_j, T dr2) {
+    const auto num   = -zeta_i * zeta_j;
+    const auto denom = zeta_i + zeta_j;
+    const auto ratio = num / denom;
+    return std::log(coeff_i) + std::log(coeff_j) + ratio * dr2;
+}
+
 } // namespace
 using pt = integrals::property_types::PrimitivePairEstimator;
 
@@ -97,8 +105,7 @@ MODULE_RUN(BlackBoxPrimitiveEstimator) {
     for(shells[0] = 0; shells[0] < n_shells[0]; ++shells[0]) {
         const auto& bra_shell = bra_libint.at(shells[0]);
         assert(bra_shell.contr.size() == 1); // No general contraction support
-        const auto& bra_coeff = bra_shell.contr[0].coeff;
-
+        const auto& bra_coeff        = bra_shell.contr[0].coeff;
         const auto& bra_alpha        = bra_shell.alpha;
         const auto n_prims_bra_shell = bra_coeff.size();
 

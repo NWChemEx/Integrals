@@ -17,6 +17,36 @@
 #include <integrals/integrals.hpp>
 
 using namespace integrals::testing;
+using pair_type   = std::vector<std::size_t>;
+using pair_vector = std::vector<pair_type>;
+
+namespace {
+
+auto corr_bra_pairs() {
+    pair_vector rv;
+    rv.push_back({0, 2});
+    rv.push_back({1, 1});
+    rv.push_back({1, 2});
+    rv.push_back({2, 0});
+    rv.push_back({2, 1});
+    rv.push_back({2, 2});
+    return rv;
+}
+
+auto corr_ket_pairs() {
+    pair_vector rv;
+    rv.push_back({0, 1});
+    rv.push_back({0, 2});
+    rv.push_back({1, 0});
+    rv.push_back({1, 1});
+    rv.push_back({1, 2});
+    rv.push_back({2, 0});
+    rv.push_back({2, 1});
+    rv.push_back({2, 2});
+    return rv;
+}
+
+} // namespace
 
 using pt = integrals::property_types::PairScreener;
 
@@ -29,9 +59,11 @@ TEST_CASE("Screen Primitive Pairs") {
 
     SECTION("(Bra0, Bra1) pairs") {
         auto pairs = mod.run_as<pt>(bra0, bra1, 1E-10);
-        for(const auto& pair : pairs) {
-            for(const auto& prim : pair) { std::cout << prim << " "; }
-            std::cout << std::endl;
-        }
+        REQUIRE(pairs == corr_bra_pairs());
+    }
+
+    SECTION("(Ket0, Ket1) pairs") {
+        auto pairs = mod.run_as<pt>(ket0, ket1, 1E-10);
+        REQUIRE(pairs == corr_ket_pairs());
     }
 }

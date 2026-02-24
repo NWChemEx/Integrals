@@ -33,4 +33,57 @@ inline auto get_h2_dimer_0312_bases() {
     return std::make_tuple(bra0, bra1, ket0, ket1);
 }
 
+/* After playing around I found that my code was getting hard zero for this
+ *  quartet, but libint got a non-zero, but small value.
+ */
+inline auto get_h2o_0034_bases() {
+    simde::type::ao_basis_set bra0, ket3, ket4;
+    auto water_aos = water_sto3g_basis_set();
+
+    using abs_type    = simde::type::ao_basis_set::value_type;
+    using cg_type     = simde::type::contracted_gaussian;
+    using float_type  = double;
+    using vector_type = std::vector<float_type>;
+
+    const auto shell0   = water_aos.shell(0);
+    const auto center0  = shell0.center().as_point();
+    const auto cg0_view = shell0.contracted_gaussian();
+    vector_type cs0{cg0_view[0].coefficient(), cg0_view[1].coefficient(),
+                    cg0_view[2].coefficient()};
+    vector_type es0{cg0_view[0].exponent(), cg0_view[1].exponent(),
+                    cg0_view[2].exponent()};
+    cg_type cg0(cs0.begin(), cs0.end(), es0.begin(), es0.end(), center0);
+
+    abs_type abs0(center0);
+    abs0.add_shell(shell0.pure(), shell0.l(), cg0);
+    bra0.add_center(abs0);
+
+    const auto shell3   = water_aos.shell(3);
+    const auto center3  = shell3.center().as_point();
+    const auto cg3_view = shell3.contracted_gaussian();
+    vector_type cs3{cg3_view[0].coefficient(), cg3_view[1].coefficient(),
+                    cg3_view[2].coefficient()};
+    vector_type es3{cg3_view[0].exponent(), cg3_view[1].exponent(),
+                    cg3_view[2].exponent()};
+    cg_type cg3(cs3.begin(), cs3.end(), es3.begin(), es3.end(), center3);
+
+    abs_type abs3(center3);
+    abs3.add_shell(shell3.pure(), shell3.l(), cg3);
+    ket3.add_center(abs3);
+
+    const auto shell4   = water_aos.shell(4);
+    const auto center4  = shell4.center().as_point();
+    const auto cg4_view = shell4.contracted_gaussian();
+    vector_type cs4{cg4_view[0].coefficient(), cg4_view[1].coefficient(),
+                    cg4_view[2].coefficient()};
+    vector_type es4{cg4_view[0].exponent(), cg4_view[1].exponent(),
+                    cg4_view[2].exponent()};
+    cg_type cg4(cs4.begin(), cs4.end(), es4.begin(), es4.end(), center4);
+
+    abs_type abs4(center4);
+    abs4.add_shell(shell4.pure(), shell4.l(), cg4);
+    ket4.add_center(abs4);
+    return std::make_tuple(bra0, bra0, ket3, ket4);
+}
+
 } // namespace integrals::testing

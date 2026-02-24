@@ -195,8 +195,6 @@ void set_defaults(pluginplay::ModuleManager& mm) {
     mm.change_submod("Primitive Error Model",
                      "Black Box Primitive Pair Estimator",
                      "Black Box Primitive Pair Estimator");
-    mm.change_submod("Primitive Error Model", "Primitive Pair Estimator",
-                     "CauchySchwarz Estimator");
     mm.change_submod("CauchySchwarz Estimator", "Decontract Basis Set",
                      "Decontract Basis Set");
     mm.copy_module("ERI4", "Benchmark ERI4");
