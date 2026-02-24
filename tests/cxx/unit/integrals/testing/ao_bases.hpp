@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NWChemEx-Project
+ * Copyright 2026 NWChemEx-Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,60 +15,35 @@
  */
 
 #pragma once
-#include <integrals/integrals.hpp>
-
-// For common inputs
+#include "molecules.hpp"
 #include <simde/simde.hpp>
 
-// Common Catch2 includes
-#include <catch2/catch_approx.hpp>
-#include <catch2/catch_test_macros.hpp>
+namespace integrals::testing {
 
-#include <unsupported/Eigen/CXX11/Tensor>
+inline simde::type::ao_basis_set h2_sto3g_basis_set() {
+    using ao_basis_t     = simde::type::ao_basis_set;
+    using atomic_basis_t = simde::type::atomic_basis_set;
+    using cg_t           = simde::type::contracted_gaussian;
+    using point_t        = simde::type::point;
+    using doubles_t      = std::vector<double>;
 
-namespace test {
+    auto mol   = water_molecule();
+    point_t r0 = mol[0].as_nucleus();
+    point_t r1 = mol[1].as_nucleus();
 
-template<typename FloatType, std::size_t N, std::size_t... Is>
-auto eigen_tensor_(const tensorwrapper::buffer::BufferBase& buffer,
-                   std::array<int, N> extents, std::index_sequence<Is...>) {
-    using namespace tensorwrapper;
-    const auto pdata = buffer::get_raw_data<FloatType>(buffer);
-    using eigen_type = Eigen::Tensor<const FloatType, N, Eigen::RowMajor>;
-    return Eigen::TensorMap<eigen_type>(pdata.data(), extents[Is]...);
-}
+    doubles_t cs{0.1543289673, 0.5353281423, 0.4446345422};
+    doubles_t es{3.425250914, 0.6239137298, 0.1688554040};
+    cg_t cg0(cs.begin(), cs.end(), es.begin(), es.end(), r0);
+    cg_t cg1(cs.begin(), cs.end(), es.begin(), es.end(), r1);
+    atomic_basis_t h0("sto-3g", 1, r0);
+    atomic_basis_t h1("sto-3g", 1, r1);
+    h0.add_shell(chemist::ShellType::cartesian, 0, cg0);
+    h1.add_shell(chemist::ShellType::cartesian, 0, cg1);
 
-// Checking eigen outputs
-template<std::size_t N, typename FloatType = double>
-auto eigen_tensor(const tensorwrapper::buffer::BufferBase& buffer) {
-    std::array<int, N> extents;
-    auto shape = buffer.layout().shape().as_smooth();
-    for(std::size_t i = 0; i < N; ++i) extents[i] = shape.extent(i);
-    return eigen_tensor_<FloatType>(buffer, extents,
-                                    std::make_index_sequence<N>());
-}
-
-template<unsigned short Rank, typename FloatType = double>
-auto trace(const tensorwrapper::buffer::BufferBase& buffer) {
-    auto t = eigen_tensor<Rank, FloatType>(buffer);
-    Eigen::Tensor<FloatType, 0, Eigen::RowMajor> trace = t.trace();
-    return trace.coeff();
-}
-
-template<unsigned short Rank, typename FloatType = double>
-auto norm(const tensorwrapper::buffer::BufferBase& buffer) {
-    auto t = eigen_tensor<Rank, FloatType>(buffer);
-    Eigen::Tensor<FloatType, 0, Eigen::RowMajor> norm = t.square().sum().sqrt();
-    return norm.coeff();
-}
-
-// Inputs for Water tests
-inline simde::type::molecule water_molecule() {
-    using atom_t     = simde::type::atom;
-    using molecule_t = simde::type::molecule;
-    atom_t O{"O", 8ul, 0.0, 0.0, -0.143222342980786, 0.0};
-    atom_t H1{"H", 1ul, 0.0, 1.638033502034240, 1.136556880358410, 0.0};
-    atom_t H2{"H", 1ul, 0.0, -1.638033502034240, 1.136556880358410, 0.0};
-    return molecule_t{O, H1, H2};
+    ao_basis_t bs;
+    bs.add_center(h0);
+    bs.add_center(h1);
+    return bs;
 }
 
 inline simde::type::ao_basis_set water_sto3g_basis_set() {
@@ -167,53 +142,4 @@ inline simde::type::ao_basis_set water_decontracted_sto3g_basis_set() {
     return bs;
 }
 
-// Inputs for H2 tests
-inline simde::type::molecule h2_molecule() {
-    using atom_t     = simde::type::atom;
-    using molecule_t = simde::type::molecule;
-    atom_t H0("H", 1ul, 1836.15, 0.0, 0.0, 0.0);
-    atom_t H1("H", 1ul, 1836.15, 0.0, 0.0, 1.3984);
-    return molecule_t{H0, H1};
-}
-
-inline simde::type::ao_basis_set h2_sto3g_basis_set() {
-    using ao_basis_t     = simde::type::ao_basis_set;
-    using atomic_basis_t = simde::type::atomic_basis_set;
-    using cg_t           = simde::type::contracted_gaussian;
-    using point_t        = simde::type::point;
-    using doubles_t      = std::vector<double>;
-
-    auto mol   = water_molecule();
-    point_t r0 = mol[0].as_nucleus();
-    point_t r1 = mol[1].as_nucleus();
-
-    doubles_t cs{0.1543289673, 0.5353281423, 0.4446345422};
-    doubles_t es{3.425250914, 0.6239137298, 0.1688554040};
-    cg_t cg0(cs.begin(), cs.end(), es.begin(), es.end(), r0);
-    cg_t cg1(cs.begin(), cs.end(), es.begin(), es.end(), r1);
-    atomic_basis_t h0("sto-3g", 1, r0);
-    atomic_basis_t h1("sto-3g", 1, r1);
-    h0.add_shell(chemist::ShellType::cartesian, 0, cg0);
-    h1.add_shell(chemist::ShellType::cartesian, 0, cg1);
-
-    ao_basis_t bs;
-    bs.add_center(h0);
-    bs.add_center(h1);
-    return bs;
-}
-
-inline auto h2_mos() {
-    using mos_type    = simde::type::mos;
-    using tensor_type = typename mos_type::transform_type;
-    tensor_type c({{-0.565516, -1.07019}, {-0.565516, 1.07019}});
-    return mos_type(simde::type::aos(h2_sto3g_basis_set()), std::move(c));
-}
-
-inline auto h2_density() {
-    using density_type = simde::type::decomposable_e_density;
-    typename density_type::value_type rho(
-      {{0.31980835, 0.31980835}, {0.31980835, 0.31980835}});
-    return density_type(rho, h2_mos());
-}
-
-} // namespace test
+} // namespace integrals::testing

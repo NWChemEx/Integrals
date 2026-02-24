@@ -22,7 +22,8 @@
  *  your unit test also needs most of the headers included by it).
  */
 #pragma once
-#include "integrals/integrals_mm.hpp"
+#include <integrals/integrals_mm.hpp>
+#include <integrals/property_types.hpp>
 
 /** @namespace integrals
  *

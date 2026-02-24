@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-#include "../testing.hpp"
+#include "../testing/testing.hpp"
 #include <integrals/property_types.hpp>
+
+using namespace integrals::testing;
 
 TEST_CASE("DecontractBasisSet") {
     using test_pt = integrals::property_types::DecontractBasisSet;
 
-    pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
+    auto mm = initialize_integrals();
     REQUIRE(mm.count("Decontract Basis Set"));
 
     // Get basis set
-    auto aobs = test::water_sto3g_basis_set();
+    auto aobs = water_sto3g_basis_set();
 
     // Get module
     auto& mod = mm.at("Decontract Basis Set");
@@ -34,6 +35,6 @@ TEST_CASE("DecontractBasisSet") {
     auto decontracted_aobs = mod.run_as<test_pt>(aobs);
 
     // Check output
-    auto corr = test::water_decontracted_sto3g_basis_set();
+    auto corr = water_decontracted_sto3g_basis_set();
     REQUIRE(decontracted_aobs == corr);
 }

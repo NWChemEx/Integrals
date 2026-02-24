@@ -30,12 +30,16 @@
 namespace integrals::utils {
 
 DECLARE_MODULE(DecontractBasisSet);
+DECLARE_MODULE(ScreenPrimitivePairs);
 
-inline void set_defaults(pluginplay::ModuleManager& mm) {}
+inline void set_defaults(pluginplay::ModuleManager& mm) {
+    mm.change_submod("Screen Primitive Pairs", "Primitive Pair Estimator",
+                     "Black Box Primitive Pair Estimator");
+}
 
 inline void load_modules(pluginplay::ModuleManager& mm) {
     mm.add_module<DecontractBasisSet>("Decontract Basis Set");
-    set_defaults(mm);
+    mm.add_module<ScreenPrimitivePairs>("Screen Primitive Pairs");
 }
 
 } // end namespace integrals::utils

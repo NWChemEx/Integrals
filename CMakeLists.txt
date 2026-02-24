@@ -72,6 +72,12 @@ cmaize_add_library(
     DEPENDS "${project_depends}"
 )
 
+cmaize_add_executable(
+    primitive_error_models
+    SOURCE_DIR "examples/primitive_error_models"
+    DEPENDS "${PROJECT_NAME}"
+)
+
 include(nwx_pybind11)
 nwx_add_pybind11_module(
     ${PROJECT_NAME}

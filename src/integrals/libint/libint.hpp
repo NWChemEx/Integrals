@@ -24,6 +24,18 @@
  */
 namespace integrals::libint {
 
+/** @brief The Module for computing AO Integrals
+ *
+ *  @tparam BraKetType The type of the BraKet input
+ */
+template<typename BraKetType>
+DECLARE_MODULE(Libint);
+
+DECLARE_MODULE(BlackBoxPrimitiveEstimator);
+DECLARE_MODULE(CauchySchwarzPrimitiveEstimator);
+DECLARE_MODULE(PrimitiveErrorModel);
+DECLARE_MODULE(AnalyticError);
+
 using simde::type::braket;
 
 using simde::type::aos;
@@ -34,13 +46,6 @@ using simde::type::s_e_type;
 using simde::type::t_e_type;
 using simde::type::v_ee_type;
 using simde::type::v_en_type;
-
-/** @brief The Module for computing AO Integrals
- *
- *  @tparam BraKetType The type of the BraKet input
- */
-template<typename BraKetType>
-DECLARE_MODULE(Libint);
 
 /** @brief Load the libint modules into a Module Manager
  *

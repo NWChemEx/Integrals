@@ -30,6 +30,64 @@
  */
 namespace integrals::property_types {
 
+// PT used to estimate the contribution of primitive pairs
+DECLARE_PROPERTY_TYPE(PrimitivePairEstimator);
+PROPERTY_TYPE_INPUTS(PrimitivePairEstimator) {
+    using ao_basis = const simde::type::ao_basis_set&;
+    auto rv        = pluginplay::declare_input()
+                .add_field<ao_basis>("Bra Basis Set")
+                .add_field<ao_basis>("Ket Basis Set");
+    rv["Bra Basis Set"].set_description(
+      "The atomic orbital basis set for the bra");
+    rv["Ket Basis Set"].set_description(
+      "The atomic orbital basis set for the ket");
+    return rv;
+}
+
+PROPERTY_TYPE_RESULTS(PrimitivePairEstimator) {
+    using tensor = simde::type::tensor;
+    auto rv      = pluginplay::declare_result().add_field<tensor>(
+      "Primitive Pair Estimates");
+    rv["Primitive Pair Estimates"].set_description(
+      "A tensor containing the estimated values for each primitive pair "
+      "integral");
+    return rv;
+}
+
+DECLARE_PROPERTY_TYPE(PairScreener);
+PROPERTY_TYPE_INPUTS(PairScreener) {
+    using ao_basis = const simde::type::ao_basis_set&;
+    auto rv        = pluginplay::declare_input()
+                .add_field<ao_basis>("Bra Basis Set")
+                .add_field<ao_basis>("Ket Basis Set")
+                .add_field<double>("Tolerance");
+    return rv;
+}
+
+PROPERTY_TYPE_RESULTS(PairScreener) {
+    using index_vector = std::vector<std::size_t>;
+    using pair_vector  = std::vector<index_vector>;
+    auto rv            = pluginplay::declare_result().add_field<pair_vector>(
+      "Primitive Pairs Passing Screening");
+    return rv;
+}
+
+template<typename BasePT>
+DECLARE_TEMPLATED_PROPERTY_TYPE(Uncertainty, BasePT);
+
+template<typename BasePT>
+TEMPLATED_PROPERTY_TYPE_INPUTS(Uncertainty, BasePT) {
+    auto rv  = BasePT::inputs();
+    auto rv0 = rv.template add_field<double>("Tolerance");
+    rv0["Tolerance"].set_description("The screening threshold");
+    return rv0;
+}
+
+template<typename BasePT>
+TEMPLATED_PROPERTY_TYPE_RESULTS(Uncertainty, BasePT) {
+    return BasePT::results();
+}
+
 using DecontractBasisSet =
   simde::Convert<simde::type::ao_basis_set, simde::type::ao_basis_set>;
 
