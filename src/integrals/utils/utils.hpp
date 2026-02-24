@@ -40,7 +40,6 @@ inline void set_defaults(pluginplay::ModuleManager& mm) {
 inline void load_modules(pluginplay::ModuleManager& mm) {
     mm.add_module<DecontractBasisSet>("Decontract Basis Set");
     mm.add_module<ScreenPrimitivePairs>("Screen Primitive Pairs");
-    set_defaults(mm);
 }
 
 } // end namespace integrals::utils

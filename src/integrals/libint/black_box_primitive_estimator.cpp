@@ -59,14 +59,6 @@ auto compute_k(T zeta_i, T zeta_j, T coeff_i, T coeff_j, T dr2) {
     return coeff_i * coeff_j * std::exp(ratio * dr2);
 }
 
-template<typename T>
-auto compute_ln_k(T zeta_i, T zeta_j, T coeff_i, T coeff_j, T dr2) {
-    const auto num   = -zeta_i * zeta_j;
-    const auto denom = zeta_i + zeta_j;
-    const auto ratio = num / denom;
-    return std::log(coeff_i) + std::log(coeff_j) + ratio * dr2;
-}
-
 } // namespace
 using pt = integrals::property_types::PrimitivePairEstimator;
 
