@@ -16,7 +16,9 @@
 
 #include "ao_integrals.hpp"
 #include <integrals/integrals.hpp>
+#ifdef ENABLE_SIGMA
 #include <sigma/sigma.hpp>
+#endif
 
 using namespace tensorwrapper;
 
@@ -43,6 +45,7 @@ struct Kernel {
         if constexpr(types::is_uncertain_v<float_type>) {
             throw std::runtime_error("Did not expect an uncertain type");
         } else {
+#ifdef ENABLE_SIGMA
             using uq_type  = sigma::Uncertain<float_type>;
             auto rv_buffer = buffer::make_contiguous<uq_type>(m_shape);
             auto rv_data   = buffer::get_raw_data<uq_type>(rv_buffer);
@@ -52,6 +55,9 @@ struct Kernel {
                 rv_data[i]            = uq_type(elem, elem_error);
             }
             rv = tensorwrapper::Tensor(m_shape, std::move(rv_buffer));
+#else
+            throw std::runtime_error("Sigma support not enabled!");
+#endif
         }
 
         return rv;

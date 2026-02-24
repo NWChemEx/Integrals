@@ -23,14 +23,14 @@ namespace integrals::libint {
 namespace {
 
 const auto desc = R"(
-Libint Black Box Primitive Pair Estimator 
+Libint Black Box Primitive Pair Estimator
 =========================================
 
 This module computes the matrix : math :`K_{ij}` where:
 
-.. math:: 
+.. math::
 
-   K_{ij} = c_i c_j \exp\left(-\frac{\zeta_i \zeta_j}{\zeta_i + \zeta_j} 
+   K_{ij} = c_i c_j \exp\left(-\frac{\zeta_i \zeta_j}{\zeta_i + \zeta_j}
    |\mathbf{R}_i - \mathbf{R}_j|^2\right)
 
 This is how Libint2 estimates the contribution of a pair of primitives to
