@@ -16,6 +16,7 @@
 
 #include "ao_integrals.hpp"
 #include <integrals/integrals.hpp>
+#include <sigma/sigma.hpp>
 
 using namespace tensorwrapper;
 
