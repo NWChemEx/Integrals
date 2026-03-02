@@ -32,7 +32,7 @@ TEST_CASE("Density Fitted K builder") {
     simde::type::aos aos(aobs);
 
     // Make Operator
-    simde::type::k_e_type op(simde::type::electron{}, h2_density());
+    simde::type::k_e_type op(simde::type::electron{}, h2_density<double>());
 
     // Make BraKet Input
     chemist::braket::BraKet braket(aos, op, aos);
