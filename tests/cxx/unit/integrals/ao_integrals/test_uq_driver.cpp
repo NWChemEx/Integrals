@@ -59,11 +59,39 @@ auto corr_answer(const simde::type::tensor& T) {
     }
 }
 
+template<typename FloatType>
+auto corr_max_answer(const simde::type::tensor& T) {
+    if constexpr(std::is_same_v<FloatType, double>) {
+        return T;
+    } else {
+        simde::type::tensor T_corr(T);
+        auto& corr_buffer = buffer::make_contiguous(T_corr.buffer());
+        double max_error  = 0.0000170000000000;
+        corr_buffer.set_elem({0, 0, 0, 0}, FloatType{0.774606, max_error});
+        corr_buffer.set_elem({0, 0, 0, 1}, FloatType{0.265558, max_error});
+        corr_buffer.set_elem({0, 0, 1, 0}, FloatType{0.265558, max_error});
+        corr_buffer.set_elem({0, 0, 1, 1}, FloatType{0.446701, max_error});
+        corr_buffer.set_elem({0, 1, 0, 0}, FloatType{0.265558, max_error});
+        corr_buffer.set_elem({0, 1, 0, 1}, FloatType{0.120666, max_error});
+        corr_buffer.set_elem({0, 1, 1, 0}, FloatType{0.120666, max_error});
+        corr_buffer.set_elem({0, 1, 1, 1}, FloatType{0.265558, max_error});
+        corr_buffer.set_elem({1, 0, 0, 0}, FloatType{0.265558, max_error});
+        corr_buffer.set_elem({1, 0, 0, 1}, FloatType{0.120666, max_error});
+        corr_buffer.set_elem({1, 0, 1, 0}, FloatType{0.120666, max_error});
+        corr_buffer.set_elem({1, 0, 1, 1}, FloatType{0.265558, max_error});
+        corr_buffer.set_elem({1, 1, 0, 0}, FloatType{0.446701, max_error});
+        corr_buffer.set_elem({1, 1, 0, 1}, FloatType{0.265558, max_error});
+        corr_buffer.set_elem({1, 1, 1, 0}, FloatType{0.265558, max_error});
+        corr_buffer.set_elem({1, 1, 1, 1}, FloatType{0.774606, max_error});
+        return T_corr;
+    }
+}
+
 TEST_CASE("UQ Driver") {
     using float_type = tensorwrapper::types::udouble;
-    if constexpr(tensorwrapper::types::is_uncertain_v<float_type>) {
-        using test_pt = simde::ERI4;
+    using test_pt    = simde::ERI4;
 
+    if constexpr(tensorwrapper::types::is_uncertain_v<float_type>) {
         auto rt = std::make_unique<parallelzone::runtime::RuntimeView>();
         pluginplay::ModuleManager mm(std::move(rt), nullptr);
         integrals::load_modules(mm);
@@ -85,11 +113,20 @@ TEST_CASE("UQ Driver") {
         // Make BraKet Input
         chemist::braket::BraKet braket(aos_squared, op, aos_squared);
 
-        // Call modules
-        auto T = mm.at("UQ Driver").run_as<test_pt>(braket);
-
-        auto T_corr = corr_answer<float_type>(T);
         using tensorwrapper::operations::approximately_equal;
-        REQUIRE(approximately_equal(T_corr, T, 1E-6));
+        SECTION("No Mean") {
+            // Call modules
+            auto T = mm.at("UQ Driver").run_as<test_pt>(braket);
+
+            auto T_corr = corr_answer<float_type>(T);
+            REQUIRE(approximately_equal(T_corr, T, 1E-6));
+        }
+        SECTION("Max") {
+            mm.change_input("UQ Driver", "Max Error", true);
+            auto T = mm.at("UQ Driver").run_as<test_pt>(braket);
+
+            auto T_corr = corr_answer<float_type>(T);
+            REQUIRE(approximately_equal(T_corr, T, 1E-6));
+        }
     }
 }
