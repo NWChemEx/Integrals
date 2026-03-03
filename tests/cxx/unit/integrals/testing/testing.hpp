@@ -88,10 +88,14 @@ inline auto h2_mos() {
     return mos_type(simde::type::aos(h2_sto3g_basis_set()), std::move(c));
 }
 
+template<typename FloatType>
 inline auto h2_density() {
     using density_type = simde::type::decomposable_e_density;
-    typename density_type::value_type rho(
-      {{0.31980835, 0.31980835}, {0.31980835, 0.31980835}});
+    std::vector<FloatType> data{FloatType{0.31980835}, FloatType{0.31980835},
+                                FloatType{0.31980835}, FloatType{0.31980835}};
+    tensorwrapper::shape::Smooth shape({2, 2});
+    tensorwrapper::buffer::Contiguous buffer(std::move(data), shape);
+    typename density_type::value_type rho(std::move(buffer), shape);
     return density_type(rho, h2_mos());
 }
 

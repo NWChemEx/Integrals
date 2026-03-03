@@ -65,7 +65,7 @@ TEST_CASE("AOIntegralsDriver") {
 
     // Operator Inputs
     simde::type::electron e;
-    auto rho = h2_density();
+    auto rho = h2_density<double>();
 
     SECTION("Calling Kinetic") {
         auto& tmod = mm.at("Kinetic");
