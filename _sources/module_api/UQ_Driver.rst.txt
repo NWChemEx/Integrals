@@ -44,11 +44,17 @@ module. The columns are:
 - ``Default`` : The initial value, if one exists, and
 - ``Description`` : A human readable description of what the option is used for.
 
-+--------+---------+-------------+
-| Key    | Default | Description |
-+========+=========+=============+
-| BraKet | N/A     | N/A         |
-+--------+---------+-------------+
++----------------+---------+-------------+
+| Key            | Default | Description |
++================+=========+=============+
+| BraKet         | N/A     | N/A         |
++----------------+---------+-------------+
+| Geometric Mean | 0       | N/A         |
++----------------+---------+-------------+
+| Harmonic Mean  | 0       | N/A         |
++----------------+---------+-------------+
+| Max Error      | 0       | N/A         |
++----------------+---------+-------------+
 
 
 Detailed Descriptions
@@ -74,6 +80,39 @@ BraKet
 - Domain Restrictions :
 
   - Type == chemist::braket::BraKet<std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>, chemist::qm_operator::Coulomb<chemist::Electron, chemist::Electron>, std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>>
+
+Geometric Mean
+--------------
+
+- Description : N/A
+- Default Value : 0
+- Optional? : False
+- Opaque? : True
+- Domain Restrictions :
+
+  - Type == bool
+
+Harmonic Mean
+-------------
+
+- Description : N/A
+- Default Value : 0
+- Optional? : False
+- Opaque? : True
+- Domain Restrictions :
+
+  - Type == bool
+
+Max Error
+---------
+
+- Description : N/A
+- Default Value : 0
+- Optional? : False
+- Opaque? : True
+- Domain Restrictions :
+
+  - Type == bool
 
 
 **************
