@@ -28,6 +28,7 @@ DECLARE_MODULE(DFIntegral);
 DECLARE_MODULE(CoulombMetric);
 DECLARE_MODULE(UQDriver);
 DECLARE_MODULE(UQAtomBlockedDriver);
+DECLARE_MODULE(UQAtomSymmBlockedDriver);
 
 inline void set_defaults(pluginplay::ModuleManager& mm) {
     mm.change_submod("AO integral driver", "Coulomb matrix",
@@ -45,6 +46,9 @@ inline void set_defaults(pluginplay::ModuleManager& mm) {
     mm.change_submod("UQ Atom Blocked Driver", "ERIs", "ERI4");
     mm.change_submod("UQ Atom Blocked Driver", "ERI Error",
                      "Primitive Error Model");
+    mm.change_submod("UQ Atom Symm Blocked Driver", "ERIs", "ERI4");
+    mm.change_submod("UQ Atom Symm Blocked Driver", "ERI Error",
+                     "Primitive Error Model");
 }
 
 inline void load_modules(pluginplay::ModuleManager& mm) {
@@ -57,6 +61,7 @@ inline void load_modules(pluginplay::ModuleManager& mm) {
     mm.add_module<CoulombMetric>("Coulomb Metric");
     mm.add_module<UQDriver>("UQ Driver");
     mm.add_module<UQAtomBlockedDriver>("UQ Atom Blocked Driver");
+    mm.add_module<UQAtomSymmBlockedDriver>("UQ Atom Symm Blocked Driver");
 }
 
 } // namespace integrals::ao_integrals

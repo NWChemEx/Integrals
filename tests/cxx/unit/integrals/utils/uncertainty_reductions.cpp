@@ -18,6 +18,29 @@
 #include <integrals/utils/uncertainty_reductions.hpp>
 using namespace integrals::utils;
 
+TEST_CASE("max_mean") {
+    SECTION("Basic Test") {
+        std::vector<double> values{1.0, 10.0, 100.0};
+        auto result = max_mean(values);
+        REQUIRE(result == Catch::Approx(100.0));
+    }
+    SECTION("Contains zero") {
+        std::vector<double> values{1.0, 10.0, 100.0, 0.0};
+        auto result = max_mean(values);
+        REQUIRE(result == Catch::Approx(100.0));
+    }
+    SECTION("All zero") {
+        std::vector<double> values{0.0, 0.0, 0.0};
+        auto result = max_mean(values);
+        REQUIRE(result == Catch::Approx(0.0));
+    }
+    SECTION("Empty") {
+        std::vector<double> values{};
+        auto result = max_mean(values);
+        REQUIRE(result == Catch::Approx(0.0));
+    }
+}
+
 TEST_CASE("geometric_mean") {
     SECTION("Basic Test") {
         std::vector<double> values{1.0, 10.0, 100.0};
@@ -29,6 +52,16 @@ TEST_CASE("geometric_mean") {
         std::vector<double> values{1.0, 10.0, 100.0, 0.0};
         auto result = geometric_mean(values);
         REQUIRE(result == Catch::Approx(10.0));
+    }
+    SECTION("All zero") {
+        std::vector<double> values{0.0, 0.0, 0.0};
+        auto result = geometric_mean(values);
+        REQUIRE(result == Catch::Approx(0.0));
+    }
+    SECTION("No elements") {
+        std::vector<double> values{};
+        auto result = geometric_mean(values);
+        REQUIRE(result == Catch::Approx(0.0));
     }
 }
 
@@ -43,6 +76,18 @@ TEST_CASE("harmonic_mean") {
         std::vector<double> values{1.0, 2.0, 3.0, 0.0};
         auto result = harmonic_mean(values);
         REQUIRE(result == Catch::Approx(1.63636363636));
+    }
+
+    SECTION("All zero") {
+        std::vector<double> values{0.0, 0.0, 0.0};
+        auto result = harmonic_mean(values);
+        REQUIRE(result == Catch::Approx(0.0));
+    }
+
+    SECTION("No elements") {
+        std::vector<double> values{};
+        auto result = harmonic_mean(values);
+        REQUIRE(result == Catch::Approx(0.0));
     }
 }
 

@@ -25,6 +25,13 @@ namespace integrals::utils {
 enum class mean_type { none, max, geometric, harmonic };
 
 template<typename ContainerType>
+auto max_mean(const ContainerType& values) {
+    using float_type = std::decay_t<decltype(values[0])>;
+    if(values.empty()) return float_type{0};
+    return *std::max_element(values.begin(), values.end());
+}
+
+template<typename ContainerType>
 auto geometric_mean(const ContainerType& values) {
     using float_type           = std::decay_t<decltype(values[0])>;
     float_type log_sum         = 0.0;
@@ -34,26 +41,31 @@ auto geometric_mean(const ContainerType& values) {
         log_sum += std::log(val);
         ++non_zero_count;
     }
+    if(non_zero_count == 0 || log_sum == 0) return float_type{0};
     return std::exp(log_sum / non_zero_count);
 }
 
 template<typename ContainerType>
 auto harmonic_mean(const ContainerType& values) {
+    // N.b. If val is very small then 1 / val can be very large and be infinity.
+    // Then non_zero_count / reciprocal_sum can be NaN.
     using float_type           = std::decay_t<decltype(values[0])>;
     float_type reciprocal_sum  = 0.0;
     std::size_t non_zero_count = 0;
     for(const auto& val : values) {
-        if(val == 0) continue;
+        if(val == 0 || std::isnan(1 / val)) continue;
         reciprocal_sum += 1 / val;
         ++non_zero_count;
     }
+    if(non_zero_count == 0 || reciprocal_sum == 0) return float_type{0};
+    if(std::isnan(non_zero_count / reciprocal_sum)) return float_type{0};
     return non_zero_count / reciprocal_sum;
 }
 
 template<typename ContainerType>
 auto compute_mean(mean_type mean, const ContainerType& span) {
     if(mean == mean_type::max) {
-        return *std::max_element(span.begin(), span.end());
+        return max_mean(span);
     } else if(mean == mean_type::harmonic) {
         return harmonic_mean(span);
     } else if(mean == mean_type::geometric) {
