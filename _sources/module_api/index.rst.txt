@@ -27,4 +27,6 @@ Modules API
    Overlap
    Primitive_Error_Model
    Screen_Primitive_Pairs
+   UQ_Atom_Blocked_Driver
+   UQ_Atom_Symm_Blocked_Driver
    UQ_Driver
