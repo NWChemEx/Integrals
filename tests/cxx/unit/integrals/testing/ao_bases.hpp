@@ -20,30 +20,30 @@
 
 namespace integrals::testing {
 
-inline simde::type::ao_basis_set h2_sto3g_basis_set() {
+template<typename MoleculeType>
+inline simde::type::ao_basis_set apply_h2_sto3g_basis_set(
+  const MoleculeType& mol) {
     using ao_basis_t     = simde::type::ao_basis_set;
     using atomic_basis_t = simde::type::atomic_basis_set;
     using cg_t           = simde::type::contracted_gaussian;
-    using point_t        = simde::type::point;
     using doubles_t      = std::vector<double>;
 
-    auto mol   = water_molecule();
-    point_t r0 = mol[0].as_nucleus();
-    point_t r1 = mol[1].as_nucleus();
-
-    doubles_t cs{0.1543289673, 0.5353281423, 0.4446345422};
-    doubles_t es{3.425250914, 0.6239137298, 0.1688554040};
-    cg_t cg0(cs.begin(), cs.end(), es.begin(), es.end(), r0);
-    cg_t cg1(cs.begin(), cs.end(), es.begin(), es.end(), r1);
-    atomic_basis_t h0("sto-3g", 1, r0);
-    atomic_basis_t h1("sto-3g", 1, r1);
-    h0.add_shell(chemist::ShellType::cartesian, 0, cg0);
-    h1.add_shell(chemist::ShellType::cartesian, 0, cg1);
-
     ao_basis_t bs;
-    bs.add_center(h0);
-    bs.add_center(h1);
+    for(const auto& atom : mol) {
+        doubles_t cs{0.1543289673, 0.5353281423, 0.4446345422};
+        doubles_t es{3.425250914, 0.6239137298, 0.1688554040};
+        cg_t cg0(cs.begin(), cs.end(), es.begin(), es.end(), atom);
+        atomic_basis_t h0("sto-3g", 1, atom);
+        h0.add_shell(chemist::ShellType::cartesian, 0, cg0);
+        bs.add_center(h0);
+    }
     return bs;
+}
+
+inline simde::type::ao_basis_set h2_sto3g_basis_set() {
+    auto mol = water_molecule();
+    std::vector h2{mol[0].as_nucleus(), mol[1].as_nucleus()};
+    return apply_h2_sto3g_basis_set(h2);
 }
 
 inline simde::type::ao_basis_set water_sto3g_basis_set() {
