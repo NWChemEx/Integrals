@@ -42,12 +42,6 @@ cmaize_option_list(
     INTEGRALS_ENABLE_OPENMP OFF "Should we enable OpenMP for threading?"
 )
 
-# Libint needs to be prebuilt.
-cmaize_find_dependency(
-    Libint2
-    FIND_TARGET Libint2::int2
-)
-
 cmaize_find_or_build_dependency(
     simde
     URL github.com/NWChemEx/SimDE
@@ -56,6 +50,16 @@ cmaize_find_or_build_dependency(
     CMAKE_ARGS BUILD_TESTING=OFF
                BUILD_PYBIND11_PYBINDINGS=${BUILD_PYBIND11_PYBINDINGS}
                ENABLE_SIGMA=${ENABLE_SIGMA}
+)
+
+cmaize_find_or_build_dependency(
+    Libint2
+    URL https://github.com/evaleev/libint/releases/download/v2.11.0/libint-2.11.0.tgz
+    BUILD_TARGET libint2
+    FIND_TARGET Libint2::int2
+    CMAKE_ARGS ENABLE_FORTRAN=OFF
+               ENABLE_MPFR=OFF
+               LIBINT2_PYTHON=OFF
 )
 
 set(project_depends Libint2 simde)
