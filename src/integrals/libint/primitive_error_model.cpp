@@ -26,7 +26,8 @@ const auto desc = "Compute uncertainty estimates for ERI4 integrals";
 // Sums contributions Q_abQ_cd when Q_ab or Q_cd is below tol
 template<typename ShellsType, typename OffsetTypes, typename TensorType>
 auto shell_block_error(ShellsType&& shells, OffsetTypes&& prim_offsets,
-                       TensorType&& K_ab, TensorType&& K_cd, double tol) {
+                       TensorType&& K_ab, TensorType&& K_cd, double tol,
+                       bool use_tol) {
     // Get the number of primitives in each shell
     const auto n_prim0 = shells[0].n_primitives();
     const auto n_prim1 = shells[1].n_primitives();
@@ -72,7 +73,10 @@ auto shell_block_error(ShellsType&& shells, OffsetTypes&& prim_offsets,
 
                     // If either was neglected we pick up an error Q_01 * Q_23
                     if(K_01_neglected || K_23_neglected || prod_neglected) {
-                        error += tol;
+                        if(use_tol)
+                            error += tol;
+                        else
+                            error += K_01_mag * K_23_mag;
                     }
                 } // End loop over prim[3]
             } // End loop over prim[2]
@@ -129,15 +133,16 @@ MODULE_CTOR(PrimitiveErrorModel) {
     add_submodule<pair_estimator_pt>("Black Box Primitive Pair Estimator")
       .set_description("The module used to estimate the contributions of "
                        "primitive pairs to the overall integral values");
+    add_input<bool>("Use Tol").set_default(true);
 }
 
 MODULE_RUN(PrimitiveErrorModel) {
     const auto& [braket, tol] = pt::unwrap_inputs(inputs);
-
-    const auto bra0 = braket.bra().first.ao_basis_set();
-    const auto bra1 = braket.bra().second.ao_basis_set();
-    const auto ket0 = braket.ket().first.ao_basis_set();
-    const auto ket1 = braket.ket().second.ao_basis_set();
+    const auto use_tol        = inputs.at("Use Tol").value<bool>();
+    const auto bra0           = braket.bra().first.ao_basis_set();
+    const auto bra1           = braket.bra().second.ao_basis_set();
+    const auto ket0           = braket.ket().first.ao_basis_set();
+    const auto ket1           = braket.ket().second.ao_basis_set();
 
     // Get the K_ab and K_cd tensors (used to determine which primitives are
     // neglected)
@@ -192,8 +197,8 @@ MODULE_RUN(PrimitiveErrorModel) {
                 for(shell_i[3] = 0; shell_i[3] < n_shells[3]; ++shell_i[3]) {
                     shells[3] = ket1.shell(shell_i[3]);
 
-                    auto shell_error =
-                      shell_block_error(shells, prim_offset, K_ab, K_cd, tol);
+                    auto shell_error = shell_block_error(
+                      shells, prim_offset, K_ab, K_cd, tol, use_tol);
                     fill_ao_block(shells, ao_offsets, buffer, shell_error);
 
                     prim_offset[3] += shells[3].n_primitives();
