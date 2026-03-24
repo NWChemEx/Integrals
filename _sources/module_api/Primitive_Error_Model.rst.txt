@@ -47,6 +47,8 @@ module. The columns are:
 +-----------+---------+-------------------------+
 | Tolerance | N/A     | The screening threshold |
 +-----------+---------+-------------------------+
+| Use Tol   | 1       | N/A                     |
++-----------+---------+-------------------------+
 
 
 Detailed Descriptions
@@ -83,6 +85,17 @@ Tolerance
 - Domain Restrictions :
 
   - Type == double
+
+Use Tol
+-------
+
+- Description : N/A
+- Default Value : 1
+- Optional? : False
+- Opaque? : True
+- Domain Restrictions :
+
+  - Type == bool
 
 
 **************
