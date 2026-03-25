@@ -50,18 +50,14 @@ auto corr_k23() {
     return simde::type::tensor(std::move(cont), shape);
 }
 
-/* Correct values for water comes from a companion python script that I am less
- * confident in than the H2 values. The Python script is much simpler than the
- * C++ implementation, and I didn't see any obvious errors, so it's quite
- * plausible that it's correct, but if I made a logic error in the C++ code I
- * likely made the same logic error int the Python code.
- */
+// These values come from dumping the K matrix from our module and will be
+// wrong if our module is incorrect.
 template<typename FloatType>
 auto corr_k01_water() {
     std::vector<FloatType> buffer{
-      18.0790216813702180, 17.4852396535751247, 5.4493863186785507,
-      17.4852396535751247, 16.9109596266485731, 5.2704082901341138,
-      5.4493863186785507,  5.2704082901341138,  1.6425563160202101};
+      18.07902198052444, 17.48523994290402, 5.449386408849742,
+      17.48523994290402, 16.91095990647483, 5.270408377343748,
+      5.449386408849742, 5.270408377343748, 1.642556343199648};
     tensorwrapper::shape::Smooth shape({3, 3});
     tensorwrapper::buffer::Contiguous cont(std::move(buffer), shape);
     return simde::type::tensor(std::move(cont), shape);
@@ -70,9 +66,9 @@ auto corr_k01_water() {
 template<typename FloatType>
 auto corr_k23_water() {
     std::vector<FloatType> buffer{
-      0.0000000007980106, 0.0002571668526586, 0.0041100638983562,
-      0.0002571668526586, 0.0025216231166686, 0.0053704017775550,
-      0.0041100638983562, 0.0053704017775550, 0.0028156052053020};
+      7.980105744638301e-10, 0.0002571668526766007, 0.004110063898643834,
+      0.0002571668526766007, 0.002521623116845085,  0.005370401777930866,
+      0.004110063898643834,  0.005370401777930866,  0.002815605205499067};
     tensorwrapper::shape::Smooth shape({3, 3});
     tensorwrapper::buffer::Contiguous cont(std::move(buffer), shape);
     return simde::type::tensor(std::move(cont), shape);
