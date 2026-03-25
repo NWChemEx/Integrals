@@ -35,15 +35,15 @@ bool compare_magnitudes(T0&& lhs, T1&& corr, double tol) {
     for(std::size_t i = 0; i < lhs_buffer.size(); ++i) {
         auto lhs_val  = lhs_buffer[i];
         auto corr_val = corr_buffer[i];
-        if(lhs_val == 0.0 && corr_val == 0.0) {
+        if(lhs_val == 0.0 && corr_val == 0.0) { // Both didn't screen
             continue;
-        } else if(lhs_val == 0.0 || corr_val == 0.0) {
-            auto abs_diff = std::fabs(lhs_val - corr_val);
-            if(abs_diff > 10 * tol) {
-                std::cout << "Absolute diff: " << abs_diff << std::endl;
-                return false;
-            }
-            continue;
+        } else if(lhs_val == 0.0) {
+            std::cout << "We didn't screen, but libint did";
+            return false;
+
+        } else if(corr_val == 0.0) {
+            std::cout << "We screened, but libint didn't";
+            return false;
         }
         auto lhs_mag  = std::log10(std::fabs(lhs_val));
         auto corr_mag = std::log10(std::fabs(corr_val));
