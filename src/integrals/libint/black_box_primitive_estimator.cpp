@@ -34,9 +34,9 @@ angular momentum component), and:
    K_{\mu\nu} = c_\mu c_\nu \exp\left(-\frac{\zeta_\mu \zeta_\nu}
    {\zeta_\mu + \zeta_\nu} |\mathbf{R}_\mu - \mathbf{R}_\nu|^2\right)
 
-where :math:`c_\mu = |d_\mu| / \sqrt{(p_\mu | p_\mu)}` is the raw
-contraction coefficient scaled by the primitive normalization factor from
-the PrimitiveNormalization module.
+where :math:`c_\mu = |d_\mu| \cdot N_\mu` is the raw contraction coefficient
+scaled by the primitive normalization factor :math:`N_\mu = 1/\sqrt{(p_\mu|p_\mu)}`
+from the PrimitiveNormalization submodule.
 
 N.B. The algorithm assumes that the bra and ket are different. If they are the
 same, we can save time by using the fact that the matrix is symmetric.
@@ -76,8 +76,9 @@ MODULE_CTOR(BlackBoxPrimitiveEstimator) {
       .set_description("Module used to compute per-AO primitive normalization "
                        "factors 1/sqrt((p|p))");
     add_submodule<decontract_pt>("Decontract Basis Set")
-      .set_description("Module used to decontract the basis set into "
-                       "individual primitives");
+      .set_description(
+        "Module used to decontract the basis set into "
+        "individual primitives (provides exponents and centers)");
 }
 
 MODULE_RUN(BlackBoxPrimitiveEstimator) {
@@ -86,18 +87,20 @@ MODULE_RUN(BlackBoxPrimitiveEstimator) {
     using iter_type  = std::size_t;
     using float_type = double; // TODO: Get from basis sets
 
-    // Get per-AO normalization factors and decontracted bases
-    auto& norm_mod = submods.at("Primitive Normalization");
-    auto& dec_mod  = submods.at("Decontract Basis Set");
-
+    // Normalization factors: N_mu = 1/sqrt((p_mu|p_mu)), one per decontracted
+    // AO
+    auto& norm_mod        = submods.at("Primitive Normalization");
     const auto& bra_norms = norm_mod.run_as<normalize_pt>(bra);
     const auto& ket_norms = norm_mod.run_as<normalize_pt>(ket);
+
+    // Decontracted bases provide exponents and centers (one shell per
+    // primitive)
+    auto& dec_mod         = submods.at("Decontract Basis Set");
     const auto& bra_prims = dec_mod.run_as<decontract_pt>(bra);
     const auto& ket_prims = dec_mod.run_as<decontract_pt>(ket);
 
     // K is indexed over AOs of the decontracted basis (one per angular
-    // momentum component per primitive), not over primitives of the
-    // contracted basis.
+    // momentum component per primitive).
     const iter_type n_bra_aos = bra_norms.size();
     const iter_type n_ket_aos = ket_norms.size();
 
@@ -107,43 +110,65 @@ MODULE_RUN(BlackBoxPrimitiveEstimator) {
 
     iter_type abs_ao_b = 0; // Absolute AO index in bra decontracted basis
 
-    for(iter_type sb = 0; sb < bra_prims.n_shells(); ++sb) {
-        const auto bra_shell = bra_prims.shell(sb);
-        const auto zeta0     = bra_shell.primitive(0).exponent();
-        const auto raw0      = std::fabs(bra_shell.primitive(0).coefficient());
-        const auto bra_ctr   = bra_shell.center();
-        const auto n_aos_b   = bra_shell.size();
+    // Iterate over contracted shells; within each, iterate over primitives.
+    // The decontracted basis has one shell per primitive (in the same order),
+    // so decontracted shell index sb maps to contracted shell s and primitive
+    // pb.
+    iter_type sb = 0; // index into bra_prims (decontracted)
+    for(iter_type s = 0; s < bra.n_shells(); ++s) {
+        const auto n_prims_b = bra.shell(s).n_primitives();
+        const auto n_aos_b   = bra.shell(s).size();
 
-        iter_type abs_ao_k = 0; // Absolute AO index in ket decontracted basis
+        for(iter_type pb = 0; pb < n_prims_b; ++pb, ++sb) {
+            const auto bra_shell = bra_prims.shell(sb);
+            const auto zeta0     = bra_shell.primitive(0).exponent();
+            const auto bra_ctr   = bra_shell.center();
+            // Raw contraction coefficient from the original contracted basis
+            const auto raw0 =
+              std::fabs(bra.shell(s).primitive(pb).coefficient());
 
-        for(iter_type sk = 0; sk < ket_prims.n_shells(); ++sk) {
-            const auto ket_shell = ket_prims.shell(sk);
-            const auto zeta1     = ket_shell.primitive(0).exponent();
-            const auto raw1 = std::fabs(ket_shell.primitive(0).coefficient());
-            const auto ket_ctr = ket_shell.center();
-            const auto n_aos_k = ket_shell.size();
+            iter_type abs_ao_k =
+              0; // Absolute AO index in ket decontracted basis
 
-            const auto dr2 = distance_squared(bra_ctr, ket_ctr);
+            iter_type sk = 0; // index into ket_prims (decontracted)
+            for(iter_type t = 0; t < ket.n_shells(); ++t) {
+                const auto n_prims_k = ket.shell(t).n_primitives();
+                const auto n_aos_k   = ket.shell(t).size();
 
-            for(iter_type ao_b = 0; ao_b < n_aos_b; ++ao_b) {
-                const auto coeff0 = raw0 * bra_norms[abs_ao_b + ao_b];
+                for(iter_type pk = 0; pk < n_prims_k; ++pk, ++sk) {
+                    const auto ket_shell = ket_prims.shell(sk);
+                    const auto zeta1     = ket_shell.primitive(0).exponent();
+                    const auto ket_ctr   = ket_shell.center();
+                    const auto raw1 =
+                      std::fabs(ket.shell(t).primitive(pk).coefficient());
 
-                for(iter_type ao_k = 0; ao_k < n_aos_k; ++ao_k) {
-                    const auto coeff1 = raw1 * ket_norms[abs_ao_k + ao_k];
+                    const auto dr2 = distance_squared(bra_ctr, ket_ctr);
 
-                    // This is "K bar" in Eq. 11 in the SI of the Chemist paper
-                    auto k01 = compute_k(zeta0, zeta1, coeff0, coeff1, dr2);
-                    std::vector<iter_type> idx{abs_ao_b + ao_b,
-                                               abs_ao_k + ao_k};
-                    buffer.set_elem(idx, k01);
-                } // loop over ket AOs
-            } // loop over bra AOs
+                    for(iter_type ao_b = 0; ao_b < n_aos_b; ++ao_b) {
+                        // c_mu = |d_mu| * N_mu  where N_mu =
+                        // 1/sqrt((p_mu|p_mu))
+                        const auto coeff0 = raw0 * bra_norms[abs_ao_b + ao_b];
 
-            abs_ao_k += n_aos_k;
-        } // loop over ket decontracted shells
+                        for(iter_type ao_k = 0; ao_k < n_aos_k; ++ao_k) {
+                            const auto coeff1 =
+                              raw1 * ket_norms[abs_ao_k + ao_k];
 
-        abs_ao_b += n_aos_b;
-    } // loop over bra decontracted shells
+                            // K bar: Eq. 11 in the SI of the Chemist paper
+                            auto k01 =
+                              compute_k(zeta0, zeta1, coeff0, coeff1, dr2);
+                            std::vector<iter_type> idx{abs_ao_b + ao_b,
+                                                       abs_ao_k + ao_k};
+                            buffer.set_elem(idx, k01);
+                        } // loop over ket AOs
+                    } // loop over bra AOs
+
+                    abs_ao_k += n_aos_k;
+                } // loop over ket primitives
+            } // loop over ket contracted shells
+
+            abs_ao_b += n_aos_b;
+        } // loop over bra primitives
+    } // loop over bra contracted shells
 
     simde::type::tensor rv(shape, std::move(buffer));
 
