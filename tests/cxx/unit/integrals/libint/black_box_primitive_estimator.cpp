@@ -50,6 +50,35 @@ auto corr_k23() {
     return simde::type::tensor(std::move(cont), shape);
 }
 
+/* Correct values for the l=2 test come from an independent computation using
+ * the analytic normalization formula for Cartesian Gaussians.
+ */
+template<typename FloatType>
+auto corr_k01_l2() {
+    std::vector<FloatType> buffer{
+      // Primitive 0 (zeta=3.425250914): xx, xy, xz, yy, yz, zz
+      2.92126652e-37, 3.77180568e-12, 7.07377006e-05, 5.05978203e-37,
+      6.53295907e-12, 1.22521291e-04, 5.05978203e-37, 6.53295907e-12,
+      1.22521291e-04, 2.92126652e-37, 3.77180568e-12, 7.07377006e-05,
+      5.05978203e-37, 6.53295907e-12, 1.22521291e-04, 2.92126652e-37,
+      3.77180568e-12, 7.07377006e-05,
+      // Primitive 1 (zeta=0.6239137298): xx, xy, xz, yy, yz, zz
+      6.87039113e-13, 2.50677873e-08, 4.89803780e-05, 1.18998665e-12,
+      4.34186812e-08, 8.48365032e-05, 1.18998665e-12, 4.34186812e-08,
+      8.48365032e-05, 6.87039113e-13, 2.50677873e-08, 4.89803780e-05,
+      1.18998665e-12, 4.34186812e-08, 8.48365032e-05, 6.87039113e-13,
+      2.50677873e-08, 4.89803780e-05,
+      // Primitive 2 (zeta=0.1688554040): xx, xy, xz, yy, yz, zz
+      3.48717315e-06, 1.32560018e-05, 4.40318744e-05, 6.03996107e-06,
+      2.29600686e-05, 7.62654435e-05, 6.03996107e-06, 2.29600686e-05,
+      7.62654435e-05, 3.48717315e-06, 1.32560018e-05, 4.40318744e-05,
+      6.03996107e-06, 2.29600686e-05, 7.62654435e-05, 3.48717315e-06,
+      1.32560018e-05, 4.40318744e-05};
+    tensorwrapper::shape::Smooth shape({18, 3});
+    tensorwrapper::buffer::Contiguous cont(std::move(buffer), shape);
+    return simde::type::tensor(std::move(cont), shape);
+}
+
 // These values come from dumping the K matrix from our module and will be
 // wrong if our module is incorrect.
 template<typename FloatType>
@@ -95,6 +124,16 @@ TEST_CASE("BlackBoxPrimitiveEstimator") {
             auto corr = corr_k23<float_type>();
             REQUIRE(approximately_equal(K23, corr, 1E-8));
         }
+    }
+
+    SECTION("H2 Dimer/STO-3G l=2 (03|12)") {
+        auto [bra0, bra1, ket0, ket1] = get_h2_dimer_0312_bases();
+        bra0.shell(0).l()             = 2;
+        bra0.shell(0).pure()          = chemist::ShellType::cartesian;
+
+        auto K    = mod.run_as<pt>(bra0, bra1);
+        auto corr = corr_k01_l2<float_type>();
+        REQUIRE(approximately_equal(K, corr, 1E-8));
     }
 
     SECTION("H2O/STO-3G (00|34)") {
