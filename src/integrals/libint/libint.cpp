@@ -197,6 +197,8 @@ void set_defaults(pluginplay::ModuleManager& mm) {
                      "Black Box Primitive Pair Estimator");
     mm.change_submod("CauchySchwarz Estimator", "Decontract Basis Set",
                      "Decontract Basis Set");
+    mm.change_submod("Primitive Normalization", "Decontract Basis Set",
+                     "Decontract Basis Set");
     mm.copy_module("ERI4", "Benchmark ERI4");
     mm.change_input("Benchmark ERI4", "Threshold", 1.0E-16);
     mm.change_submod("CauchySchwarz Estimator", "ERI4", "Benchmark ERI4");
@@ -221,6 +223,7 @@ void load_modules(pluginplay::ModuleManager& mm) {
     mm.add_module<CauchySchwarzPrimitiveEstimator>("CauchySchwarz Estimator");
     mm.add_module<PrimitiveErrorModel>("Primitive Error Model");
     mm.add_module<AnalyticError>("Analytic Error");
+    mm.add_module<PrimitiveNormalization>("Primitive Normalization");
 }
 
 #undef LOAD_LIBINT
