@@ -62,7 +62,6 @@ auto compute_k(T zeta_i, T zeta_j, T coeff_i, T coeff_j, T dr2) {
 
 } // namespace
 
-using decontract_pt = integrals::property_types::DecontractBasisSet;
 using normalize_pt =
   integrals::property_types::Normalize<simde::type::ao_basis_set>;
 using pt = integrals::property_types::PrimitivePairEstimator;
