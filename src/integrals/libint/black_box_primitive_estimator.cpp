@@ -100,17 +100,13 @@ MODULE_RUN(BlackBoxPrimitiveEstimator) {
     iter_type abs_ao_b = 0; // Absolute AO index in bra decontracted basis
 
     // Iterate over contracted shells; within each, iterate over primitives.
-    // The decontracted basis has one shell per primitive (in the same order),
-    // so decontracted shell index sb maps to contracted shell s and primitive
-    // pb.
-    iter_type sb = 0; // index into bra_prims (decontracted)
     for(iter_type s = 0; s < bra.n_shells(); ++s) {
         const auto& bra_shell = bra.shell(s);
         const auto n_prims_b  = bra_shell.n_primitives();
         const auto n_aos_b    = bra_shell.size();
         const auto bra_ctr    = bra_shell.center();
 
-        for(iter_type pb = 0; pb < n_prims_b; ++pb, ++sb) {
+        for(iter_type pb = 0; pb < n_prims_b; ++pb) {
             const auto& bra_prim = bra_shell.primitive(pb);
             const auto zeta0     = bra_prim.exponent();
 
@@ -120,20 +116,18 @@ MODULE_RUN(BlackBoxPrimitiveEstimator) {
             iter_type abs_ao_k =
               0; // Absolute AO index in ket decontracted basis
 
-            iter_type sk = 0; // index into ket_prims (decontracted)
             for(iter_type t = 0; t < ket.n_shells(); ++t) {
                 const auto& ket_shell = ket.shell(t);
                 const auto n_prims_k  = ket_shell.n_primitives();
                 const auto n_aos_k    = ket_shell.size();
                 const auto ket_ctr    = ket_shell.center();
+                const auto dr2        = distance_squared(bra_ctr, ket_ctr);
 
-                for(iter_type pk = 0; pk < n_prims_k; ++pk, ++sk) {
+                for(iter_type pk = 0; pk < n_prims_k; ++pk) {
                     const auto& ket_prim = ket_shell.primitive(pk);
                     const auto zeta1     = ket_prim.exponent();
 
                     const auto raw1 = std::fabs(ket_prim.coefficient());
-
-                    const auto dr2 = distance_squared(bra_ctr, ket_ctr);
 
                     for(iter_type ao_b = 0; ao_b < n_aos_b; ++ao_b) {
                         // c_mu = |d_mu| * N_mu  where N_mu =
