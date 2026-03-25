@@ -197,8 +197,6 @@ void set_defaults(pluginplay::ModuleManager& mm) {
                      "Black Box Primitive Pair Estimator");
     mm.change_submod("Black Box Primitive Pair Estimator",
                      "Primitive Normalization", "Primitive Normalization");
-    mm.change_submod("Black Box Primitive Pair Estimator",
-                     "Decontract Basis Set", "Decontract Basis Set");
     mm.change_submod("CauchySchwarz Estimator", "Decontract Basis Set",
                      "Decontract Basis Set");
     mm.change_submod("Primitive Normalization", "Decontract Basis Set",

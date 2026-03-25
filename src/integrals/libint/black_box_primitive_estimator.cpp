@@ -75,10 +75,6 @@ MODULE_CTOR(BlackBoxPrimitiveEstimator) {
     add_submodule<normalize_pt>("Primitive Normalization")
       .set_description("Module used to compute per-AO primitive normalization "
                        "factors 1/sqrt((p|p))");
-    add_submodule<decontract_pt>("Decontract Basis Set")
-      .set_description(
-        "Module used to decontract the basis set into "
-        "individual primitives (provides exponents and centers)");
 }
 
 MODULE_RUN(BlackBoxPrimitiveEstimator) {
@@ -92,12 +88,6 @@ MODULE_RUN(BlackBoxPrimitiveEstimator) {
     auto& norm_mod        = submods.at("Primitive Normalization");
     const auto& bra_norms = norm_mod.run_as<normalize_pt>(bra);
     const auto& ket_norms = norm_mod.run_as<normalize_pt>(ket);
-
-    // Decontracted bases provide exponents and centers (one shell per
-    // primitive)
-    auto& dec_mod         = submods.at("Decontract Basis Set");
-    const auto& bra_prims = dec_mod.run_as<decontract_pt>(bra);
-    const auto& ket_prims = dec_mod.run_as<decontract_pt>(ket);
 
     // K is indexed over AOs of the decontracted basis (one per angular
     // momentum component per primitive).
@@ -116,31 +106,33 @@ MODULE_RUN(BlackBoxPrimitiveEstimator) {
     // pb.
     iter_type sb = 0; // index into bra_prims (decontracted)
     for(iter_type s = 0; s < bra.n_shells(); ++s) {
-        const auto n_prims_b = bra.shell(s).n_primitives();
-        const auto n_aos_b   = bra.shell(s).size();
+        const auto& bra_shell = bra.shell(s);
+        const auto n_prims_b  = bra_shell.n_primitives();
+        const auto n_aos_b    = bra_shell.size();
+        const auto bra_ctr    = bra_shell.center();
 
         for(iter_type pb = 0; pb < n_prims_b; ++pb, ++sb) {
-            const auto bra_shell = bra_prims.shell(sb);
-            const auto zeta0     = bra_shell.primitive(0).exponent();
-            const auto bra_ctr   = bra_shell.center();
+            const auto& bra_prim = bra_shell.primitive(pb);
+            const auto zeta0     = bra_prim.exponent();
+
             // Raw contraction coefficient from the original contracted basis
-            const auto raw0 =
-              std::fabs(bra.shell(s).primitive(pb).coefficient());
+            const auto raw0 = std::fabs(bra_prim.coefficient());
 
             iter_type abs_ao_k =
               0; // Absolute AO index in ket decontracted basis
 
             iter_type sk = 0; // index into ket_prims (decontracted)
             for(iter_type t = 0; t < ket.n_shells(); ++t) {
-                const auto n_prims_k = ket.shell(t).n_primitives();
-                const auto n_aos_k   = ket.shell(t).size();
+                const auto& ket_shell = ket.shell(t);
+                const auto n_prims_k  = ket_shell.n_primitives();
+                const auto n_aos_k    = ket_shell.size();
+                const auto ket_ctr    = ket_shell.center();
 
                 for(iter_type pk = 0; pk < n_prims_k; ++pk, ++sk) {
-                    const auto ket_shell = ket_prims.shell(sk);
-                    const auto zeta1     = ket_shell.primitive(0).exponent();
-                    const auto ket_ctr   = ket_shell.center();
-                    const auto raw1 =
-                      std::fabs(ket.shell(t).primitive(pk).coefficient());
+                    const auto& ket_prim = ket_shell.primitive(pk);
+                    const auto zeta1     = ket_prim.exponent();
+
+                    const auto raw1 = std::fabs(ket_prim.coefficient());
 
                     const auto dr2 = distance_squared(bra_ctr, ket_ctr);
 
