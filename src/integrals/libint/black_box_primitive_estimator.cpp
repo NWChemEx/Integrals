@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include "detail_/make_libint_basis_set.hpp"
 #include "libint.hpp"
 #include <cmath>
 #include <integrals/property_types.hpp>
@@ -26,28 +25,30 @@ const auto desc = R"(
 Libint Black Box Primitive Pair Estimator
 =========================================
 
-This module computes the matrix : math :`K_{ij}` where:
+This module computes the matrix :math:`K_{\mu\nu}` where :math:`\mu` and
+:math:`\nu` index AOs in the decontracted basis (one AO per primitive per
+angular momentum component), and:
 
 .. math::
 
-   K_{ij} = c_i c_j \exp\left(-\frac{\zeta_i \zeta_j}{\zeta_i + \zeta_j}
-   |\mathbf{R}_i - \mathbf{R}_j|^2\right)
+   K_{\mu\nu} = c_\mu c_\nu \exp\left(-\frac{\zeta_\mu \zeta_\nu}
+   {\zeta_\mu + \zeta_\nu} |\mathbf{R}_\mu - \mathbf{R}_\nu|^2\right)
 
-This is how Libint2 estimates the contribution of a pair of primitives to
-an integral.
+where :math:`c_\mu = |d_\mu| / \sqrt{(p_\mu | p_\mu)}` is the raw
+contraction coefficient scaled by the primitive normalization factor from
+the PrimitiveNormalization module.
 
 N.B. The algorithm assumes that the bra and ket are different. If they are the
 same, we can save time by using the fact that the matrix is symmetric.
 
 )";
 
-// Computes square of the distance between points a and b
-// (T should be libint::Atom like)
+// Computes square of the distance between two NWX point-like objects
 template<typename T>
 auto distance_squared(T&& a, T&& b) {
-    auto dx = a[0] - b[0];
-    auto dy = a[1] - b[1];
-    auto dz = a[2] - b[2];
+    auto dx = a.x() - b.x();
+    auto dy = a.y() - b.y();
+    auto dz = a.z() - b.z();
     return dx * dx + dy * dy + dz * dz;
 }
 
@@ -60,85 +61,89 @@ auto compute_k(T zeta_i, T zeta_j, T coeff_i, T coeff_j, T dr2) {
 }
 
 } // namespace
+
+using decontract_pt = integrals::property_types::DecontractBasisSet;
+using normalize_pt =
+  integrals::property_types::Normalize<simde::type::ao_basis_set>;
 using pt = integrals::property_types::PrimitivePairEstimator;
 
 MODULE_CTOR(BlackBoxPrimitiveEstimator) {
     satisfies_property_type<pt>();
     description(desc);
     // TODO: Add citation for Chemist paper
+
+    add_submodule<normalize_pt>("Primitive Normalization")
+      .set_description("Module used to compute per-AO primitive normalization "
+                       "factors 1/sqrt((p|p))");
+    add_submodule<decontract_pt>("Decontract Basis Set")
+      .set_description("Module used to decontract the basis set into "
+                       "individual primitives");
 }
 
 MODULE_RUN(BlackBoxPrimitiveEstimator) {
     const auto&& [bra, ket] = pt::unwrap_inputs(inputs);
 
-    using iter_type    = std::size_t;              // Type of each loop index
-    using index_array  = std::array<iter_type, 2>; // Type of a pair of indices
-    using index_vector = std::vector<iter_type>; // Type of a vector of indices
-    using float_type   = double;                 // TODO: Get from basis sets
+    using iter_type  = std::size_t;
+    using float_type = double; // TODO: Get from basis sets
 
-    index_array shells{0, 0}; // shells[0]/shells[1] indexes bra/ket shell
-    index_array n_shells{bra.n_shells(), ket.n_shells()}; // Number of shells
+    // Get per-AO normalization factors and decontracted bases
+    auto& norm_mod = submods.at("Primitive Normalization");
+    auto& dec_mod  = submods.at("Decontract Basis Set");
 
-    index_array prims{0, 0}; // prims[0]/prims[1] indexes bra/ket primitive
-    index_array n_prims{bra.n_primitives(), ket.n_primitives()};
-    index_array offsets{0, 0};   // Offset to the first primitive of the shell
-    index_vector abs_prim{0, 0}; // Absolute indices of the primitives
+    const auto& bra_norms = norm_mod.run_as<normalize_pt>(bra);
+    const auto& ket_norms = norm_mod.run_as<normalize_pt>(ket);
+    const auto& bra_prims = dec_mod.run_as<decontract_pt>(bra);
+    const auto& ket_prims = dec_mod.run_as<decontract_pt>(ket);
 
-    // Will be the result
-    tensorwrapper::shape::Smooth shape({n_prims[0], n_prims[1]});
+    // K is indexed over AOs of the decontracted basis (one per angular
+    // momentum component per primitive), not over primitives of the
+    // contracted basis.
+    const iter_type n_bra_aos = bra_norms.size();
+    const iter_type n_ket_aos = ket_norms.size();
+
+    tensorwrapper::shape::Smooth shape({n_bra_aos, n_ket_aos});
     std::vector<float_type> data(shape.size(), 0.0);
     tensorwrapper::buffer::Contiguous buffer(std::move(data), shape);
 
-    // For now use the libint basis sets because they're properly normalized
-    // TODO: Our basis really needs to handle normalization better...
-    auto bra_libint = detail_::make_libint_basis_set(bra);
-    auto ket_libint = detail_::make_libint_basis_set(ket);
+    iter_type abs_ao_b = 0; // Absolute AO index in bra decontracted basis
 
-    for(shells[0] = 0; shells[0] < n_shells[0]; ++shells[0]) {
-        const auto& bra_shell = bra_libint.at(shells[0]);
-        assert(bra_shell.contr.size() == 1); // No general contraction support
-        const auto& bra_coeff        = bra_shell.contr[0].coeff;
-        const auto& bra_alpha        = bra_shell.alpha;
-        const auto n_prims_bra_shell = bra_coeff.size();
+    for(iter_type sb = 0; sb < bra_prims.n_shells(); ++sb) {
+        const auto bra_shell = bra_prims.shell(sb);
+        const auto zeta0     = bra_shell.primitive(0).exponent();
+        const auto raw0      = std::fabs(bra_shell.primitive(0).coefficient());
+        const auto bra_ctr   = bra_shell.center();
+        const auto n_aos_b   = bra_shell.size();
 
-        for(prims[0] = 0; prims[0] < n_prims_bra_shell; ++prims[0]) {
-            const auto zeta0      = bra_alpha[prims[0]];
-            const auto coeff0     = std::fabs(bra_coeff[prims[0]]);
-            const auto bra_center = bra_shell.O;
-            abs_prim[0]           = offsets[0] + prims[0];
+        iter_type abs_ao_k = 0; // Absolute AO index in ket decontracted basis
 
-            offsets[1] = 0;
-            for(shells[1] = 0; shells[1] < n_shells[1]; ++shells[1]) {
-                const auto& ket_shell = ket_libint.at(shells[1]);
-                assert(ket_shell.contr.size() == 1); // No general contractions
-                const auto& ket_coeff        = ket_shell.contr[0].coeff;
-                const auto& ket_alpha        = ket_shell.alpha;
-                const auto n_prims_ket_shell = ket_coeff.size();
+        for(iter_type sk = 0; sk < ket_prims.n_shells(); ++sk) {
+            const auto ket_shell = ket_prims.shell(sk);
+            const auto zeta1     = ket_shell.primitive(0).exponent();
+            const auto raw1 = std::fabs(ket_shell.primitive(0).coefficient());
+            const auto ket_ctr = ket_shell.center();
+            const auto n_aos_k = ket_shell.size();
 
-                for(prims[1] = 0; prims[1] < n_prims_ket_shell; ++prims[1]) {
-                    const auto zeta1      = ket_alpha[prims[1]];
-                    const auto coeff1     = std::fabs(ket_coeff[prims[1]]);
-                    const auto ket_center = ket_shell.O;
-                    abs_prim[1]           = offsets[1] + prims[1];
+            const auto dr2 = distance_squared(bra_ctr, ket_ctr);
+
+            for(iter_type ao_b = 0; ao_b < n_aos_b; ++ao_b) {
+                const auto coeff0 = raw0 * bra_norms[abs_ao_b + ao_b];
+
+                for(iter_type ao_k = 0; ao_k < n_aos_k; ++ao_k) {
+                    const auto coeff1 = raw1 * ket_norms[abs_ao_k + ao_k];
 
                     // This is "K bar" in Eq. 11 in the SI of the Chemist paper
-                    auto dr2 = distance_squared(bra_center, ket_center);
                     auto k01 = compute_k(zeta0, zeta1, coeff0, coeff1, dr2);
-                    buffer.set_elem(abs_prim, k01);
-                } // loop over ket primitives
+                    std::vector<iter_type> idx{abs_ao_b + ao_b,
+                                               abs_ao_k + ao_k};
+                    buffer.set_elem(idx, k01);
+                } // loop over ket AOs
+            } // loop over bra AOs
 
-                offsets[1] += n_prims_ket_shell;
-            } // loop over ket shells
+            abs_ao_k += n_aos_k;
+        } // loop over ket decontracted shells
 
-            // We ran over all ket primitives, so counter should be done too
-            assert(offsets[1] == n_prims[1]);
-        } // loop over bra primitives
-
-        offsets[0] += n_prims_bra_shell;
-    } // loop over bra shells
-
-    // We ran over all bra primitives, so counter should be done too
-    assert(offsets[0] == n_prims[0]);
+        abs_ao_b += n_aos_b;
+    } // loop over bra decontracted shells
 
     simde::type::tensor rv(shape, std::move(buffer));
 

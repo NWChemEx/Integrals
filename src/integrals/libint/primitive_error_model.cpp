@@ -23,47 +23,50 @@ namespace {
 
 const auto desc = "Compute uncertainty estimates for ERI4 integrals";
 
-// Sums contributions Q_abQ_cd when Q_ab or Q_cd is below tol
+// Sums contributions Q_abQ_cd when Q_ab or Q_cd is below tol.
+// K is indexed over AOs of the decontracted basis: each contracted shell
+// contributes n_primitives * n_aos_per_primitive entries. ao_offsets holds
+// the starting index in K for each of the four shells.
 template<typename ShellsType, typename OffsetTypes, typename TensorType>
-auto shell_block_error(ShellsType&& shells, OffsetTypes&& prim_offsets,
+auto shell_block_error(ShellsType&& shells, OffsetTypes&& ao_offsets,
                        TensorType&& K_ab, TensorType&& K_cd, double tol,
                        bool use_tol) {
-    // Get the number of primitives in each shell
-    const auto n_prim0 = shells[0].n_primitives();
-    const auto n_prim1 = shells[1].n_primitives();
-    const auto n_prim2 = shells[2].n_primitives();
-    const auto n_prim3 = shells[3].n_primitives();
+    // Number of K entries contributed by each shell = n_prims * n_aos_per_prim
+    const auto n_k0 = shells[0].n_primitives() * shells[0].size();
+    const auto n_k1 = shells[1].n_primitives() * shells[1].size();
+    const auto n_k2 = shells[2].n_primitives() * shells[2].size();
+    const auto n_k3 = shells[3].n_primitives() * shells[3].size();
 
     using float_type = double; // TODO: get from Q_ab or Q_cd
-    using iter_type = std::decay_t<decltype(n_prim0)>; // Type of the loop index
+    using iter_type  = std::decay_t<decltype(n_k0)>; // Type of the loop index
 
-    // Create an array to hold the primitive indices
-    std::array<iter_type, 4> prim{0, 0, 0, 0};
+    // Create an array to hold the K indices
+    std::array<iter_type, 4> k{0, 0, 0, 0};
 
     // This is the accumulated error for this shell block
     double error = 0.0;
 
     using wtf::fp::float_cast;
-    for(prim[0] = 0; prim[0] < n_prim0; ++prim[0]) {
-        const auto p0 = prim_offsets[0] + prim[0];
+    for(k[0] = 0; k[0] < n_k0; ++k[0]) {
+        const auto p0 = ao_offsets[0] + k[0];
 
-        for(prim[1] = 0; prim[1] < n_prim1; ++prim[1]) {
-            const auto p1 = prim_offsets[1] + prim[1];
+        for(k[1] = 0; k[1] < n_k1; ++k[1]) {
+            const auto p1 = ao_offsets[1] + k[1];
 
-            // Was the Q_ab element neglected for primitive pair (p0, p1)?
+            // Was the Q_ab element neglected for this pair?
             std::vector i01{p0, p1};
 
             auto K_01           = float_cast<float_type>(K_ab.get_elem(i01));
             auto K_01_mag       = std::fabs(K_01);
             bool K_01_neglected = K_01_mag < tol;
 
-            for(prim[2] = 0; prim[2] < n_prim2; ++prim[2]) {
-                const auto p2 = prim_offsets[2] + prim[2];
+            for(k[2] = 0; k[2] < n_k2; ++k[2]) {
+                const auto p2 = ao_offsets[2] + k[2];
 
-                for(prim[3] = 0; prim[3] < n_prim3; ++prim[3]) {
-                    const auto p3 = prim_offsets[3] + prim[3];
+                for(k[3] = 0; k[3] < n_k3; ++k[3]) {
+                    const auto p3 = ao_offsets[3] + k[3];
 
-                    // Was the Q_cd element neglected for pair (p2, p3)?
+                    // Was the Q_cd element neglected for this pair?
                     std::vector i23{p2, p3};
                     auto K_23     = float_cast<float_type>(K_cd.get_elem(i23));
                     auto K_23_mag = std::fabs(K_23);
@@ -78,10 +81,10 @@ auto shell_block_error(ShellsType&& shells, OffsetTypes&& prim_offsets,
                         else
                             error += K_01_mag * K_23_mag;
                     }
-                } // End loop over prim[3]
-            } // End loop over prim[2]
-        } // End loop over prim[1]
-    } // End loop over prim[0]
+                } // End loop over k[3]
+            } // End loop over k[2]
+        } // End loop over k[1]
+    } // End loop over k[0]
     return error;
 }
 
@@ -173,7 +176,9 @@ MODULE_RUN(PrimitiveErrorModel) {
     std::array<iter_type, 4> n_shells{bra0.n_shells(), bra1.n_shells(),
                                       ket0.n_shells(), ket1.n_shells()};
     std::array<iter_type, 4> shell_i{0, 0, 0, 0};
-    std::array<iter_type, 4> prim_offset{0, 0, 0, 0};
+    // K is indexed over AOs of the decontracted basis: each contracted shell
+    // contributes n_primitives * n_aos_per_primitive entries to K.
+    std::array<iter_type, 4> k_offset{0, 0, 0, 0};
     std::array<iter_type, 4> ao_offsets{0, 0, 0, 0};
 
     // We'll collect the shells into this array
@@ -182,38 +187,38 @@ MODULE_RUN(PrimitiveErrorModel) {
     for(shell_i[0] = 0; shell_i[0] < n_shells[0]; ++shell_i[0]) {
         shells[0] = bra0.shell(shell_i[0]);
 
-        prim_offset[1] = 0;
-        ao_offsets[1]  = 0;
+        k_offset[1]   = 0;
+        ao_offsets[1] = 0;
         for(shell_i[1] = 0; shell_i[1] < n_shells[1]; ++shell_i[1]) {
             shells[1] = bra1.shell(shell_i[1]);
 
-            prim_offset[2] = 0;
-            ao_offsets[2]  = 0;
+            k_offset[2]   = 0;
+            ao_offsets[2] = 0;
             for(shell_i[2] = 0; shell_i[2] < n_shells[2]; ++shell_i[2]) {
                 shells[2] = ket0.shell(shell_i[2]);
 
-                prim_offset[3] = 0;
-                ao_offsets[3]  = 0;
+                k_offset[3]   = 0;
+                ao_offsets[3] = 0;
                 for(shell_i[3] = 0; shell_i[3] < n_shells[3]; ++shell_i[3]) {
                     shells[3] = ket1.shell(shell_i[3]);
 
-                    auto shell_error = shell_block_error(
-                      shells, prim_offset, K_ab, K_cd, tol, use_tol);
+                    auto shell_error = shell_block_error(shells, k_offset, K_ab,
+                                                         K_cd, tol, use_tol);
                     fill_ao_block(shells, ao_offsets, buffer, shell_error);
 
-                    prim_offset[3] += shells[3].n_primitives();
+                    k_offset[3] += shells[3].n_primitives() * shells[3].size();
                     ao_offsets[3] += shells[3].size();
                 } // End loop over shell_i[3]
 
-                prim_offset[2] += shells[2].n_primitives();
+                k_offset[2] += shells[2].n_primitives() * shells[2].size();
                 ao_offsets[2] += shells[2].size();
             } // End loop over shell_i[2]
 
-            prim_offset[1] += shells[1].n_primitives();
+            k_offset[1] += shells[1].n_primitives() * shells[1].size();
             ao_offsets[1] += shells[1].size();
         } // End loop over shell_i[1]
 
-        prim_offset[0] += shells[0].n_primitives();
+        k_offset[0] += shells[0].n_primitives() * shells[0].size();
         ao_offsets[0] += shells[0].size();
     } // End loop over shell_i[0]
 
