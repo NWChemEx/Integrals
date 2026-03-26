@@ -16,7 +16,6 @@
 
 #include "detail_/make_libint_basis_set.hpp"
 #include "libint.hpp"
-#include <cmath>
 #include <integrals/property_types.hpp>
 
 namespace integrals::libint {
@@ -26,68 +25,63 @@ const auto desc = R"(
 Primitive Normalization
 =======================
 
-Computes the normalization factor :math:`1/\sqrt{(p|p)}` for each primitive
-in the provided basis set, where :math:`(p|p)` is the diagonal overlap
-integral of the primitive with itself.
+Returns the renormalized contraction coefficients for each primitive in the
+provided basis set, matching libint's internal ``renorm()`` convention.
 
-The basis set is first decontracted so that each primitive is treated as a
-separate shell. A libint2 overlap engine is then constructed with
-``embed_normalization_into_coefficients = false`` so that the raw Gaussian
-exponents and coefficients are used without any renormalization. The diagonal
-overlap :math:`(p|p)` is extracted for each primitive shell and its
-reciprocal square root is returned.
+For each contracted shell, libint applies two normalization steps:
+
+1. A per-primitive factor :math:`N_p = \sqrt{2^l (2\zeta_p)^{l+3/2} /
+   (\sqrt{\pi^3} (2l-1)!!)}` is multiplied into each raw coefficient
+   :math:`d_p`.
+
+2. All scaled coefficients are then divided by :math:`\sqrt{\langle\phi|\phi\rangle}`,
+   where :math:`\langle\phi|\phi\rangle` is the self-overlap of the contracted
+   shell computed with the already-scaled coefficients, so that the contracted
+   shell has unit norm.
+
+This module returns the resulting values :math:`d_p N_p / \sqrt{\langle\phi|\phi\rangle}`
+by constructing the basis set via libint with ``embed_normalization = true``
+and reading the coefficients back from the resulting shell objects.
+
+The output vector has one entry per (primitive, AO component) pair, in the
+same order as the decontracted basis: for each contracted shell, the
+:math:`n_{\rm prims} \times n_{\rm AOs}` entries are listed with the primitive
+index varying fastest.
 )";
 
 } // namespace
 
-using decontract_pt = integrals::property_types::DecontractBasisSet;
 using pt = integrals::property_types::Normalize<simde::type::ao_basis_set>;
 
 MODULE_CTOR(PrimitiveNormalization) {
     satisfies_property_type<pt>();
     description(desc);
-
-    add_submodule<decontract_pt>("Decontract Basis Set")
-      .set_description("Module used to decontract the basis set into "
-                       "individual primitives");
 }
 
 MODULE_RUN(PrimitiveNormalization) {
     const auto& [basis] = pt::unwrap_inputs(inputs);
 
-    // Decontract so each primitive is its own shell
-    auto& decontract_mod   = submods.at("Decontract Basis Set");
-    const auto& prim_basis = decontract_mod.run_as<decontract_pt>(basis);
-
-    // Build a libint basis set without embedding normalization into
-    // coefficients
-    auto libint_bs = detail_::make_libint_basis_set(prim_basis, false);
-
-    const auto n_shells = libint_bs.size();
-
-    // Build an overlap engine over the decontracted basis
-    if(!libint2::initialized()) libint2::initialize();
-    const auto max_nprims = libint2::max_nprim(libint_bs);
-    const auto max_l      = libint2::max_l(libint_bs);
-    libint2::Engine engine(libint2::Operator::overlap, max_nprims, max_l);
-    engine.set_max_nprim(max_nprims);
-    engine.set(libint2::BraKet::xs_xs);
-
-    const auto& buf = engine.results();
+    // Build a libint basis set with normalization embedded into coefficients.
+    // This triggers libint's renorm(), which applies both the per-primitive
+    // normalization factor and the contracted-shell unit-norm scaling.
+    auto libint_bs = detail_::make_libint_basis_set(basis, true);
 
     std::vector<double> norms;
-    norms.reserve(prim_basis.n_primitives());
 
-    for(std::size_t i = 0; i < n_shells; ++i) {
-        engine.compute(libint_bs[i], libint_bs[i]);
-        const auto* ints = buf[0];
+    for(std::size_t s = 0; s < libint_bs.size(); ++s) {
+        const auto& shell     = libint_bs[s];
+        const auto n_prims    = shell.nprim();
+        const auto& nwx_shell = basis.shell(s);
+        const auto n_aos      = nwx_shell.size();
 
-        // Each decontracted shell has size() AOs; extract the diagonal elements
-        const auto n_aos = libint_bs[i].size();
-        for(std::size_t mu = 0; mu < n_aos; ++mu) {
-            // Diagonal element of the (n_aos x n_aos) overlap block
-            const auto diag = ints[mu * n_aos + mu];
-            norms.push_back(1.0 / std::sqrt(diag));
+        // For each primitive, emit one entry per AO component. All AO
+        // components within a primitive share the same renormalized coefficient
+        // (libint stores one coefficient per primitive per contraction).
+        for(std::size_t p = 0; p < n_prims; ++p) {
+            // shell.contr[0].coeff[p] holds the renormalized coefficient after
+            // libint's renorm(): d_p * N_p / sqrt(contracted-shell norm)
+            const auto c = std::abs(shell.contr[0].coeff[p]);
+            for(std::size_t ao = 0; ao < n_aos; ++ao) { norms.push_back(c); }
         }
     }
 

@@ -24,16 +24,16 @@ using pt = integrals::property_types::PrimitivePairEstimator;
 namespace {
 
 /* Correct values for H2 come from a MWE I made that recreates the integral
- * screening
- * using libint directly. Since the MWE exactly matches libint, I strongly
- * believe these values are also correct.
+ * screening using libint directly. Since the MWE exactly matches libint, I
+ * strongly believe these values are also correct.
  */
 
 template<typename FloatType>
 auto corr_k01() {
-    std::vector<FloatType> buffer{3.693e-38,   4.76823e-13, 8.9425e-06,
-                                  4.76823e-13, 1.73977e-08, 3.39937e-05,
-                                  8.9425e-06,  3.39937e-05, 0.000112915};
+    std::vector<FloatType> buffer{
+      3.693001008106247e-38, 4.768233946869884e-13, 8.942504834854372e-06,
+      4.768233946869884e-13, 1.739771026598759e-08, 3.399368340300339e-05,
+      8.942504834854372e-06, 3.399368340300339e-05, 1.129153135303198e-04};
     tensorwrapper::shape::Smooth shape({3, 3});
     tensorwrapper::buffer::Contiguous cont(std::move(buffer), shape);
     return simde::type::tensor(std::move(cont), shape);
@@ -41,52 +41,55 @@ auto corr_k01() {
 
 template<typename FloatType>
 auto corr_k23() {
-    std::vector<FloatType> buffer{4.07419e-12, 5.0571e-05,  0.00250317,
-                                  5.0571e-05,  0.000964263, 0.00356585,
-                                  0.00250317,  0.00356585,  0.00217062};
-
+    std::vector<FloatType> buffer{
+      4.074187000872577e-12, 5.057097771784614e-05, 2.503166969635399e-03,
+      5.057097771784614e-05, 9.642627760653152e-04, 3.565848769689949e-03,
+      2.503166969635399e-03, 3.565848769689949e-03, 2.170621430835504e-03};
     tensorwrapper::shape::Smooth shape({3, 3});
     tensorwrapper::buffer::Contiguous cont(std::move(buffer), shape);
     return simde::type::tensor(std::move(cont), shape);
 }
 
-/* Correct values for the l=2 test come from an independent computation using
- * the analytic normalization formula for Cartesian Gaussians.
+/* Correct values for the l=2 test computed using libint's renorm() convention,
+ * which applies both per-primitive normalization and contracted-shell
+ * unit-norm scaling.
  */
 template<typename FloatType>
 auto corr_k01_l2() {
     std::vector<FloatType> buffer{
-      // Primitive 0 (zeta=3.425250914): xx, xy, xz, yy, yz, zz
-      2.92126652e-37, 3.77180568e-12, 7.07377006e-05, 5.05978203e-37,
-      6.53295907e-12, 1.22521291e-04, 5.05978203e-37, 6.53295907e-12,
-      1.22521291e-04, 2.92126652e-37, 3.77180568e-12, 7.07377006e-05,
-      5.05978203e-37, 6.53295907e-12, 1.22521291e-04, 2.92126652e-37,
-      3.77180568e-12, 7.07377006e-05,
-      // Primitive 1 (zeta=0.6239137298): xx, xy, xz, yy, yz, zz
-      6.87039113e-13, 2.50677873e-08, 4.89803780e-05, 1.18998665e-12,
-      4.34186812e-08, 8.48365032e-05, 1.18998665e-12, 4.34186812e-08,
-      8.48365032e-05, 6.87039113e-13, 2.50677873e-08, 4.89803780e-05,
-      1.18998665e-12, 4.34186812e-08, 8.48365032e-05, 6.87039113e-13,
-      2.50677873e-08, 4.89803780e-05,
-      // Primitive 2 (zeta=0.1688554040): xx, xy, xz, yy, yz, zz
-      3.48717315e-06, 1.32560018e-05, 4.40318744e-05, 6.03996107e-06,
-      2.29600686e-05, 7.62654435e-05, 6.03996107e-06, 2.29600686e-05,
-      7.62654435e-05, 3.48717315e-06, 1.32560018e-05, 4.40318744e-05,
-      6.03996107e-06, 2.29600686e-05, 7.62654435e-05, 3.48717315e-06,
-      1.32560018e-05, 4.40318744e-05};
+      // Primitive 0 (zeta=3.425250914): 6 Cartesian AOs (xx,xy,xz,yy,yz,zz)
+      3.257464233125241e-37, 4.205888788821956e-12, 7.887863986537421e-05,
+      3.257464233125241e-37, 4.205888788821956e-12, 7.887863986537421e-05,
+      3.257464233125241e-37, 4.205888788821956e-12, 7.887863986537421e-05,
+      3.257464233125241e-37, 4.205888788821956e-12, 7.887863986537421e-05,
+      3.257464233125241e-37, 4.205888788821956e-12, 7.887863986537421e-05,
+      3.257464233125241e-37, 4.205888788821956e-12, 7.887863986537421e-05,
+      // Primitive 1 (zeta=0.6239137298): 6 Cartesian AOs
+      7.661078931859855e-13, 2.795274583136903e-08, 5.461734777212891e-05,
+      7.661078931859855e-13, 2.795274583136903e-08, 5.461734777212891e-05,
+      7.661078931859855e-13, 2.795274583136903e-08, 5.461734777212891e-05,
+      7.661078931859855e-13, 2.795274583136903e-08, 5.461734777212891e-05,
+      7.661078931859855e-13, 2.795274583136903e-08, 5.461734777212891e-05,
+      7.661078931859855e-13, 2.795274583136903e-08, 5.461734777212891e-05,
+      // Primitive 2 (zeta=0.1688554040): 6 Cartesian AOs
+      3.888498955506963e-06, 1.478158579140043e-05, 4.909933926030022e-05,
+      3.888498955506963e-06, 1.478158579140043e-05, 4.909933926030022e-05,
+      3.888498955506963e-06, 1.478158579140043e-05, 4.909933926030022e-05,
+      3.888498955506963e-06, 1.478158579140043e-05, 4.909933926030022e-05,
+      3.888498955506963e-06, 1.478158579140043e-05, 4.909933926030022e-05,
+      3.888498955506963e-06, 1.478158579140043e-05, 4.909933926030022e-05};
     tensorwrapper::shape::Smooth shape({18, 3});
     tensorwrapper::buffer::Contiguous cont(std::move(buffer), shape);
     return simde::type::tensor(std::move(cont), shape);
 }
 
-// These values come from dumping the K matrix from our module and will be
-// wrong if our module is incorrect.
+/* Correct values for water computed using libint's renorm() convention. */
 template<typename FloatType>
 auto corr_k01_water() {
     std::vector<FloatType> buffer{
-      18.07902198052444, 17.48523994290402, 5.449386408849742,
-      17.48523994290402, 16.91095990647483, 5.270408377343748,
-      5.449386408849742, 5.270408377343748, 1.642556343199648};
+      1.807902168137022e+01, 1.748523965357513e+01, 5.449386318678551e+00,
+      1.748523965357513e+01, 1.691095962664857e+01, 5.270408290134114e+00,
+      5.449386318678551e+00, 5.270408290134114e+00, 1.642556316020210e+00};
     tensorwrapper::shape::Smooth shape({3, 3});
     tensorwrapper::buffer::Contiguous cont(std::move(buffer), shape);
     return simde::type::tensor(std::move(cont), shape);
@@ -95,9 +98,9 @@ auto corr_k01_water() {
 template<typename FloatType>
 auto corr_k23_water() {
     std::vector<FloatType> buffer{
-      7.980105744638301e-10, 0.0002571668526766007, 0.004110063898643834,
-      0.0002571668526766007, 0.002521623116845085,  0.005370401777930866,
-      0.004110063898643834,  0.005370401777930866,  0.002815605205499067};
+      7.980105744079762e-10, 2.571668526586013e-04, 4.110063898356164e-03,
+      2.571668526586013e-04, 2.521623116668593e-03, 5.370401777554983e-03,
+      4.110063898356164e-03, 5.370401777554983e-03, 2.815605205301997e-03};
     tensorwrapper::shape::Smooth shape({3, 3});
     tensorwrapper::buffer::Contiguous cont(std::move(buffer), shape);
     return simde::type::tensor(std::move(cont), shape);

@@ -22,49 +22,53 @@ using pt = integrals::property_types::Normalize<simde::type::ao_basis_set>;
 
 namespace {
 
-/* Reference normalization factors 1/sqrt((p|p)) for water STO-3G, computed
- * analytically from the Gaussian overlap formula.
+/* Renormalized contraction coefficients for water STO-3G, matching libint's
+ * renorm() convention.
  *
- * The decontracted basis order follows DecontractBasisSet:
+ * For each contracted shell, libint applies:
+ *   1. Per-primitive factor N_p = sqrt(2^l (2*zeta_p)^(l+3/2) /
+ *      (sqrt(pi^3) * (2l-1)!!))
+ *   2. Contracted-shell unit-norm scaling: divide all d_p*N_p by
+ *      sqrt(<phi|phi>) where <phi|phi> is the contracted shell self-overlap.
+ *
+ * The returned values are |d_p * N_p / sqrt(<phi|phi>)| for each primitive,
+ * replicated once per AO component within that primitive.
+ *
+ * Shell order matches the contracted basis (not decontracted):
  *   O s1 : 3 primitives (zeta = 130.7093200, 23.8088610, 6.4436083)
  *   O s2 : 3 primitives (zeta =   5.0331513,  1.1695961, 0.3803890)
  *   O p  : 3 primitives × 3 AOs (zeta = 5.0331513, 1.1695961, 0.3803890)
  *   H1 s : 3 primitives (zeta = 3.425250914, 0.6239137298, 0.1688554040)
  *   H2 s : 3 primitives (same as H1)
- *
- * For s-type: (p|p) = (pi/(2*zeta))^(3/2)
- * For p-type (e.g. x*exp(-zeta*r^2)):
- *   (p|p) = integral x^2 exp(-2*zeta*r^2) d^3r = (1/(4*zeta)) *
- * (pi/(2*zeta))^(3/2) Normalization factor = 1/sqrt((p|p))
  */
 std::vector<double> corr_water_norms() {
     return {
       // O s1
-      27.551167600757328,
-      7.681818767185153,
-      2.882417868807197,
+      4.251943282943720,
+      4.112293718431184,
+      1.281622532581341,
       // O s2
-      2.394914875721071,
-      0.801561825779394,
-      0.345208161163625,
+      0.239413002994477,
+      0.320234229133891,
+      0.241685570753216,
       // O p (3 primitives × 3 AOs = 9 entries, same value per AO)
-      10.745832583524919,
-      10.745832583524919,
-      10.745832583524919,
-      1.733744024405248,
-      1.733744024405248,
-      1.733744024405248,
-      0.425818989418287,
-      0.425818989418287,
-      0.425818989418287,
+      1.675450118114190,
+      1.675450118114190,
+      1.675450118114190,
+      1.053568007994846,
+      1.053568007994846,
+      1.053568007994846,
+      0.166902898075749,
+      0.166902898075749,
+      0.166902898075749,
       // H1 s
-      1.794441833790094,
-      0.500326492211116,
-      0.187735461846361,
+      0.276934355079052,
+      0.267838851609479,
+      0.083473671129841,
       // H2 s
-      1.794441833790094,
-      0.500326492211116,
-      0.187735461846361,
+      0.276934355079052,
+      0.267838851609479,
+      0.083473671129841,
     };
 }
 

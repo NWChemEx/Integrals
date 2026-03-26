@@ -34,9 +34,7 @@ angular momentum component), and:
    K_{\mu\nu} = c_\mu c_\nu \exp\left(-\frac{\zeta_\mu \zeta_\nu}
    {\zeta_\mu + \zeta_\nu} |\mathbf{R}_\mu - \mathbf{R}_\nu|^2\right)
 
-where :math:`c_\mu = |d_\mu| \cdot N_\mu` is the raw contraction coefficient
-scaled by the primitive normalization factor :math:`N_\mu = 1/\sqrt{(p_\mu|p_\mu)}`
-from the PrimitiveNormalization submodule.
+where :math:`c_\mu` is from the PrimitiveNormalization submodule.
 
 N.B. The algorithm assumes that the bra and ket are different. If they are the
 same, we can save time by using the fact that the matrix is symmetric.
@@ -73,7 +71,7 @@ MODULE_CTOR(BlackBoxPrimitiveEstimator) {
 
     add_submodule<normalize_pt>("Primitive Normalization")
       .set_description("Module used to compute per-AO primitive normalization "
-                       "factors 1/sqrt((p|p))");
+                       "factors");
 }
 
 MODULE_RUN(BlackBoxPrimitiveEstimator) {
@@ -110,9 +108,6 @@ MODULE_RUN(BlackBoxPrimitiveEstimator) {
             const auto& bra_prim = bra_shell.primitive(pb);
             const auto zeta0     = bra_prim.exponent();
 
-            // Raw contraction coefficient from the original contracted basis
-            const auto raw0 = std::fabs(bra_prim.coefficient());
-
             iter_type abs_ao_k =
               0; // Absolute AO index in ket decontracted basis
 
@@ -127,16 +122,13 @@ MODULE_RUN(BlackBoxPrimitiveEstimator) {
                     const auto& ket_prim = ket_shell.primitive(pk);
                     const auto zeta1     = ket_prim.exponent();
 
-                    const auto raw1 = std::fabs(ket_prim.coefficient());
-
                     for(iter_type ao_b = 0; ao_b < n_aos_b; ++ao_b) {
                         // c_mu = |d_mu| * N_mu  where N_mu =
                         // 1/sqrt((p_mu|p_mu))
-                        const auto coeff0 = raw0 * bra_norms[abs_ao_b + ao_b];
+                        const auto coeff0 = bra_norms[abs_ao_b + ao_b];
 
                         for(iter_type ao_k = 0; ao_k < n_aos_k; ++ao_k) {
-                            const auto coeff1 =
-                              raw1 * ket_norms[abs_ao_k + ao_k];
+                            const auto coeff1 = ket_norms[abs_ao_k + ao_k];
 
                             // K bar: Eq. 11 in the SI of the Chemist paper
                             auto k01 =
