@@ -28,7 +28,8 @@ namespace integrals::libint::detail_ {
  *  @param[in] bs The NWX basis set to be converted
  *  @returns The basis set as a LibInt2 basis set
  */
-inline auto make_libint_basis_set(const simde::type::ao_basis_set& bs) {
+inline auto make_libint_basis_set(const simde::type::ao_basis_set& bs,
+                                  bool embed_normalization = true) {
     /// Typedefs for everything
     using atom_t          = libint2::Atom;
     using shell_t         = libint2::Shell;
@@ -78,7 +79,8 @@ inline auto make_libint_basis_set(const simde::type::ao_basis_set& bs) {
             svec_d_t coefs(&prim0.coefficient(), &primN.coefficient() + 1);
             conts_t conts{cont_t{l, pure, coefs}};
             /// Use origin for position, because BasisSet moves shells to center
-            atom_bases.push_back(shell_t(alphas, conts, origin));
+            atom_bases.push_back(
+              shell_t(alphas, conts, origin, embed_normalization));
         }
         element_bases.push_back(atom_bases);
     }

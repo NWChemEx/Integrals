@@ -91,4 +91,24 @@ TEMPLATED_PROPERTY_TYPE_RESULTS(Uncertainty, BasePT) {
 using DecontractBasisSet =
   simde::Convert<simde::type::ao_basis_set, simde::type::ao_basis_set>;
 
+template<typename T>
+DECLARE_TEMPLATED_PROPERTY_TYPE(Normalize, T);
+
+template<typename T>
+TEMPLATED_PROPERTY_TYPE_INPUTS(Normalize, T) {
+    auto rv =
+      pluginplay::declare_input().add_field<const T&>("Object to Normalize");
+    rv["Object to Normalize"].set_description("The object to normalize");
+    return rv;
+}
+
+template<typename T>
+TEMPLATED_PROPERTY_TYPE_RESULTS(Normalize, T) {
+    auto rv = pluginplay::declare_result().add_field<std::vector<double>>(
+      "Normalization Factors");
+    rv["Normalization Factors"].set_description(
+      "A vector of normalization factors, one per primitive");
+    return rv;
+}
+
 } // end namespace integrals::property_types
