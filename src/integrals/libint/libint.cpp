@@ -80,6 +80,10 @@ void set_defaults(pluginplay::ModuleManager& mm) {
     mm.change_submod("Analytic Error", "ERI4s", "Benchmark ERI4");
     mm.change_submod("Raw Primitive ERI4", "Decontract Basis Set",
                      "Decontract Basis Set");
+    mm.change_submod("Primitive Contractor ERI4", "Raw Primitive ERI4",
+                     "Raw Primitive ERI4");
+    mm.change_submod("Primitive Contractor ERI4", "Primitive Normalization",
+                     "Primitive Normalization");
 }
 
 #define LOAD_LIBINT(bra, op, ket, key) mm.add_module<LIBINT(bra, op, ket)>(key)
@@ -101,6 +105,8 @@ void load_modules(pluginplay::ModuleManager& mm) {
     mm.add_module<PrimitiveErrorModel>("Primitive Error Model");
     mm.add_module<AnalyticError>("Analytic Error");
     mm.add_module<RawPrimitiveERIs>("Raw Primitive ERI4");
+    mm.add_module<PrimitiveNormalization>("Primitive Normalization");
+    mm.add_module<PrimitiveContractor>("Primitive Contractor ERI4");
 }
 
 #undef LOAD_LIBINT
