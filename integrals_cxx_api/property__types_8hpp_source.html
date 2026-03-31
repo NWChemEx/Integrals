@@ -164,7 +164,27 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="keyword">using </span>DecontractBasisSet =</div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>  simde::Convert&lt;simde::type::ao_basis_set, simde::type::ao_basis_set&gt;;</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>} <span class="comment">// end namespace integrals::property_types</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>DECLARE_TEMPLATED_PROPERTY_TYPE(Normalize, T);</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>TEMPLATED_PROPERTY_TYPE_INPUTS(Normalize, T) {</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keyword">auto</span> rv =</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>      pluginplay::declare_input().add_field&lt;<span class="keyword">const</span> T&amp;&gt;(<span class="stringliteral">&quot;Object to Normalize&quot;</span>);</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    rv[<span class="stringliteral">&quot;Object to Normalize&quot;</span>].set_description(<span class="stringliteral">&quot;The object to normalize&quot;</span>);</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keywordflow">return</span> rv;</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>}</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>TEMPLATED_PROPERTY_TYPE_RESULTS(Normalize, T) {</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keyword">auto</span> rv = pluginplay::declare_result().add_field&lt;std::vector&lt;double&gt;&gt;(</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>      <span class="stringliteral">&quot;Normalization Factors&quot;</span>);</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    rv[<span class="stringliteral">&quot;Normalization Factors&quot;</span>].set_description(</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>      <span class="stringliteral">&quot;A vector of normalization factors, one per primitive&quot;</span>);</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keywordflow">return</span> rv;</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>}</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>} <span class="comment">// end namespace integrals::property_types</span></div>
 <div class="ttc" id="anamespaceintegrals_1_1property__types_html"><div class="ttname"><a href="namespaceintegrals_1_1property__types.html">integrals::property_types</a></div><div class="ttdoc">The namespace for property types defined by the Integrals library.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

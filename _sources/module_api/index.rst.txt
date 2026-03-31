@@ -25,7 +25,10 @@ Modules API
    Kinetic
    Nuclear
    Overlap
+   Primitive_Contractor_ERI4
    Primitive_Error_Model
+   Primitive_Normalization
+   Raw_Primitive_ERI4
    Screen_Primitive_Pairs
    UQ_Atom_Blocked_Driver
    UQ_Atom_Symm_Blocked_Driver

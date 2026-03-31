@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Evaluate 3-Index BraKet &mdash; Integrals 1.0.0 documentation</title>
+  <title>Primitive Normalization &mdash; Integrals 1.0.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -16,11 +16,12 @@
         <script src="../_static/documentation_options.js?v=8d563738"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Evaluate 4-Index BraKet" href="Evaluate_4-Index_BraKet.html" />
-    <link rel="prev" title="Evaluate 2-Index BraKet" href="Evaluate_2-Index_BraKet.html" /> 
+    <link rel="next" title="Raw Primitive ERI4" href="Raw_Primitive_ERI4.html" />
+    <link rel="prev" title="Primitive Error Model" href="Primitive_Error_Model.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -61,7 +62,16 @@
 <li class="toctree-l2"><a class="reference internal" href="ERI3.html">ERI3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ERI4.html">ERI4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Evaluate_2-Index_BraKet.html">Evaluate 2-Index BraKet</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Evaluate 3-Index BraKet</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Evaluate_3-Index_BraKet.html">Evaluate 3-Index BraKet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Evaluate_4-Index_BraKet.html">Evaluate 4-Index BraKet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Four_center_J_builder.html">Four center J builder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Four_center_K_builder.html">Four center K builder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Kinetic.html">Kinetic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Nuclear.html">Nuclear</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Overlap.html">Overlap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Primitive_Contractor_ERI4.html">Primitive Contractor ERI4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Primitive_Error_Model.html">Primitive Error Model</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Primitive Normalization</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#please-cite">Please Cite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#property-types">Property Types</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-inputs">Module Inputs</a><ul>
@@ -73,15 +83,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Evaluate_4-Index_BraKet.html">Evaluate 4-Index BraKet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Four_center_J_builder.html">Four center J builder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Four_center_K_builder.html">Four center K builder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Kinetic.html">Kinetic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Nuclear.html">Nuclear</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Overlap.html">Overlap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Primitive_Contractor_ERI4.html">Primitive Contractor ERI4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Primitive_Error_Model.html">Primitive Error Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Primitive_Normalization.html">Primitive Normalization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Raw_Primitive_ERI4.html">Raw Primitive ERI4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Screen_Primitive_Pairs.html">Screen Primitive Pairs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="UQ_Atom_Blocked_Driver.html">UQ Atom Blocked Driver</a></li>
@@ -107,9 +108,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">Modules API</a></li>
-      <li class="breadcrumb-item active">Evaluate 3-Index BraKet</li>
+      <li class="breadcrumb-item active">Primitive Normalization</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/module_api/Evaluate_3-Index_BraKet.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/module_api/Primitive_Normalization.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -117,9 +118,35 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="evaluate-3-index-braket">
-<h1>Evaluate 3-Index BraKet<a class="headerlink" href="#evaluate-3-index-braket" title="Link to this heading"></a></h1>
-<p>Driver for computing integrals with Libint</p>
+  <section id="primitive-normalization">
+<h1>Primitive Normalization<a class="headerlink" href="#primitive-normalization" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>Returns the renormalized contraction coefficients for each primitive in the
+provided basis set, matching libint’s internal <code class="docutils literal notranslate"><span class="pre">renorm()</span></code> convention.</p>
+<p>For each contracted shell, libint applies two normalization steps:</p>
+<ol class="arabic simple">
+<li><p>A per-primitive factor <span class="math notranslate nohighlight">\(N_p = \sqrt{2^l (2\zeta_p)^{l+3/2} /
+(\sqrt{\pi^3} (2l-1)!!)}\)</span> is multiplied into each raw coefficient
+<span class="math notranslate nohighlight">\(d_p\)</span>.</p></li>
+<li><p>All scaled coefficients are then divided by</p></li>
+</ol>
+</div></blockquote>
+<dl>
+<dt><span class="math notranslate nohighlight">\(\sqrt{\langle\phi|\phi\rangle}\)</span>,</dt><dd><blockquote>
+<div><p>where <span class="math notranslate nohighlight">\(\langle\phi|\phi\rangle\)</span> is the self-overlap of the contracted
+shell computed with the already-scaled coefficients, so that the contracted
+shell has unit norm.</p>
+</div></blockquote>
+<p>This module returns the resulting values :math:<a href="#id1"><span class="problematic" id="id2">`</span></a>d_p N_p /</p>
+</dd>
+<dt>sqrt{langlephi|phirangle}`</dt><dd><p>by constructing the basis set via libint with <code class="docutils literal notranslate"><span class="pre">embed_normalization</span> <span class="pre">=</span> <span class="pre">true</span></code>
+and reading the coefficients back from the resulting shell objects.</p>
+<p>The output vector has one entry per (primitive, AO component) pair, in the
+same order as the decontracted basis: for each contracted shell, the
+<span class="math notranslate nohighlight">\(n_{\rm prims} \times n_{\rm AOs}\)</span> entries are listed with the primitive
+index varying fastest.</p>
+</dd>
+</dl>
 <section id="please-cite">
 <h2>Please Cite<a class="headerlink" href="#please-cite" title="Link to this heading"></a></h2>
 <p>No citations</p>
@@ -128,7 +155,7 @@
 <h2>Property Types<a class="headerlink" href="#property-types" title="Link to this heading"></a></h2>
 <p>The following is a list of property types that this module satisfies.</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">simde::EvaluateBraKet&lt;chemist::braket::BraKet&lt;chemist::wavefunction::AOs,</span> <span class="pre">chemist::qm_operator::OperatorBase,</span> <span class="pre">std::pair&lt;chemist::wavefunction::AOs,</span> <span class="pre">chemist::wavefunction::AOs&gt;&gt;&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">integrals::property_types::Normalize&lt;chemist::basis_set::AOBasisSet&lt;chemist::basis_set::AtomicBasisSet&lt;chemist::basis_set::Shell&lt;chemist::basis_set::ContractedGaussian&lt;chemist::basis_set::Primitive&lt;double&gt;&gt;&gt;&gt;&gt;&gt;</span></code></p></li>
 </ul>
 </section>
 <section id="module-inputs">
@@ -154,17 +181,9 @@ module. The columns are:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>BraKet</p></td>
+<tr class="row-even"><td><p>Object to Normalize</p></td>
 <td><p>N/A</p></td>
-<td><p>N/A</p></td>
-</tr>
-<tr class="row-odd"><td><p>Threshold</p></td>
-<td><p>1e-16</p></td>
-<td><p>The target precision with which the integrals will be computed</p></td>
-</tr>
-<tr class="row-even"><td><p>With UQ?</p></td>
-<td><p>0</p></td>
-<td><p>N/A</p></td>
+<td><p>The object to normalize</p></td>
 </tr>
 </tbody>
 </table>
@@ -181,44 +200,16 @@ subsection we list:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">Opaque?</span></code> : Does the value of the input influence memoization?.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Domain</span> <span class="pre">Restrictions</span></code> : Criteria a value must obey to be deemed valid.</p></li>
 </ul>
-<section id="braket">
-<h4>BraKet<a class="headerlink" href="#braket" title="Link to this heading"></a></h4>
+<section id="object-to-normalize">
+<h4>Object to Normalize<a class="headerlink" href="#object-to-normalize" title="Link to this heading"></a></h4>
 <ul class="simple">
-<li><p>Description : N/A</p></li>
+<li><p>Description : The object to normalize</p></li>
 <li><p>Default Value : N/A</p></li>
 <li><p>Optional? : False</p></li>
 <li><p>Opaque? : True</p></li>
 <li><p>Domain Restrictions :</p>
 <ul>
-<li><p>Type == chemist::braket::BraKet&lt;chemist::wavefunction::AOs, chemist::qm_operator::OperatorBase, std::pair&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;&gt;</p></li>
-</ul>
-</li>
-</ul>
-</section>
-<section id="threshold">
-<h4>Threshold<a class="headerlink" href="#threshold" title="Link to this heading"></a></h4>
-<ul class="simple">
-<li><p>Description : The target precision with which the integrals will be computed</p></li>
-<li><p>Default Value : 1e-16</p></li>
-<li><p>Optional? : False</p></li>
-<li><p>Opaque? : True</p></li>
-<li><p>Domain Restrictions :</p>
-<ul>
-<li><p>Type == double</p></li>
-</ul>
-</li>
-</ul>
-</section>
-<section id="with-uq">
-<h4>With UQ?<a class="headerlink" href="#with-uq" title="Link to this heading"></a></h4>
-<ul class="simple">
-<li><p>Description : N/A</p></li>
-<li><p>Default Value : 0</p></li>
-<li><p>Optional? : False</p></li>
-<li><p>Opaque? : True</p></li>
-<li><p>Domain Restrictions :</p>
-<ul>
-<li><p>Type == bool</p></li>
+<li><p>Type == chemist::basis_set::AOBasisSet&lt;chemist::basis_set::AtomicBasisSet&lt;chemist::basis_set::Shell&lt;chemist::basis_set::ContractedGaussian&lt;chemist::basis_set::Primitive&lt;double&gt;&gt;&gt;&gt;&gt;</p></li>
 </ul>
 </li>
 </ul>
@@ -248,9 +239,9 @@ the Module class’s advanced API.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>tensor representation</p></td>
-<td><p>tensorwrapper::Tensor</p></td>
-<td><p>N/A</p></td>
+<tr class="row-even"><td><p>Normalization Factors</p></td>
+<td><p>std::vector&lt;double, std::allocator&lt;double&gt;&gt;</p></td>
+<td><p>A vector of normalization factors, one per primitive</p></td>
 </tr>
 </tbody>
 </table>
@@ -265,8 +256,8 @@ the Module class’s advanced API.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="Evaluate_2-Index_BraKet.html" class="btn btn-neutral float-left" title="Evaluate 2-Index BraKet" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="Evaluate_4-Index_BraKet.html" class="btn btn-neutral float-right" title="Evaluate 4-Index BraKet" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Primitive_Error_Model.html" class="btn btn-neutral float-left" title="Primitive Error Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Raw_Primitive_ERI4.html" class="btn btn-neutral float-right" title="Raw Primitive ERI4" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

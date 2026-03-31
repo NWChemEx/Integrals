@@ -101,8 +101,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#include &quot;make_libint_basis_set.hpp&quot;</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#include &lt;simde/types.hpp&gt;</span></div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
-<div class="foldopen" id="foldopen00021" data-start="{" data-end="}">
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="namespaceintegrals_1_1libint_1_1detail__.html">   21</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceintegrals_1_1libint_1_1detail__.html">integrals::libint::detail_</a> {</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceintegrals_1_1libint_1_1detail__.html">integrals::libint::detail_</a> {</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span> BraType, <span class="keyword">typename</span> KetType&gt;</div>
 <div class="foldopen" id="foldopen00032" data-start="{" data-end="}">
@@ -125,37 +124,43 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span> BraType, <span class="keyword">typename</span> KetType&gt;</div>
 <div class="foldopen" id="foldopen00057" data-start="{" data-end="}">
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno"><a class="line" href="namespaceintegrals_1_1libint_1_1detail__.html#a0c8c5ec1e270829eedc794bfad842c72">   57</a></span>std::vector&lt;libint2::BasisSet&gt; <a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#a0c8c5ec1e270829eedc794bfad842c72">get_basis_sets</a>(<span class="keyword">const</span> BraType&amp; bra,</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>                                              <span class="keyword">const</span> KetType&amp; ket) {</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">using </span>simde::type::aos;</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keyword">using </span>simde::type::aos_squared;</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    std::vector&lt;libint2::BasisSet&gt; basis_sets;</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span>(std::is_same_v&lt;BraType, aos&gt;) {</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        basis_sets.push_back(<a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(bra.ao_basis_set()));</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> <span class="keyword">constexpr</span>(std::is_same_v&lt;BraType, aos_squared&gt;) {</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        basis_sets.push_back(<a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(bra.first.ao_basis_set()));</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>        basis_sets.push_back(<a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(bra.second.ao_basis_set()));</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    }</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span>(std::is_same_v&lt;KetType, aos&gt;) {</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>        basis_sets.push_back(<a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(ket.ao_basis_set()));</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> <span class="keyword">constexpr</span>(std::is_same_v&lt;KetType, aos_squared&gt;) {</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>        basis_sets.push_back(<a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(ket.first.ao_basis_set()));</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>        basis_sets.push_back(<a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">make_libint_basis_set</a>(ket.second.ao_basis_set()));</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    }</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="keywordflow">return</span> basis_sets;</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>}</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno"><a class="line" href="namespaceintegrals_1_1libint_1_1detail__.html#a20dffdd5b3585afb0a639087d7b3ced7">   57</a></span>std::vector&lt;libint2::BasisSet&gt; <a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#a20dffdd5b3585afb0a639087d7b3ced7">get_basis_sets</a>(<span class="keyword">const</span> BraType&amp; bra,</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>                                              <span class="keyword">const</span> KetType&amp; ket,</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>                                              <span class="keywordtype">bool</span> embed_normalization = <span class="keyword">true</span>) {</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keyword">using </span>simde::type::aos;</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keyword">using </span>simde::type::aos_squared;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    std::vector&lt;libint2::BasisSet&gt; basis_sets;</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span>(std::is_same_v&lt;BraType, aos&gt;) {</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        basis_sets.push_back(</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>          <a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#ae22bc191f096fda1108d9c611c3d657f">make_libint_basis_set</a>(bra.ao_basis_set(), embed_normalization));</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> <span class="keyword">constexpr</span>(std::is_same_v&lt;BraType, aos_squared&gt;) {</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>        basis_sets.push_back(</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>          <a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#ae22bc191f096fda1108d9c611c3d657f">make_libint_basis_set</a>(bra.first.ao_basis_set(), embed_normalization));</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>        basis_sets.push_back(<a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#ae22bc191f096fda1108d9c611c3d657f">make_libint_basis_set</a>(bra.second.ao_basis_set(),</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>                                                   embed_normalization));</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    }</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="keywordflow">if</span> <span class="keyword">constexpr</span>(std::is_same_v&lt;KetType, aos&gt;) {</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        basis_sets.push_back(</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>          <a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#ae22bc191f096fda1108d9c611c3d657f">make_libint_basis_set</a>(ket.ao_basis_set(), embed_normalization));</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> <span class="keyword">constexpr</span>(std::is_same_v&lt;KetType, aos_squared&gt;) {</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        basis_sets.push_back(</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>          <a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#ae22bc191f096fda1108d9c611c3d657f">make_libint_basis_set</a>(ket.first.ao_basis_set(), embed_normalization));</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        basis_sets.push_back(<a class="code hl_function" href="namespaceintegrals_1_1libint_1_1detail__.html#ae22bc191f096fda1108d9c611c3d657f">make_libint_basis_set</a>(ket.second.ao_basis_set(),</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>                                                   embed_normalization));</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    }</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <span class="keywordflow">return</span> basis_sets;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>}</div>
 </div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>} <span class="comment">// namespace integrals::libint::detail_</span></div>
-</div>
-<div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html">integrals::libint::detail_</a></div><div class="ttdoc">For ShellType.</div><div class="ttdef"><b>Definition</b> get_basis_sets.hpp:21</div></div>
-<div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html_a0c8c5ec1e270829eedc794bfad842c72"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html#a0c8c5ec1e270829eedc794bfad842c72">integrals::libint::detail_::get_basis_sets</a></div><div class="ttdeci">std::vector&lt; libint2::BasisSet &gt; get_basis_sets(const BraType &amp;bra, const KetType &amp;ket)</div><div class="ttdoc">Unpack the basis sets from the Bra and Ket.</div><div class="ttdef"><b>Definition</b> get_basis_sets.hpp:57</div></div>
-<div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html_a5b83ea9aa76a1772d4b8d6f5ea981440"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html#a5b83ea9aa76a1772d4b8d6f5ea981440">integrals::libint::detail_::make_libint_basis_set</a></div><div class="ttdeci">auto make_libint_basis_set(const simde::type::ao_basis_set &amp;bs)</div><div class="ttdoc">Converts an NWX basis set object to a LibInt2 basis set object.</div><div class="ttdef"><b>Definition</b> make_libint_basis_set.hpp:31</div></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>} <span class="comment">// namespace integrals::libint::detail_</span></div>
+<div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html">integrals::libint::detail_</a></div><div class="ttdoc">For ShellType.</div><div class="ttdef"><b>Definition</b> fill_tensor.hpp:29</div></div>
+<div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html_a20dffdd5b3585afb0a639087d7b3ced7"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html#a20dffdd5b3585afb0a639087d7b3ced7">integrals::libint::detail_::get_basis_sets</a></div><div class="ttdeci">std::vector&lt; libint2::BasisSet &gt; get_basis_sets(const BraType &amp;bra, const KetType &amp;ket, bool embed_normalization=true)</div><div class="ttdoc">Unpack the basis sets from the Bra and Ket.</div><div class="ttdef"><b>Definition</b> get_basis_sets.hpp:57</div></div>
 <div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html_aa1c8a4a76d2c804af482511f9730cabf"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html#aa1c8a4a76d2c804af482511f9730cabf">integrals::libint::detail_::get_n</a></div><div class="ttdeci">constexpr int get_n(const BraType &amp;bra, const KetType &amp;ket)</div><div class="ttdoc">Deterimine how many basis sets are in the Bra and Ket.</div><div class="ttdef"><b>Definition</b> get_basis_sets.hpp:32</div></div>
+<div class="ttc" id="anamespaceintegrals_1_1libint_1_1detail___html_ae22bc191f096fda1108d9c611c3d657f"><div class="ttname"><a href="namespaceintegrals_1_1libint_1_1detail__.html#ae22bc191f096fda1108d9c611c3d657f">integrals::libint::detail_::make_libint_basis_set</a></div><div class="ttdeci">auto make_libint_basis_set(const simde::type::ao_basis_set &amp;bs, bool embed_normalization=true)</div><div class="ttdoc">Converts an NWX basis set object to a LibInt2 basis set object.</div><div class="ttdef"><b>Definition</b> make_libint_basis_set.hpp:31</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -102,12 +102,18 @@ Typedefs</h2></td></tr>
 <tr class="memitem:adf9601814eb061d5d4eeaf5fe32b7c79" id="r_adf9601814eb061d5d4eeaf5fe32b7c79"><td class="memItemLeft" align="right" valign="top"><a id="adf9601814eb061d5d4eeaf5fe32b7c79" name="adf9601814eb061d5d4eeaf5fe32b7c79"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>eri4_pt</b> = simde::ERI4</td></tr>
 <tr class="separator:adf9601814eb061d5d4eeaf5fe32b7c79"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeffa8ca1fccafa847e892f8c46b0472f" id="r_aeffa8ca1fccafa847e892f8c46b0472f"><td class="memItemLeft" align="right" valign="top"><a id="aeffa8ca1fccafa847e892f8c46b0472f" name="aeffa8ca1fccafa847e892f8c46b0472f"></a>
+<tr class="memitem:a5762e129803cf55f5fcd4f080f7b503d" id="r_a5762e129803cf55f5fcd4f080f7b503d"><td class="memItemLeft" align="right" valign="top"><a id="a5762e129803cf55f5fcd4f080f7b503d" name="a5762e129803cf55f5fcd4f080f7b503d"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>pt</b> = integrals::property_types::Uncertainty&lt; eri4_pt &gt;</td></tr>
-<tr class="separator:aeffa8ca1fccafa847e892f8c46b0472f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a36bc124d1a83974b30f28b6387f49a03" id="r_a36bc124d1a83974b30f28b6387f49a03"><td class="memItemLeft" align="right" valign="top"><a id="a36bc124d1a83974b30f28b6387f49a03" name="a36bc124d1a83974b30f28b6387f49a03"></a>
+<tr class="separator:a5762e129803cf55f5fcd4f080f7b503d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82d58e2e445042f3d2897aa7ab21481b" id="r_a82d58e2e445042f3d2897aa7ab21481b"><td class="memItemLeft" align="right" valign="top"><a id="a82d58e2e445042f3d2897aa7ab21481b" name="a82d58e2e445042f3d2897aa7ab21481b"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>decontract_pt</b> = integrals::property_types::DecontractBasisSet</td></tr>
-<tr class="separator:a36bc124d1a83974b30f28b6387f49a03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a82d58e2e445042f3d2897aa7ab21481b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fe105de8fc01f657bca69425406d472" id="r_a5fe105de8fc01f657bca69425406d472"><td class="memItemLeft" align="right" valign="top"><a id="a5fe105de8fc01f657bca69425406d472" name="a5fe105de8fc01f657bca69425406d472"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>my_pt</b> = simde::ERI4</td></tr>
+<tr class="separator:a5fe105de8fc01f657bca69425406d472"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a961085bd00304664940d577b78461003" id="r_a961085bd00304664940d577b78461003"><td class="memItemLeft" align="right" valign="top"><a id="a961085bd00304664940d577b78461003" name="a961085bd00304664940d577b78461003"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>norm_pt</b> = integrals::property_types::Normalize&lt; simde::type::ao_basis_set &gt;</td></tr>
+<tr class="separator:a961085bd00304664940d577b78461003"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9168a539a7627abf039bcf1bb0e8f076" id="r_a9168a539a7627abf039bcf1bb0e8f076"><td class="memItemLeft" align="right" valign="top"><a id="a9168a539a7627abf039bcf1bb0e8f076" name="a9168a539a7627abf039bcf1bb0e8f076"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>pair_estimator_pt</b> = integrals::property_types::PrimitivePairEstimator</td></tr>
 <tr class="separator:a9168a539a7627abf039bcf1bb0e8f076"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -189,12 +195,39 @@ template&lt;typename BraKetType &gt; </td></tr>
 <tr class="memitem:af2a0e39f6201120d29395971a8bf67d6" id="r_af2a0e39f6201120d29395971a8bf67d6"><td class="memItemLeft" align="right" valign="top"><a id="af2a0e39f6201120d29395971a8bf67d6" name="af2a0e39f6201120d29395971a8bf67d6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>DECLARE_MODULE</b> (AnalyticError)</td></tr>
 <tr class="separator:af2a0e39f6201120d29395971a8bf67d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5dd6c9f4ebaf957129734d15a9a2086" id="r_ad5dd6c9f4ebaf957129734d15a9a2086"><td class="memItemLeft" align="right" valign="top"><a id="ad5dd6c9f4ebaf957129734d15a9a2086" name="ad5dd6c9f4ebaf957129734d15a9a2086"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>DECLARE_MODULE</b> (PrimitiveNormalization)</td></tr>
+<tr class="separator:ad5dd6c9f4ebaf957129734d15a9a2086"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08d567a1d0b3ca5e45aaf52de5b521f5" id="r_a08d567a1d0b3ca5e45aaf52de5b521f5"><td class="memItemLeft" align="right" valign="top"><a id="a08d567a1d0b3ca5e45aaf52de5b521f5" name="a08d567a1d0b3ca5e45aaf52de5b521f5"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>DECLARE_MODULE</b> (RawPrimitiveERIs)</td></tr>
+<tr class="separator:a08d567a1d0b3ca5e45aaf52de5b521f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a955ace801103be75bb795473b2f62c58" id="r_a955ace801103be75bb795473b2f62c58"><td class="memItemLeft" align="right" valign="top"><a id="a955ace801103be75bb795473b2f62c58" name="a955ace801103be75bb795473b2f62c58"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>DECLARE_MODULE</b> (PrimitiveContractor)</td></tr>
+<tr class="separator:a955ace801103be75bb795473b2f62c58"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab184bdbe0a57ff1bac51fc5b85ebf17f" id="r_ab184bdbe0a57ff1bac51fc5b85ebf17f"><td class="memItemLeft" align="right" valign="top"><a id="ab184bdbe0a57ff1bac51fc5b85ebf17f" name="ab184bdbe0a57ff1bac51fc5b85ebf17f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>MODULE_CTOR</b> (PrimitiveContractor)</td></tr>
+<tr class="separator:ab184bdbe0a57ff1bac51fc5b85ebf17f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0df5c0639f389923fa7b0ab1a67e1b5e" id="r_a0df5c0639f389923fa7b0ab1a67e1b5e"><td class="memItemLeft" align="right" valign="top"><a id="a0df5c0639f389923fa7b0ab1a67e1b5e" name="a0df5c0639f389923fa7b0ab1a67e1b5e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>MODULE_RUN</b> (PrimitiveContractor)</td></tr>
+<tr class="separator:a0df5c0639f389923fa7b0ab1a67e1b5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af0247a02c8631c5d6aeb45bd54878be7" id="r_af0247a02c8631c5d6aeb45bd54878be7"><td class="memItemLeft" align="right" valign="top"><a id="af0247a02c8631c5d6aeb45bd54878be7" name="af0247a02c8631c5d6aeb45bd54878be7"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>MODULE_CTOR</b> (PrimitiveErrorModel)</td></tr>
 <tr class="separator:af0247a02c8631c5d6aeb45bd54878be7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60bc7427d5909c867c8941f5fdf7090c" id="r_a60bc7427d5909c867c8941f5fdf7090c"><td class="memItemLeft" align="right" valign="top"><a id="a60bc7427d5909c867c8941f5fdf7090c" name="a60bc7427d5909c867c8941f5fdf7090c"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>MODULE_RUN</b> (PrimitiveErrorModel)</td></tr>
 <tr class="separator:a60bc7427d5909c867c8941f5fdf7090c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae29560c361bc373038d975b4c2bdb621" id="r_ae29560c361bc373038d975b4c2bdb621"><td class="memItemLeft" align="right" valign="top"><a id="ae29560c361bc373038d975b4c2bdb621" name="ae29560c361bc373038d975b4c2bdb621"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>MODULE_CTOR</b> (PrimitiveNormalization)</td></tr>
+<tr class="separator:ae29560c361bc373038d975b4c2bdb621"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab05857cac6ef28eb4a6fb863e67fc8be" id="r_ab05857cac6ef28eb4a6fb863e67fc8be"><td class="memItemLeft" align="right" valign="top"><a id="ab05857cac6ef28eb4a6fb863e67fc8be" name="ab05857cac6ef28eb4a6fb863e67fc8be"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>MODULE_RUN</b> (PrimitiveNormalization)</td></tr>
+<tr class="separator:ab05857cac6ef28eb4a6fb863e67fc8be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a2e7157beb8c8324bef8baea9b2f435" id="r_a8a2e7157beb8c8324bef8baea9b2f435"><td class="memItemLeft" align="right" valign="top"><a id="a8a2e7157beb8c8324bef8baea9b2f435" name="a8a2e7157beb8c8324bef8baea9b2f435"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>MODULE_CTOR</b> (RawPrimitiveERIs)</td></tr>
+<tr class="separator:a8a2e7157beb8c8324bef8baea9b2f435"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e3e70c89d15b15707470bf66c0bc5e0" id="r_a1e3e70c89d15b15707470bf66c0bc5e0"><td class="memItemLeft" align="right" valign="top"><a id="a1e3e70c89d15b15707470bf66c0bc5e0" name="a1e3e70c89d15b15707470bf66c0bc5e0"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>MODULE_RUN</b> (RawPrimitiveERIs)</td></tr>
+<tr class="separator:a1e3e70c89d15b15707470bf66c0bc5e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
