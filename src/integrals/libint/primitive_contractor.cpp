@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
+#include "detail_/make_libint_basis_set.hpp"
 #include "libint.hpp"
+#include <cmath>
 #include <integrals/property_types.hpp>
+#include <libint2/shell.h>
+#include <limits>
 #include <unsupported/Eigen/CXX11/Tensor>
 
 namespace integrals::libint {
@@ -46,25 +50,23 @@ The algorithm proceeds in three steps:
    the decontracted basis (primitive index varying fastest within each
    (shell, ao_component) block).
 
-3. The "Primitive Pair Estimator" submodule is called twice: once for the bra
-   pair (bs0, bs1) to produce K[i,j], and once for the ket pair (bs2, bs3) to
-   produce Q[k,l]. These matrices estimate the magnitude of each primitive-pair
-   contribution.
+3. The "Primitive Pair Estimator" submodule supplies coarse screening only:
+   bra matrix K[i,j] and ket matrix Q[k,l] (same layout as Black Box).
 
-4. The contracted AO integrals are formed by:
+4. The contracted AO integrals are formed by summing
+   c0[i]*c1[j]*c2[k]*c3[l]*prim_ERI[i,j,k,l] with screening:
 
-     AO[mu, nu, lam, sig] =
-       sum_{i in prims(mu)} sum_{j in prims(nu)}
-       sum_{k in prims(lam)} sum_{l in prims(sig)}
-         c0[i] * c1[j] * c2[k] * c3[l] * prim_ERI[i, j, k, l]
+   Coarse (from PrimitivePairEstimator, matches libint ln_scr / ShellPair
+   pair pruning and the engine's ln_scr_bra + ln_scr_ket check):
+   - Skip bra pair (i,j) if K[i,j] < t
+   - Skip ket pair (k,l) if Q[k,l] < t
+   - Skip quartet if K[i,j] * Q[k,l] <= t (libint keeps only sums > ln(t))
 
-   where prims(mu) is the set of decontracted AO indices that belong to the
-   same contracted AO mu (same shell, same AO component, all primitives).
-
-   Screening is applied with threshold t ("Screening Threshold"):
-   - Bra pair (i,j) is skipped entirely if K[i,j] < t
-   - Ket pair (k,l) is skipped entirely if Q[k,l] < t
-   - Quadruple (i,j,k,l) is skipped if K[i,j] * Q[k,l] < t
+   Fine (libint engine prefactor check; uses ShellPair p.K and gammas, not
+   the estimator matrix):
+   - Skip if |Kgeom_bra * Kgeom_ket / sqrt(gamma_bra + gamma_ket) *
+     c0*c1*c2*c3| < t, with Kgeom and gamma from libint2::ShellPair data
+   (ShellPair built with a permissive ln_prec so all primitive pairs appear).
 )";
 
 // Build a map from decontracted AO index -> contracted AO index.
@@ -91,6 +93,29 @@ std::vector<std::size_t> build_prim_to_ao_map(
     return map;
 }
 
+// Build a map from decontracted AO index -> absolute primitive index.
+// The estimator returns K[abs_prim_i, abs_prim_j] where abs_prim is the
+// flat primitive index (not multiplied by n_aos). For decontracted-AO index
+// (shell s, prim p, ao_component a), the absolute primitive index is
+// prim_offset[s] + p.
+std::vector<std::size_t> build_prim_to_prim_map(
+  const simde::type::ao_basis_set& bs) {
+    std::vector<std::size_t> map;
+    std::size_t prim_offset = 0;
+    for(std::size_t s = 0; s < bs.n_shells(); ++s) {
+        const auto& shell  = bs.shell(s);
+        const auto n_prims = shell.n_primitives();
+        const auto n_aos   = shell.size();
+        for(std::size_t p = 0; p < n_prims; ++p) {
+            for(std::size_t a = 0; a < n_aos; ++a) {
+                map.push_back(prim_offset + p);
+            }
+        }
+        prim_offset += n_prims;
+    }
+    return map;
+}
+
 } // namespace
 
 using my_pt   = simde::ERI4;
@@ -106,9 +131,9 @@ MODULE_CTOR(PrimitiveContractor) {
     add_input<double>("Screening Threshold")
       .set_default(1e-16)
       .set_description(
-        "Contributions from bra pair (i,j) are skipped if K[i,j] < t, from "
-        "ket pair (k,l) if Q[k,l] < t, and from quadruple (i,j,k,l) if "
-        "K[i,j]*Q[k,l] < t, where t is this threshold");
+        "Coarse screening uses the PrimitivePairEstimator matrices; fine "
+        "screening uses libint ShellPair geometry factors. Matches libint "
+        "ScreeningMethod::Original.");
 }
 
 MODULE_RUN(PrimitiveContractor) {
@@ -134,16 +159,20 @@ MODULE_RUN(PrimitiveContractor) {
     const auto& c2 = norm_mod.run_as<norm_pt>(bs2);
     const auto& c3 = norm_mod.run_as<norm_pt>(bs3);
 
-    // Step 3: get primitive-pair estimator matrices K[i,j] and Q[k,l].
+    // Step 3: coarse screening matrices from PrimitivePairEstimator.
     auto& est_mod        = submods.at("Primitive Pair Estimator");
     const auto& K_tensor = est_mod.run_as<est_pt>(bs0, bs1);
     const auto& Q_tensor = est_mod.run_as<est_pt>(bs2, bs3);
 
-    // Build primitive -> contracted AO index maps
     auto map0 = build_prim_to_ao_map(bs0);
     auto map1 = build_prim_to_ao_map(bs1);
     auto map2 = build_prim_to_ao_map(bs2);
     auto map3 = build_prim_to_ao_map(bs3);
+
+    auto pmap0 = build_prim_to_prim_map(bs0);
+    auto pmap1 = build_prim_to_prim_map(bs1);
+    auto pmap2 = build_prim_to_prim_map(bs2);
+    auto pmap3 = build_prim_to_prim_map(bs3);
 
     const Eigen::Index n0 = bs0.n_aos();
     const Eigen::Index n1 = bs1.n_aos();
@@ -155,7 +184,6 @@ MODULE_RUN(PrimitiveContractor) {
     const Eigen::Index np2 = c2.size();
     const Eigen::Index np3 = c3.size();
 
-    // Get raw data from the primitive tensor via Eigen TensorMap
     using namespace tensorwrapper;
     const auto pdata = buffer::get_raw_data<double>(prim_T.buffer());
 
@@ -163,16 +191,78 @@ MODULE_RUN(PrimitiveContractor) {
       Eigen::TensorMap<Eigen::Tensor<const double, 4, Eigen::RowMajor>>;
     prim_map_t prim(pdata.data(), np0, np1, np2, np3);
 
-    // Get raw data from the estimator tensors via Eigen TensorMap
+    const Eigen::Index nk0 = static_cast<Eigen::Index>(bs0.n_primitives());
+    const Eigen::Index nk1 = static_cast<Eigen::Index>(bs1.n_primitives());
+    const Eigen::Index nq2 = static_cast<Eigen::Index>(bs2.n_primitives());
+    const Eigen::Index nq3 = static_cast<Eigen::Index>(bs3.n_primitives());
+
     const auto kdata = buffer::get_raw_data<double>(K_tensor.buffer());
     const auto qdata = buffer::get_raw_data<double>(Q_tensor.buffer());
-
     using est_map_t =
       Eigen::TensorMap<Eigen::Tensor<const double, 2, Eigen::RowMajor>>;
-    est_map_t K(kdata.data(), np0, np1);
-    est_map_t Q(qdata.data(), np2, np3);
+    est_map_t K(kdata.data(), nk0, nk1);
+    est_map_t Q(qdata.data(), nq2, nq3);
 
-    // Step 4: contract into AO basis with screening
+    // Fine screening: libint's p.K and gamma for every primitive pair
+    // (permissive ln_prec so primpairs lists are complete).
+    const double ln_all_pairs = std::numeric_limits<double>::lowest();
+    auto bs0_libint           = detail_::make_libint_basis_set(bs0);
+    auto bs1_libint           = detail_::make_libint_basis_set(bs1);
+    auto bs2_libint           = detail_::make_libint_basis_set(bs2);
+    auto bs3_libint           = detail_::make_libint_basis_set(bs3);
+
+    std::vector<std::vector<double>> bra_geom_K(nk0,
+                                                std::vector<double>(nk1, 0.0));
+    std::vector<std::vector<double>> bra_gamma(nk0,
+                                               std::vector<double>(nk1, 0.0));
+    std::vector<std::vector<double>> ket_geom_K(nq2,
+                                                std::vector<double>(nq3, 0.0));
+    std::vector<std::vector<double>> ket_gamma(nq2,
+                                               std::vector<double>(nq3, 0.0));
+
+    {
+        std::size_t abs_p0 = 0;
+        for(std::size_t s0 = 0; s0 < bs0_libint.size(); ++s0) {
+            const auto& sh0    = bs0_libint[s0];
+            std::size_t abs_p1 = 0;
+            for(std::size_t s1 = 0; s1 < bs1_libint.size(); ++s1) {
+                const auto& sh1 = bs1_libint[s1];
+                libint2::ShellPair sp;
+                sp.init(sh0, sh1, ln_all_pairs,
+                        libint2::ScreeningMethod::Original);
+                for(const auto& pp : sp.primpairs) {
+                    const std::size_t ai = abs_p0 + pp.p1;
+                    const std::size_t aj = abs_p1 + pp.p2;
+                    bra_geom_K[ai][aj]   = pp.K;
+                    bra_gamma[ai][aj]    = sh0.alpha[pp.p1] + sh1.alpha[pp.p2];
+                }
+                abs_p1 += sh1.alpha.size();
+            }
+            abs_p0 += sh0.alpha.size();
+        }
+    }
+    {
+        std::size_t abs_p2 = 0;
+        for(std::size_t s2 = 0; s2 < bs2_libint.size(); ++s2) {
+            const auto& sh2    = bs2_libint[s2];
+            std::size_t abs_p3 = 0;
+            for(std::size_t s3 = 0; s3 < bs3_libint.size(); ++s3) {
+                const auto& sh3 = bs3_libint[s3];
+                libint2::ShellPair sp;
+                sp.init(sh2, sh3, ln_all_pairs,
+                        libint2::ScreeningMethod::Original);
+                for(const auto& pp : sp.primpairs) {
+                    const std::size_t ak = abs_p2 + pp.p1;
+                    const std::size_t al = abs_p3 + pp.p2;
+                    ket_geom_K[ak][al]   = pp.K;
+                    ket_gamma[ak][al]    = sh2.alpha[pp.p1] + sh3.alpha[pp.p2];
+                }
+                abs_p3 += sh3.alpha.size();
+            }
+            abs_p2 += sh2.alpha.size();
+        }
+    }
+
     std::vector<double> ao_data(n0 * n1 * n2 * n3, 0.0);
     using ao_map_t =
       Eigen::TensorMap<Eigen::Tensor<double, 4, Eigen::RowMajor>>;
@@ -181,18 +271,29 @@ MODULE_RUN(PrimitiveContractor) {
     for(Eigen::Index i = 0; i < np0; ++i) {
         const double ci       = c0[i];
         const Eigen::Index mu = map0[i];
+        const Eigen::Index pi = pmap0[i];
         for(Eigen::Index j = 0; j < np1; ++j) {
-            const double K_ij = K(i, j);
+            const Eigen::Index pj = pmap1[j];
+            const double K_ij     = K(pi, pj);
             if(K_ij < thresh) continue;
             const double cij      = ci * c1[j];
             const Eigen::Index nu = map1[j];
             for(Eigen::Index k = 0; k < np2; ++k) {
                 const double cijk      = cij * c2[k];
                 const Eigen::Index lam = map2[k];
+                const Eigen::Index pk  = pmap2[k];
                 for(Eigen::Index l = 0; l < np3; ++l) {
-                    const double Q_kl = Q(k, l);
+                    const Eigen::Index pl = pmap3[l];
+                    const double Q_kl     = Q(pk, pl);
                     if(Q_kl < thresh) continue;
-                    if(K_ij * Q_kl < thresh) continue;
+                    if(K_ij * Q_kl <= thresh) continue;
+                    const double Kgb  = bra_geom_K[pi][pj];
+                    const double Kgk  = ket_geom_K[pk][pl];
+                    const double gamb = bra_gamma[pi][pj];
+                    const double gamk = ket_gamma[pk][pl];
+                    const double pfac = std::abs(
+                      Kgb * Kgk / std::sqrt(gamb + gamk) * cijk * c3[l]);
+                    if(pfac < thresh) continue;
                     const Eigen::Index sig = map3[l];
                     ao(mu, nu, lam, sig) += cijk * c3[l] * prim(i, j, k, l);
                 }
@@ -200,7 +301,6 @@ MODULE_RUN(PrimitiveContractor) {
         }
     }
 
-    // Wrap result in a TensorWrapper tensor
     tensorwrapper::shape::Smooth shape(
       {static_cast<std::size_t>(n0), static_cast<std::size_t>(n1),
        static_cast<std::size_t>(n2), static_cast<std::size_t>(n3)});

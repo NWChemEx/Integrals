@@ -15,7 +15,6 @@
  */
 
 #include "../testing/testing.hpp"
-#include <ios>
 
 using namespace integrals::testing;
 using tensorwrapper::operations::approximately_equal;
@@ -47,7 +46,7 @@ TEST_CASE("Primitive Contractor ERI4") {
                     chemist::braket::BraKet braket(aos_squared, op,
                                                    aos_squared);
 
-                    for(const auto& thresh : {1e-16}) { //}, 1e-8, 1e-6}) {
+                    for(const auto& thresh : {1e-16, 1e-8, 1e-6}) {
                         SECTION("Screening Threshold: " +
                                 std::to_string(thresh)) {
                             auto test_mod_copy = test_mod.unlocked_copy();
@@ -60,12 +59,8 @@ TEST_CASE("Primitive Contractor ERI4") {
                               test_mod_copy.run_as<test_pt>(braket);
                             auto T_eri4 = corr_mod_copy.run_as<test_pt>(braket);
 
-                            simde::type::tensor diff;
-                            diff("i,j,k,l") =
-                              T_contracted("i,j,k,l") - T_eri4("i,j,k,l");
-                            std::cout << "Diff: " << diff << std::endl;
                             REQUIRE(approximately_equal(T_contracted, T_eri4,
-                                                        thresh * 100.0));
+                                                        1.0e-14));
                         }
                     }
                 }
