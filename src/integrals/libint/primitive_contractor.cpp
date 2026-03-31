@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "../utils/primitive_index_helpers.hpp"
 #include "detail_/make_libint_basis_set.hpp"
 #include "libint.hpp"
 #include <cmath>
@@ -69,53 +70,6 @@ The algorithm proceeds in three steps:
    (ShellPair built with a permissive ln_prec so all primitive pairs appear).
 )";
 
-// Build a map from decontracted AO index -> contracted AO index.
-// For contracted shell s with n_prims primitives and n_aos AO components,
-// the decontracted indices (prim p, ao_component a) all map to the contracted
-// AO index first_ao[s] + a.
-// NOTE: bs.size() returns the number of centers, not shells.
-//       bs.n_shells() returns the total number of shells (flattened).
-std::vector<std::size_t> build_prim_to_ao_map(
-  const simde::type::ao_basis_set& bs) {
-    std::vector<std::size_t> map;
-    std::size_t contracted_ao = 0;
-    for(std::size_t s = 0; s < bs.n_shells(); ++s) {
-        const auto& shell  = bs.shell(s);
-        const auto n_prims = shell.n_primitives();
-        const auto n_aos   = shell.size();
-        for(std::size_t p = 0; p < n_prims; ++p) {
-            for(std::size_t a = 0; a < n_aos; ++a) {
-                map.push_back(contracted_ao + a);
-            }
-        }
-        contracted_ao += n_aos;
-    }
-    return map;
-}
-
-// Build a map from decontracted AO index -> absolute primitive index.
-// The estimator returns K[abs_prim_i, abs_prim_j] where abs_prim is the
-// flat primitive index (not multiplied by n_aos). For decontracted-AO index
-// (shell s, prim p, ao_component a), the absolute primitive index is
-// prim_offset[s] + p.
-std::vector<std::size_t> build_prim_to_prim_map(
-  const simde::type::ao_basis_set& bs) {
-    std::vector<std::size_t> map;
-    std::size_t prim_offset = 0;
-    for(std::size_t s = 0; s < bs.n_shells(); ++s) {
-        const auto& shell  = bs.shell(s);
-        const auto n_prims = shell.n_primitives();
-        const auto n_aos   = shell.size();
-        for(std::size_t p = 0; p < n_prims; ++p) {
-            for(std::size_t a = 0; a < n_aos; ++a) {
-                map.push_back(prim_offset + p);
-            }
-        }
-        prim_offset += n_prims;
-    }
-    return map;
-}
-
 } // namespace
 
 using my_pt   = simde::ERI4;
@@ -164,15 +118,15 @@ MODULE_RUN(PrimitiveContractor) {
     const auto& K_tensor = est_mod.run_as<est_pt>(bs0, bs1);
     const auto& Q_tensor = est_mod.run_as<est_pt>(bs2, bs3);
 
-    auto map0 = build_prim_to_ao_map(bs0);
-    auto map1 = build_prim_to_ao_map(bs1);
-    auto map2 = build_prim_to_ao_map(bs2);
-    auto map3 = build_prim_to_ao_map(bs3);
+    auto map0 = utils::build_prim_ao_to_cgto_map(bs0);
+    auto map1 = utils::build_prim_ao_to_cgto_map(bs1);
+    auto map2 = utils::build_prim_ao_to_cgto_map(bs2);
+    auto map3 = utils::build_prim_ao_to_cgto_map(bs3);
 
-    auto pmap0 = build_prim_to_prim_map(bs0);
-    auto pmap1 = build_prim_to_prim_map(bs1);
-    auto pmap2 = build_prim_to_prim_map(bs2);
-    auto pmap3 = build_prim_to_prim_map(bs3);
+    auto pmap0 = utils::build_prim_ao_to_prim_shell_map(bs0);
+    auto pmap1 = utils::build_prim_ao_to_prim_shell_map(bs1);
+    auto pmap2 = utils::build_prim_ao_to_prim_shell_map(bs2);
+    auto pmap3 = utils::build_prim_ao_to_prim_shell_map(bs3);
 
     const Eigen::Index n0 = bs0.n_aos();
     const Eigen::Index n1 = bs1.n_aos();
