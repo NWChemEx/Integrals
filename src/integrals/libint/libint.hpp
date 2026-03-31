@@ -35,6 +35,7 @@ DECLARE_MODULE(BlackBoxPrimitiveEstimator);
 DECLARE_MODULE(CauchySchwarzPrimitiveEstimator);
 DECLARE_MODULE(PrimitiveErrorModel);
 DECLARE_MODULE(AnalyticError);
+DECLARE_MODULE(RawPrimitiveERIs);
 
 using simde::type::braket;
 

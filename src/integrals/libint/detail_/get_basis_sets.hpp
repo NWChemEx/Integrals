@@ -55,24 +55,31 @@ constexpr int get_n(const BraType& bra, const KetType& ket) {
  */
 template<typename BraType, typename KetType>
 std::vector<libint2::BasisSet> get_basis_sets(const BraType& bra,
-                                              const KetType& ket) {
+                                              const KetType& ket,
+                                              bool embed_normalization = true) {
     using simde::type::aos;
     using simde::type::aos_squared;
 
     std::vector<libint2::BasisSet> basis_sets;
 
     if constexpr(std::is_same_v<BraType, aos>) {
-        basis_sets.push_back(make_libint_basis_set(bra.ao_basis_set()));
+        basis_sets.push_back(
+          make_libint_basis_set(bra.ao_basis_set(), embed_normalization));
     } else if constexpr(std::is_same_v<BraType, aos_squared>) {
-        basis_sets.push_back(make_libint_basis_set(bra.first.ao_basis_set()));
-        basis_sets.push_back(make_libint_basis_set(bra.second.ao_basis_set()));
+        basis_sets.push_back(
+          make_libint_basis_set(bra.first.ao_basis_set(), embed_normalization));
+        basis_sets.push_back(make_libint_basis_set(bra.second.ao_basis_set(),
+                                                   embed_normalization));
     }
 
     if constexpr(std::is_same_v<KetType, aos>) {
-        basis_sets.push_back(make_libint_basis_set(ket.ao_basis_set()));
+        basis_sets.push_back(
+          make_libint_basis_set(ket.ao_basis_set(), embed_normalization));
     } else if constexpr(std::is_same_v<KetType, aos_squared>) {
-        basis_sets.push_back(make_libint_basis_set(ket.first.ao_basis_set()));
-        basis_sets.push_back(make_libint_basis_set(ket.second.ao_basis_set()));
+        basis_sets.push_back(
+          make_libint_basis_set(ket.first.ao_basis_set(), embed_normalization));
+        basis_sets.push_back(make_libint_basis_set(ket.second.ao_basis_set(),
+                                                   embed_normalization));
     }
 
     return basis_sets;

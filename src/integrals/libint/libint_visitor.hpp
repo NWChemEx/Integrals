@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 #pragma once
+#include "detail_/make_engine.hpp"
+#include <libint2.hpp>
 #include <simde/simde.hpp>
-
 namespace integrals::libint {
 
 class LibintVisitor : public chemist::qm_operator::OperatorVisitor {
