@@ -46,7 +46,12 @@ The algorithm proceeds in three steps:
    the decontracted basis (primitive index varying fastest within each
    (shell, ao_component) block).
 
-3. The contracted AO integrals are formed by:
+3. The "Primitive Pair Estimator" submodule is called twice: once for the bra
+   pair (bs0, bs1) to produce K[i,j], and once for the ket pair (bs2, bs3) to
+   produce Q[k,l]. These matrices estimate the magnitude of each primitive-pair
+   contribution.
+
+4. The contracted AO integrals are formed by:
 
      AO[mu, nu, lam, sig] =
        sum_{i in prims(mu)} sum_{j in prims(nu)}
@@ -55,6 +60,11 @@ The algorithm proceeds in three steps:
 
    where prims(mu) is the set of decontracted AO indices that belong to the
    same contracted AO mu (same shell, same AO component, all primitives).
+
+   Screening is applied with threshold t ("Screening Threshold"):
+   - Bra pair (i,j) is skipped entirely if K[i,j] < t
+   - Ket pair (k,l) is skipped entirely if Q[k,l] < t
+   - Quadruple (i,j,k,l) is skipped if K[i,j] * Q[k,l] < t
 )";
 
 // Build a map from decontracted AO index -> contracted AO index.
@@ -85,16 +95,25 @@ std::vector<std::size_t> build_prim_to_ao_map(
 
 using my_pt   = simde::ERI4;
 using norm_pt = integrals::property_types::Normalize<simde::type::ao_basis_set>;
+using est_pt  = integrals::property_types::PrimitivePairEstimator;
 
 MODULE_CTOR(PrimitiveContractor) {
     satisfies_property_type<my_pt>();
     description(desc);
     add_submodule<my_pt>("Raw Primitive ERI4");
     add_submodule<norm_pt>("Primitive Normalization");
+    add_submodule<est_pt>("Primitive Pair Estimator");
+    add_input<double>("Screening Threshold")
+      .set_default(1e-16)
+      .set_description(
+        "Contributions from bra pair (i,j) are skipped if K[i,j] < t, from "
+        "ket pair (k,l) if Q[k,l] < t, and from quadruple (i,j,k,l) if "
+        "K[i,j]*Q[k,l] < t, where t is this threshold");
 }
 
 MODULE_RUN(PrimitiveContractor) {
     const auto& [braket] = my_pt::unwrap_inputs(inputs);
+    const double thresh  = inputs.at("Screening Threshold").value<double>();
 
     auto bra = braket.bra();
     auto ket = braket.ket();
@@ -114,6 +133,11 @@ MODULE_RUN(PrimitiveContractor) {
     const auto& c1 = norm_mod.run_as<norm_pt>(bs1);
     const auto& c2 = norm_mod.run_as<norm_pt>(bs2);
     const auto& c3 = norm_mod.run_as<norm_pt>(bs3);
+
+    // Step 3: get primitive-pair estimator matrices K[i,j] and Q[k,l].
+    auto& est_mod        = submods.at("Primitive Pair Estimator");
+    const auto& K_tensor = est_mod.run_as<est_pt>(bs0, bs1);
+    const auto& Q_tensor = est_mod.run_as<est_pt>(bs2, bs3);
 
     // Build primitive -> contracted AO index maps
     auto map0 = build_prim_to_ao_map(bs0);
@@ -139,7 +163,16 @@ MODULE_RUN(PrimitiveContractor) {
       Eigen::TensorMap<Eigen::Tensor<const double, 4, Eigen::RowMajor>>;
     prim_map_t prim(pdata.data(), np0, np1, np2, np3);
 
-    // Step 3: contract into AO basis
+    // Get raw data from the estimator tensors via Eigen TensorMap
+    const auto kdata = buffer::get_raw_data<double>(K_tensor.buffer());
+    const auto qdata = buffer::get_raw_data<double>(Q_tensor.buffer());
+
+    using est_map_t =
+      Eigen::TensorMap<Eigen::Tensor<const double, 2, Eigen::RowMajor>>;
+    est_map_t K(kdata.data(), np0, np1);
+    est_map_t Q(qdata.data(), np2, np3);
+
+    // Step 4: contract into AO basis with screening
     std::vector<double> ao_data(n0 * n1 * n2 * n3, 0.0);
     using ao_map_t =
       Eigen::TensorMap<Eigen::Tensor<double, 4, Eigen::RowMajor>>;
@@ -149,12 +182,17 @@ MODULE_RUN(PrimitiveContractor) {
         const double ci       = c0[i];
         const Eigen::Index mu = map0[i];
         for(Eigen::Index j = 0; j < np1; ++j) {
+            const double K_ij = K(i, j);
+            if(K_ij < thresh) continue;
             const double cij      = ci * c1[j];
             const Eigen::Index nu = map1[j];
             for(Eigen::Index k = 0; k < np2; ++k) {
                 const double cijk      = cij * c2[k];
                 const Eigen::Index lam = map2[k];
                 for(Eigen::Index l = 0; l < np3; ++l) {
+                    const double Q_kl = Q(k, l);
+                    if(Q_kl < thresh) continue;
+                    if(K_ij * Q_kl < thresh) continue;
                     const Eigen::Index sig = map3[l];
                     ao(mu, nu, lam, sig) += cijk * c3[l] * prim(i, j, k, l);
                 }
