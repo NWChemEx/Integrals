@@ -52,37 +52,30 @@ The algorithm proceeds in three steps:
    the decontracted basis (primitive index varying fastest within each
    (shell, ao_component) block).
 
-3. The "Primitive Pair Estimator" submodule supplies coarse screening only:
-   bra matrix K[i,j] and ket matrix Q[k,l] (same layout as Black Box).
+3. Matrices of pair estimates are computed for bra and ket basis sets. K and
+   K' are respectively coarse estimates for bra and ket basis sets. Q and Q' are
+   respectively fine estimates for bra and ket basis sets.
 
 4. The contracted AO integrals are formed by summing
    c0[i]*c1[j]*c2[k]*c3[l]*prim_ERI[i,j,k,l] with screening:
 
-   Coarse (from PrimitivePairEstimator, matches libint ln_scr / ShellPair
-   pair pruning and the engine's ln_scr_bra + ln_scr_ket check):
+   Coarse (from `coarse_k_ij`):
    - Skip bra pair (i,j) if K[i,j] < t
-   - Skip ket pair (k,l) if Q[k,l] < t
-   - Skip quartet if K[i,j] * Q[k,l] <= t (libint keeps only sums > ln(t))
-
-   Fine (libint engine prefactor check; uses ShellPair p.K and gammas, not
-   the estimator matrix):
-   - Skip if |Kgeom_bra * Kgeom_ket / sqrt(gamma_bra + gamma_ket) *
-     c0*c1*c2*c3| < t, with Kgeom and gamma from libint2::ShellPair data
-   (ShellPair built with a permissive ln_prec so all primitive pairs appear).
+   - Skip ket pair (k,l) if K'[k,l] < t
+   - Skip quartet if K[i,j] * K'[k,l] <= t (libint keeps only sums > ln(t))
+   - Skip if |Q[i,j] * Q'[k,l] / sqrt(gamma_bra + gamma_ket)| < t.
 )";
 
 } // namespace
 
 using my_pt   = simde::ERI4;
 using norm_pt = integrals::property_types::Normalize<simde::type::ao_basis_set>;
-using est_pt  = integrals::property_types::PrimitivePairEstimator;
 
 MODULE_CTOR(PrimitiveContractor) {
     satisfies_property_type<my_pt>();
     description(desc);
     add_submodule<my_pt>("Raw Primitive ERI4");
     add_submodule<norm_pt>("Primitive Normalization");
-    add_submodule<est_pt>("Primitive Pair Estimator");
     add_input<double>("Screening Threshold")
       .set_default(1e-16)
       .set_description(
@@ -115,7 +108,6 @@ MODULE_RUN(PrimitiveContractor) {
     const auto& c3 = norm_mod.run_as<norm_pt>(bs3);
 
     // Step 3: coarse screening matrices from PrimitivePairEstimator.
-    auto& est_mod    = submods.at("Primitive Pair Estimator");
     const auto K_bra = detail_::coarse_k_ij(bs0, bs1);
     const auto k_ket = detail_::coarse_k_ij(bs2, bs3);
 
@@ -129,129 +121,79 @@ MODULE_RUN(PrimitiveContractor) {
     auto pmap2 = utils::build_prim_ao_to_prim_shell_map(bs2);
     auto pmap3 = utils::build_prim_ao_to_prim_shell_map(bs3);
 
-    const Eigen::Index n0 = bs0.n_aos();
-    const Eigen::Index n1 = bs1.n_aos();
-    const Eigen::Index n2 = bs2.n_aos();
-    const Eigen::Index n3 = bs3.n_aos();
+    // Number of AOs per basis set
+    std::array naos{bs0.n_aos(), bs1.n_aos(), bs2.n_aos(), bs3.n_aos()};
 
-    const Eigen::Index np0 = c0.size();
-    const Eigen::Index np1 = c1.size();
-    const Eigen::Index np2 = c2.size();
-    const Eigen::Index np3 = c3.size();
+    // Number of primitive shells per basis set
+    std::array nprims{c0.size(), c1.size(), c2.size(), c3.size()};
 
     using namespace tensorwrapper;
-    const auto pdata = buffer::get_raw_data<double>(prim_T.buffer());
+    const auto prim_data = buffer::get_raw_data<double>(prim_T.buffer());
 
-    using prim_map_t =
-      Eigen::TensorMap<Eigen::Tensor<const double, 4, Eigen::RowMajor>>;
-    prim_map_t prim(pdata.data(), np0, np1, np2, np3);
+    auto gamma_bra = detail_::gamma_ij(bs0, bs1);
+    auto gamma_ket = detail_::gamma_ij(bs2, bs3);
+    auto Q_bra     = detail_::fine_k_ij(bs0, bs1);
+    auto Q_ket     = detail_::fine_k_ij(bs2, bs3);
+    std::vector<double> ao_data(naos[0] * naos[1] * naos[2] * naos[3], 0.0);
 
-    const Eigen::Index nk0 = static_cast<Eigen::Index>(bs0.n_primitives());
-    const Eigen::Index nk1 = static_cast<Eigen::Index>(bs1.n_primitives());
-    const Eigen::Index nq2 = static_cast<Eigen::Index>(bs2.n_primitives());
-    const Eigen::Index nq3 = static_cast<Eigen::Index>(bs3.n_primitives());
+    auto ao_offset = [&](std::size_t i, std::size_t j, std::size_t k,
+                         std::size_t l) {
+        return i * naos[1] * naos[2] * naos[3] + j * naos[2] * naos[3] +
+               k * naos[3] + l;
+    };
+    auto prim_offset = [&](std::size_t i, std::size_t j, std::size_t k,
+                           std::size_t l) {
+        return i * nprims[1] * nprims[2] * nprims[3] +
+               j * nprims[2] * nprims[3] + k * nprims[3] + l;
+    };
 
-    // Fine screening: libint's p.K and gamma for every primitive pair
-    // (permissive ln_prec so primpairs lists are complete).
-    const double ln_all_pairs = std::numeric_limits<double>::lowest();
-    auto bs0_libint           = detail_::make_libint_basis_set(bs0);
-    auto bs1_libint           = detail_::make_libint_basis_set(bs1);
-    auto bs2_libint           = detail_::make_libint_basis_set(bs2);
-    auto bs3_libint           = detail_::make_libint_basis_set(bs3);
+    for(std::size_t pshell_i = 0; pshell_i < nprims[0]; ++pshell_i) {
+        const auto ci = c0[pshell_i];
+        const auto mu = map0[pshell_i];
+        const auto pi = pmap0[pshell_i];
 
-    std::vector<std::vector<double>> bra_geom_K(nk0,
-                                                std::vector<double>(nk1, 0.0));
-    std::vector<std::vector<double>> bra_gamma(nk0,
-                                               std::vector<double>(nk1, 0.0));
-    std::vector<std::vector<double>> ket_geom_K(nq2,
-                                                std::vector<double>(nq3, 0.0));
-    std::vector<std::vector<double>> ket_gamma(nq2,
-                                               std::vector<double>(nq3, 0.0));
+        for(std::size_t pshell_j = 0; pshell_j < nprims[1]; ++pshell_j) {
+            const auto nu = map1[pshell_j];
+            const auto pj = pmap1[pshell_j];
 
-    {
-        std::size_t abs_p0 = 0;
-        for(std::size_t s0 = 0; s0 < bs0_libint.size(); ++s0) {
-            const auto& sh0    = bs0_libint[s0];
-            std::size_t abs_p1 = 0;
-            for(std::size_t s1 = 0; s1 < bs1_libint.size(); ++s1) {
-                const auto& sh1 = bs1_libint[s1];
-                libint2::ShellPair sp;
-                sp.init(sh0, sh1, ln_all_pairs,
-                        libint2::ScreeningMethod::Original);
-                for(const auto& pp : sp.primpairs) {
-                    const std::size_t ai = abs_p0 + pp.p1;
-                    const std::size_t aj = abs_p1 + pp.p2;
-                    bra_geom_K[ai][aj]   = pp.K;
-                    bra_gamma[ai][aj]    = sh0.alpha[pp.p1] + sh1.alpha[pp.p2];
-                }
-                abs_p1 += sh1.alpha.size();
-            }
-            abs_p0 += sh0.alpha.size();
-        }
-    }
-    {
-        std::size_t abs_p2 = 0;
-        for(std::size_t s2 = 0; s2 < bs2_libint.size(); ++s2) {
-            const auto& sh2    = bs2_libint[s2];
-            std::size_t abs_p3 = 0;
-            for(std::size_t s3 = 0; s3 < bs3_libint.size(); ++s3) {
-                const auto& sh3 = bs3_libint[s3];
-                libint2::ShellPair sp;
-                sp.init(sh2, sh3, ln_all_pairs,
-                        libint2::ScreeningMethod::Original);
-                for(const auto& pp : sp.primpairs) {
-                    const std::size_t ak = abs_p2 + pp.p1;
-                    const std::size_t al = abs_p3 + pp.p2;
-                    ket_geom_K[ak][al]   = pp.K;
-                    ket_gamma[ak][al]    = sh2.alpha[pp.p1] + sh3.alpha[pp.p2];
-                }
-                abs_p3 += sh3.alpha.size();
-            }
-            abs_p2 += sh2.alpha.size();
-        }
-    }
+            const auto cij      = ci * c1[pshell_j];
+            const auto K_ij     = K_bra[pi][pj];
+            const auto gamma_ij = gamma_bra[pi][pj];
+            const auto Q_ij     = Q_bra[pi][pj];
 
-    std::vector<double> ao_data(n0 * n1 * n2 * n3, 0.0);
-    using ao_map_t =
-      Eigen::TensorMap<Eigen::Tensor<double, 4, Eigen::RowMajor>>;
-    ao_map_t ao(ao_data.data(), n0, n1, n2, n3);
+            for(std::size_t pshell_k = 0; pshell_k < nprims[2]; ++pshell_k) {
+                const auto lam    = map2[pshell_k];
+                const auto pk     = pmap2[pshell_k];
+                const double cijk = cij * c2[pshell_k];
 
-    for(Eigen::Index i = 0; i < np0; ++i) {
-        const double ci       = c0[i];
-        const Eigen::Index mu = map0[i];
-        const Eigen::Index pi = pmap0[i];
-        for(Eigen::Index j = 0; j < np1; ++j) {
-            const Eigen::Index pj = pmap1[j];
-            const double K_ij     = K_bra[pi][pj];
-            if(K_ij < thresh) continue;
-            const double cij      = ci * c1[j];
-            const Eigen::Index nu = map1[j];
-            for(Eigen::Index k = 0; k < np2; ++k) {
-                const double cijk      = cij * c2[k];
-                const Eigen::Index lam = map2[k];
-                const Eigen::Index pk  = pmap2[k];
-                for(Eigen::Index l = 0; l < np3; ++l) {
-                    const Eigen::Index pl = pmap3[l];
-                    const double Q_kl     = k_ket[pk][pl];
-                    if(Q_kl < thresh) continue;
-                    if(K_ij * Q_kl <= thresh) continue;
-                    const double Kgb  = bra_geom_K[pi][pj];
-                    const double Kgk  = ket_geom_K[pk][pl];
-                    const double gamb = bra_gamma[pi][pj];
-                    const double gamk = ket_gamma[pk][pl];
-                    const double pfac = std::abs(
-                      Kgb * Kgk / std::sqrt(gamb + gamk) * cijk * c3[l]);
+                for(std::size_t pshell_l = 0; pshell_l < nprims[3];
+                    ++pshell_l) {
+                    const auto cl  = c3[pshell_l];
+                    const auto sig = map3[pshell_l];
+                    const auto pl  = pmap3[pshell_l];
+
+                    const double K_kl     = k_ket[pk][pl];
+                    const double Q_kl     = Q_ket[pk][pl];
+                    const double gamma_kl = gamma_ket[pk][pl];
+
+                    if(K_kl < thresh) continue;
+                    if(K_ij * K_kl <= thresh) continue;
+
+                    auto Q_ijkl     = Q_ij * Q_kl;
+                    auto gamma_ijkl = gamma_ij + gamma_kl;
+                    auto pfac       = std::abs(Q_ijkl / std::sqrt(gamma_ijkl));
                     if(pfac < thresh) continue;
-                    const Eigen::Index sig = map3[l];
-                    ao(mu, nu, lam, sig) += cijk * c3[l] * prim(i, j, k, l);
+
+                    ao_data[ao_offset(mu, nu, lam, sig)] +=
+                      cijk * cl *
+                      prim_data[prim_offset(pshell_i, pshell_j, pshell_k,
+                                            pshell_l)];
                 }
             }
         }
     }
 
-    tensorwrapper::shape::Smooth shape(
-      {static_cast<std::size_t>(n0), static_cast<std::size_t>(n1),
-       static_cast<std::size_t>(n2), static_cast<std::size_t>(n3)});
+    tensorwrapper::shape::Smooth shape({naos[0], naos[1], naos[2], naos[3]});
     tensorwrapper::buffer::Contiguous buf(std::move(ao_data), shape);
     simde::type::tensor t(shape, std::move(buf));
 

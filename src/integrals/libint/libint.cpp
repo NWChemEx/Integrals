@@ -84,8 +84,6 @@ void set_defaults(pluginplay::ModuleManager& mm) {
                      "Raw Primitive ERI4");
     mm.change_submod("Primitive Contractor ERI4", "Primitive Normalization",
                      "Primitive Normalization");
-    mm.change_submod("Primitive Contractor ERI4", "Primitive Pair Estimator",
-                     "Black Box Primitive Pair Estimator");
 }
 
 #define LOAD_LIBINT(bra, op, ket, key) mm.add_module<LIBINT(bra, op, ket)>(key)
