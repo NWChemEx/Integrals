@@ -142,19 +142,16 @@ contracted basis sets. It returns a vector of renormalized contraction
 coefficients c[i], one per decontracted AO index, in the same ordering as
 the decontracted basis (primitive index varying fastest within each
 (shell, ao_component) block).</p></li>
-<li><p>The contracted AO integrals are formed by:</p>
-<blockquote>
-<div><dl>
-<dt>AO[mu, nu, lam, sig] =</dt><dd><p>sum_{i in prims(mu)} sum_{j in prims(nu)}
-sum_{k in prims(lam)} sum_{l in prims(sig)}</p>
-<blockquote>
-<div><p>c0[i] * c1[j] * c2[k] * c3[l] * prim_ERI[i, j, k, l]</p>
-</div></blockquote>
-</dd>
-</dl>
-</div></blockquote>
-<p>where prims(mu) is the set of decontracted AO indices that belong to the
-same contracted AO mu (same shell, same AO component, all primitives).</p>
+<li><p>Matrices of pair estimates are computed for bra and ket basis sets. K and
+K’ are respectively coarse estimates for bra and ket basis sets. Q and Q’ are
+respectively fine estimates for bra and ket basis sets.</p></li>
+<li><p>The contracted AO integrals are formed by summing
+c0[i]*c1[j]*c2[k]*c3[l]*prim_ERI[i,j,k,l] with screening:</p>
+<p>Coarse (from <cite>coarse_k_ij</cite>):
+- Skip bra pair (i,j) if K[i,j] &lt; t
+- Skip ket pair (k,l) if K’[k,l] &lt; t
+- Skip quartet if K[i,j] * K’[k,l] &lt;= t (libint keeps only sums &gt; ln(t))
+- Skip if <a href="#id1"><span class="problematic" id="id2">|Q[i,j] * Q'[k,l] / sqrt(gamma_bra + gamma_ket)|</span></a> &lt; t.</p>
 </li>
 </ol>
 <section id="please-cite">
@@ -197,6 +194,10 @@ module. The columns are:</p>
 <td><p>N/A</p></td>
 <td><p>N/A</p></td>
 </tr>
+<tr class="row-odd"><td><p>Screening Threshold</p></td>
+<td><p>1e-16</p></td>
+<td><p>Coarse screening uses the PrimitivePairEstimator matrices; fine screening uses libint ShellPair geometry factors. Matches libint ScreeningMethod::Original.</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -220,6 +221,17 @@ subsection we list:</p>
 <li><p>Domain Restrictions :</p>
 <ul>
 <li><p>Type == chemist::braket::BraKet&lt;std::pair&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;, chemist::qm_operator::Coulomb&lt;chemist::Electron, chemist::Electron&gt;, std::pair&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;&gt;</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Description : Coarse screening uses the PrimitivePairEstimator matrices; fine screening uses libint ShellPair geometry factors. Matches libint ScreeningMethod::Original.</p></li>
+<li><p>Default Value : 1e-16</p></li>
+<li><p>Optional? : False</p></li>
+<li><p>Opaque? : True</p></li>
+<li><p>Domain Restrictions :</p>
+<ul>
+<li><p>Type == double</p></li>
 </ul>
 </li>
 </ul>

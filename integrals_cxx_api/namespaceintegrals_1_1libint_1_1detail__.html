@@ -121,6 +121,18 @@ template&lt;std::size_t N&gt; </td></tr>
 <tr class="memitem:ae22bc191f096fda1108d9c611c3d657f" id="r_ae22bc191f096fda1108d9c611c3d657f"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1libint_1_1detail__.html#ae22bc191f096fda1108d9c611c3d657f">make_libint_basis_set</a> (const simde::type::ao_basis_set &amp;bs, bool embed_normalization=true)</td></tr>
 <tr class="memdesc:ae22bc191f096fda1108d9c611c3d657f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts an NWX basis set object to a LibInt2 basis set object.  <br /></td></tr>
 <tr class="separator:ae22bc191f096fda1108d9c611c3d657f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a72076727f341eefdc23e916b5f723375" id="r_a72076727f341eefdc23e916b5f723375"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1libint_1_1detail__.html#a72076727f341eefdc23e916b5f723375">gamma_ij</a> (const simde::type::ao_basis_set &amp;basis0, const simde::type::ao_basis_set &amp;basis1)</td></tr>
+<tr class="memdesc:a72076727f341eefdc23e916b5f723375"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sum of exponents <picture><source srcset="form_0_dark.png" media="(prefers-color-scheme: dark)"/><img class="formulaInl" alt="$\gamma_{ij} = \alpha_i + \alpha_j$" src="form_0.png"/></picture> for each primitive pair.  <br /></td></tr>
+<tr class="separator:a72076727f341eefdc23e916b5f723375"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32192e4d23c4d8f93e1dd2f167f7c03a" id="r_a32192e4d23c4d8f93e1dd2f167f7c03a"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1libint_1_1detail__.html#a32192e4d23c4d8f93e1dd2f167f7c03a">k_ij</a> (const simde::type::ao_basis_set &amp;basis0, const simde::type::ao_basis_set &amp;basis1)</td></tr>
+<tr class="memdesc:a32192e4d23c4d8f93e1dd2f167f7c03a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overlap-style factor <picture><source srcset="form_1_dark.png" media="(prefers-color-scheme: dark)"/><img class="formulaInl" alt="$\exp(-\rho_{ij} R_{AB}^2)$" src="form_1.png"/></picture> with <picture><source srcset="form_2_dark.png" media="(prefers-color-scheme: dark)"/><img class="formulaInl" alt="$\rho_{ij} = \alpha_i \alpha_j / \gamma_{ij}$" src="form_2.png"/></picture>. Primitive centers come from Chemist geometry.  <br /></td></tr>
+<tr class="separator:a32192e4d23c4d8f93e1dd2f167f7c03a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ff6f35bb7f57b3752cb58066cf2eca3" id="r_a8ff6f35bb7f57b3752cb58066cf2eca3"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1libint_1_1detail__.html#a8ff6f35bb7f57b3752cb58066cf2eca3">coarse_k_ij</a> (const simde::type::ao_basis_set &amp;basis0, const simde::type::ao_basis_set &amp;basis1)</td></tr>
+<tr class="memdesc:a8ff6f35bb7f57b3752cb58066cf2eca3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coarse screening-style estimate: <code>k_ij</code> multiplied by <picture><source srcset="form_3_dark.png" media="(prefers-color-scheme: dark)"/><img class="formulaInl" alt="$|c_i|\,|c_j|$" src="form_3.png"/></picture> from libint shell coefficients.  <br /></td></tr>
+<tr class="separator:a8ff6f35bb7f57b3752cb58066cf2eca3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55aa171a1a76c040397832bdd3a1d29c" id="r_a55aa171a1a76c040397832bdd3a1d29c"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1libint_1_1detail__.html#a55aa171a1a76c040397832bdd3a1d29c">fine_k_ij</a> (const simde::type::ao_basis_set &amp;basis0, const simde::type::ao_basis_set &amp;basis1)</td></tr>
+<tr class="memdesc:a55aa171a1a76c040397832bdd3a1d29c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fine screening-style estimate: <code>coarse_k_ij</code> scaled by <picture><source srcset="form_4_dark.png" media="(prefers-color-scheme: dark)"/><img class="formulaInl" alt="$\sqrt{2}\,\pi^{5/4} / \gamma_{ij}$" src="form_4.png"/></picture>. Up to floating-point detail, this matches libint <code>ShellPair</code> <code>pp.K</code> times the same coefficient product used in <code>coarse_k_ij</code>.  <br /></td></tr>
+<tr class="separator:a55aa171a1a76c040397832bdd3a1d29c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa17d8e3237d0d105fffa57df823c7ea5" id="r_aa17d8e3237d0d105fffa57df823c7ea5"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1libint_1_1detail__.html#aa17d8e3237d0d105fffa57df823c7ea5">shells2ord</a> (const std::vector&lt; libint2::BasisSet &gt; &amp;bases, std::vector&lt; std::size_t &gt; &amp;shells)</td></tr>
 <tr class="memdesc:aa17d8e3237d0d105fffa57df823c7ea5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the ordinal indices spanned by the shell.  <br /></td></tr>
 <tr class="separator:aa17d8e3237d0d105fffa57df823c7ea5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -128,6 +140,147 @@ template&lt;std::size_t N&gt; </td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>For ShellType. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="a8ff6f35bb7f57b3752cb58066cf2eca3" name="a8ff6f35bb7f57b3752cb58066cf2eca3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ff6f35bb7f57b3752cb58066cf2eca3">&#9670;&#160;</a></span>coarse_k_ij()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto integrals::libint::detail_::coarse_k_ij </td>
+          <td>(</td>
+          <td class="paramtype">const simde::type::ao_basis_set &amp;&#160;</td>
+          <td class="paramname"><em>basis0</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const simde::type::ao_basis_set &amp;&#160;</td>
+          <td class="paramname"><em>basis1</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Coarse screening-style estimate: <code>k_ij</code> multiplied by <picture><source srcset="form_3_dark.png" media="(prefers-color-scheme: dark)"/><img class="formulaInl" alt="$|c_i|\,|c_j|$" src="form_3.png"/></picture> from libint shell coefficients. </p>
+<p>Libint uses this pair estimate for "coarse" screening. Compared to the fine estimate it neglects the geometric factor. Assumes one contraction per shell.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">basis0</td><td>First basis (rows). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">basis1</td><td>Second basis (columns). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Matrix of shape <code>basis0.n_primitives()</code> x <code>basis1.n_primitives()</code>. </dd></dl>
+
+</div>
+</div>
+<a id="a55aa171a1a76c040397832bdd3a1d29c" name="a55aa171a1a76c040397832bdd3a1d29c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55aa171a1a76c040397832bdd3a1d29c">&#9670;&#160;</a></span>fine_k_ij()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto integrals::libint::detail_::fine_k_ij </td>
+          <td>(</td>
+          <td class="paramtype">const simde::type::ao_basis_set &amp;&#160;</td>
+          <td class="paramname"><em>basis0</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const simde::type::ao_basis_set &amp;&#160;</td>
+          <td class="paramname"><em>basis1</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Fine screening-style estimate: <code>coarse_k_ij</code> scaled by <picture><source srcset="form_4_dark.png" media="(prefers-color-scheme: dark)"/><img class="formulaInl" alt="$\sqrt{2}\,\pi^{5/4} / \gamma_{ij}$" src="form_4.png"/></picture>. Up to floating-point detail, this matches libint <code>ShellPair</code> <code>pp.K</code> times the same coefficient product used in <code>coarse_k_ij</code>. </p>
+<p>Assumes one contraction per shell.</p>
+<dl class="section note"><dt>Note</dt><dd>Uses <code>M_PI</code> from <code>&lt;cmath&gt;</code>. On MSVC, define <code>_USE_MATH_DEFINES</code> before including <code>&lt;cmath&gt;</code>, or replace with a portable <picture><source srcset="form_5_dark.png" media="(prefers-color-scheme: dark)"/><img class="formulaInl" alt="$\pi$" src="form_5.png"/></picture> if needed.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">basis0</td><td>First basis (rows). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">basis1</td><td>Second basis (columns). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Matrix of shape <code>basis0.n_primitives()</code> x <code>basis1.n_primitives()</code>. </dd></dl>
+
+</div>
+</div>
+<a id="a72076727f341eefdc23e916b5f723375" name="a72076727f341eefdc23e916b5f723375"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a72076727f341eefdc23e916b5f723375">&#9670;&#160;</a></span>gamma_ij()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto integrals::libint::detail_::gamma_ij </td>
+          <td>(</td>
+          <td class="paramtype">const simde::type::ao_basis_set &amp;&#160;</td>
+          <td class="paramname"><em>basis0</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const simde::type::ao_basis_set &amp;&#160;</td>
+          <td class="paramname"><em>basis1</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sum of exponents <picture><source srcset="form_0_dark.png" media="(prefers-color-scheme: dark)"/><img class="formulaInl" alt="$\gamma_{ij} = \alpha_i + \alpha_j$" src="form_0.png"/></picture> for each primitive pair. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">basis0</td><td>First basis (rows). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">basis1</td><td>Second basis (columns). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Matrix of shape <code>n_prims0</code> x <code>n_prims1</code>. </dd></dl>
+
+</div>
+</div>
 <a id="a20dffdd5b3585afb0a639087d7b3ced7" name="a20dffdd5b3585afb0a639087d7b3ced7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a20dffdd5b3585afb0a639087d7b3ced7">&#9670;&#160;</a></span>get_basis_sets()</h2>
 
@@ -233,6 +386,52 @@ template&lt;typename BraType , typename KetType &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The number of basis sets in the Bra and Ket </dd></dl>
+
+</div>
+</div>
+<a id="a32192e4d23c4d8f93e1dd2f167f7c03a" name="a32192e4d23c4d8f93e1dd2f167f7c03a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32192e4d23c4d8f93e1dd2f167f7c03a">&#9670;&#160;</a></span>k_ij()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto integrals::libint::detail_::k_ij </td>
+          <td>(</td>
+          <td class="paramtype">const simde::type::ao_basis_set &amp;&#160;</td>
+          <td class="paramname"><em>basis0</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const simde::type::ao_basis_set &amp;&#160;</td>
+          <td class="paramname"><em>basis1</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Overlap-style factor <picture><source srcset="form_1_dark.png" media="(prefers-color-scheme: dark)"/><img class="formulaInl" alt="$\exp(-\rho_{ij} R_{AB}^2)$" src="form_1.png"/></picture> with <picture><source srcset="form_2_dark.png" media="(prefers-color-scheme: dark)"/><img class="formulaInl" alt="$\rho_{ij} = \alpha_i \alpha_j / \gamma_{ij}$" src="form_2.png"/></picture>. Primitive centers come from Chemist geometry. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">basis0</td><td>First basis (rows). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">basis1</td><td>Second basis (columns). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Matrix of shape <code>basis0.n_primitives()</code> x <code>basis1.n_primitives()</code>. </dd></dl>
 
 </div>
 </div>

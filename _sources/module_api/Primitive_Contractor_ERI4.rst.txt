@@ -30,15 +30,18 @@ The algorithm proceeds in three steps:
    the decontracted basis (primitive index varying fastest within each
    (shell, ao_component) block).
 
-3. The contracted AO integrals are formed by:
+3. Matrices of pair estimates are computed for bra and ket basis sets. K and
+   K' are respectively coarse estimates for bra and ket basis sets. Q and Q' are
+   respectively fine estimates for bra and ket basis sets.
 
-     AO[mu, nu, lam, sig] =
-       sum_{i in prims(mu)} sum_{j in prims(nu)}
-       sum_{k in prims(lam)} sum_{l in prims(sig)}
-         c0[i] * c1[j] * c2[k] * c3[l] * prim_ERI[i, j, k, l]
+4. The contracted AO integrals are formed by summing
+   c0[i]*c1[j]*c2[k]*c3[l]*prim_ERI[i,j,k,l] with screening:
 
-   where prims(mu) is the set of decontracted AO indices that belong to the
-   same contracted AO mu (same shell, same AO component, all primitives).
+   Coarse (from `coarse_k_ij`):
+   - Skip bra pair (i,j) if K[i,j] < t
+   - Skip ket pair (k,l) if K'[k,l] < t
+   - Skip quartet if K[i,j] * K'[k,l] <= t (libint keeps only sums > ln(t))
+   - Skip if |Q[i,j] * Q'[k,l] / sqrt(gamma_bra + gamma_ket)| < t.
 
 
 ***********
@@ -74,11 +77,13 @@ module. The columns are:
 - ``Default`` : The initial value, if one exists, and
 - ``Description`` : A human readable description of what the option is used for.
 
-+--------+---------+-------------+
-| Key    | Default | Description |
-+========+=========+=============+
-| BraKet | N/A     | N/A         |
-+--------+---------+-------------+
++---------------------+---------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Key                 | Default | Description                                                                                                                                                 |
++=====================+=========+=============================================================================================================================================================+
+| BraKet              | N/A     | N/A                                                                                                                                                         |
++---------------------+---------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Screening Threshold | 1e-16   | Coarse screening uses the PrimitivePairEstimator matrices; fine screening uses libint ShellPair geometry factors. Matches libint ScreeningMethod::Original. |
++---------------------+---------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 
 Detailed Descriptions
@@ -104,6 +109,17 @@ BraKet
 - Domain Restrictions :
 
   - Type == chemist::braket::BraKet<std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>, chemist::qm_operator::Coulomb<chemist::Electron, chemist::Electron>, std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>>
+
+Screening Threshold
+-------------------
+
+- Description : Coarse screening uses the PrimitivePairEstimator matrices; fine screening uses libint ShellPair geometry factors. Matches libint ScreeningMethod::Original.
+- Default Value : 1e-16
+- Optional? : False
+- Opaque? : True
+- Domain Restrictions :
+
+  - Type == double
 
 
 **************

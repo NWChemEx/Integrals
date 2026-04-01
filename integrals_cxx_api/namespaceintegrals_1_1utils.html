@@ -130,6 +130,12 @@ Functions</h2></td></tr>
 <tr class="memitem:af5e0d84d24afbb5d15aaac1240601123"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1utils.html#af5e0d84d24afbb5d15aaac1240601123">get_permutations_with_sigma</a> (T &amp;&amp;abcd, bool p0_1, bool p2_3, bool p01_23)</td></tr>
 <tr class="memdesc:af5e0d84d24afbb5d15aaac1240601123"><td class="mdescLeft">&#160;</td><td class="mdescRight">Like get_permutations but also returns the index permutation sigma for each result, where sigma[d] is the canonical dimension that permuted dimension d came from: perm[d] == abcd[sigma[d]].  <br /></td></tr>
 <tr class="separator:af5e0d84d24afbb5d15aaac1240601123"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d7399e983f17f43c3eb23cf41a6be57" id="r_a9d7399e983f17f43c3eb23cf41a6be57"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1utils.html#a9d7399e983f17f43c3eb23cf41a6be57">build_prim_ao_to_prim_shell_map</a> (const simde::type::ao_basis_set &amp;bs)</td></tr>
+<tr class="memdesc:a9d7399e983f17f43c3eb23cf41a6be57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a map from a primitive AO index to a primitive shell index.  <br /></td></tr>
+<tr class="separator:a9d7399e983f17f43c3eb23cf41a6be57"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae77c6b40af58f9552fa0e25dd0be1e6e" id="r_ae77c6b40af58f9552fa0e25dd0be1e6e"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1utils.html#ae77c6b40af58f9552fa0e25dd0be1e6e">build_prim_ao_to_cgto_map</a> (const simde::type::ao_basis_set &amp;bs)</td></tr>
+<tr class="memdesc:ae77c6b40af58f9552fa0e25dd0be1e6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maps a primitive AO index to a contracted AO index.  <br /></td></tr>
+<tr class="separator:ae77c6b40af58f9552fa0e25dd0be1e6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a528d18a3fcaf793e5a07b3e750f5bb2e" id="r_a528d18a3fcaf793e5a07b3e750f5bb2e"><td class="memTemplParams" colspan="2"><a id="a528d18a3fcaf793e5a07b3e750f5bb2e" name="a528d18a3fcaf793e5a07b3e750f5bb2e"></a>
 template&lt;typename TensorType , typename IterType &gt; </td></tr>
 <tr class="memitem:a528d18a3fcaf793e5a07b3e750f5bb2e"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><b>rank2_shell_norm</b> (TensorType &amp;&amp;buffer, std::array&lt; IterType, 4 &gt; offsets, std::array&lt; IterType, 4 &gt; naos)</td></tr>
@@ -175,6 +181,77 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>load_modules</b> (plu
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The namespace for general utility modules for integrals. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="ae77c6b40af58f9552fa0e25dd0be1e6e" name="ae77c6b40af58f9552fa0e25dd0be1e6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae77c6b40af58f9552fa0e25dd0be1e6e">&#9670;&#160;</a></span>build_prim_ao_to_cgto_map()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::size_t &gt; integrals::utils::build_prim_ao_to_cgto_map </td>
+          <td>(</td>
+          <td class="paramtype">const simde::type::ao_basis_set &amp;&#160;</td>
+          <td class="paramname"><em>bs</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Maps a primitive AO index to a contracted AO index. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">bs</td><td>The basis set to build the map for. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A vector whose length is the number of primitive AO indices in the basis set. The value at index i is the index of the contracted AO that the i-th primitive AO belongs to. </dd></dl>
+
+</div>
+</div>
+<a id="a9d7399e983f17f43c3eb23cf41a6be57" name="a9d7399e983f17f43c3eb23cf41a6be57"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d7399e983f17f43c3eb23cf41a6be57">&#9670;&#160;</a></span>build_prim_ao_to_prim_shell_map()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::size_t &gt; integrals::utils::build_prim_ao_to_prim_shell_map </td>
+          <td>(</td>
+          <td class="paramtype">const simde::type::ao_basis_set &amp;&#160;</td>
+          <td class="paramname"><em>bs</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Build a map from a primitive AO index to a primitive shell index. </p>
+<p>A contracted shell is a linear combination of primitive shells. Similarly, a contracted AO is a linear combination of primitive AOs. Given the offset of a primitive AO, this function returns the offset of the corresponding primitive shell.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">bs</td><td>The basis set to build the map for. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A vector whose length is the number of primitive AO indices in the basis set. The value at index i is the primitive shell index that the i-th primitive AO belongs to. </dd></dl>
+
+</div>
+</div>
 <a id="a8ad83297f2988dcdbf87468ac46dc427" name="a8ad83297f2988dcdbf87468ac46dc427"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8ad83297f2988dcdbf87468ac46dc427">&#9670;&#160;</a></span>get_permutations()</h2>
 

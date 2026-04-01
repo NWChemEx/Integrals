@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['declare_5fmodule_0',['DECLARE_MODULE',['../namespaceintegrals_1_1libint.html#a43ca041750a660d2c45848f933c87264',1,'integrals::libint']]],
-  ['declare_5fplugin_1',['DECLARE_PLUGIN',['../namespaceintegrals.html#a8060f98ec1ad9ba275c573fc1baff3dc',1,'integrals']]]
+  ['build_5fprim_5fao_5fto_5fcgto_5fmap_0',['build_prim_ao_to_cgto_map',['../namespaceintegrals_1_1utils.html#ae77c6b40af58f9552fa0e25dd0be1e6e',1,'integrals::utils']]],
+  ['build_5fprim_5fao_5fto_5fprim_5fshell_5fmap_1',['build_prim_ao_to_prim_shell_map',['../namespaceintegrals_1_1utils.html#a9d7399e983f17f43c3eb23cf41a6be57',1,'integrals::utils']]]
 ];

@@ -1,0 +1,20 @@
+<map id="src/integrals/libint/detail_/primitive_pair_estimators.hpp" name="src/integrals/libint/detail_/primitive_pair_estimators.hpp">
+<area shape="rect" id="Node000001" title="Dense primitive&#45;pair matrices for ERI screening and prefactors." alt="" coords="484,5,649,60"/>
+<area shape="rect" id="Node000002" href="$make__libint__basis__set_8hpp_source.html" title=" " alt="" coords="269,108,464,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="507,63,407,105,405,100,505,58"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="531,181,594,207"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="566,61,561,108,561,133,563,168,558,168,556,133,556,108,560,60"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="570,108,633,133"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="580,59,594,94,589,96,575,61"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="657,108,791,133"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="616,58,692,99,690,104,613,62"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,181,61,207"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="304,136,75,184,74,179,303,131"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="86,181,237,207"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="335,136,208,179,207,174,333,131"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="261,181,352,207"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="359,135,327,173,323,169,355,132"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="376,181,507,207"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="380,131,421,170,417,174,377,135"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="399,131,519,174,518,179,397,136"/>
+</map>
