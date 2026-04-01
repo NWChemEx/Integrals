@@ -17,12 +17,18 @@
 /** @file primitive_pair_estimators.hpp
  *  @brief Dense primitive-pair matrices for ERI screening and prefactors.
  *
- *  These helpers build `n_primitives(basis0) x n_primitives(basis1)` matrices.
- *  Row index `i` is the i-th primitive in @p basis0. Column `j` is the j-th
- *  primitive in @p basis1.
+ *  These helpers build `n_primitives(basis0) x n_primitives(basis1)` matrices
+ *  for two `simde::type::ao_basis_set` arguments.
  *
- *  `coarse_k_ij` and `fine_k_ij` use libint-normalized coefficients from
- *  `make_libint_basis_set` and assume one contraction per shell (`contr[0]`).
+ *  **Indexing:** Row `i` is the `i`-th primitive in @p basis0 (Chemist
+ *  flattening: shells in declaration order, primitives fastest within each
+ *  shell). Column `j` is the `j`-th primitive in @p basis1. This matches the
+ *  primitive order used by `BlackBoxPrimitiveEstimator` and libint
+ *  `make_libint_basis_set`.
+ *
+ *  The **coarse** path uses libint-normalized coefficients from
+ *  `make_libint_basis_set` and assumes **one contraction per shell**
+ *  (`contr[0]`), matching the current implementation.
  */
 
 #pragma once
@@ -36,13 +42,9 @@ namespace integrals::libint::detail_ {
 /** @brief Sum of exponents @f$\gamma_{ij} = \alpha_i + \alpha_j@f$ for each
  *         primitive pair.
  *
- *  The quantity @f$\gamma_{ij}@f$, which is the sum of the exponents, shows up
- in a number of equations concerning
- *  Gaussian integrals. This function factors out computing @f$\gamma@f$.
-
  *  @param[in] basis0 First basis (rows).
  *  @param[in] basis1 Second basis (columns).
- *  @return Matrix of shape `basis0.n_primitives()` x `basis1.n_primitives()`.
+ *  @return Matrix of shape `n_prims0` x `n_prims1`.
  */
 inline auto gamma_ij(const simde::type::ao_basis_set& basis0,
                      const simde::type::ao_basis_set& basis1) {
@@ -61,9 +63,9 @@ inline auto gamma_ij(const simde::type::ao_basis_set& basis0,
     return gamma;
 }
 
-/** @brief Gaussian overlap factor @f$\exp(-\rho_{ij} R_{AB}^2)@f$ with
- *         @f$\rho_{ij} = \alpha_i \alpha_j / \gamma_{ij}@f$.
- *
+/** @brief Overlap-style factor @f$\exp(-\rho_{ij} R_{AB}^2)@f$ with
+ *         @f$\rho_{ij} = \alpha_i \alpha_j / \gamma_{ij}@f$. Primitive centers
+ *         come from Chemist geometry.
  *
  *  @param[in] basis0 First basis (rows).
  *  @param[in] basis1 Second basis (columns).
@@ -138,10 +140,15 @@ inline auto coarse_k_ij(const simde::type::ao_basis_set& basis0,
     return K;
 }
 
-/** @brief Fine screening-style estimate: `coarse_k_ij` multiplied by
- *         @f$\sqrt{2} \pi^{5/4} / \gamma_{ij}@f$.
+/** @brief Fine screening-style estimate: `coarse_k_ij` scaled by
+ *         @f$\sqrt{2}\,\pi^{5/4} / \gamma_{ij}@f$. Up to floating-point detail,
+ *         this matches libint `ShellPair` `pp.K` times the same coefficient
+ *         product used in `coarse_k_ij`.
  *
- * Assumes one contraction per shell.
+ *  Assumes one contraction per shell.
+ *
+ *  @note Uses `M_PI` from `<cmath>`. On MSVC, define `_USE_MATH_DEFINES` before
+ *        including `<cmath>`, or replace with a portable @f$\pi@f$ if needed.
  *
  *  @param[in] basis0 First basis (rows).
  *  @param[in] basis1 Second basis (columns).
