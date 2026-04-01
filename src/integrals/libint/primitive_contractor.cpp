@@ -16,6 +16,7 @@
 
 #include "../utils/primitive_index_helpers.hpp"
 #include "detail_/make_libint_basis_set.hpp"
+#include "detail_/primitive_pair_estimators.hpp"
 #include "libint.hpp"
 #include <cmath>
 #include <integrals/property_types.hpp>
@@ -114,9 +115,9 @@ MODULE_RUN(PrimitiveContractor) {
     const auto& c3 = norm_mod.run_as<norm_pt>(bs3);
 
     // Step 3: coarse screening matrices from PrimitivePairEstimator.
-    auto& est_mod        = submods.at("Primitive Pair Estimator");
-    const auto& K_tensor = est_mod.run_as<est_pt>(bs0, bs1);
-    const auto& Q_tensor = est_mod.run_as<est_pt>(bs2, bs3);
+    auto& est_mod    = submods.at("Primitive Pair Estimator");
+    const auto K_bra = detail_::coarse_k_ij(bs0, bs1);
+    const auto k_ket = detail_::coarse_k_ij(bs2, bs3);
 
     auto map0 = utils::build_prim_ao_to_cgto_map(bs0);
     auto map1 = utils::build_prim_ao_to_cgto_map(bs1);
@@ -149,13 +150,6 @@ MODULE_RUN(PrimitiveContractor) {
     const Eigen::Index nk1 = static_cast<Eigen::Index>(bs1.n_primitives());
     const Eigen::Index nq2 = static_cast<Eigen::Index>(bs2.n_primitives());
     const Eigen::Index nq3 = static_cast<Eigen::Index>(bs3.n_primitives());
-
-    const auto kdata = buffer::get_raw_data<double>(K_tensor.buffer());
-    const auto qdata = buffer::get_raw_data<double>(Q_tensor.buffer());
-    using est_map_t =
-      Eigen::TensorMap<Eigen::Tensor<const double, 2, Eigen::RowMajor>>;
-    est_map_t K(kdata.data(), nk0, nk1);
-    est_map_t Q(qdata.data(), nq2, nq3);
 
     // Fine screening: libint's p.K and gamma for every primitive pair
     // (permissive ln_prec so primpairs lists are complete).
@@ -228,7 +222,7 @@ MODULE_RUN(PrimitiveContractor) {
         const Eigen::Index pi = pmap0[i];
         for(Eigen::Index j = 0; j < np1; ++j) {
             const Eigen::Index pj = pmap1[j];
-            const double K_ij     = K(pi, pj);
+            const double K_ij     = K_bra[pi][pj];
             if(K_ij < thresh) continue;
             const double cij      = ci * c1[j];
             const Eigen::Index nu = map1[j];
@@ -238,7 +232,7 @@ MODULE_RUN(PrimitiveContractor) {
                 const Eigen::Index pk  = pmap2[k];
                 for(Eigen::Index l = 0; l < np3; ++l) {
                     const Eigen::Index pl = pmap3[l];
-                    const double Q_kl     = Q(pk, pl);
+                    const double Q_kl     = k_ket[pk][pl];
                     if(Q_kl < thresh) continue;
                     if(K_ij * Q_kl <= thresh) continue;
                     const double Kgb  = bra_geom_K[pi][pj];
