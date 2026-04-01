@@ -26,25 +26,45 @@ TEST_CASE("Primitive Contractor ERI4") {
     REQUIRE(mm.count("Primitive Contractor ERI4"));
     REQUIRE(mm.count("ERI4"));
 
-    auto aobs = water_sto3g_basis_set();
-    for(const auto& type :
-        {chemist::ShellType::cartesian, chemist::ShellType::pure}) {
-        for(const auto& l : {1, 2, 3}) {
-            aobs.shell(2).l()    = l;
-            aobs.shell(2).pure() = type;
-            simde::type::aos aos(aobs);
-            simde::type::aos_squared aos_squared(aos, aos);
+    auto corr_mod = mm.at("ERI4");
+    auto test_mod = mm.at("Primitive Contractor ERI4");
 
-            simde::type::v_ee_type op{};
+    auto aobs               = water_sto3g_basis_set();
+    const auto is_cartesian = chemist::ShellType::cartesian;
+    const auto is_pure      = chemist::ShellType::pure;
+    for(const auto& type : {is_cartesian, is_pure}) {
+        const auto type_str =
+          (type == is_cartesian) ? "Cartesian" : "Spherical";
+        SECTION(type_str) {
+            for(const auto& l : {1, 2, 3}) {
+                SECTION("Angular Momentum: " + std::to_string(l)) {
+                    aobs.shell(2).l()    = l;
+                    aobs.shell(2).pure() = type;
+                    simde::type::aos aos(aobs);
+                    simde::type::aos_squared aos_squared(aos, aos);
+                    simde::type::v_ee_type op{};
+                    chemist::braket::BraKet braket(aos_squared, op,
+                                                   aos_squared);
 
-            chemist::braket::BraKet braket(aos_squared, op, aos_squared);
-            auto corr_mod = mm.at("ERI4");
-            auto test_mod = mm.at("Primitive Contractor ERI4");
+                    for(const auto& thresh : {1e-16, 1e-8, 1e-6}) {
+                        SECTION("Screening Threshold: " +
+                                std::to_string(thresh)) {
+                            auto test_mod_copy = test_mod.unlocked_copy();
+                            test_mod_copy.change_input("Screening Threshold",
+                                                       thresh);
 
-            auto T_contracted = test_mod.run_as<test_pt>(braket);
-            auto T_eri4       = corr_mod.run_as<test_pt>(braket);
+                            auto corr_mod_copy = corr_mod.unlocked_copy();
+                            corr_mod_copy.change_input("Threshold", thresh);
+                            auto T_contracted =
+                              test_mod_copy.run_as<test_pt>(braket);
+                            auto T_eri4 = corr_mod_copy.run_as<test_pt>(braket);
 
-            REQUIRE(approximately_equal(T_contracted, T_eri4, 1.0e-14));
+                            REQUIRE(approximately_equal(T_contracted, T_eri4,
+                                                        1.0e-14));
+                        }
+                    }
+                }
+            }
         }
     }
 }
