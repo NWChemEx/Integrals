@@ -71,8 +71,8 @@ TEST_CASE("Four center J builder") {
         // Disclaimer: these values are just what was output by the first run
         // they may not actually be correct. FWIW, the means are right
         std::vector<udouble> corr{
-          udouble{0.56044, 4.52277e-07}, udouble{0.247036, 7.702e-06},
-          udouble{0.247036, 7.702e-06}, udouble{0.56044, 4.52277e-07}};
+          udouble{0.56044, 0.00000180910922372}, udouble{0.247036, 7.702e-06},
+          udouble{0.247036, 7.702e-06}, udouble{0.56044, 0.00000180910922372}};
 
         REQUIRE(t(0, 0).mean() == Catch::Approx(corr[0].mean()).margin(1E-6));
         REQUIRE(t(0, 0).sd() == Catch::Approx(corr[0].sd()).margin(1E-6));

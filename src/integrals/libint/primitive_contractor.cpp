@@ -161,6 +161,7 @@ MODULE_RUN(PrimitiveContractor) {
             const auto gamma_ij = gamma_bra[pi][pj];
             const auto Q_ij     = Q_bra[pi][pj];
 
+            if(K_ij < thresh) continue;
             for(std::size_t pshell_k = 0; pshell_k < nprims[2]; ++pshell_k) {
                 const auto lam    = map2[pshell_k];
                 const auto pk     = pmap2[pshell_k];
