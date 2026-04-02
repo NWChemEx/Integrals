@@ -38,7 +38,7 @@ auto geometric_mean(const ContainerType& values) {
     std::size_t non_zero_count = 0;
     for(const auto& val : values) {
         if(val == 0) continue;
-        log_sum += std::log(val);
+        log_sum += std::log(std::fabs(val));
         ++non_zero_count;
     }
     if(non_zero_count == 0 || log_sum == 0) return float_type{0};
