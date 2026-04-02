@@ -5,7 +5,20 @@
 Primitive Error Model
 #####################
 
-Compute uncertainty estimates for ERI4 integrals
+
+Primitive Error Model
+=====================
+
+Uncertainty tensor for ERI4 primitive screening aligned with
+`PrimitiveContractor`: same decontracted primitive-AO quadruple loop and the
+same coarse / fine gates as libint `ScreeningMethod::Original` (coarse
+`coarse_k_ij`, fine `fine_k_ij` with `gamma_ij`).
+
+For each decontracted quartet that would be skipped by the contractor, this
+module accumulates one of three per-quartet estimates into the corresponding
+contracted AO element: fixed `Tolerance`, coarse pair product
+`K_ij * K_kl`, or fine metric `|Q_ij Q_kl| / sqrt(gamma_ij + gamma_kl)`.
+
 
 ***********
 Please Cite
@@ -40,15 +53,15 @@ module. The columns are:
 - ``Default`` : The initial value, if one exists, and
 - ``Description`` : A human readable description of what the option is used for.
 
-+-----------+---------+-------------------------+
-| Key       | Default | Description             |
-+===========+=========+=========================+
-| BraKet    | N/A     | N/A                     |
-+-----------+---------+-------------------------+
-| Tolerance | N/A     | The screening threshold |
-+-----------+---------+-------------------------+
-| Use Tol   | 1       | N/A                     |
-+-----------+---------+-------------------------+
++----------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Key            | Default   | Description                                                                                                                                                               |
++================+===========+===========================================================================================================================================================================+
+| BraKet         | N/A       | N/A                                                                                                                                                                       |
++----------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Error estimate | Tolerance | Per skipped primitive quartet: "Tolerance" adds the screening threshold; "Coarse" adds K_ij*K_kl; "Fine" adds the fine-screen metric |Q_ij Q_kl|/sqrt(gamma_ij+gamma_kl). |
++----------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Tolerance      | N/A       | The screening threshold                                                                                                                                                   |
++----------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 
 Detailed Descriptions
@@ -75,6 +88,17 @@ BraKet
 
   - Type == chemist::braket::BraKet<std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>, chemist::qm_operator::Coulomb<chemist::Electron, chemist::Electron>, std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>>
 
+Error estimate
+--------------
+
+- Description : Per skipped primitive quartet: "Tolerance" adds the screening threshold; "Coarse" adds K_ij*K_kl; "Fine" adds the fine-screen metric |Q_ij Q_kl|/sqrt(gamma_ij+gamma_kl).
+- Default Value : Tolerance
+- Optional? : False
+- Opaque? : True
+- Domain Restrictions :
+
+  - Type == std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>
+
 Tolerance
 ---------
 
@@ -85,17 +109,6 @@ Tolerance
 - Domain Restrictions :
 
   - Type == double
-
-Use Tol
--------
-
-- Description : N/A
-- Default Value : 1
-- Optional? : False
-- Opaque? : True
-- Domain Restrictions :
-
-  - Type == bool
 
 
 **************
@@ -126,15 +139,5 @@ columns respectively are:
 Submodules
 **********
 
-This section details the full list of submodules that the module uses. For each
-submodule we have listed:
+The module defines no submodules.
 
-- Key : The key used to refer to this particular callback.
-- Property Type : The property type that the submodule must satisfy.
-- Description : How the module will use the submodule.
-
-+------------------------------------+---------------------------------------------------+-------------------------------------------------------------------------------------------------+
-| Key                                | Property Type                                     | Description                                                                                     |
-+====================================+===================================================+=================================================================================================+
-| Black Box Primitive Pair Estimator | integrals::property_types::PrimitivePairEstimator | The module used to estimate the contributions of primitive pairs to the overall integral values |
-+------------------------------------+---------------------------------------------------+-------------------------------------------------------------------------------------------------+
