@@ -19,8 +19,11 @@
 
 /* This example showcases how to:
  *
- *  1. Compute the analytic error in an ERI4 integral tensor owing to primitive
- *     pair screening.
+ *  1. Compute the analytic error in an ERI4 tensor from changing the Libint
+ *     integral threshold (benchmark vs screened ERI4).
+ *  2. Compute a primitive-screening uncertainty model aligned with
+ *     PrimitiveContractor (see module "Error estimate": Tolerance, Coarse,
+ *     Fine).
  */
 
 namespace {
@@ -78,13 +81,16 @@ int main(int argc, char* argv[]) {
     // Make BraKet
     chemist::braket::BraKet mnls(aos2, op, aos2);
 
-    // Compute the error by screening with tolerance "tol"
+    // Analytic: difference between unscreened and Libint-screened ERI4 at tol.
+    // Primitive error model: sum of per-skipped-quartet estimates (default
+    // "Tolerance" mode adds tol per skip; use module input "Error estimate").
     double tol        = 1E-10;
     auto error        = analytic_error_mod.run_as<eri4_error_pt>(mnls, tol);
     auto approx_error = error_model.run_as<eri4_error_pt>(mnls, tol);
 
-    std::cout << "Analytic error: " << error << std::endl;
-    std::cout << "Estimated error: " << approx_error << std::endl;
+    std::cout << "Analytic error (integral threshold): " << error << std::endl;
+    std::cout << "Primitive screening error model: " << approx_error
+              << std::endl;
 
     return 0;
 }

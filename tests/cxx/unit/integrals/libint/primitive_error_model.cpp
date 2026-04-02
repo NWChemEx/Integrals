@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
+#include <integrals/libint/detail_/primitive_pair_estimators.hpp>
+#undef DEPRECATED
 #include "../testing/testing.hpp"
+#include <array>
+#include <cmath>
 #include <integrals/integrals.hpp>
+#include <integrals/utils/primitive_index_helpers.hpp>
 
 using eri4_pt = simde::ERI4;
 using pt      = integrals::property_types::Uncertainty<eri4_pt>;
@@ -24,92 +29,131 @@ using namespace integrals::testing;
 
 namespace {
 
-template<typename T0, typename T1>
-bool compare_magnitudes(T0&& lhs, T1&& corr, double tol) {
-    using float_type = double;
-    using tensorwrapper::buffer::get_raw_data;
-    const auto lhs_buffer  = get_raw_data<float_type>(lhs.buffer());
-    const auto corr_buffer = get_raw_data<float_type>(corr.buffer());
-    assert(lhs_buffer.size() == corr_buffer.size());
+using integrals::libint::detail_::coarse_k_ij;
+using integrals::libint::detail_::fine_k_ij;
+using integrals::libint::detail_::gamma_ij;
 
-    for(std::size_t i = 0; i < lhs_buffer.size(); ++i) {
-        auto lhs_val  = lhs_buffer[i];
-        auto corr_val = corr_buffer[i];
-        if(lhs_val == 0.0 && corr_val == 0.0) {
-            continue;
-        } else if(lhs_val == 0.0 || corr_val == 0.0) {
-            auto abs_diff = std::fabs(lhs_val - corr_val);
-            if(abs_diff > 10 * tol) {
-                std::cout << "Absolute diff: " << abs_diff << std::endl;
-                return false;
+bool quartet_skipped(double K_ij, double K_kl, double Q_ij, double Q_kl,
+                     double gamma_ij, double gamma_kl, double thresh) {
+    if(K_ij < thresh) return true;
+    if(K_kl < thresh) return true;
+    if(K_ij * K_kl <= thresh) return true;
+    const double g    = gamma_ij + gamma_kl;
+    const double pfac = std::abs(Q_ij * Q_kl / std::sqrt(g));
+    return pfac < thresh;
+}
+
+struct SkipTotals {
+    std::size_t n_skip;
+    double sum_coarse;
+    double sum_fine;
+};
+
+SkipTotals reference_skip_totals(const simde::type::ao_basis_set& bs0,
+                                 const simde::type::ao_basis_set& bs1,
+                                 const simde::type::ao_basis_set& bs2,
+                                 const simde::type::ao_basis_set& bs3,
+                                 double thresh) {
+    const auto K_bra     = coarse_k_ij(bs0, bs1);
+    const auto K_ket     = coarse_k_ij(bs2, bs3);
+    const auto gamma_bra = gamma_ij(bs0, bs1);
+    const auto gamma_ket = gamma_ij(bs2, bs3);
+    const auto Q_bra     = fine_k_ij(bs0, bs1);
+    const auto Q_ket     = fine_k_ij(bs2, bs3);
+
+    auto map0  = integrals::utils::build_prim_ao_to_cgto_map(bs0);
+    auto map1  = integrals::utils::build_prim_ao_to_cgto_map(bs1);
+    auto map2  = integrals::utils::build_prim_ao_to_cgto_map(bs2);
+    auto map3  = integrals::utils::build_prim_ao_to_cgto_map(bs3);
+    auto pmap0 = integrals::utils::build_prim_ao_to_prim_shell_map(bs0);
+    auto pmap1 = integrals::utils::build_prim_ao_to_prim_shell_map(bs1);
+    auto pmap2 = integrals::utils::build_prim_ao_to_prim_shell_map(bs2);
+    auto pmap3 = integrals::utils::build_prim_ao_to_prim_shell_map(bs3);
+
+    std::array<std::size_t, 4> nprims{map0.size(), map1.size(), map2.size(),
+                                      map3.size()};
+    SkipTotals out{0, 0.0, 0.0};
+
+    for(std::size_t i = 0; i < nprims[0]; ++i) {
+        const auto pi = pmap0[i];
+        for(std::size_t j = 0; j < nprims[1]; ++j) {
+            const auto pj     = pmap1[j];
+            const double K_ij = K_bra[pi][pj];
+            const double g_ij = gamma_bra[pi][pj];
+            const double Q_ij = Q_bra[pi][pj];
+            for(std::size_t k = 0; k < nprims[2]; ++k) {
+                const auto pk = pmap2[k];
+                for(std::size_t l = 0; l < nprims[3]; ++l) {
+                    const auto pl     = pmap3[l];
+                    const double K_kl = K_ket[pk][pl];
+                    const double g_kl = gamma_ket[pk][pl];
+                    const double Q_kl = Q_ket[pk][pl];
+                    if(!quartet_skipped(K_ij, K_kl, Q_ij, Q_kl, g_ij, g_kl,
+                                        thresh)) {
+                        continue;
+                    }
+                    ++out.n_skip;
+                    out.sum_coarse += K_ij * K_kl;
+                    out.sum_fine +=
+                      std::abs(Q_ij * Q_kl / std::sqrt(g_ij + g_kl));
+                }
             }
-            continue;
-        }
-        auto lhs_mag  = std::log10(std::fabs(lhs_val));
-        auto corr_mag = std::log10(std::fabs(corr_val));
-        if(lhs_mag != Catch::Approx(corr_mag).epsilon(0.2)) {
-            auto pct_error = (lhs_mag - corr_mag) / corr_mag;
-            std::cout << lhs_mag << " " << corr_mag << " " << pct_error
-                      << std::endl;
-            return false;
         }
     }
-    return true;
+    return out;
+}
+
+double buffer_sum(const simde::type::tensor& t) {
+    using tensorwrapper::buffer::get_raw_data;
+    const auto buf = get_raw_data<double>(t.buffer());
+    double s       = 0.0;
+    for(double x : buf) s += x;
+    return s;
 }
 
 } // namespace
 
 TEST_CASE("PrimitiveErrorModel") {
-    auto mm          = initialize_integrals();
-    auto& mod        = mm.at("Primitive Error Model");
-    auto& anal_error = mm.at("Analytic Error");
+    auto mm   = initialize_integrals();
+    auto& mod = mm.at("Primitive Error Model");
     simde::type::v_ee_type v_ee{};
 
-    SECTION("Single (ss|ss) quartet") {
-        auto [bra0, bra1, ket0, ket1] = get_h2_dimer_0312_bases();
-        simde::type::aos_squared bra(bra0, bra1);
-        simde::type::aos_squared ket(ket0, ket1);
-        chemist::braket::BraKet mnls(bra, v_ee, ket);
+    auto run_mode = [&](auto&& bk, double tol, const std::string& mode) {
+        auto copy = mod.unlocked_copy();
+        copy.change_input("Error estimate", mode);
+        return copy.run_as<pt>(bk, tol);
+    };
 
-        double tol = 1E-10;
-        auto error = mod.run_as<pt>(mnls, tol);
-        auto corr  = anal_error.run_as<pt>(mnls, tol);
-        REQUIRE(compare_magnitudes(error, corr, tol));
-    }
-
-    SECTION("H2 molecule") {
+    SECTION("aggregate sums match reference skip totals (H2 STO-3G)") {
         auto aobs = h2_sto3g_basis_set();
         simde::type::aos_squared bra(aobs, aobs);
         simde::type::aos_squared ket(aobs, aobs);
         chemist::braket::BraKet mnls(bra, v_ee, ket);
 
-        double tol = 1E-6;
-        auto error = mod.run_as<pt>(mnls, tol);
-        auto corr  = anal_error.run_as<pt>(mnls, tol);
-        REQUIRE(compare_magnitudes(error, corr, tol));
+        const double tol = 1e-12;
+        auto ref         = reference_skip_totals(aobs, aobs, aobs, aobs, tol);
+
+        auto t_tol    = run_mode(mnls, tol, "Tolerance");
+        auto t_coarse = run_mode(mnls, tol, "Coarse");
+        auto t_fine   = run_mode(mnls, tol, "Fine");
+
+        REQUIRE(
+          buffer_sum(t_tol) ==
+          Catch::Approx(static_cast<double>(ref.n_skip) * tol).margin(1e-20));
+        REQUIRE(buffer_sum(t_coarse) ==
+                Catch::Approx(ref.sum_coarse).margin(1e-10));
+        REQUIRE(buffer_sum(t_fine) ==
+                Catch::Approx(ref.sum_fine).margin(1e-10));
     }
 
-    SECTION("Water/STO-3G(00|34)") {
-        auto [bra0, bra1, ket0, ket1] = get_h2o_0034_bases();
-        simde::type::aos_squared bra(bra0, bra1);
-        simde::type::aos_squared ket(ket0, ket1);
-        chemist::braket::BraKet mnls(bra, v_ee, ket);
-
-        double tol = 1E-10;
-        auto error = mod.run_as<pt>(mnls, tol);
-        auto corr  = anal_error.run_as<pt>(mnls, tol);
-        REQUIRE(compare_magnitudes(error, corr, tol));
-    }
-
-    SECTION("H2O molecule") {
-        auto aobs = water_sto3g_basis_set();
+    SECTION("invalid Error estimate throws") {
+        auto aobs = h2_sto3g_basis_set();
         simde::type::aos_squared bra(aobs, aobs);
         simde::type::aos_squared ket(aobs, aobs);
         chemist::braket::BraKet mnls(bra, v_ee, ket);
 
-        double tol = 1E-10;
-        auto error = mod.run_as<pt>(mnls, tol);
-        auto corr  = anal_error.run_as<pt>(mnls, tol);
-        REQUIRE(compare_magnitudes(error, corr, tol));
+        auto copy = mod.unlocked_copy();
+        copy.change_input("Error estimate", std::string("not_a_mode"));
+        REQUIRE_THROWS_AS(copy.run_as<pt>(mnls, 1e-10), std::invalid_argument);
     }
 }
