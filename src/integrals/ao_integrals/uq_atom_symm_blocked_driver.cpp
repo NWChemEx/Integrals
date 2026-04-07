@@ -29,17 +29,37 @@ namespace {
 template<typename FloatType, typename T, typename Tensor>
 auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
                    utils::mean_type mean) {
-    std::vector<FloatType> buffer;
+#ifdef ENABLE_SIGMA
+    using uq_type   = sigma::Uncertain<FloatType>;
+    auto n_elements = nbf[0] * nbf[1] * nbf[2] * nbf[3];
 
+    if(mean == utils::mean_type::none) {
+        std::vector<uq_type> result;
+        result.reserve(n_elements);
+        for(std::size_t i = 0; i < nbf[0]; ++i) {
+            auto ioffset = (ao_i[0] + i) * strides[0];
+            for(std::size_t j = 0; j < nbf[1]; ++j) {
+                auto joffset = ioffset + (ao_i[1] + j) * strides[1];
+                for(std::size_t k = 0; k < nbf[2]; ++k) {
+                    auto koffset = joffset + (ao_i[2] + k) * strides[2];
+                    for(std::size_t l = 0; l < nbf[3]; ++l) {
+                        auto loffset = koffset + (ao_i[3] + l) * strides[3];
+                        result.push_back(uq_type{0.0, error[loffset]});
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    std::vector<FloatType> buffer;
+    buffer.reserve(n_elements);
     for(std::size_t i = 0; i < nbf[0]; ++i) {
         auto ioffset = (ao_i[0] + i) * strides[0];
-
         for(std::size_t j = 0; j < nbf[1]; ++j) {
             auto joffset = ioffset + (ao_i[1] + j) * strides[1];
-
             for(std::size_t k = 0; k < nbf[2]; ++k) {
                 auto koffset = joffset + (ao_i[2] + k) * strides[2];
-
                 for(std::size_t l = 0; l < nbf[3]; ++l) {
                     auto loffset = koffset + (ao_i[3] + l) * strides[3];
                     buffer.push_back(error[loffset]);
@@ -47,15 +67,20 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
             }
         }
     }
-
-    return utils::compute_mean(mean, buffer);
+    auto mean_value = utils::compute_mean(mean, buffer);
+    return std::vector<uq_type>(n_elements, uq_type{0.0, mean_value});
+#else
+    throw std::runtime_error("Sigma support not enabled!");
+    return std::vector<int>{};
+#endif
 }
 
+#ifdef ENABLE_SIGMA
 template<typename FloatType, typename T, typename Tensor>
 auto compute_block(T&& strides, T&& nbf, T&& ao_i, Tensor&& value,
-                   FloatType error) {
+                   const std::vector<sigma::Uncertain<FloatType>>& errors) {
     auto n_elements = nbf[0] * nbf[1] * nbf[2] * nbf[3];
-    std::vector<std::decay_t<FloatType>> buffer(n_elements, error);
+    std::vector<sigma::Uncertain<FloatType>> buffer(n_elements);
 
     for(std::size_t i = 0; i < nbf[0]; ++i) {
         auto ilocal  = i * nbf[1] * nbf[2] * nbf[3];
@@ -70,15 +95,16 @@ auto compute_block(T&& strides, T&& nbf, T&& ao_i, Tensor&& value,
                 auto koffset = joffset + (ao_i[2] + k) * strides[2];
 
                 for(std::size_t l = 0; l < nbf[3]; ++l) {
-                    auto llocal  = klocal + l;
-                    auto loffset = koffset + (ao_i[3] + l) * strides[3];
-                    buffer[llocal] += value[loffset];
+                    auto llocal    = klocal + l;
+                    auto loffset   = koffset + (ao_i[3] + l) * strides[3];
+                    buffer[llocal] = errors[llocal] + value[loffset];
                 }
             }
         }
     }
     return buffer;
 }
+#endif
 
 template<typename FloatType, typename T>
 void set_block(T&& strides, T&& nbf,
@@ -191,13 +217,12 @@ struct Kernel {
                             bool pair_gt = (c2eqc0 && centers[3] > centers[1]);
                             if(pair_gt && all_same) break;
 
-                            auto block_error = average_error<float_type>(
+                            auto block_errors = average_error<float_type>(
                               strides, nbf, ao_offsets, error, m_mean);
-                            uq_type max_uq{0.0, block_error};
 
                             // Compute (ab|cd)
                             auto block = compute_block(strides, nbf, ao_offsets,
-                                                       t, max_uq);
+                                                       t, block_errors);
 
                             // Set all symmetry equivalent blocks to `block`
                             auto perms = get_permutations_with_sigma(

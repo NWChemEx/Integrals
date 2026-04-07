@@ -66,11 +66,36 @@ auto corr_answer(const simde::type::tensor& T) {
     }
 }
 
+template<typename FloatType>
+auto corr_answer_no_mean(const simde::type::tensor& T,
+                         const simde::type::tensor& T_eri,
+                         const simde::type::tensor& T_err) {
+    if constexpr(std::is_same_v<FloatType, double>) {
+        return true;
+    } else {
+        auto t_uq  = eigen_tensor<4, FloatType>(T.buffer());
+        auto t_eri = eigen_tensor<4, double>(T_eri.buffer());
+        auto t_err = eigen_tensor<4, double>(T_err.buffer());
+
+        for(Eigen::Index i = 0; i < 2; ++i)
+            for(Eigen::Index j = 0; j < 2; ++j)
+                for(Eigen::Index k = 0; k < 2; ++k)
+                    for(Eigen::Index l = 0; l < 2; ++l) {
+                        REQUIRE(t_uq(i, j, k, l).mean() ==
+                                Catch::Approx(t_eri(i, j, k, l)).margin(1E-6));
+                        REQUIRE(t_uq(i, j, k, l).sd() ==
+                                Catch::Approx(t_err(i, j, k, l)).margin(1E-6));
+                    }
+        return true;
+    }
+}
+
 } // namespace
 
 TEST_CASE("UQ Atom Symm Blocked Driver") {
     using float_type = tensorwrapper::types::udouble;
     using test_pt    = simde::ERI4;
+    using error_pt   = integrals::property_types::Uncertainty<test_pt>;
     using tensorwrapper::operations::approximately_equal;
 
     if constexpr(tensorwrapper::types::is_uncertain_v<float_type>) {
@@ -80,7 +105,7 @@ TEST_CASE("UQ Atom Symm Blocked Driver") {
         integrals::set_defaults(mm);
         REQUIRE(mm.count("UQ Atom Symm Blocked Driver"));
         mm.change_input("ERI4", "Threshold", 1.0e-6);
-        auto mod = mm.at("UQ Atom Blocked Driver");
+        auto mod = mm.at("UQ Atom Symm Blocked Driver");
 
         // Make Operator
         simde::type::v_ee_type op{};
@@ -96,7 +121,14 @@ TEST_CASE("UQ Atom Symm Blocked Driver") {
             // Make BraKet Input
             chemist::braket::BraKet braket(aos_squared, op, aos_squared);
 
-            SECTION("No Mean") { REQUIRE_THROWS(mod.run_as<test_pt>(braket)); }
+            SECTION("No Mean") {
+                auto T     = mod.run_as<test_pt>(braket);
+                auto tol   = 1.0e-6;
+                auto T_eri = mm.at("ERI4").run_as<test_pt>(braket);
+                auto T_err =
+                  mm.at("Primitive Error Model").run_as<error_pt>(braket, tol);
+                REQUIRE(corr_answer_no_mean<float_type>(T, T_eri, T_err));
+            }
             SECTION("Max Error") {
                 mod.change_input("Mean Type", "max");
                 auto T = mod.run_as<test_pt>(braket);
