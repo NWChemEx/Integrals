@@ -87,11 +87,12 @@ struct Kernel {
         Tensor rv;
 
         using float_type = std::decay_t<FloatType>;
-        if constexpr(types::is_uncertain_v<float_type>) {
+        if constexpr(types::is_uncertain_v<float_type> ||
+                     types::is_interval_v<float_type>) {
             throw std::runtime_error("Did not expect an uncertain type");
         } else {
 #ifdef ENABLE_SIGMA
-            using uq_type  = sigma::Uncertain<float_type>;
+            using uq_type  = sigma::Interval<float_type>;
             auto rv_buffer = buffer::make_contiguous<uq_type>(m_shape);
             auto rv_data   = buffer::get_raw_data<uq_type>(rv_buffer);
 
@@ -103,12 +104,12 @@ struct Kernel {
             } else if(m_mean == harmonic) {
                 max_error = harmonic_mean(error);
             }
-            uq_type max_uq{0.0, max_error};
+            uq_type max_uq{-max_error, max_error};
             bool use_mean = (m_mean != none);
             for(std::size_t i = 0; i < t.size(); ++i) {
                 const auto elem = t[i];
                 if(!use_mean) {
-                    rv_data[i] = uq_type{elem, error[i]};
+                    rv_data[i] = uq_type{elem - error[i], elem + error[i]};
                 } else {
                     rv_data[i] = elem + max_uq;
                 }

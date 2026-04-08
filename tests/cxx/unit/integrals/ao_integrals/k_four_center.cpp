@@ -54,11 +54,11 @@ TEST_CASE("Four center K builder") {
                          "UQ Driver");
         mm.change_input("ERI4", "Threshold", 1e-6);
 
-        using tensorwrapper::types::udouble;
+        using uq_type = tensorwrapper::types::idouble;
 
         // Make Operator
         simde::type::k_e_type op(simde::type::electron{},
-                                 h2_density<udouble>());
+                                 h2_density<uq_type>());
 
         // Make BraKet Input
         chemist::braket::BraKet braket(aos, op, aos);
@@ -66,22 +66,24 @@ TEST_CASE("Four center K builder") {
         // Call module
         const auto& T = mm.at("Four center K builder").run_as<pt>(braket);
 
-        auto t = eigen_tensor<2, sigma::UDouble>(T.buffer());
+        auto t = eigen_tensor<2, uq_type>(T.buffer());
 
         // Disclaimer: these values are just what was output by the first run
         // they may not actually be correct. FWIW the means are right.
-        std::vector<udouble> corr{
-          udouble{0.456171, 5.45552e-06}, udouble{0.351305, 5.45552e-06},
-          udouble{0.351305, 5.45552e-06}, udouble{0.456171, 5.45552e-06}};
+        std::vector<uq_type> corr{
+          uq_type{0.456171 - 5.45552e-06, 0.456171 + 5.45552e-06},
+          uq_type{0.351305 - 5.45552e-06, 0.351305 + 5.45552e-06},
+          uq_type{0.351305 - 5.45552e-06, 0.351305 + 5.45552e-06},
+          uq_type{0.456171 - 5.45552e-06, 0.456171 + 5.45552e-06}};
 
-        REQUIRE(t(0, 0).mean() == Catch::Approx(corr[0].mean()).margin(1E-6));
-        REQUIRE(t(0, 0).sd() == Catch::Approx(corr[0].sd()).margin(1E-6));
-        REQUIRE(t(0, 1).mean() == Catch::Approx(corr[1].mean()).margin(1E-6));
-        REQUIRE(t(0, 1).sd() == Catch::Approx(corr[1].sd()).margin(1E-6));
-        REQUIRE(t(1, 0).mean() == Catch::Approx(corr[2].mean()).margin(1E-6));
-        REQUIRE(t(1, 0).sd() == Catch::Approx(corr[2].sd()).margin(1E-6));
-        REQUIRE(t(1, 1).mean() == Catch::Approx(corr[3].mean()).margin(1E-6));
-        REQUIRE(t(1, 1).sd() == Catch::Approx(corr[3].sd()).margin(1E-6));
+        REQUIRE(t(0, 0).lower() == Catch::Approx(corr[0].lower()).margin(1E-6));
+        REQUIRE(t(0, 0).upper() == Catch::Approx(corr[0].upper()).margin(1E-6));
+        REQUIRE(t(0, 1).lower() == Catch::Approx(corr[1].lower()).margin(1E-6));
+        REQUIRE(t(0, 1).upper() == Catch::Approx(corr[1].upper()).margin(1E-6));
+        REQUIRE(t(1, 0).lower() == Catch::Approx(corr[2].lower()).margin(1E-6));
+        REQUIRE(t(1, 0).upper() == Catch::Approx(corr[2].upper()).margin(1E-6));
+        REQUIRE(t(1, 1).lower() == Catch::Approx(corr[3].lower()).margin(1E-6));
+        REQUIRE(t(1, 1).upper() == Catch::Approx(corr[3].upper()).margin(1E-6));
     }
 #endif
 }

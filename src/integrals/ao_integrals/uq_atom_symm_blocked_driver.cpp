@@ -30,7 +30,7 @@ template<typename FloatType, typename T, typename Tensor>
 auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
                    utils::mean_type mean) {
 #ifdef ENABLE_SIGMA
-    using uq_type   = sigma::Uncertain<FloatType>;
+    using uq_type   = sigma::Interval<FloatType>;
     auto n_elements = nbf[0] * nbf[1] * nbf[2] * nbf[3];
 
     if(mean == utils::mean_type::none) {
@@ -44,7 +44,8 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
                     auto koffset = joffset + (ao_i[2] + k) * strides[2];
                     for(std::size_t l = 0; l < nbf[3]; ++l) {
                         auto loffset = koffset + (ao_i[3] + l) * strides[3];
-                        result.push_back(uq_type{0.0, error[loffset]});
+                        result.push_back(
+                          uq_type{-error[loffset], error[loffset]});
                     }
                 }
             }
@@ -68,7 +69,7 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
         }
     }
     auto mean_value = utils::compute_mean(mean, buffer);
-    return std::vector<uq_type>(n_elements, uq_type{0.0, mean_value});
+    return std::vector<uq_type>(n_elements, uq_type{-mean_value, mean_value});
 #else
     throw std::runtime_error("Sigma support not enabled!");
     return std::vector<int>{};
@@ -78,9 +79,9 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
 #ifdef ENABLE_SIGMA
 template<typename FloatType, typename T, typename Tensor>
 auto compute_block(T&& strides, T&& nbf, T&& ao_i, Tensor&& value,
-                   const std::vector<sigma::Uncertain<FloatType>>& errors) {
+                   const std::vector<sigma::Interval<FloatType>>& errors) {
     auto n_elements = nbf[0] * nbf[1] * nbf[2] * nbf[3];
-    std::vector<sigma::Uncertain<FloatType>> buffer(n_elements);
+    std::vector<sigma::Interval<FloatType>> buffer(n_elements);
 
     for(std::size_t i = 0; i < nbf[0]; ++i) {
         auto ilocal  = i * nbf[1] * nbf[2] * nbf[3];
@@ -160,7 +161,8 @@ struct Kernel {
         Tensor rv;
 
         using float_type = std::decay_t<FloatType>;
-        if constexpr(types::is_uncertain_v<float_type>) {
+        if constexpr(types::is_uncertain_v<float_type> ||
+                     types::is_interval_v<float_type>) {
             throw std::runtime_error("Did not expect an uncertain type");
         } else {
 #ifdef ENABLE_SIGMA
@@ -174,7 +176,7 @@ struct Kernel {
             std::array<std::size_t, 4> ao_offsets{0, 0, 0, 0};
             std::array<std::size_t, 4> nbf{0, 0, 0, 0};
 
-            using uq_type = sigma::Uncertain<float_type>;
+            using uq_type = sigma::Interval<float_type>;
             std::vector<uq_type> rv_data(m_shape.size());
             std::array<std::size_t, 4> strides{0, 0, 0, 1};
             strides[2] = strides[3] * m_aos[3].n_aos();

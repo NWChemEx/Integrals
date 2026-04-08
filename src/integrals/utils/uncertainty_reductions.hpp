@@ -53,8 +53,8 @@ auto harmonic_mean(const ContainerType& values) {
     float_type reciprocal_sum  = 0.0;
     std::size_t non_zero_count = 0;
     for(const auto& val : values) {
-        if(val == 0 || std::isnan(1 / val)) continue;
-        reciprocal_sum += 1 / val;
+        if(val == float_type{0} || std::isnan(float_type{1} / val)) continue;
+        reciprocal_sum += float_type{1} / val;
         ++non_zero_count;
     }
     if(non_zero_count == 0 || reciprocal_sum == 0) return float_type{0};

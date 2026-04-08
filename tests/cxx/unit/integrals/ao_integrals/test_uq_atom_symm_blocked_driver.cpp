@@ -81,9 +81,9 @@ auto corr_answer_no_mean(const simde::type::tensor& T,
             for(Eigen::Index j = 0; j < 2; ++j)
                 for(Eigen::Index k = 0; k < 2; ++k)
                     for(Eigen::Index l = 0; l < 2; ++l) {
-                        REQUIRE(t_uq(i, j, k, l).mean() ==
+                        REQUIRE(t_uq(i, j, k, l).median() ==
                                 Catch::Approx(t_eri(i, j, k, l)).margin(1E-6));
-                        REQUIRE(t_uq(i, j, k, l).sd() ==
+                        REQUIRE(t_uq(i, j, k, l).radius() ==
                                 Catch::Approx(t_err(i, j, k, l)).margin(1E-6));
                     }
         return true;
@@ -93,7 +93,7 @@ auto corr_answer_no_mean(const simde::type::tensor& T,
 } // namespace
 
 TEST_CASE("UQ Atom Symm Blocked Driver") {
-    using float_type = tensorwrapper::types::udouble;
+    using float_type = tensorwrapper::types::idouble;
     using test_pt    = simde::ERI4;
     using error_pt   = integrals::property_types::Uncertainty<test_pt>;
     using tensorwrapper::operations::approximately_equal;
