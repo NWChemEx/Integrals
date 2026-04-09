@@ -51,8 +51,10 @@ auto build_eigen_buffer(const std::vector<libint2::BasisSet>& basis_sets,
     FloatType initial_value;
     if constexpr(std::is_same_v<FloatType, double>) {
         initial_value = 0.0;
-    } else { // Presumably sigma::UDouble
+    } else if constexpr(std::is_same_v<FloatType, sigma::UDouble>) {
         initial_value = FloatType(0.0, thresh);
+    } else if constexpr(std::is_same_v<FloatType, sigma::Interval<double>>) {
+        initial_value = FloatType(-thresh, thresh);
     }
     auto N = basis_sets.size();
     std::vector<decltype(N)> dims(N);
@@ -135,8 +137,8 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
     simde::type::tensor t;
     if(with_uq) {
         if constexpr(integrals::type::has_sigma()) {
-            t = fill_tensor<N, type::uncertain_double>(basis_sets, op, rv,
-                                                       thresh);
+            t = fill_tensor<N, tensorwrapper::types::idouble>(basis_sets, op,
+                                                              rv, thresh);
         } else {
             throw std::runtime_error("Sigma support not enabled!");
         }

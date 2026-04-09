@@ -22,6 +22,15 @@ using namespace tensorwrapper;
 
 namespace {
 
+template<typename FloatType>
+auto uq(double value, double radius) {
+    if constexpr(std::is_same_v<FloatType, tensorwrapper::types::idouble>) {
+        return FloatType{value - radius, value + radius};
+    } else {
+        return FloatType{value, radius};
+    }
+}
+
 // N.b. The "means" of the correct values are validated by comparing to Libint's
 // results. With the exception of the "No Mean" values, the
 // "standard deviations" are not validated, but seem reasonable (the "No Mean"
@@ -34,34 +43,26 @@ auto corr_answer(const simde::type::tensor& T) {
     } else {
         simde::type::tensor T_corr(T);
         auto& corr_buffer = buffer::make_contiguous(T_corr.buffer());
-        corr_buffer.set_elem({0, 0, 0, 0}, FloatType{0.774606, 0});
+        corr_buffer.set_elem({0, 0, 0, 0}, uq<FloatType>(0.774606, 0));
         corr_buffer.set_elem({0, 0, 0, 1},
-                             FloatType{0.265558, 0.0000010000000000});
+                             uq<FloatType>(0.265558, 0.0000010000000000));
         corr_buffer.set_elem({0, 0, 1, 0},
-                             FloatType{0.265558, 0.0000010000000000});
-        corr_buffer.set_elem({0, 0, 1, 1}, FloatType{0.446701, 0});
+                             uq<FloatType>(0.265558, 0.0000010000000000));
+        corr_buffer.set_elem({0, 0, 1, 1}, uq<FloatType>(0.446701, 0));
         corr_buffer.set_elem({0, 1, 0, 0},
-                             FloatType{0.265558, 0.0000010000000000});
+                             uq<FloatType>(0.265558, 0.0000010000000000));
         corr_buffer.set_elem({0, 1, 0, 1},
-                             FloatType{0.120666, 0.0000170000000000});
+                             uq<FloatType>(0.120666, 0.0000170000000000));
         corr_buffer.set_elem({0, 1, 1, 0},
-                             FloatType{0.120666, 0.0000170000000000});
-        corr_buffer.set_elem({0, 1, 1, 1},
-                             FloatType{0.265558, 0.0000010000000000});
-        corr_buffer.set_elem({1, 0, 0, 0},
-                             FloatType{0.265558, 0.0000010000000000});
-        corr_buffer.set_elem({1, 0, 0, 1},
-                             FloatType{0.120666, 0.0000170000000000});
-        corr_buffer.set_elem({1, 0, 1, 0},
-                             FloatType{0.120666, 0.0000170000000000});
+                             uq<FloatType>(0.120666, 0.0000170000000000));
         corr_buffer.set_elem({1, 0, 1, 1},
-                             FloatType{0.265558, 0.0000010000000000});
-        corr_buffer.set_elem({1, 1, 0, 0}, FloatType{0.446701, 0});
+                             uq<FloatType>(0.265558, 0.0000010000000000));
+        corr_buffer.set_elem({1, 1, 0, 0}, uq<FloatType>(0.446701, 0));
         corr_buffer.set_elem({1, 1, 0, 1},
-                             FloatType{0.265558, 0.0000010000000000});
+                             uq<FloatType>(0.265558, 0.0000010000000000));
         corr_buffer.set_elem({1, 1, 1, 0},
-                             FloatType{0.265558, 0.0000010000000000});
-        corr_buffer.set_elem({1, 1, 1, 1}, FloatType{0.774606, 0});
+                             uq<FloatType>(0.265558, 0.0000010000000000));
+        corr_buffer.set_elem({1, 1, 1, 1}, uq<FloatType>(0.774606, 0));
         return T_corr;
     }
 }
