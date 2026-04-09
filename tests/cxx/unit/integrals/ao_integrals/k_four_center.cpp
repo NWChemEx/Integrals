@@ -31,6 +31,7 @@ TEST_CASE("Four center K builder") {
     // Make AOS object
     simde::type::aos aos(aobs);
 
+    std::vector<double> corr{0.45617623, 0.35130947, 0.35130947, 0.45617623};
     SECTION("No QCUP") {
         // Make Operator
         simde::type::k_e_type op(simde::type::electron{}, h2_density<double>());
@@ -42,10 +43,10 @@ TEST_CASE("Four center K builder") {
         const auto& T = mm.at("Four center K builder").run_as<pt>(braket);
 
         auto t = eigen_tensor<2>(T.buffer());
-        REQUIRE(t(0, 0) == Catch::Approx(0.45617623).margin(1E-6));
-        REQUIRE(t(0, 1) == Catch::Approx(0.35130947).margin(1E-6));
-        REQUIRE(t(1, 0) == Catch::Approx(0.35130947).margin(1E-6));
-        REQUIRE(t(1, 1) == Catch::Approx(0.45617623).margin(1E-6));
+        REQUIRE(t(0, 0) == Catch::Approx(corr[0]).margin(1E-6));
+        REQUIRE(t(0, 1) == Catch::Approx(corr[1]).margin(1E-6));
+        REQUIRE(t(1, 0) == Catch::Approx(corr[2]).margin(1E-6));
+        REQUIRE(t(1, 1) == Catch::Approx(corr[3]).margin(1E-6));
     }
 
 #ifdef ENABLE_SIGMA
@@ -68,22 +69,10 @@ TEST_CASE("Four center K builder") {
 
         auto t = eigen_tensor<2, uq_type>(T.buffer());
 
-        // Disclaimer: these values are just what was output by the first run
-        // they may not actually be correct. FWIW the means are right.
-        std::vector<uq_type> corr{
-          uq_type{0.456171 - 5.45552e-06, 0.456171 + 5.45552e-06},
-          uq_type{0.351305 - 5.45552e-06, 0.351305 + 5.45552e-06},
-          uq_type{0.351305 - 5.45552e-06, 0.351305 + 5.45552e-06},
-          uq_type{0.456171 - 5.45552e-06, 0.456171 + 5.45552e-06}};
-
-        REQUIRE(t(0, 0).lower() == Catch::Approx(corr[0].lower()).margin(1E-6));
-        REQUIRE(t(0, 0).upper() == Catch::Approx(corr[0].upper()).margin(1E-6));
-        REQUIRE(t(0, 1).lower() == Catch::Approx(corr[1].lower()).margin(1E-6));
-        REQUIRE(t(0, 1).upper() == Catch::Approx(corr[1].upper()).margin(1E-6));
-        REQUIRE(t(1, 0).lower() == Catch::Approx(corr[2].lower()).margin(1E-6));
-        REQUIRE(t(1, 0).upper() == Catch::Approx(corr[2].upper()).margin(1E-6));
-        REQUIRE(t(1, 1).lower() == Catch::Approx(corr[3].lower()).margin(1E-6));
-        REQUIRE(t(1, 1).upper() == Catch::Approx(corr[3].upper()).margin(1E-6));
+        REQUIRE(t(0, 0).contains(corr[0]));
+        REQUIRE(t(0, 1).contains(corr[1]));
+        REQUIRE(t(1, 0).contains(corr[2]));
+        REQUIRE(t(1, 1).contains(corr[3]));
     }
 #endif
 }
