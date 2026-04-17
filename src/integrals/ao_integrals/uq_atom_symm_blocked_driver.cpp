@@ -31,7 +31,7 @@ template<typename FloatType, typename T, typename Tensor>
 auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
                    utils::mean_type mean) {
 #ifdef ENABLE_SIGMA
-    using uq_type   = sigma::Interval<FloatType>;
+    using uq_type   = tensorwrapper::types::interval_type<FloatType>;
     auto n_elements = nbf[0] * nbf[1] * nbf[2] * nbf[3];
 
     if(mean == utils::mean_type::none) {
@@ -80,10 +80,12 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
 
 #ifdef ENABLE_SIGMA
 template<typename FloatType, typename T, typename Tensor>
-auto compute_block(T&& strides, T&& nbf, T&& ao_i, Tensor&& value,
-                   const std::vector<sigma::Interval<FloatType>>& errors) {
-    auto n_elements = nbf[0] * nbf[1] * nbf[2] * nbf[3];
-    std::vector<sigma::Interval<FloatType>> buffer(n_elements);
+auto compute_block(
+  T&& strides, T&& nbf, T&& ao_i, Tensor&& value,
+  const std::vector<tensorwrapper::types::interval_type<FloatType>>& errors) {
+    using interval_type = tensorwrapper::types::interval_type<FloatType>;
+    auto n_elements     = nbf[0] * nbf[1] * nbf[2] * nbf[3];
+    std::vector<interval_type> buffer(n_elements);
 
     for(std::size_t i = 0; i < nbf[0]; ++i) {
         auto ilocal  = i * nbf[1] * nbf[2] * nbf[3];
@@ -178,7 +180,7 @@ struct Kernel {
             std::array<std::size_t, 4> ao_offsets{0, 0, 0, 0};
             std::array<std::size_t, 4> nbf{0, 0, 0, 0};
 
-            using uq_type = sigma::Interval<float_type>;
+            using uq_type = tensorwrapper::types::interval_type<float_type>;
             std::vector<uq_type> rv_data(m_shape.size());
             std::array<std::size_t, 4> strides{0, 0, 0, 1};
             strides[2] = strides[3] * m_aos[3].n_aos();

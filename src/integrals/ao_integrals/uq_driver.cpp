@@ -92,7 +92,7 @@ struct Kernel {
             throw std::runtime_error("Did not expect an uncertain type");
         } else {
 #ifdef ENABLE_SIGMA
-            using uq_type  = sigma::Interval<float_type>;
+            using uq_type  = tensorwrapper::types::interval_type<float_type>;
             auto rv_buffer = buffer::make_contiguous<uq_type>(m_shape);
             auto rv_data   = buffer::get_raw_data<uq_type>(rv_buffer);
 
@@ -111,7 +111,7 @@ struct Kernel {
                 if(!use_mean) {
                     rv_data[i] = uq_type{elem - error[i], elem + error[i]};
                 } else {
-                    rv_data[i] = elem + max_uq;
+                    rv_data[i] = uq_type(elem) + max_uq;
                 }
             }
             rv = tensorwrapper::Tensor(m_shape, std::move(rv_buffer));

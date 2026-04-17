@@ -82,9 +82,9 @@ auto corr_answer_no_mean(const simde::type::tensor& T,
             for(Eigen::Index j = 0; j < 2; ++j)
                 for(Eigen::Index k = 0; k < 2; ++k)
                     for(Eigen::Index l = 0; l < 2; ++l) {
-                        REQUIRE(t_uq(i, j, k, l).median() ==
+                        REQUIRE(t_uq(i, j, k, l).as_interval().median() ==
                                 Catch::Approx(t_eri(i, j, k, l)).margin(1E-6));
-                        REQUIRE(t_uq(i, j, k, l).radius() ==
+                        REQUIRE(t_uq(i, j, k, l).as_interval().radius() ==
                                 Catch::Approx(t_err(i, j, k, l)).margin(1E-6));
                     }
         return true;

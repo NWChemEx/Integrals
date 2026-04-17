@@ -25,7 +25,7 @@ constexpr bool has_sigma = integrals::type::has_sigma();
 template<typename InputType>
 auto unwrap_mean(InputType&& uq) {
     if constexpr(has_sigma) {
-        return uq.median();
+        return uq.as_interval().median();
     } else {
         return uq;
     }
@@ -34,7 +34,7 @@ auto unwrap_mean(InputType&& uq) {
 template<typename InputType>
 auto unwrap_sd(InputType&& uq) {
     if constexpr(has_sigma) {
-        return uq.radius();
+        return uq.as_interval().radius();
     } else {
         return 0.0;
     }
