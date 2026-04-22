@@ -32,29 +32,35 @@ struct Kernel {
     template<typename FloatType>
     simde::type::tensor operator()(const std::span<FloatType> I) {
         using clean_type = std::decay_t<FloatType>;
-        auto rows        = m_shape.extent(0);
-        auto cols        = m_shape.extent(1);
+        if constexpr(tensorwrapper::types::is_interval_v<clean_type>) {
+            throw std::runtime_error(
+              "CoulombMetric Kernel: Interval types not supported");
+        } else {
+            auto rows = m_shape.extent(0);
+            auto cols = m_shape.extent(1);
 
-        // Cholesky Decomp
-        constexpr auto rmajor = Eigen::RowMajor;
-        constexpr auto edynam = Eigen::Dynamic;
-        using matrix_type = Eigen::Matrix<clean_type, edynam, edynam, rmajor>;
-        using map_type    = Eigen::Map<const matrix_type>;
-        map_type I_map(I.data(), rows, cols);
-        Eigen::LLT<matrix_type> lltOfI(I_map);
-        matrix_type U    = lltOfI.matrixU();
-        matrix_type Linv = U.inverse().transpose();
+            // Cholesky Decomp
+            constexpr auto rmajor = Eigen::RowMajor;
+            constexpr auto edynam = Eigen::Dynamic;
+            using matrix_type =
+              Eigen::Matrix<clean_type, edynam, edynam, rmajor>;
+            using map_type = Eigen::Map<const matrix_type>;
+            map_type I_map(I.data(), rows, cols);
+            Eigen::LLT<matrix_type> lltOfI(I_map);
+            matrix_type U    = lltOfI.matrixU();
+            matrix_type Linv = U.inverse().transpose();
 
-        // Wrap result
-        tensorwrapper::shape::Smooth matrix_shape{rows, cols};
-        auto pM_buffer =
-          tensorwrapper::buffer::make_contiguous<FloatType>(matrix_shape);
-        for(decltype(rows) i = 0; i < rows; ++i) {
-            for(decltype(cols) j = 0; j < cols; ++j) {
-                pM_buffer.set_elem({i, j}, Linv(i, j));
+            // Wrap result
+            tensorwrapper::shape::Smooth matrix_shape{rows, cols};
+            auto pM_buffer =
+              tensorwrapper::buffer::make_contiguous<FloatType>(matrix_shape);
+            for(decltype(rows) i = 0; i < rows; ++i) {
+                for(decltype(cols) j = 0; j < cols; ++j) {
+                    pM_buffer.set_elem({i, j}, Linv(i, j));
+                }
             }
+            return simde::type::tensor(matrix_shape, std::move(pM_buffer));
         }
-        return simde::type::tensor(matrix_shape, std::move(pM_buffer));
     }
 
     const_shape_view m_shape;
