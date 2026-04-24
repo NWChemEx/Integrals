@@ -94,8 +94,7 @@ SkipTotals reference_skip_totals(const simde::type::ao_basis_set& bs0,
                     }
                     ++out.n_skip;
                     out.sum_coarse += K_ij * K_kl;
-                    out.sum_fine +=
-                      std::abs(Q_ij * Q_kl / std::sqrt(g_ij + g_kl));
+                    out.sum_fine += Q_ij * Q_kl / std::sqrt(g_ij + g_kl);
                 }
             }
         }

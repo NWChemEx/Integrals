@@ -72,7 +72,7 @@ inline double skip_increment(ErrorEstimateKind kind, double thresh, double K_ij,
         case ErrorEstimateKind::Tolerance: return thresh;
         case ErrorEstimateKind::Coarse: return K_ij * K_kl;
         case ErrorEstimateKind::Fine:
-            return std::abs(Q_ij * Q_kl / std::sqrt(gamma_ij + gamma_kl));
+            return Q_ij * Q_kl / std::sqrt(gamma_ij + gamma_kl);
     }
     return 0.0;
 }

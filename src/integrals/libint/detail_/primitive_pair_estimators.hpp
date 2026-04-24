@@ -123,13 +123,13 @@ inline auto coarse_k_ij(const simde::type::ao_basis_set& basis0,
         auto nprims0 = shell0.nprim();
         for(std::size_t prim0 = 0; prim0 < nprims0; ++prim0) {
             auto i                   = prim0_offset + prim0;
-            auto coefi               = std::fabs(shell0.contr[0].coeff[prim0]);
+            auto coefi               = shell0.contr[0].coeff[prim0];
             std::size_t prim1_offset = 0;
             for(const auto& shell1 : bs1_libint) {
                 auto nprims1 = shell1.nprim();
                 for(std::size_t prim1 = 0; prim1 < nprims1; ++prim1) {
                     auto j     = prim1_offset + prim1;
-                    auto coefj = std::fabs(shell1.contr[0].coeff[prim1]);
+                    auto coefj = shell1.contr[0].coeff[prim1];
                     K[i][j] *= coefi * coefj;
                 }
                 prim1_offset += nprims1;

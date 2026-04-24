@@ -45,8 +45,10 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
                     auto koffset = joffset + (ao_i[2] + k) * strides[2];
                     for(std::size_t l = 0; l < nbf[3]; ++l) {
                         auto loffset = koffset + (ao_i[3] + l) * strides[3];
-                        FloatType w  = std::abs(error[loffset]);
-                        result.push_back(uq_type{-w, w});
+                        FloatType w  = error[loffset];
+                        FloatType lo = std::min(FloatType{0.0}, w);
+                        FloatType hi = std::max(FloatType{0.0}, w);
+                        result.push_back(uq_type{lo, hi});
                     }
                 }
             }
