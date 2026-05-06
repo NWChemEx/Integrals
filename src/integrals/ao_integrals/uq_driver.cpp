@@ -58,22 +58,28 @@ struct Kernel {
             if(!use_mean) {
                 for(std::size_t i = 0; i < t.size(); ++i) {
                     const auto elem = t[i];
-                    rv_data[i]      = uq_type{elem, error[i]};
+                    if constexpr(types::is_interval_v<uq_type>) {
+                        auto ei    = std::fabs(error[i]);
+                        rv_data[i] = uq_type{elem - ei, elem + ei};
+                    } else if constexpr(types::is_uncertain_v<uq_type>) {
+                        rv_data[i] = uq_type{elem, error[i]};
+                    } else {
+                        throw std::runtime_error("Invalid UQ type");
+                    }
                 }
             } else {
                 float_type max_error = utils::compute_mean(m_mean, error);
                 uq_type max_uq;
                 if constexpr(types::is_interval_v<uq_type>) {
-                    max_uq = uq_type(max_error);
+                    max_uq = uq_type(-max_error, max_error);
                 } else if constexpr(types::is_uncertain_v<uq_type>) {
                     max_uq = uq_type(0.0, max_error);
                 } else {
                     throw std::runtime_error("Invalid UQ type");
                 }
-
                 for(std::size_t i = 0; i < t.size(); ++i) {
                     const auto elem = t[i];
-                    rv_data[i]      = elem + max_uq;
+                    rv_data[i]      = uq_type(elem) + max_uq;
                 }
             }
             rv = tensorwrapper::Tensor(m_shape, std::move(rv_buffer));

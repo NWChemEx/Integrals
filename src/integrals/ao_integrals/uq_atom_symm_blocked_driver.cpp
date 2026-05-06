@@ -44,10 +44,11 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
                     auto koffset = joffset + (ao_i[2] + k) * strides[2];
                     for(std::size_t l = 0; l < nbf[3]; ++l) {
                         auto loffset = koffset + (ao_i[3] + l) * strides[3];
+                        auto ei      = std::fabs(error[loffset]);
                         if constexpr(types::is_interval_v<UQType>) {
-                            result.push_back(UQType{error[loffset]});
+                            result.push_back(UQType{-ei, ei});
                         } else if constexpr(types::is_uncertain_v<UQType>) {
-                            result.push_back(UQType{0.0, error[loffset]});
+                            result.push_back(UQType{0.0, ei});
                         } else {
                             throw std::runtime_error("Invalid UQ type");
                         }
@@ -74,10 +75,16 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
         }
     }
     auto mean_value = utils::compute_mean(mean, buffer);
-    return std::vector<UQType>(n_elements, UQType{0.0, mean_value});
+    if constexpr(types::is_interval_v<UQType>) {
+        return std::vector<UQType>(n_elements, UQType{-mean_value, mean_value});
+    } else if constexpr(types::is_uncertain_v<UQType>) {
+        return std::vector<UQType>(n_elements, UQType{0.0, mean_value});
+    } else {
+        throw std::runtime_error("Invalid UQ type");
+    }
 #else
     throw std::runtime_error("Sigma support not enabled!");
-    return std::vector<int>{};
+    return std::vector<UQType>{};
 #endif
 }
 
