@@ -61,6 +61,7 @@ auto build_eigen_buffer(const std::vector<libint2::BasisSet>& basis_sets,
     auto buffer = buffer::make_contiguous<FloatType>(s, initial_value);
     return std::make_unique<buffer::Contiguous>(std::move(buffer));
 }
+} // namespace
 
 template<std::size_t N, typename FloatType>
 auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
@@ -120,16 +121,6 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
 
     auto pshape = pbuffer->layout().shape().clone();
     return simde::type::tensor(std::move(pshape), std::move(pbuffer));
-}
-} // namespace
-
-template<std::size_t N>
-auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
-                 const chemist::qm_operator::OperatorBase& op,
-                 parallelzone::runtime::RuntimeView& rv, double thresh) {
-    simde::type::tensor t;
-    t = fill_tensor<N, double>(basis_sets, op, rv, thresh);
-    return t;
 }
 
 } // namespace integrals::libint::detail_

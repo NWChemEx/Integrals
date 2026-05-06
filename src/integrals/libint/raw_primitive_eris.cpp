@@ -92,8 +92,9 @@ MODULE_RUN(RawPrimitiveERIs) {
     libint2::Shell::do_enforce_unit_normalization(false);
     auto& rv = this->get_runtime();
 
-    auto basis_sets = detail_::get_basis_sets(dc_bra, dc_ket, false);
-    auto t          = detail_::fill_tensor<4>(basis_sets, op, rv, thresh);
+    using float_type = double;
+    auto basis_sets  = detail_::get_basis_sets(dc_bra, dc_ket, false);
+    auto t = detail_::fill_tensor<4, float_type>(basis_sets, op, rv, thresh);
     libint2::Shell::do_enforce_unit_normalization(original_normalization);
 
     auto result = results();

@@ -25,6 +25,7 @@ TEMPLATED_MODULE_CTOR(Libint, BraKetType) {
     satisfies_property_type<my_pt>();
     description("Driver for computing integrals with Libint");
 
+    add_input<std::string>("UQ Type").set_default("none");
     add_input<double>("Threshold")
       .set_default(1.0E-16)
       .set_description(
@@ -37,6 +38,7 @@ TEMPLATED_MODULE_RUN(Libint, BraKetType) {
 
     const auto& [braket] = my_pt::unwrap_inputs(inputs);
     auto thresh          = inputs.at("Threshold").value<double>();
+    auto uq_type         = inputs.at("UQ Type").value<std::string>();
     auto bra             = braket.bra();
     auto ket             = braket.ket();
     auto& op             = braket.op();
@@ -45,8 +47,20 @@ TEMPLATED_MODULE_RUN(Libint, BraKetType) {
     // Gather information from Bra, Ket, and Op
     auto basis_sets = detail_::get_basis_sets(bra, ket);
     constexpr int N = detail_::get_n(bra, ket);
-    auto t          = detail_::fill_tensor<N>(basis_sets, op, rv, thresh);
-    auto result     = results();
+    simde::type::tensor t;
+    using float_type = double;
+    if(uq_type == "none") {
+        t = detail_::fill_tensor<N, float_type>(basis_sets, op, rv, thresh);
+    } else if(uq_type == "uncertain") {
+        using uncertain_type = tensorwrapper::types::udouble;
+        t = detail_::fill_tensor<N, uncertain_type>(basis_sets, op, rv, thresh);
+    } else if(uq_type == "interval") {
+        using interval_type = tensorwrapper::types::interval_type<float_type>;
+        t = detail_::fill_tensor<N, interval_type>(basis_sets, op, rv, thresh);
+    } else {
+        throw std::runtime_error("Invalid UQ type");
+    }
+    auto result = results();
     return my_pt::wrap_results(result, t);
 }
 
