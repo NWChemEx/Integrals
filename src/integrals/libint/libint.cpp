@@ -29,8 +29,6 @@ TEMPLATED_MODULE_CTOR(Libint, BraKetType) {
       .set_default(1.0E-16)
       .set_description(
         "The target precision with which the integrals will be computed");
-
-    add_input<bool>("With UQ?").set_default(false);
 }
 
 template<typename BraKetType>
@@ -39,7 +37,6 @@ TEMPLATED_MODULE_RUN(Libint, BraKetType) {
 
     const auto& [braket] = my_pt::unwrap_inputs(inputs);
     auto thresh          = inputs.at("Threshold").value<double>();
-    auto with_uq         = inputs.at("With UQ?").value<bool>();
     auto bra             = braket.bra();
     auto ket             = braket.ket();
     auto& op             = braket.op();
@@ -48,8 +45,8 @@ TEMPLATED_MODULE_RUN(Libint, BraKetType) {
     // Gather information from Bra, Ket, and Op
     auto basis_sets = detail_::get_basis_sets(bra, ket);
     constexpr int N = detail_::get_n(bra, ket);
-    auto t      = detail_::fill_tensor<N>(basis_sets, op, rv, thresh, with_uq);
-    auto result = results();
+    auto t          = detail_::fill_tensor<N>(basis_sets, op, rv, thresh);
+    auto result     = results();
     return my_pt::wrap_results(result, t);
 }
 

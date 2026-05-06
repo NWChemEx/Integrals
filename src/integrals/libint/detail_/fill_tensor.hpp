@@ -126,19 +126,9 @@ auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
 template<std::size_t N>
 auto fill_tensor(const std::vector<libint2::BasisSet>& basis_sets,
                  const chemist::qm_operator::OperatorBase& op,
-                 parallelzone::runtime::RuntimeView& rv, double thresh,
-                 bool with_uq) {
+                 parallelzone::runtime::RuntimeView& rv, double thresh) {
     simde::type::tensor t;
-    if(with_uq) {
-        if constexpr(integrals::type::has_sigma()) {
-            t = fill_tensor<N, type::uncertain_double>(basis_sets, op, rv,
-                                                       thresh);
-        } else {
-            throw std::runtime_error("Sigma support not enabled!");
-        }
-    } else {
-        t = fill_tensor<N, double>(basis_sets, op, rv, thresh);
-    }
+    t = fill_tensor<N, double>(basis_sets, op, rv, thresh);
     return t;
 }
 

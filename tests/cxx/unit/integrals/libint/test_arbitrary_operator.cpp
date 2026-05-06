@@ -73,28 +73,13 @@ TEST_CASE("OperatorBase") {
         // Call module
         auto& mod = mm.at("Evaluate 2-Index BraKet");
 
-        SECTION("No UQ") {
-            auto T = mod.run_as<test_pt>(braket);
+        auto T = mod.run_as<test_pt>(braket);
 
-            // Check output
-            REQUIRE(trace<2>(T.buffer()) ==
-                    Catch::Approx(124.7011973877891364).margin(1.0e-16));
-            REQUIRE(norm<2>(T.buffer()) ==
-                    Catch::Approx(90.2562579028763707).margin(1.0e-16));
-        }
-
-        SECTION("With UQ") {
-            if constexpr(has_sigma) {
-                mod.change_input("With UQ?", true);
-                auto T = mod.run_as<test_pt>(braket);
-
-                // Check output
-                REQUIRE(unwrap_mean(trace<2, udouble>(T.buffer())) ==
-                        Catch::Approx(124.7011973877891364).margin(1.0e-16));
-                REQUIRE(unwrap_mean(norm<2, udouble>(T.buffer())) ==
-                        Catch::Approx(90.2562579028763707).margin(1.0e-16));
-            }
-        }
+        // Check output
+        REQUIRE(trace<2>(T.buffer()) ==
+                Catch::Approx(124.7011973877891364).margin(1.0e-16));
+        REQUIRE(norm<2>(T.buffer()) ==
+                Catch::Approx(90.2562579028763707).margin(1.0e-16));
     }
     SECTION("3-Index") {
         using braket_t = simde::type::braket<aos_t, op_base_t, aos_squared_t>;
@@ -105,31 +90,14 @@ TEST_CASE("OperatorBase") {
 
         auto& mod = mm.at("Evaluate 3-Index BraKet");
 
-        SECTION("No UQ") {
-            // Call module
-            auto T = mod.run_as<test_pt>(braket);
+        // Call module
+        auto T = mod.run_as<test_pt>(braket);
 
-            // Check output
-            REQUIRE(trace<3>(T.buffer()) ==
-                    Catch::Approx(16.8245948391706577).margin(1.0e-16));
-            REQUIRE(norm<3>(T.buffer()) ==
-                    Catch::Approx(20.6560572032543597).margin(1.0e-16));
-        }
-
-        SECTION("With UQ") {
-            if constexpr(has_sigma) {
-                mod.change_input("With UQ?", true);
-                // Call module
-                auto T = mod.run_as<test_pt>(braket);
-
-                // Check output
-                auto& t = T.buffer();
-                REQUIRE(unwrap_mean(trace<3, udouble>(t)) ==
-                        Catch::Approx(16.8245948391706577).margin(1.0e-16));
-                REQUIRE(unwrap_mean(norm<3, udouble>(t)) ==
-                        Catch::Approx(20.6560572032543597).margin(1.0e-16));
-            }
-        }
+        // Check output
+        REQUIRE(trace<3>(T.buffer()) ==
+                Catch::Approx(16.8245948391706577).margin(1.0e-16));
+        REQUIRE(norm<3>(T.buffer()) ==
+                Catch::Approx(20.6560572032543597).margin(1.0e-16));
     }
 
     SECTION("4-Index") {
@@ -142,31 +110,14 @@ TEST_CASE("OperatorBase") {
 
         auto& mod = mm.at("Evaluate 4-Index BraKet");
 
-        SECTION("No UQ") {
-            // Call module
-            auto T = mod.run_as<test_pt>(braket);
+        // Call module
+        auto T = mod.run_as<test_pt>(braket);
 
-            // Check output
-            auto& t = T.buffer();
-            REQUIRE(trace<4>(t) ==
-                    Catch::Approx(9.7919608941952063).margin(1.0e-16));
-            REQUIRE(norm<4>(t) ==
-                    Catch::Approx(7.7796143419802553).margin(1.0e-16));
-        }
-
-        SECTION("With UQ") {
-            if constexpr(has_sigma) {
-                // Call module
-                mod.change_input("With UQ?", true);
-                auto T = mod.run_as<test_pt>(braket);
-
-                // Check output
-                auto& t = T.buffer();
-                REQUIRE(unwrap_mean(trace<4, udouble>(t)) ==
-                        Catch::Approx(9.7919608941952063).margin(1.0e-16));
-                REQUIRE(unwrap_mean(norm<4, udouble>(t)) ==
-                        Catch::Approx(7.7796143419802553).margin(1.0e-16));
-            }
-        }
+        // Check output
+        auto& t = T.buffer();
+        REQUIRE(trace<4>(t) ==
+                Catch::Approx(9.7919608941952063).margin(1.0e-16));
+        REQUIRE(norm<4>(t) ==
+                Catch::Approx(7.7796143419802553).margin(1.0e-16));
     }
 }

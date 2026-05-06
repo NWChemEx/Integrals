@@ -54,14 +54,12 @@ MODULE_CTOR(RawPrimitiveERIs) {
       .set_default(1.0E-16)
       .set_description(
         "The target precision with which the integrals will be computed");
-    add_input<bool>("With UQ?").set_default(false);
 }
 
 MODULE_RUN(RawPrimitiveERIs) {
     const auto& [braket] = my_pt::unwrap_inputs(inputs);
 
-    auto thresh  = inputs.at("Threshold").value<double>();
-    auto with_uq = inputs.at("With UQ?").value<bool>();
+    auto thresh = inputs.at("Threshold").value<double>();
 
     auto bra = braket.bra();
     auto ket = braket.ket();
@@ -95,7 +93,7 @@ MODULE_RUN(RawPrimitiveERIs) {
     auto& rv = this->get_runtime();
 
     auto basis_sets = detail_::get_basis_sets(dc_bra, dc_ket, false);
-    auto t = detail_::fill_tensor<4>(basis_sets, op, rv, thresh, with_uq);
+    auto t          = detail_::fill_tensor<4>(basis_sets, op, rv, thresh);
     libint2::Shell::do_enforce_unit_normalization(original_normalization);
 
     auto result = results();
