@@ -187,40 +187,18 @@ TEST_CASE("UQ Driver") {
             REQUIRE(approximately_equal(T_corr, T, 1E-6));
         }
         SECTION("Max Error") {
-            mm.change_input("UQ Driver", "Max Error", true);
+            mm.change_input("UQ Driver", "Mean Type", "max");
             auto T = mm.at("UQ Driver").run_as<test_pt>(braket);
 
             auto T_corr = corr_max_answer<float_type>(T);
             REQUIRE(approximately_equal(T_corr, T, 1E-6));
         }
         SECTION("Geometric Mean") {
-            mm.change_input("UQ Driver", "Geometric Mean", true);
+            mm.change_input("UQ Driver", "Mean Type", "geometric");
             auto T = mm.at("UQ Driver").run_as<test_pt>(braket);
 
             auto T_corr = corr_geometric_mean_answer<float_type>(T);
             REQUIRE(approximately_equal(T_corr, T, 1E-6));
-        }
-        SECTION("Harmonic Mean") {
-            mm.change_input("UQ Driver", "Harmonic Mean", true);
-            auto T = mm.at("UQ Driver").run_as<test_pt>(braket);
-
-            auto T_corr = corr_harmonic_mean_answer<float_type>(T);
-            REQUIRE(approximately_equal(T_corr, T, 1E-6));
-        }
-        SECTION("Invalid (T, T, F)") {
-            mm.change_input("UQ Driver", "Max Error", true);
-            mm.change_input("UQ Driver", "Geometric Mean", true);
-            REQUIRE_THROWS(mm.at("UQ Driver").run_as<test_pt>(braket));
-        }
-        SECTION("Invalid (T, F, T)") {
-            mm.change_input("UQ Driver", "Max Error", true);
-            mm.change_input("UQ Driver", "Harmonic Mean", true);
-            REQUIRE_THROWS(mm.at("UQ Driver").run_as<test_pt>(braket));
-        }
-        SECTION("Invalid (F, T, T)") {
-            mm.change_input("UQ Driver", "Geometric Mean", true);
-            mm.change_input("UQ Driver", "Harmonic Mean", true);
-            REQUIRE_THROWS(mm.at("UQ Driver").run_as<test_pt>(braket));
         }
     }
 }

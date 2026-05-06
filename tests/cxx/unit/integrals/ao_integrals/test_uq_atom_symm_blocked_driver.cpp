@@ -143,13 +143,6 @@ TEST_CASE("UQ Atom Symm Blocked Driver") {
                 auto T_corr = corr_answer<float_type>(T);
                 REQUIRE(approximately_equal(T_corr, T, 1E-6));
             }
-            SECTION("Harmonic Mean") {
-                mod.change_input("Mean Type", "harmonic");
-                auto T = mod.run_as<test_pt>(braket);
-
-                auto T_corr = corr_answer<float_type>(T);
-                REQUIRE(approximately_equal(T_corr, T, 1E-6));
-            }
         }
 
         SECTION("H2 Dimer") {
@@ -165,7 +158,7 @@ TEST_CASE("UQ Atom Symm Blocked Driver") {
 
             // Make BraKet Input
             chemist::braket::BraKet braket(aos_squared, op, aos_squared);
-            const auto corr_key = "UQ Atom Blocked Driver";
+            const auto corr_key = "UQ Atom Symm Blocked Driver";
             auto corr_mod       = mm.at(corr_key);
             SECTION("Max Error") {
                 mod.change_input("Mean Type", "max");

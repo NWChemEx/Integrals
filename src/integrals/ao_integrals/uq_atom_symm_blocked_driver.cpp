@@ -26,15 +26,15 @@ using namespace tensorwrapper;
 namespace integrals::ao_integrals {
 namespace {
 
-template<typename FloatType, typename T, typename Tensor>
+template<typename UQType, typename T, typename Tensor>
 auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
                    utils::mean_type mean) {
 #ifdef ENABLE_SIGMA
-    using uq_type   = sigma::Uncertain<FloatType>;
-    auto n_elements = nbf[0] * nbf[1] * nbf[2] * nbf[3];
+    using float_type = typename UQType::value_t;
+    auto n_elements  = nbf[0] * nbf[1] * nbf[2] * nbf[3];
 
     if(mean == utils::mean_type::none) {
-        std::vector<uq_type> result;
+        std::vector<UQType> result;
         result.reserve(n_elements);
         for(std::size_t i = 0; i < nbf[0]; ++i) {
             auto ioffset = (ao_i[0] + i) * strides[0];
@@ -44,7 +44,13 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
                     auto koffset = joffset + (ao_i[2] + k) * strides[2];
                     for(std::size_t l = 0; l < nbf[3]; ++l) {
                         auto loffset = koffset + (ao_i[3] + l) * strides[3];
-                        result.push_back(uq_type{0.0, error[loffset]});
+                        if constexpr(types::is_interval_v<UQType>) {
+                            result.push_back(UQType{error[loffset]});
+                        } else if constexpr(types::is_uncertain_v<UQType>) {
+                            result.push_back(UQType{0.0, error[loffset]});
+                        } else {
+                            throw std::runtime_error("Invalid UQ type");
+                        }
                     }
                 }
             }
@@ -52,7 +58,7 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
         return result;
     }
 
-    std::vector<FloatType> buffer;
+    std::vector<float_type> buffer;
     buffer.reserve(n_elements);
     for(std::size_t i = 0; i < nbf[0]; ++i) {
         auto ioffset = (ao_i[0] + i) * strides[0];
@@ -68,7 +74,7 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
         }
     }
     auto mean_value = utils::compute_mean(mean, buffer);
-    return std::vector<uq_type>(n_elements, uq_type{0.0, mean_value});
+    return std::vector<UQType>(n_elements, UQType{0.0, mean_value});
 #else
     throw std::runtime_error("Sigma support not enabled!");
     return std::vector<int>{};
@@ -76,11 +82,11 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
 }
 
 #ifdef ENABLE_SIGMA
-template<typename FloatType, typename T, typename Tensor>
+template<typename UQType, typename T, typename Tensor>
 auto compute_block(T&& strides, T&& nbf, T&& ao_i, Tensor&& value,
-                   const std::vector<sigma::Uncertain<FloatType>>& errors) {
+                   const std::vector<UQType>& errors) {
     auto n_elements = nbf[0] * nbf[1] * nbf[2] * nbf[3];
-    std::vector<sigma::Uncertain<FloatType>> buffer(n_elements);
+    std::vector<UQType> buffer(n_elements);
 
     for(std::size_t i = 0; i < nbf[0]; ++i) {
         auto ilocal  = i * nbf[1] * nbf[2] * nbf[3];
@@ -141,6 +147,7 @@ void set_block(T&& strides, T&& nbf,
     }
 }
 
+template<template<typename> typename UQType>
 struct Kernel {
     using shape_type = buffer::Contiguous::shape_type;
     Kernel(shape_type shape, std::array<simde::type::ao_basis_set, 4> aos,
@@ -160,7 +167,8 @@ struct Kernel {
         Tensor rv;
 
         using float_type = std::decay_t<FloatType>;
-        if constexpr(types::is_uncertain_v<float_type>) {
+        if constexpr(types::is_uncertain_v<float_type> ||
+                     types::is_interval_v<float_type>) {
             throw std::runtime_error("Did not expect an uncertain type");
         } else {
 #ifdef ENABLE_SIGMA
@@ -174,7 +182,7 @@ struct Kernel {
             std::array<std::size_t, 4> ao_offsets{0, 0, 0, 0};
             std::array<std::size_t, 4> nbf{0, 0, 0, 0};
 
-            using uq_type = sigma::Uncertain<float_type>;
+            using uq_type = UQType<float_type>;
             std::vector<uq_type> rv_data(m_shape.size());
             std::array<std::size_t, 4> strides{0, 0, 0, 1};
             strides[2] = strides[3] * m_aos[3].n_aos();
@@ -217,7 +225,7 @@ struct Kernel {
                             bool pair_gt = (c2eqc0 && centers[3] > centers[1]);
                             if(pair_gt && all_same) break;
 
-                            auto block_errors = average_error<float_type>(
+                            auto block_errors = average_error<uq_type>(
                               strides, nbf, ao_offsets, error, m_mean);
 
                             // Compute (ab|cd)
@@ -271,6 +279,7 @@ MODULE_CTOR(UQAtomSymmBlockedDriver) {
     description(desc);
     add_submodule<eri_pt>("ERIs");
     add_submodule<error_pt>("ERI Error");
+    add_input<std::string>("UQ Type").set_default("uncertain");
     add_input<std::string>("Mean Type").set_default("none");
 }
 
@@ -278,6 +287,7 @@ MODULE_RUN(UQAtomSymmBlockedDriver) {
     const auto& [braket] = eri_pt::unwrap_inputs(inputs);
     auto mean_str        = inputs.at("Mean Type").value<std::string>();
     auto mean            = utils::mean_from_string(mean_str);
+    auto uq_type         = inputs.at("UQ Type").value<std::string>();
 
     auto& eri_mod = submods.at("ERIs").value();
     auto tol      = eri_mod.inputs().at("Threshold").value<double>();
@@ -301,9 +311,16 @@ MODULE_RUN(UQAtomSymmBlockedDriver) {
     using buffer::visit_contiguous_buffer;
     shape::Smooth shape = t.buffer().layout().shape().as_smooth().make_smooth();
 
-    Kernel k(shape, aos, mean);
-    auto t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
-
+    simde::type::tensor t_w_error;
+    if(uq_type == "uncertain") {
+        Kernel<sigma::Uncertain> k(shape, aos, mean);
+        t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
+    } else if(uq_type == "interval") {
+        Kernel<sigma::Interval> k(shape, aos, mean);
+        t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
+    } else {
+        throw std::runtime_error("Invalid UQ type");
+    }
     auto rv = results();
     return eri_pt::wrap_results(rv, t_w_error);
 }

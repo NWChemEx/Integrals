@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "../utils/uncertainty_reductions.hpp"
 #include "ao_integrals.hpp"
 #include <integrals/integrals.hpp>
 #ifdef ENABLE_SIGMA
@@ -25,53 +26,10 @@ using namespace tensorwrapper;
 namespace integrals::ao_integrals {
 namespace {
 
-enum mean_type { none, max, geometric, harmonic };
-
-mean_type get_mean_type(bool use_max, bool use_geom, bool use_harmonic) {
-    mean_type mean   = none;
-    auto throw_error = []() {
-        throw std::runtime_error(
-          "Cannot use multiple mean types at once. Please select only one.");
-    };
-    if(use_max) { mean = max; }
-    if(use_geom) {
-        if(mean != none) throw_error();
-        mean = geometric;
-    }
-    if(use_harmonic) {
-        if(mean != none) throw_error();
-        mean = harmonic;
-    }
-    return mean;
-}
-
-template<typename FloatType>
-FloatType geometric_mean(const std::span<FloatType> values) {
-    std::decay_t<FloatType> log_sum = 0.0;
-    std::size_t non_zero_count      = 0;
-    for(const auto& val : values) {
-        if(val == 0) continue;
-        log_sum += std::log(val);
-        ++non_zero_count;
-    }
-    return std::exp(log_sum / non_zero_count);
-}
-
-template<typename FloatType>
-FloatType harmonic_mean(const std::span<FloatType> values) {
-    std::decay_t<FloatType> reciprocal_sum = 0.0;
-    std::size_t non_zero_count             = 0;
-    for(const auto& val : values) {
-        if(val == 0) continue;
-        reciprocal_sum += 1 / val;
-        ++non_zero_count;
-    }
-    return non_zero_count / reciprocal_sum;
-}
-
+template<template<typename> typename UQType>
 struct Kernel {
     using shape_type = buffer::Contiguous::shape_type;
-    Kernel(shape_type shape, mean_type mean) :
+    Kernel(shape_type shape, utils::mean_type mean) :
       m_shape(std::move(shape)), m_mean(mean) {}
 
     template<typename FloatType0, typename FloatType1>
@@ -87,30 +45,35 @@ struct Kernel {
         Tensor rv;
 
         using float_type = std::decay_t<FloatType>;
-        if constexpr(types::is_uncertain_v<float_type>) {
+        if constexpr(types::is_uncertain_v<float_type> ||
+                     types::is_interval_v<float_type>) {
             throw std::runtime_error("Did not expect an uncertain type");
         } else {
 #ifdef ENABLE_SIGMA
-            using uq_type  = sigma::Uncertain<float_type>;
+            using uq_type  = UQType<float_type>;
             auto rv_buffer = buffer::make_contiguous<uq_type>(m_shape);
             auto rv_data   = buffer::get_raw_data<uq_type>(rv_buffer);
 
-            float_type max_error = 0.0;
-            if(m_mean == max) {
-                max_error = *std::max_element(error.begin(), error.end());
-            } else if(m_mean == geometric) {
-                max_error = geometric_mean(error);
-            } else if(m_mean == harmonic) {
-                max_error = harmonic_mean(error);
-            }
-            uq_type max_uq{0.0, max_error};
-            bool use_mean = (m_mean != none);
-            for(std::size_t i = 0; i < t.size(); ++i) {
-                const auto elem = t[i];
-                if(!use_mean) {
-                    rv_data[i] = uq_type{elem, error[i]};
+            bool use_mean = (m_mean != utils::mean_type::none);
+            if(!use_mean) {
+                for(std::size_t i = 0; i < t.size(); ++i) {
+                    const auto elem = t[i];
+                    rv_data[i]      = uq_type{elem, error[i]};
+                }
+            } else {
+                float_type max_error = utils::compute_mean(m_mean, error);
+                uq_type max_uq;
+                if constexpr(types::is_interval_v<uq_type>) {
+                    max_uq = uq_type(max_error);
+                } else if constexpr(types::is_uncertain_v<uq_type>) {
+                    max_uq = uq_type(0.0, max_error);
                 } else {
-                    rv_data[i] = elem + max_uq;
+                    throw std::runtime_error("Invalid UQ type");
+                }
+
+                for(std::size_t i = 0; i < t.size(); ++i) {
+                    const auto elem = t[i];
+                    rv_data[i]      = elem + max_uq;
                 }
             }
             rv = tensorwrapper::Tensor(m_shape, std::move(rv_buffer));
@@ -122,7 +85,7 @@ struct Kernel {
         return rv;
     }
     shape_type m_shape;
-    mean_type m_mean;
+    utils::mean_type m_mean;
 };
 
 const auto desc = R"(
@@ -141,17 +104,15 @@ MODULE_CTOR(UQDriver) {
     description(desc);
     add_submodule<eri_pt>("ERIs");
     add_submodule<error_pt>("ERI Error");
-    add_input<bool>("Max Error").set_default(false);
-    add_input<bool>("Geometric Mean").set_default(false);
-    add_input<bool>("Harmonic Mean").set_default(false);
+    add_input<std::string>("UQ Type").set_default("uncertain");
+    add_input<std::string>("Mean Type").set_default("none");
 }
 
 MODULE_RUN(UQDriver) {
     const auto& [braket] = eri_pt::unwrap_inputs(inputs);
-    bool use_max         = inputs.at("Max Error").value<bool>();
-    bool use_geom        = inputs.at("Geometric Mean").value<bool>();
-    bool use_harmonic    = inputs.at("Harmonic Mean").value<bool>();
-    auto mean            = get_mean_type(use_max, use_geom, use_harmonic);
+    auto uq_type         = inputs.at("UQ Type").value<std::string>();
+    auto mean_str        = inputs.at("Mean Type").value<std::string>();
+    auto mean            = utils::mean_from_string(mean_str);
 
     auto& eri_mod = submods.at("ERIs").value();
     auto tol      = eri_mod.inputs().at("Threshold").value<double>();
@@ -161,11 +122,19 @@ MODULE_RUN(UQDriver) {
 
     using buffer::visit_contiguous_buffer;
     shape::Smooth shape = t.buffer().layout().shape().as_smooth().make_smooth();
-    Kernel k(shape, mean);
-    auto t_buffer     = make_contiguous(t.buffer());
-    auto error_buffer = make_contiguous(error.buffer());
-    auto t_w_error    = visit_contiguous_buffer(k, t_buffer, error_buffer);
+    auto t_buffer       = make_contiguous(t.buffer());
+    auto error_buffer   = make_contiguous(error.buffer());
 
+    simde::type::tensor t_w_error;
+    if(uq_type == "uncertain") {
+        Kernel<sigma::Uncertain> k(shape, mean);
+        t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
+    } else if(uq_type == "interval") {
+        Kernel<sigma::Interval> k(shape, mean);
+        t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
+    } else {
+        throw std::runtime_error("Invalid UQ type");
+    }
     auto rv = results();
     return eri_pt::wrap_results(rv, t_w_error);
 }
