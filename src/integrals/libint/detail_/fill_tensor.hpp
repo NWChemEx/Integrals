@@ -53,8 +53,12 @@ auto build_eigen_buffer(const std::vector<libint2::BasisSet>& basis_sets,
         initial_value = 0.0;
     } else if constexpr(std::is_same_v<FloatType, sigma::UDouble>) {
         initial_value = FloatType(0.0, thresh);
-    } else if constexpr(std::is_same_v<FloatType, sigma::Interval<double>>) {
-        initial_value = FloatType(-thresh, thresh);
+    } else if constexpr(std::is_same_v<
+                          FloatType,
+                          tensorwrapper::types::interval_type<double>>) {
+        initial_value = FloatType(-thresh, thresh, 1);
+    } else {
+        throw std::runtime_error("Unsupported float type");
     }
     auto N = basis_sets.size();
     std::vector<decltype(N)> dims(N);
