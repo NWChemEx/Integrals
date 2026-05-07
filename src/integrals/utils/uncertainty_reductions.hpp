@@ -19,8 +19,8 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
-
 #include <tensorwrapper/types/floating_point.hpp>
+#include <vector>
 
 namespace integrals::utils {
 

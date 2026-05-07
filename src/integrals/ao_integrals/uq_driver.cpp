@@ -133,10 +133,10 @@ MODULE_RUN(UQDriver) {
 
     simde::type::tensor t_w_error;
     if(uq_type == "uncertain") {
-        Kernel<sigma::Uncertain> k(shape, mean);
+        Kernel<tensorwrapper::types::uncertain_type> k(shape, mean);
         t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
     } else if(uq_type == "interval") {
-        Kernel<sigma::Interval> k(shape, mean);
+        Kernel<tensorwrapper::types::interval_type> k(shape, mean);
         t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
     } else {
         throw std::runtime_error("Invalid UQ type");
