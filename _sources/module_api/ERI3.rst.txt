@@ -47,7 +47,7 @@ module. The columns are:
 +-----------+---------+----------------------------------------------------------------+
 | Threshold | 1e-16   | The target precision with which the integrals will be computed |
 +-----------+---------+----------------------------------------------------------------+
-| With UQ?  | 0       | N/A                                                            |
+| UQ Type   | none    | N/A                                                            |
 +-----------+---------+----------------------------------------------------------------+
 
 
@@ -86,16 +86,16 @@ Threshold
 
   - Type == double
 
-With UQ?
---------
+UQ Type
+-------
 
 - Description : N/A
-- Default Value : 0
+- Default Value : none
 - Optional? : False
 - Opaque? : True
 - Domain Restrictions :
 
-  - Type == bool
+  - Type == std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>
 
 
 **************

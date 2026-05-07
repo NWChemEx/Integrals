@@ -30,6 +30,5 @@ Modules API
    Primitive_Normalization
    Raw_Primitive_ERI4
    Screen_Primitive_Pairs
-   UQ_Atom_Blocked_Driver
    UQ_Atom_Symm_Blocked_Driver
    UQ_Driver

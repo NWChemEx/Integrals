@@ -44,17 +44,15 @@ module. The columns are:
 - ``Default`` : The initial value, if one exists, and
 - ``Description`` : A human readable description of what the option is used for.
 
-+----------------+---------+-------------+
-| Key            | Default | Description |
-+================+=========+=============+
-| BraKet         | N/A     | N/A         |
-+----------------+---------+-------------+
-| Geometric Mean | 0       | N/A         |
-+----------------+---------+-------------+
-| Harmonic Mean  | 0       | N/A         |
-+----------------+---------+-------------+
-| Max Error      | 0       | N/A         |
-+----------------+---------+-------------+
++-----------+-----------+-------------+
+| Key       | Default   | Description |
++===========+===========+=============+
+| BraKet    | N/A       | N/A         |
++-----------+-----------+-------------+
+| Mean Type | none      | N/A         |
++-----------+-----------+-------------+
+| UQ Type   | uncertain | N/A         |
++-----------+-----------+-------------+
 
 
 Detailed Descriptions
@@ -81,38 +79,27 @@ BraKet
 
   - Type == chemist::braket::BraKet<std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>, chemist::qm_operator::Coulomb<chemist::Electron, chemist::Electron>, std::pair<chemist::wavefunction::AOs, chemist::wavefunction::AOs>>
 
-Geometric Mean
---------------
-
-- Description : N/A
-- Default Value : 0
-- Optional? : False
-- Opaque? : True
-- Domain Restrictions :
-
-  - Type == bool
-
-Harmonic Mean
--------------
-
-- Description : N/A
-- Default Value : 0
-- Optional? : False
-- Opaque? : True
-- Domain Restrictions :
-
-  - Type == bool
-
-Max Error
+Mean Type
 ---------
 
 - Description : N/A
-- Default Value : 0
+- Default Value : none
 - Optional? : False
 - Opaque? : True
 - Domain Restrictions :
 
-  - Type == bool
+  - Type == std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>
+
+UQ Type
+-------
+
+- Description : N/A
+- Default Value : uncertain
+- Optional? : False
+- Opaque? : True
+- Domain Restrictions :
+
+  - Type == std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>
 
 
 **************
