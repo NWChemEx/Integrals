@@ -42,6 +42,7 @@ cmaize_option_list(
     INTEGRALS_ENABLE_OPENMP OFF "Should we enable OpenMP for threading?"
 )
 
+
 cmaize_find_or_build_dependency(
     simde
     URL github.com/NWChemEx/SimDE

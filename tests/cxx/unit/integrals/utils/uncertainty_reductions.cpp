@@ -65,32 +65,6 @@ TEST_CASE("geometric_mean") {
     }
 }
 
-TEST_CASE("harmonic_mean") {
-    SECTION("Basic Test") {
-        std::vector<double> values{1.0, 2.0, 3.0};
-        auto result = harmonic_mean(values);
-        REQUIRE(result == Catch::Approx(1.63636363636));
-    }
-
-    SECTION("Skips zero") {
-        std::vector<double> values{1.0, 2.0, 3.0, 0.0};
-        auto result = harmonic_mean(values);
-        REQUIRE(result == Catch::Approx(1.63636363636));
-    }
-
-    SECTION("All zero") {
-        std::vector<double> values{0.0, 0.0, 0.0};
-        auto result = harmonic_mean(values);
-        REQUIRE(result == Catch::Approx(0.0));
-    }
-
-    SECTION("No elements") {
-        std::vector<double> values{};
-        auto result = harmonic_mean(values);
-        REQUIRE(result == Catch::Approx(0.0));
-    }
-}
-
 TEST_CASE("compute_mean") {
     std::vector<double> values{1.0, 2.0, 3.0};
     SECTION("Max") {
@@ -100,10 +74,6 @@ TEST_CASE("compute_mean") {
     SECTION("Geometric") {
         auto result = compute_mean(mean_type::geometric, values);
         REQUIRE(result == Catch::Approx(1.81712059283));
-    }
-    SECTION("Harmonic") {
-        auto result = compute_mean(mean_type::harmonic, values);
-        REQUIRE(result == Catch::Approx(1.63636363636));
     }
     SECTION("None") {
         using except_t = std::runtime_error;
@@ -119,10 +89,6 @@ TEST_CASE("mean_from_string") {
     SECTION("Geometric") {
         auto result = mean_from_string("geometric");
         REQUIRE(result == mean_type::geometric);
-    }
-    SECTION("Harmonic") {
-        auto result = mean_from_string("harmonic");
-        REQUIRE(result == mean_type::harmonic);
     }
     SECTION("None") {
         auto result = mean_from_string("none");

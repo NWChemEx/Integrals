@@ -19,10 +19,12 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <tensorwrapper/types/floating_point.hpp>
+#include <vector>
 
 namespace integrals::utils {
 
-enum class mean_type { none, max, geometric, harmonic };
+enum class mean_type { none, max, geometric };
 
 template<typename ContainerType>
 auto max_mean(const ContainerType& values) {
@@ -37,37 +39,19 @@ auto geometric_mean(const ContainerType& values) {
     float_type log_sum         = 0.0;
     std::size_t non_zero_count = 0;
     for(const auto& val : values) {
-        if(val == 0) continue;
-        log_sum += std::log(std::fabs(val));
+        if(val == float_type{0}) continue;
+        log_sum += tensorwrapper::types::log(tensorwrapper::types::fabs(val));
         ++non_zero_count;
     }
-    if(non_zero_count == 0 || log_sum == 0) return float_type{0};
-    return std::exp(log_sum / non_zero_count);
-}
-
-template<typename ContainerType>
-auto harmonic_mean(const ContainerType& values) {
-    // N.b. If val is very small then 1 / val can be very large and be infinity.
-    // Then non_zero_count / reciprocal_sum can be NaN.
-    using float_type           = std::decay_t<decltype(values[0])>;
-    float_type reciprocal_sum  = 0.0;
-    std::size_t non_zero_count = 0;
-    for(const auto& val : values) {
-        if(val == 0 || std::isnan(1 / val)) continue;
-        reciprocal_sum += 1 / val;
-        ++non_zero_count;
-    }
-    if(non_zero_count == 0 || reciprocal_sum == 0) return float_type{0};
-    if(std::isnan(non_zero_count / reciprocal_sum)) return float_type{0};
-    return non_zero_count / reciprocal_sum;
+    if(non_zero_count == 0 || log_sum == float_type{0}) return float_type{0};
+    auto nz_cout = static_cast<float_type>(non_zero_count);
+    return tensorwrapper::types::exp(log_sum / nz_cout);
 }
 
 template<typename ContainerType>
 auto compute_mean(mean_type mean, const ContainerType& span) {
     if(mean == mean_type::max) {
         return max_mean(span);
-    } else if(mean == mean_type::harmonic) {
-        return harmonic_mean(span);
     } else if(mean == mean_type::geometric) {
         return geometric_mean(span);
     } else {
@@ -80,8 +64,6 @@ inline auto mean_from_string(const std::string& mean_str) {
         return mean_type::max;
     } else if(mean_str == std::string("geometric")) {
         return mean_type::geometric;
-    } else if(mean_str == std::string("harmonic")) {
-        return mean_type::harmonic;
     } else if(mean_str == std::string("none")) {
         return mean_type::none;
     } else {

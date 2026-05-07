@@ -27,6 +27,17 @@ namespace {
 // "standard deviations" are not validated, but seem reasonable (the "No Mean"
 // values come from the unit tests of the underlying error module).
 
+template<typename UQType, typename FloatType>
+auto elem(FloatType value, FloatType error) {
+    if constexpr(tensorwrapper::types::is_uncertain_v<UQType>) {
+        return UQType{value, error};
+    } else if constexpr(tensorwrapper::types::is_interval_v<UQType>) {
+        return UQType{value - error, value + error};
+    } else {
+        throw std::runtime_error("Invalid UQ type");
+    }
+}
+
 template<typename FloatType>
 auto corr_answer(const simde::type::tensor& T) {
     if constexpr(std::is_same_v<FloatType, double>) {
@@ -34,34 +45,34 @@ auto corr_answer(const simde::type::tensor& T) {
     } else {
         simde::type::tensor T_corr(T);
         auto& corr_buffer = buffer::make_contiguous(T_corr.buffer());
-        corr_buffer.set_elem({0, 0, 0, 0}, FloatType{0.774606, 0});
+        corr_buffer.set_elem({0, 0, 0, 0}, elem<FloatType>(0.774606, 0.0));
         corr_buffer.set_elem({0, 0, 0, 1},
-                             FloatType{0.265558, 0.0000010000000000});
+                             elem<FloatType>(0.265558, 0.0000010000000000));
         corr_buffer.set_elem({0, 0, 1, 0},
-                             FloatType{0.265558, 0.0000010000000000});
-        corr_buffer.set_elem({0, 0, 1, 1}, FloatType{0.446701, 0});
+                             elem<FloatType>(0.265558, 0.0000010000000000));
+        corr_buffer.set_elem({0, 0, 1, 1}, elem<FloatType>(0.446701, 0.0));
         corr_buffer.set_elem({0, 1, 0, 0},
-                             FloatType{0.265558, 0.0000010000000000});
+                             elem<FloatType>(0.265558, 0.0000010000000000));
         corr_buffer.set_elem({0, 1, 0, 1},
-                             FloatType{0.120666, 0.0000170000000000});
+                             elem<FloatType>(0.120666, 0.0000170000000000));
         corr_buffer.set_elem({0, 1, 1, 0},
-                             FloatType{0.120666, 0.0000170000000000});
+                             elem<FloatType>(0.120666, 0.0000170000000000));
         corr_buffer.set_elem({0, 1, 1, 1},
-                             FloatType{0.265558, 0.0000010000000000});
+                             elem<FloatType>(0.265558, 0.0000010000000000));
         corr_buffer.set_elem({1, 0, 0, 0},
-                             FloatType{0.265558, 0.0000010000000000});
+                             elem<FloatType>(0.265558, 0.0000010000000000));
         corr_buffer.set_elem({1, 0, 0, 1},
-                             FloatType{0.120666, 0.0000170000000000});
+                             elem<FloatType>(0.120666, 0.0000170000000000));
         corr_buffer.set_elem({1, 0, 1, 0},
-                             FloatType{0.120666, 0.0000170000000000});
+                             elem<FloatType>(0.120666, 0.0000170000000000));
         corr_buffer.set_elem({1, 0, 1, 1},
-                             FloatType{0.265558, 0.0000010000000000});
-        corr_buffer.set_elem({1, 1, 0, 0}, FloatType{0.446701, 0});
+                             elem<FloatType>(0.265558, 0.0000010000000000));
+        corr_buffer.set_elem({1, 1, 0, 0}, elem<FloatType>(0.446701, 0.0));
         corr_buffer.set_elem({1, 1, 0, 1},
-                             FloatType{0.265558, 0.0000010000000000});
+                             elem<FloatType>(0.265558, 0.0000010000000000));
         corr_buffer.set_elem({1, 1, 1, 0},
-                             FloatType{0.265558, 0.0000010000000000});
-        corr_buffer.set_elem({1, 1, 1, 1}, FloatType{0.774606, 0});
+                             elem<FloatType>(0.265558, 0.0000010000000000));
+        corr_buffer.set_elem({1, 1, 1, 1}, elem<FloatType>(0.774606, 0.0));
         return T_corr;
     }
 }
@@ -74,22 +85,38 @@ auto corr_max_answer(const simde::type::tensor& T) {
         simde::type::tensor T_corr(T);
         auto& corr_buffer = buffer::make_contiguous(T_corr.buffer());
         double max_error  = 0.0000170000000000;
-        corr_buffer.set_elem({0, 0, 0, 0}, FloatType{0.774606, max_error});
-        corr_buffer.set_elem({0, 0, 0, 1}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({0, 0, 1, 0}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({0, 0, 1, 1}, FloatType{0.446701, max_error});
-        corr_buffer.set_elem({0, 1, 0, 0}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({0, 1, 0, 1}, FloatType{0.120666, max_error});
-        corr_buffer.set_elem({0, 1, 1, 0}, FloatType{0.120666, max_error});
-        corr_buffer.set_elem({0, 1, 1, 1}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 0, 0, 0}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 0, 0, 1}, FloatType{0.120666, max_error});
-        corr_buffer.set_elem({1, 0, 1, 0}, FloatType{0.120666, max_error});
-        corr_buffer.set_elem({1, 0, 1, 1}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 1, 0, 0}, FloatType{0.446701, max_error});
-        corr_buffer.set_elem({1, 1, 0, 1}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 1, 1, 0}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 1, 1, 1}, FloatType{0.774606, max_error});
+        corr_buffer.set_elem({0, 0, 0, 0},
+                             elem<FloatType>(0.774606, max_error));
+        corr_buffer.set_elem({0, 0, 0, 1},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({0, 0, 1, 0},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({0, 0, 1, 1},
+                             elem<FloatType>(0.446701, max_error));
+        corr_buffer.set_elem({0, 1, 0, 0},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({0, 1, 0, 1},
+                             elem<FloatType>(0.120666, max_error));
+        corr_buffer.set_elem({0, 1, 1, 0},
+                             elem<FloatType>(0.120666, max_error));
+        corr_buffer.set_elem({0, 1, 1, 1},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({1, 0, 0, 0},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({1, 0, 0, 1},
+                             elem<FloatType>(0.120666, max_error));
+        corr_buffer.set_elem({1, 0, 1, 0},
+                             elem<FloatType>(0.120666, max_error));
+        corr_buffer.set_elem({1, 0, 1, 1},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({1, 1, 0, 0},
+                             elem<FloatType>(0.446701, max_error));
+        corr_buffer.set_elem({1, 1, 0, 1},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({1, 1, 1, 0},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({1, 1, 1, 1},
+                             elem<FloatType>(0.774606, max_error));
         return T_corr;
     }
 }
@@ -102,125 +129,123 @@ auto corr_geometric_mean_answer(const simde::type::tensor& T) {
         simde::type::tensor T_corr(T);
         auto& corr_buffer = buffer::make_contiguous(T_corr.buffer());
         double max_error  = 0.0000025712815907;
-        corr_buffer.set_elem({0, 0, 0, 0}, FloatType{0.774606, max_error});
-        corr_buffer.set_elem({0, 0, 0, 1}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({0, 0, 1, 0}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({0, 0, 1, 1}, FloatType{0.446701, max_error});
-        corr_buffer.set_elem({0, 1, 0, 0}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({0, 1, 0, 1}, FloatType{0.120666, max_error});
-        corr_buffer.set_elem({0, 1, 1, 0}, FloatType{0.120666, max_error});
-        corr_buffer.set_elem({0, 1, 1, 1}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 0, 0, 0}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 0, 0, 1}, FloatType{0.120666, max_error});
-        corr_buffer.set_elem({1, 0, 1, 0}, FloatType{0.120666, max_error});
-        corr_buffer.set_elem({1, 0, 1, 1}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 1, 0, 0}, FloatType{0.446701, max_error});
-        corr_buffer.set_elem({1, 1, 0, 1}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 1, 1, 0}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 1, 1, 1}, FloatType{0.774606, max_error});
+        corr_buffer.set_elem({0, 0, 0, 0},
+                             elem<FloatType>(0.774606, max_error));
+        corr_buffer.set_elem({0, 0, 0, 1},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({0, 0, 1, 0},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({0, 0, 1, 1},
+                             elem<FloatType>(0.446701, max_error));
+        corr_buffer.set_elem({0, 1, 0, 0},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({0, 1, 0, 1},
+                             elem<FloatType>(0.120666, max_error));
+        corr_buffer.set_elem({0, 1, 1, 0},
+                             elem<FloatType>(0.120666, max_error));
+        corr_buffer.set_elem({0, 1, 1, 1},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({1, 0, 0, 0},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({1, 0, 0, 1},
+                             elem<FloatType>(0.120666, max_error));
+        corr_buffer.set_elem({1, 0, 1, 0},
+                             elem<FloatType>(0.120666, max_error));
+        corr_buffer.set_elem({1, 0, 1, 1},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({1, 1, 0, 0},
+                             elem<FloatType>(0.446701, max_error));
+        corr_buffer.set_elem({1, 1, 0, 1},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({1, 1, 1, 0},
+                             elem<FloatType>(0.265558, max_error));
+        corr_buffer.set_elem({1, 1, 1, 1},
+                             elem<FloatType>(0.774606, max_error));
         return T_corr;
     }
 }
-
-template<typename FloatType>
-auto corr_harmonic_mean_answer(const simde::type::tensor& T) {
-    if constexpr(std::is_same_v<FloatType, double>) {
-        return T;
-    } else {
-        simde::type::tensor T_corr(T);
-        auto& corr_buffer = buffer::make_contiguous(T_corr.buffer());
-        double max_error  = 0.0000014571428571;
-        corr_buffer.set_elem({0, 0, 0, 0}, FloatType{0.774606, max_error});
-        corr_buffer.set_elem({0, 0, 0, 1}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({0, 0, 1, 0}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({0, 0, 1, 1}, FloatType{0.446701, max_error});
-        corr_buffer.set_elem({0, 1, 0, 0}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({0, 1, 0, 1}, FloatType{0.120666, max_error});
-        corr_buffer.set_elem({0, 1, 1, 0}, FloatType{0.120666, max_error});
-        corr_buffer.set_elem({0, 1, 1, 1}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 0, 0, 0}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 0, 0, 1}, FloatType{0.120666, max_error});
-        corr_buffer.set_elem({1, 0, 1, 0}, FloatType{0.120666, max_error});
-        corr_buffer.set_elem({1, 0, 1, 1}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 1, 0, 0}, FloatType{0.446701, max_error});
-        corr_buffer.set_elem({1, 1, 0, 1}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 1, 1, 0}, FloatType{0.265558, max_error});
-        corr_buffer.set_elem({1, 1, 1, 1}, FloatType{0.774606, max_error});
-        return T_corr;
-    }
-}
-
 } // namespace
 
 TEST_CASE("UQ Driver") {
     using float_type = tensorwrapper::types::udouble;
     using test_pt    = simde::ERI4;
 
+    auto rt = std::make_unique<parallelzone::runtime::RuntimeView>();
+    pluginplay::ModuleManager mm(std::move(rt), nullptr);
+    integrals::load_modules(mm);
+    integrals::set_defaults(mm);
+    REQUIRE(mm.count("UQ Driver"));
+    mm.change_input("ERI4", "Threshold", 1.0e-6);
+
+    // Get basis set
+    auto mol  = h2_molecule();
+    auto aobs = h2_sto3g_basis_set();
+
+    // Make AOS object
+    simde::type::aos aos(aobs);
+    simde::type::aos_squared aos_squared(aos, aos);
+
+    // Make Operator
+    simde::type::v_ee_type op{};
+
+    // Make BraKet Input
+    chemist::braket::BraKet braket(aos_squared, op, aos_squared);
+    using tensorwrapper::operations::approximately_equal;
+
     if constexpr(tensorwrapper::types::is_uncertain_v<float_type>) {
-        auto rt = std::make_unique<parallelzone::runtime::RuntimeView>();
-        pluginplay::ModuleManager mm(std::move(rt), nullptr);
-        integrals::load_modules(mm);
-        integrals::set_defaults(mm);
-        REQUIRE(mm.count("UQ Driver"));
-        mm.change_input("ERI4", "Threshold", 1.0e-6);
-
-        // Get basis set
-        auto mol  = h2_molecule();
-        auto aobs = h2_sto3g_basis_set();
-
-        // Make AOS object
-        simde::type::aos aos(aobs);
-        simde::type::aos_squared aos_squared(aos, aos);
-
-        // Make Operator
-        simde::type::v_ee_type op{};
-
-        // Make BraKet Input
-        chemist::braket::BraKet braket(aos_squared, op, aos_squared);
-
-        using tensorwrapper::operations::approximately_equal;
         SECTION("No Mean") {
             // Call modules
-            auto T = mm.at("UQ Driver").run_as<test_pt>(braket);
-
+            auto T      = mm.at("UQ Driver").run_as<test_pt>(braket);
             auto T_corr = corr_answer<float_type>(T);
             REQUIRE(approximately_equal(T_corr, T, 1E-6));
         }
         SECTION("Max Error") {
-            mm.change_input("UQ Driver", "Max Error", true);
-            auto T = mm.at("UQ Driver").run_as<test_pt>(braket);
+            auto copy = mm.at("UQ Driver").unlocked_copy();
+            copy.change_input("Mean Type", "max");
+            auto T = copy.run_as<test_pt>(braket);
 
             auto T_corr = corr_max_answer<float_type>(T);
             REQUIRE(approximately_equal(T_corr, T, 1E-6));
         }
         SECTION("Geometric Mean") {
-            mm.change_input("UQ Driver", "Geometric Mean", true);
-            auto T = mm.at("UQ Driver").run_as<test_pt>(braket);
+            auto copy = mm.at("UQ Driver").unlocked_copy();
+            copy.change_input("Mean Type", "geometric");
+            auto T = copy.run_as<test_pt>(braket);
 
             auto T_corr = corr_geometric_mean_answer<float_type>(T);
             REQUIRE(approximately_equal(T_corr, T, 1E-6));
         }
-        SECTION("Harmonic Mean") {
-            mm.change_input("UQ Driver", "Harmonic Mean", true);
-            auto T = mm.at("UQ Driver").run_as<test_pt>(braket);
+    }
+    using interval_type = tensorwrapper::types::interval_type<double>;
+    if constexpr(tensorwrapper::types::is_interval_v<interval_type>) {
+        auto copy = mm.at("UQ Driver").unlocked_copy();
+        copy.change_input("UQ Type", "interval");
+        // The errors for the integrals are on the order of 1e-5. Subtracting
+        // the intervals in approximately_equal treats the intervals as
+        // independent and doubles them instead of cancelling them. This in turn
+        // means center + radius on the difference inside approximately_equal
+        // will be between 1e-5 and 1e-4.
+        SECTION("No Mean") {
+            // Call modules
+            auto T      = copy.run_as<test_pt>(braket);
+            auto T_corr = corr_answer<interval_type>(T);
 
-            auto T_corr = corr_harmonic_mean_answer<float_type>(T);
-            REQUIRE(approximately_equal(T_corr, T, 1E-6));
+            REQUIRE(approximately_equal(T_corr, T, 1E-4));
         }
-        SECTION("Invalid (T, T, F)") {
-            mm.change_input("UQ Driver", "Max Error", true);
-            mm.change_input("UQ Driver", "Geometric Mean", true);
-            REQUIRE_THROWS(mm.at("UQ Driver").run_as<test_pt>(braket));
+        SECTION("Max Error") {
+            auto copy2 = copy.unlocked_copy();
+            copy2.change_input("Mean Type", "max");
+            auto T      = copy2.run_as<test_pt>(braket);
+            auto T_corr = corr_max_answer<interval_type>(T);
+            REQUIRE(approximately_equal(T_corr, T, 1E-4));
         }
-        SECTION("Invalid (T, F, T)") {
-            mm.change_input("UQ Driver", "Max Error", true);
-            mm.change_input("UQ Driver", "Harmonic Mean", true);
-            REQUIRE_THROWS(mm.at("UQ Driver").run_as<test_pt>(braket));
-        }
-        SECTION("Invalid (F, T, T)") {
-            mm.change_input("UQ Driver", "Geometric Mean", true);
-            mm.change_input("UQ Driver", "Harmonic Mean", true);
-            REQUIRE_THROWS(mm.at("UQ Driver").run_as<test_pt>(braket));
+        SECTION("Geometric Mean") {
+            auto copy2 = copy.unlocked_copy();
+            copy2.change_input("Mean Type", "geometric");
+            auto T = copy2.run_as<test_pt>(braket);
+
+            auto T_corr = corr_geometric_mean_answer<interval_type>(T);
+            REQUIRE(approximately_equal(T_corr, T, 1E-4));
         }
     }
 }
