@@ -35,7 +35,7 @@ struct Kernel {
         if constexpr(types::is_uncertain_v<clean_type> ||
                      types::is_interval_v<clean_type>) {
             throw std::runtime_error(
-              "Coulomb Metric does not support UQ types");
+              "integrals::ao_integrals::CoulombMetric: UQ types not supported");
         } else {
             auto rows = m_shape.extent(0);
             auto cols = m_shape.extent(1);

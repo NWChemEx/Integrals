@@ -58,7 +58,8 @@ TEMPLATED_MODULE_RUN(Libint, BraKetType) {
         using interval_type = tensorwrapper::types::interval_type<float_type>;
         t = detail_::fill_tensor<N, interval_type>(basis_sets, op, rv, thresh);
     } else {
-        throw std::runtime_error("Invalid UQ type");
+        throw std::runtime_error(
+          "integrals::libint::Libint: Invalid UQ type name " + uq_type);
     }
     auto result = results();
     return my_pt::wrap_results(result, t);
