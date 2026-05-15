@@ -29,12 +29,12 @@ namespace {
 template<typename UQType, typename T, typename Tensor>
 auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
                    utils::mean_type mean) {
-    using demangler_type = ::utilities::printing::Demangler;
     std::string error_base =
       "integrals::ao_integrals::UQAtomSymmBlockedDriver: ";
 
 #ifdef ENABLE_SIGMA
-    using float_type = typename UQType::value_t;
+    using float_type     = typename UQType::value_t;
+    using demangler_type = ::utilities::printing::Demangler;
 
     auto n_elements = nbf[0] * nbf[1] * nbf[2] * nbf[3];
 
