@@ -55,7 +55,9 @@ auto compute_mean(mean_type mean, const ContainerType& span) {
     } else if(mean == mean_type::geometric) {
         return geometric_mean(span);
     } else {
-        throw std::runtime_error("Mean type not supported");
+        throw std::runtime_error("integrals::utils::compute_mean: Mean type " +
+                                 std::to_string(static_cast<int>(mean)) +
+                                 " is not computable.");
     }
 }
 
@@ -67,7 +69,8 @@ inline auto mean_from_string(const std::string& mean_str) {
     } else if(mean_str == std::string("none")) {
         return mean_type::none;
     } else {
-        throw std::runtime_error("Mean type not supported: " + mean_str);
+        throw std::runtime_error("integrals::utils::mean_from_string: " +
+                                 mean_str + " is not supported");
     }
 }
 

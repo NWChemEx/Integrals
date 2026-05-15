@@ -28,15 +28,22 @@ namespace {
 
 template<template<typename> typename UQType>
 struct Kernel {
-    using shape_type = buffer::Contiguous::shape_type;
+    using shape_type     = buffer::Contiguous::shape_type;
+    using demangler_type = ::utilities::printing::Demangler;
+
     Kernel(shape_type shape, utils::mean_type mean) :
       m_shape(std::move(shape)), m_mean(mean) {}
 
     template<typename FloatType0, typename FloatType1>
     Tensor operator()(const std::span<FloatType0> t,
                       const std::span<FloatType1> error) {
+        auto type0 = demangler_type::demangle<FloatType0>();
+        auto type1 = demangler_type::demangle<FloatType1>();
         throw std::runtime_error(
-          "UQ Integrals Driver kernel only supports same float types");
+          m_error_base +
+          "Expected same float types for t and error, but got "
+          "FloatType0 = " +
+          type0 + " and FloatType1 = " + type1);
     }
 
     template<typename FloatType>
@@ -47,7 +54,10 @@ struct Kernel {
         using float_type = std::decay_t<FloatType>;
         if constexpr(types::is_uncertain_v<float_type> ||
                      types::is_interval_v<float_type>) {
-            throw std::runtime_error("Did not expect an uncertain type");
+            auto type0 = demangler_type::demangle<FloatType>();
+            throw std::runtime_error(
+              m_error_base + "Expected non-UQ floating point type, but got " +
+              type0);
         } else {
 #ifdef ENABLE_SIGMA
             using uq_type  = UQType<float_type>;
@@ -64,7 +74,10 @@ struct Kernel {
                     } else if constexpr(types::is_uncertain_v<uq_type>) {
                         rv_data[i] = uq_type{elem, error[i]};
                     } else {
-                        throw std::runtime_error("Invalid UQ type");
+                        auto type0 = demangler_type::demangle<uq_type>();
+                        throw std::runtime_error(m_error_base +
+                                                 "Invalid UQ type " + type0 +
+                                                 " for non-mean reduction");
                     }
                 }
             } else {
@@ -75,7 +88,9 @@ struct Kernel {
                 } else if constexpr(types::is_uncertain_v<uq_type>) {
                     max_uq = uq_type(0.0, max_error);
                 } else {
-                    throw std::runtime_error("Invalid UQ type");
+                    auto type0 = demangler_type::demangle<uq_type>();
+                    throw std::runtime_error(m_error_base + "Invalid UQ type " +
+                                             type0 + " for mean reduction");
                 }
                 for(std::size_t i = 0; i < t.size(); ++i) {
                     const auto elem = t[i];
@@ -84,7 +99,8 @@ struct Kernel {
             }
             rv = tensorwrapper::Tensor(m_shape, std::move(rv_buffer));
 #else
-            throw std::runtime_error("Sigma support not enabled!");
+            throw std::runtime_error(m_error_base +
+                                     "Sigma support not enabled!");
 #endif
         }
 
@@ -92,6 +108,7 @@ struct Kernel {
     }
     shape_type m_shape;
     utils::mean_type m_mean;
+    std::string m_error_base = "integrals::ao_integrals::UQDriver: ";
 };
 
 const auto desc = R"(
@@ -139,7 +156,8 @@ MODULE_RUN(UQDriver) {
         Kernel<tensorwrapper::types::interval_type> k(shape, mean);
         t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
     } else {
-        throw std::runtime_error("Invalid UQ type");
+        throw std::runtime_error(
+          "integrals::ao_integrals::UQDriver: Invalid UQ type name " + uq_type);
     }
     auto rv = results();
     return eri_pt::wrap_results(rv, t_w_error);

@@ -29,7 +29,10 @@ auto elem(FloatType value, FloatType error) {
     } else if constexpr(tensorwrapper::types::is_interval_v<UQType>) {
         return UQType{value - error, value + error};
     } else {
-        throw std::runtime_error("Invalid UQ type");
+        ::utilities::printing::Demangler demangler;
+        auto type0 = demangler.template demangle<UQType>();
+        throw std::runtime_error(
+          "UQ Atom Symm Blocked Driver Test: Invalid UQ type " + type0);
     }
 }
 
