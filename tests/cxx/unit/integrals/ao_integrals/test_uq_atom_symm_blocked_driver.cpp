@@ -28,6 +28,8 @@ auto elem(FloatType value, FloatType error) {
         return UQType{value, error};
     } else if constexpr(tensorwrapper::types::is_interval_v<UQType>) {
         return UQType{value - error, value + error};
+    } else if constexpr(tensorwrapper::types::is_affine_v<UQType>) {
+        return UQType{value - error, value + error};
     } else {
         ::utilities::printing::Demangler demangler;
         auto type0 = demangler.template demangle<UQType>();
@@ -165,7 +167,8 @@ TEST_CASE("UQ Atom Symm Blocked Driver") {
                 REQUIRE(approximately_equal(T_corr, T, 1E-6));
             }
         }
-        if constexpr(tensorwrapper::types::is_interval_v<interval_type>) {
+        if constexpr(tensorwrapper::types::is_interval_v<interval_type> ||
+                     tensorwrapper::types::is_affine_v<interval_type>) {
             // The errors for the integrals are on the order of 1e-5.
             // Subtracting
             // the intervals in approximately_equal treats the intervals as

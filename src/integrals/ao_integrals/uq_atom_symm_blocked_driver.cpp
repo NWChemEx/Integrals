@@ -54,6 +54,8 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
                             result.push_back(UQType{-ei, ei});
                         } else if constexpr(types::is_uncertain_v<UQType>) {
                             result.push_back(UQType{0.0, ei});
+                        } else if constexpr(types::is_affine_v<UQType>) {
+                            result.push_back(UQType{0.0, ei});
                         } else {
                             auto type0 = demangler_type::demangle<UQType>();
                             throw std::runtime_error(
@@ -86,6 +88,8 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
     if constexpr(types::is_interval_v<UQType>) {
         return std::vector<UQType>(n_elements, UQType{-mean_value, mean_value});
     } else if constexpr(types::is_uncertain_v<UQType>) {
+        return std::vector<UQType>(n_elements, UQType{0.0, mean_value});
+    } else if constexpr(types::is_affine_v<UQType>) {
         return std::vector<UQType>(n_elements, UQType{0.0, mean_value});
     } else {
         auto type0 = demangler_type::demangle<UQType>();
@@ -192,7 +196,8 @@ struct Kernel {
 
         using float_type = std::decay_t<FloatType>;
         if constexpr(types::is_uncertain_v<float_type> ||
-                     types::is_interval_v<float_type>) {
+                     types::is_interval_v<float_type> ||
+                     types::is_affine_v<float_type>) {
             auto type0 = demangler_type::demangle<FloatType>();
             throw std::runtime_error(
               m_error_base + "Expected non-UQ floating point type, but got " +
@@ -347,6 +352,9 @@ MODULE_RUN(UQAtomSymmBlockedDriver) {
         t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
     } else if(uq_type == "interval") {
         Kernel<tensorwrapper::types::interval_type> k(shape, aos, mean);
+        t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
+    } else if(uq_type == "affine") {
+        Kernel<tensorwrapper::types::affine_type> k(shape, aos, mean);
         t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
     } else {
         throw std::runtime_error(

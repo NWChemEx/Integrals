@@ -53,7 +53,8 @@ struct Kernel {
 
         using float_type = std::decay_t<FloatType>;
         if constexpr(types::is_uncertain_v<float_type> ||
-                     types::is_interval_v<float_type>) {
+                     types::is_interval_v<float_type> ||
+                     types::is_affine_v<float_type>) {
             auto type0 = demangler_type::demangle<FloatType>();
             throw std::runtime_error(
               m_error_base + "Expected non-UQ floating point type, but got " +
@@ -73,6 +74,9 @@ struct Kernel {
                         rv_data[i] = uq_type{elem - ei, elem + ei};
                     } else if constexpr(types::is_uncertain_v<uq_type>) {
                         rv_data[i] = uq_type{elem, error[i]};
+                    } else if constexpr(types::is_affine_v<uq_type>) {
+                        auto ei    = std::fabs(error[i]);
+                        rv_data[i] = uq_type{elem - ei, elem + ei};
                     } else {
                         auto type0 = demangler_type::demangle<uq_type>();
                         throw std::runtime_error(m_error_base +
@@ -86,6 +90,8 @@ struct Kernel {
                 if constexpr(types::is_interval_v<uq_type>) {
                     max_uq = uq_type(-max_error, max_error);
                 } else if constexpr(types::is_uncertain_v<uq_type>) {
+                    max_uq = uq_type(0.0, max_error);
+                } else if constexpr(types::is_affine_v<uq_type>) {
                     max_uq = uq_type(0.0, max_error);
                 } else {
                     auto type0 = demangler_type::demangle<uq_type>();
@@ -154,6 +160,9 @@ MODULE_RUN(UQDriver) {
         t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
     } else if(uq_type == "interval") {
         Kernel<tensorwrapper::types::interval_type> k(shape, mean);
+        t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
+    } else if(uq_type == "affine") {
+        Kernel<tensorwrapper::types::affine_type> k(shape, mean);
         t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
     } else {
         throw std::runtime_error(

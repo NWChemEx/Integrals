@@ -33,7 +33,8 @@ struct Kernel {
     simde::type::tensor operator()(const std::span<FloatType> I) {
         using clean_type = std::decay_t<FloatType>;
         if constexpr(types::is_uncertain_v<clean_type> ||
-                     types::is_interval_v<clean_type>) {
+                     types::is_interval_v<clean_type> ||
+                     types::is_affine_v<clean_type>) {
             throw std::runtime_error(
               "integrals::ao_integrals::CoulombMetric: UQ types not supported");
         } else {

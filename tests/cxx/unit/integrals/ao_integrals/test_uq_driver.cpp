@@ -33,6 +33,8 @@ auto elem(FloatType value, FloatType error) {
         return UQType{value, error};
     } else if constexpr(tensorwrapper::types::is_interval_v<UQType>) {
         return UQType{value - error, value + error};
+    } else if constexpr(tensorwrapper::types::is_affine_v<UQType>) {
+        return UQType{value - error, value + error};
     } else {
         throw std::runtime_error("Invalid UQ type");
     }
@@ -245,6 +247,38 @@ TEST_CASE("UQ Driver") {
             auto T = copy2.run_as<test_pt>(braket);
 
             auto T_corr = corr_geometric_mean_answer<interval_type>(T);
+            REQUIRE(approximately_equal(T_corr, T, 1E-4));
+        }
+    }
+    using affine_type = tensorwrapper::types::affine_type<double>;
+    if constexpr(tensorwrapper::types::is_affine_v<affine_type>) {
+        auto copy = mm.at("UQ Driver").unlocked_copy();
+        copy.change_input("UQ Type", "affine");
+        // The errors for the integrals are on the order of 1e-5. Subtracting
+        // the intervals in approximately_equal treats the intervals as
+        // independent and doubles them instead of cancelling them. This in turn
+        // means center + radius on the difference inside approximately_equal
+        // will be between 1e-5 and 1e-4.
+        SECTION("No Mean") {
+            // Call modules
+            auto T      = copy.run_as<test_pt>(braket);
+            auto T_corr = corr_answer<affine_type>(T);
+
+            REQUIRE(approximately_equal(T_corr, T, 1E-4));
+        }
+        SECTION("Max Error") {
+            auto copy2 = copy.unlocked_copy();
+            copy2.change_input("Mean Type", "max");
+            auto T      = copy2.run_as<test_pt>(braket);
+            auto T_corr = corr_max_answer<affine_type>(T);
+            REQUIRE(approximately_equal(T_corr, T, 1E-4));
+        }
+        SECTION("Geometric Mean") {
+            auto copy2 = copy.unlocked_copy();
+            copy2.change_input("Mean Type", "geometric");
+            auto T = copy2.run_as<test_pt>(braket);
+
+            auto T_corr = corr_geometric_mean_answer<affine_type>(T);
             REQUIRE(approximately_equal(T_corr, T, 1E-4));
         }
     }
