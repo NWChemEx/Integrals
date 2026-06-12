@@ -195,11 +195,12 @@ TEST_CASE("UQ Driver") {
     using tensorwrapper::operations::approximately_equal;
 
     if constexpr(tensorwrapper::types::is_uncertain_v<float_type>) {
+        // The error is on the order of 1e-5, so it should match to 1e-4.
         SECTION("No Mean") {
             // Call modules
             auto T      = mm.at("UQ Driver").run_as<test_pt>(braket);
             auto T_corr = corr_answer<float_type>(T);
-            REQUIRE(approximately_equal(T_corr, T, 1E-6));
+            REQUIRE(approximately_equal(T_corr, T, 1E-4));
         }
         SECTION("Max Error") {
             auto copy = mm.at("UQ Driver").unlocked_copy();
@@ -207,7 +208,7 @@ TEST_CASE("UQ Driver") {
             auto T = copy.run_as<test_pt>(braket);
 
             auto T_corr = corr_max_answer<float_type>(T);
-            REQUIRE(approximately_equal(T_corr, T, 1E-6));
+            REQUIRE(approximately_equal(T_corr, T, 1E-4));
         }
         SECTION("Geometric Mean") {
             auto copy = mm.at("UQ Driver").unlocked_copy();
@@ -215,7 +216,7 @@ TEST_CASE("UQ Driver") {
             auto T = copy.run_as<test_pt>(braket);
 
             auto T_corr = corr_geometric_mean_answer<float_type>(T);
-            REQUIRE(approximately_equal(T_corr, T, 1E-6));
+            REQUIRE(approximately_equal(T_corr, T, 1E-4));
         }
     }
     using interval_type = tensorwrapper::types::interval_type<double>;

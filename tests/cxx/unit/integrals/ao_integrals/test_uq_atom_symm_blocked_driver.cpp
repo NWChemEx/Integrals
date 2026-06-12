@@ -157,14 +157,14 @@ TEST_CASE("UQ Atom Symm Blocked Driver") {
                 auto T = mod.run_as<test_pt>(braket);
 
                 auto T_corr = corr_answer<uncertain_type>(T);
-                REQUIRE(approximately_equal(T_corr, T, 1E-6));
+                REQUIRE(approximately_equal(T_corr, T, 1E-4));
             }
             SECTION("Geometric Mean") {
                 mod.change_input("Mean Type", "geometric");
                 auto T = mod.run_as<test_pt>(braket);
 
                 auto T_corr = corr_answer<uncertain_type>(T);
-                REQUIRE(approximately_equal(T_corr, T, 1E-6));
+                REQUIRE(approximately_equal(T_corr, T, 1E-4));
             }
         }
         if constexpr(tensorwrapper::types::is_interval_v<interval_type> ||

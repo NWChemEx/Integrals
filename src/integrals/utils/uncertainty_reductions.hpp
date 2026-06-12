@@ -35,8 +35,8 @@ auto max_mean(const ContainerType& values) {
 
 template<typename ContainerType>
 auto geometric_mean(const ContainerType& values) {
-    using float_type           = std::decay_t<decltype(values[0])>;
-    float_type log_sum         = 0.0;
+    using float_type = std::decay_t<decltype(values[0])>;
+    float_type log_sum(0.0);
     std::size_t non_zero_count = 0;
     for(const auto& val : values) {
         if(val == float_type{0}) continue;
