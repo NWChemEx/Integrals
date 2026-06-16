@@ -200,8 +200,7 @@ TEMPLATE_LIST_TEST_CASE("UQ Driver", "", uq_types) {
                               float_type>) {
             return "thresholded affine";
         } else {
-            static_assert(tensorwrapper::types::is_uq_type_v<float_type>,
-                          "Unsupported UQ type");
+            throw std::runtime_error("Unsupported UQ type");
         }
     }();
 
