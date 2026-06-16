@@ -27,19 +27,6 @@ namespace {
 // "standard deviations" are not validated, but seem reasonable (the "No Mean"
 // values come from the unit tests of the underlying error module).
 
-template<typename UQType, typename FloatType>
-auto elem(FloatType value, FloatType error) {
-    if constexpr(tensorwrapper::types::is_uncertain_v<UQType>) {
-        return UQType{value, error};
-    } else if constexpr(tensorwrapper::types::is_interval_v<UQType>) {
-        return UQType{value - error, value + error};
-    } else if constexpr(tensorwrapper::types::is_affine_v<UQType>) {
-        return UQType{value - error, value + error};
-    } else {
-        throw std::runtime_error("Invalid UQ type");
-    }
-}
-
 template<typename FloatType>
 auto corr_answer(const simde::type::tensor& T) {
     if constexpr(std::is_same_v<FloatType, double>) {
@@ -47,34 +34,38 @@ auto corr_answer(const simde::type::tensor& T) {
     } else {
         simde::type::tensor T_corr(T);
         auto& corr_buffer = buffer::make_contiguous(T_corr.buffer());
-        corr_buffer.set_elem({0, 0, 0, 0}, elem<FloatType>(0.774606, 0.0));
-        corr_buffer.set_elem({0, 0, 0, 1},
-                             elem<FloatType>(0.265558, 0.0000010000000000));
-        corr_buffer.set_elem({0, 0, 1, 0},
-                             elem<FloatType>(0.265558, 0.0000010000000000));
-        corr_buffer.set_elem({0, 0, 1, 1}, elem<FloatType>(0.446701, 0.0));
-        corr_buffer.set_elem({0, 1, 0, 0},
-                             elem<FloatType>(0.265558, 0.0000010000000000));
-        corr_buffer.set_elem({0, 1, 0, 1},
-                             elem<FloatType>(0.120666, 0.0000170000000000));
-        corr_buffer.set_elem({0, 1, 1, 0},
-                             elem<FloatType>(0.120666, 0.0000170000000000));
-        corr_buffer.set_elem({0, 1, 1, 1},
-                             elem<FloatType>(0.265558, 0.0000010000000000));
-        corr_buffer.set_elem({1, 0, 0, 0},
-                             elem<FloatType>(0.265558, 0.0000010000000000));
-        corr_buffer.set_elem({1, 0, 0, 1},
-                             elem<FloatType>(0.120666, 0.0000170000000000));
-        corr_buffer.set_elem({1, 0, 1, 0},
-                             elem<FloatType>(0.120666, 0.0000170000000000));
-        corr_buffer.set_elem({1, 0, 1, 1},
-                             elem<FloatType>(0.265558, 0.0000010000000000));
-        corr_buffer.set_elem({1, 1, 0, 0}, elem<FloatType>(0.446701, 0.0));
-        corr_buffer.set_elem({1, 1, 0, 1},
-                             elem<FloatType>(0.265558, 0.0000010000000000));
-        corr_buffer.set_elem({1, 1, 1, 0},
-                             elem<FloatType>(0.265558, 0.0000010000000000));
-        corr_buffer.set_elem({1, 1, 1, 1}, elem<FloatType>(0.774606, 0.0));
+        corr_buffer.set_elem(
+          {0, 0, 0, 0}, types::construct_uq_type<FloatType>(0.774606, 0.0));
+        corr_buffer.set_elem({0, 0, 0, 1}, types::construct_uq_type<FloatType>(
+                                             0.265558, 0.0000010000000000));
+        corr_buffer.set_elem({0, 0, 1, 0}, types::construct_uq_type<FloatType>(
+                                             0.265558, 0.0000010000000000));
+        corr_buffer.set_elem(
+          {0, 0, 1, 1}, types::construct_uq_type<FloatType>(0.446701, 0.0));
+        corr_buffer.set_elem({0, 1, 0, 0}, types::construct_uq_type<FloatType>(
+                                             0.265558, 0.0000010000000000));
+        corr_buffer.set_elem({0, 1, 0, 1}, types::construct_uq_type<FloatType>(
+                                             0.120666, 0.0000170000000000));
+        corr_buffer.set_elem({0, 1, 1, 0}, types::construct_uq_type<FloatType>(
+                                             0.120666, 0.0000170000000000));
+        corr_buffer.set_elem({0, 1, 1, 1}, types::construct_uq_type<FloatType>(
+                                             0.265558, 0.0000010000000000));
+        corr_buffer.set_elem({1, 0, 0, 0}, types::construct_uq_type<FloatType>(
+                                             0.265558, 0.0000010000000000));
+        corr_buffer.set_elem({1, 0, 0, 1}, types::construct_uq_type<FloatType>(
+                                             0.120666, 0.0000170000000000));
+        corr_buffer.set_elem({1, 0, 1, 0}, types::construct_uq_type<FloatType>(
+                                             0.120666, 0.0000170000000000));
+        corr_buffer.set_elem({1, 0, 1, 1}, types::construct_uq_type<FloatType>(
+                                             0.265558, 0.0000010000000000));
+        corr_buffer.set_elem(
+          {1, 1, 0, 0}, types::construct_uq_type<FloatType>(0.446701, 0.0));
+        corr_buffer.set_elem({1, 1, 0, 1}, types::construct_uq_type<FloatType>(
+                                             0.265558, 0.0000010000000000));
+        corr_buffer.set_elem({1, 1, 1, 0}, types::construct_uq_type<FloatType>(
+                                             0.265558, 0.0000010000000000));
+        corr_buffer.set_elem(
+          {1, 1, 1, 1}, types::construct_uq_type<FloatType>(0.774606, 0.0));
         return T_corr;
     }
 }
@@ -87,38 +78,38 @@ auto corr_max_answer(const simde::type::tensor& T) {
         simde::type::tensor T_corr(T);
         auto& corr_buffer = buffer::make_contiguous(T_corr.buffer());
         double max_error  = 0.0000170000000000;
-        corr_buffer.set_elem({0, 0, 0, 0},
-                             elem<FloatType>(0.774606, max_error));
-        corr_buffer.set_elem({0, 0, 0, 1},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({0, 0, 1, 0},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({0, 0, 1, 1},
-                             elem<FloatType>(0.446701, max_error));
-        corr_buffer.set_elem({0, 1, 0, 0},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({0, 1, 0, 1},
-                             elem<FloatType>(0.120666, max_error));
-        corr_buffer.set_elem({0, 1, 1, 0},
-                             elem<FloatType>(0.120666, max_error));
-        corr_buffer.set_elem({0, 1, 1, 1},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({1, 0, 0, 0},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({1, 0, 0, 1},
-                             elem<FloatType>(0.120666, max_error));
-        corr_buffer.set_elem({1, 0, 1, 0},
-                             elem<FloatType>(0.120666, max_error));
-        corr_buffer.set_elem({1, 0, 1, 1},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({1, 1, 0, 0},
-                             elem<FloatType>(0.446701, max_error));
-        corr_buffer.set_elem({1, 1, 0, 1},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({1, 1, 1, 0},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({1, 1, 1, 1},
-                             elem<FloatType>(0.774606, max_error));
+        corr_buffer.set_elem({0, 0, 0, 0}, types::construct_uq_type<FloatType>(
+                                             0.774606, max_error));
+        corr_buffer.set_elem({0, 0, 0, 1}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({0, 0, 1, 0}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({0, 0, 1, 1}, types::construct_uq_type<FloatType>(
+                                             0.446701, max_error));
+        corr_buffer.set_elem({0, 1, 0, 0}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({0, 1, 0, 1}, types::construct_uq_type<FloatType>(
+                                             0.120666, max_error));
+        corr_buffer.set_elem({0, 1, 1, 0}, types::construct_uq_type<FloatType>(
+                                             0.120666, max_error));
+        corr_buffer.set_elem({0, 1, 1, 1}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({1, 0, 0, 0}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({1, 0, 0, 1}, types::construct_uq_type<FloatType>(
+                                             0.120666, max_error));
+        corr_buffer.set_elem({1, 0, 1, 0}, types::construct_uq_type<FloatType>(
+                                             0.120666, max_error));
+        corr_buffer.set_elem({1, 0, 1, 1}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({1, 1, 0, 0}, types::construct_uq_type<FloatType>(
+                                             0.446701, max_error));
+        corr_buffer.set_elem({1, 1, 0, 1}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({1, 1, 1, 0}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({1, 1, 1, 1}, types::construct_uq_type<FloatType>(
+                                             0.774606, max_error));
         return T_corr;
     }
 }
@@ -131,45 +122,49 @@ auto corr_geometric_mean_answer(const simde::type::tensor& T) {
         simde::type::tensor T_corr(T);
         auto& corr_buffer = buffer::make_contiguous(T_corr.buffer());
         double max_error  = 0.0000025712815907;
-        corr_buffer.set_elem({0, 0, 0, 0},
-                             elem<FloatType>(0.774606, max_error));
-        corr_buffer.set_elem({0, 0, 0, 1},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({0, 0, 1, 0},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({0, 0, 1, 1},
-                             elem<FloatType>(0.446701, max_error));
-        corr_buffer.set_elem({0, 1, 0, 0},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({0, 1, 0, 1},
-                             elem<FloatType>(0.120666, max_error));
-        corr_buffer.set_elem({0, 1, 1, 0},
-                             elem<FloatType>(0.120666, max_error));
-        corr_buffer.set_elem({0, 1, 1, 1},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({1, 0, 0, 0},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({1, 0, 0, 1},
-                             elem<FloatType>(0.120666, max_error));
-        corr_buffer.set_elem({1, 0, 1, 0},
-                             elem<FloatType>(0.120666, max_error));
-        corr_buffer.set_elem({1, 0, 1, 1},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({1, 1, 0, 0},
-                             elem<FloatType>(0.446701, max_error));
-        corr_buffer.set_elem({1, 1, 0, 1},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({1, 1, 1, 0},
-                             elem<FloatType>(0.265558, max_error));
-        corr_buffer.set_elem({1, 1, 1, 1},
-                             elem<FloatType>(0.774606, max_error));
+        corr_buffer.set_elem({0, 0, 0, 0}, types::construct_uq_type<FloatType>(
+                                             0.774606, max_error));
+        corr_buffer.set_elem({0, 0, 0, 1}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({0, 0, 1, 0}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({0, 0, 1, 1}, types::construct_uq_type<FloatType>(
+                                             0.446701, max_error));
+        corr_buffer.set_elem({0, 1, 0, 0}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({0, 1, 0, 1}, types::construct_uq_type<FloatType>(
+                                             0.120666, max_error));
+        corr_buffer.set_elem({0, 1, 1, 0}, types::construct_uq_type<FloatType>(
+                                             0.120666, max_error));
+        corr_buffer.set_elem({0, 1, 1, 1}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({1, 0, 0, 0}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({1, 0, 0, 1}, types::construct_uq_type<FloatType>(
+                                             0.120666, max_error));
+        corr_buffer.set_elem({1, 0, 1, 0}, types::construct_uq_type<FloatType>(
+                                             0.120666, max_error));
+        corr_buffer.set_elem({1, 0, 1, 1}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({1, 1, 0, 0}, types::construct_uq_type<FloatType>(
+                                             0.446701, max_error));
+        corr_buffer.set_elem({1, 1, 0, 1}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({1, 1, 1, 0}, types::construct_uq_type<FloatType>(
+                                             0.265558, max_error));
+        corr_buffer.set_elem({1, 1, 1, 1}, types::construct_uq_type<FloatType>(
+                                             0.774606, max_error));
         return T_corr;
     }
 }
 } // namespace
 
-TEST_CASE("UQ Driver") {
-    using float_type = tensorwrapper::types::udouble;
+using uq_types =
+  std::tuple<tensorwrapper::types::udouble,
+             tensorwrapper::types::interval_type<double>,
+             tensorwrapper::types::thresholded_affine_type<double>>;
+TEMPLATE_LIST_TEST_CASE("UQ Driver", "", uq_types) {
+    using float_type = TestType;
     using test_pt    = simde::ERI4;
 
     auto rt = std::make_unique<parallelzone::runtime::RuntimeView>();
@@ -194,92 +189,47 @@ TEST_CASE("UQ Driver") {
     chemist::braket::BraKet braket(aos_squared, op, aos_squared);
     using tensorwrapper::operations::approximately_equal;
 
-    if constexpr(tensorwrapper::types::is_uncertain_v<float_type>) {
-        // The error is on the order of 1e-5, so it should match to 1e-4.
+    std::string uq_type = []() -> std::string {
+        if constexpr(tensorwrapper::types::is_uncertain_v<float_type>) {
+            return "uncertain";
+        } else if constexpr(tensorwrapper::types::is_interval_v<float_type>) {
+            return "interval";
+        } else if constexpr(tensorwrapper::types::is_affine_v<float_type>) {
+            return "affine";
+        } else if constexpr(tensorwrapper::types::is_thresholded_affine_v<
+                              float_type>) {
+            return "thresholded affine";
+        } else {
+            static_assert(tensorwrapper::types::is_uq_type_v<float_type>,
+                          "Unsupported UQ type");
+        }
+    }();
+
+    if constexpr(tensorwrapper::types::is_uq_type_v<float_type>) {
+        // The errors for the integrals are on the order of 1e-5. So difference
+        // will be between 1e-5 and 1e-4.
+        auto copy = mm.at("UQ Driver").unlocked_copy();
+        copy.change_input("UQ Type", uq_type);
         SECTION("No Mean") {
             // Call modules
-            auto T      = mm.at("UQ Driver").run_as<test_pt>(braket);
+            auto T      = copy.run_as<test_pt>(braket);
             auto T_corr = corr_answer<float_type>(T);
             REQUIRE(approximately_equal(T_corr, T, 1E-4));
         }
         SECTION("Max Error") {
-            auto copy = mm.at("UQ Driver").unlocked_copy();
-            copy.change_input("Mean Type", "max");
-            auto T = copy.run_as<test_pt>(braket);
+            auto copy2 = copy.unlocked_copy();
+            copy2.change_input("Mean Type", "max");
+            auto T = copy2.run_as<test_pt>(braket);
 
             auto T_corr = corr_max_answer<float_type>(T);
             REQUIRE(approximately_equal(T_corr, T, 1E-4));
         }
         SECTION("Geometric Mean") {
-            auto copy = mm.at("UQ Driver").unlocked_copy();
-            copy.change_input("Mean Type", "geometric");
-            auto T = copy.run_as<test_pt>(braket);
+            auto copy3 = copy.unlocked_copy();
+            copy3.change_input("Mean Type", "geometric");
+            auto T = copy3.run_as<test_pt>(braket);
 
             auto T_corr = corr_geometric_mean_answer<float_type>(T);
-            REQUIRE(approximately_equal(T_corr, T, 1E-4));
-        }
-    }
-    using interval_type = tensorwrapper::types::interval_type<double>;
-    if constexpr(tensorwrapper::types::is_interval_v<interval_type>) {
-        auto copy = mm.at("UQ Driver").unlocked_copy();
-        copy.change_input("UQ Type", "interval");
-        // The errors for the integrals are on the order of 1e-5. Subtracting
-        // the intervals in approximately_equal treats the intervals as
-        // independent and doubles them instead of cancelling them. This in turn
-        // means center + radius on the difference inside approximately_equal
-        // will be between 1e-5 and 1e-4.
-        SECTION("No Mean") {
-            // Call modules
-            auto T      = copy.run_as<test_pt>(braket);
-            auto T_corr = corr_answer<interval_type>(T);
-
-            REQUIRE(approximately_equal(T_corr, T, 1E-4));
-        }
-        SECTION("Max Error") {
-            auto copy2 = copy.unlocked_copy();
-            copy2.change_input("Mean Type", "max");
-            auto T      = copy2.run_as<test_pt>(braket);
-            auto T_corr = corr_max_answer<interval_type>(T);
-            REQUIRE(approximately_equal(T_corr, T, 1E-4));
-        }
-        SECTION("Geometric Mean") {
-            auto copy2 = copy.unlocked_copy();
-            copy2.change_input("Mean Type", "geometric");
-            auto T = copy2.run_as<test_pt>(braket);
-
-            auto T_corr = corr_geometric_mean_answer<interval_type>(T);
-            REQUIRE(approximately_equal(T_corr, T, 1E-4));
-        }
-    }
-    using affine_type = tensorwrapper::types::affine_type<double>;
-    if constexpr(tensorwrapper::types::is_affine_v<affine_type>) {
-        auto copy = mm.at("UQ Driver").unlocked_copy();
-        copy.change_input("UQ Type", "affine");
-        // The errors for the integrals are on the order of 1e-5. Subtracting
-        // the intervals in approximately_equal treats the intervals as
-        // independent and doubles them instead of cancelling them. This in turn
-        // means center + radius on the difference inside approximately_equal
-        // will be between 1e-5 and 1e-4.
-        SECTION("No Mean") {
-            // Call modules
-            auto T      = copy.run_as<test_pt>(braket);
-            auto T_corr = corr_answer<affine_type>(T);
-
-            REQUIRE(approximately_equal(T_corr, T, 1E-4));
-        }
-        SECTION("Max Error") {
-            auto copy2 = copy.unlocked_copy();
-            copy2.change_input("Mean Type", "max");
-            auto T      = copy2.run_as<test_pt>(braket);
-            auto T_corr = corr_max_answer<affine_type>(T);
-            REQUIRE(approximately_equal(T_corr, T, 1E-4));
-        }
-        SECTION("Geometric Mean") {
-            auto copy2 = copy.unlocked_copy();
-            copy2.change_input("Mean Type", "geometric");
-            auto T = copy2.run_as<test_pt>(braket);
-
-            auto T_corr = corr_geometric_mean_answer<affine_type>(T);
             REQUIRE(approximately_equal(T_corr, T, 1E-4));
         }
     }
