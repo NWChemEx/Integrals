@@ -33,8 +33,7 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
       "integrals::ao_integrals::UQAtomSymmBlockedDriver: ";
 
 #ifdef ENABLE_SIGMA
-    using float_type     = typename UQType::value_t;
-    using demangler_type = ::utilities::printing::Demangler;
+    using float_type = typename UQType::value_t;
 
     auto n_elements = nbf[0] * nbf[1] * nbf[2] * nbf[3];
 
