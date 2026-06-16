@@ -336,6 +336,10 @@ MODULE_RUN(UQAtomSymmBlockedDriver) {
     } else if(uq_type == "affine") {
         Kernel<tensorwrapper::types::affine_type> k(shape, aos, mean);
         t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
+    } else if(uq_type == "thresholded affine") {
+        Kernel<tensorwrapper::types::thresholded_affine_type> k(shape, aos,
+                                                                mean);
+        t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
     } else {
         throw std::runtime_error(
           "integrals::ao_integrals::UQAtomSymmBlockedDriver: Invalid UQ type "
