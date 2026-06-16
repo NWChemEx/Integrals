@@ -57,6 +57,14 @@ TEMPLATED_MODULE_RUN(Libint, BraKetType) {
     } else if(uq_type == "interval") {
         using interval_type = tensorwrapper::types::interval_type<float_type>;
         t = detail_::fill_tensor<N, interval_type>(basis_sets, op, rv, thresh);
+    } else if(uq_type == "affine") {
+        using affine_type = tensorwrapper::types::affine_type<float_type>;
+        t = detail_::fill_tensor<N, affine_type>(basis_sets, op, rv, thresh);
+    } else if(uq_type == "thresholded affine") {
+        using thresholded_affine_type =
+          tensorwrapper::types::thresholded_affine_type<float_type>;
+        t = detail_::fill_tensor<N, thresholded_affine_type>(basis_sets, op, rv,
+                                                             thresh);
     } else {
         throw std::runtime_error(
           "integrals::libint::Libint: Invalid UQ type name " + uq_type);

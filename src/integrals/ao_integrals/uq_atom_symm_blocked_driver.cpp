@@ -33,11 +33,11 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
       "integrals::ao_integrals::UQAtomSymmBlockedDriver: ";
 
 #ifdef ENABLE_SIGMA
-    using float_type     = typename UQType::value_t;
-    using demangler_type = ::utilities::printing::Demangler;
+    using float_type = typename UQType::value_t;
 
     auto n_elements = nbf[0] * nbf[1] * nbf[2] * nbf[3];
 
+    using tensorwrapper::types::construct_uq_type;
     if(mean == utils::mean_type::none) {
         std::vector<UQType> result;
         result.reserve(n_elements);
@@ -50,16 +50,8 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
                     for(std::size_t l = 0; l < nbf[3]; ++l) {
                         auto loffset = koffset + (ao_i[3] + l) * strides[3];
                         auto ei      = std::fabs(error[loffset]);
-                        if constexpr(types::is_interval_v<UQType>) {
-                            result.push_back(UQType{-ei, ei});
-                        } else if constexpr(types::is_uncertain_v<UQType>) {
-                            result.push_back(UQType{0.0, ei});
-                        } else {
-                            auto type0 = demangler_type::demangle<UQType>();
-                            throw std::runtime_error(
-                              error_base + "Invalid UQ type " + type0 +
-                              " for non-mean reduction");
-                        }
+                        auto elem    = construct_uq_type<UQType>(0.0, ei);
+                        result.push_back(elem);
                     }
                 }
             }
@@ -83,15 +75,8 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
         }
     }
     auto mean_value = utils::compute_mean(mean, buffer);
-    if constexpr(types::is_interval_v<UQType>) {
-        return std::vector<UQType>(n_elements, UQType{-mean_value, mean_value});
-    } else if constexpr(types::is_uncertain_v<UQType>) {
-        return std::vector<UQType>(n_elements, UQType{0.0, mean_value});
-    } else {
-        auto type0 = demangler_type::demangle<UQType>();
-        throw std::runtime_error(error_base + "Invalid UQ type " + type0 +
-                                 " for mean reduction");
-    }
+    auto value      = construct_uq_type<UQType>(0.0, mean_value);
+    return std::vector<UQType>(n_elements, value);
 #else
     throw std::runtime_error(error_base + "Sigma support not enabled!");
     return std::vector<UQType>{};
@@ -191,8 +176,7 @@ struct Kernel {
         Tensor rv;
 
         using float_type = std::decay_t<FloatType>;
-        if constexpr(types::is_uncertain_v<float_type> ||
-                     types::is_interval_v<float_type>) {
+        if constexpr(types::is_uq_type_v<float_type>) {
             auto type0 = demangler_type::demangle<FloatType>();
             throw std::runtime_error(
               m_error_base + "Expected non-UQ floating point type, but got " +
@@ -347,6 +331,13 @@ MODULE_RUN(UQAtomSymmBlockedDriver) {
         t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
     } else if(uq_type == "interval") {
         Kernel<tensorwrapper::types::interval_type> k(shape, aos, mean);
+        t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
+    } else if(uq_type == "affine") {
+        Kernel<tensorwrapper::types::affine_type> k(shape, aos, mean);
+        t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
+    } else if(uq_type == "thresholded affine") {
+        Kernel<tensorwrapper::types::thresholded_affine_type> k(shape, aos,
+                                                                mean);
         t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
     } else {
         throw std::runtime_error(

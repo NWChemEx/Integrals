@@ -52,15 +52,16 @@ struct Kernel {
         Tensor rv;
 
         using float_type = std::decay_t<FloatType>;
-        if constexpr(types::is_uncertain_v<float_type> ||
-                     types::is_interval_v<float_type>) {
+        if constexpr(types::is_uq_type_v<float_type>) {
             auto type0 = demangler_type::demangle<FloatType>();
             throw std::runtime_error(
               m_error_base + "Expected non-UQ floating point type, but got " +
               type0);
         } else {
 #ifdef ENABLE_SIGMA
-            using uq_type  = UQType<float_type>;
+            using uq_type = UQType<float_type>;
+            using tensorwrapper::types::construct_uq_type;
+            using tensorwrapper::types::fabs;
             auto rv_buffer = buffer::make_contiguous<uq_type>(m_shape);
             auto rv_data   = buffer::get_raw_data<uq_type>(rv_buffer);
 
@@ -68,30 +69,13 @@ struct Kernel {
             if(!use_mean) {
                 for(std::size_t i = 0; i < t.size(); ++i) {
                     const auto elem = t[i];
-                    if constexpr(types::is_interval_v<uq_type>) {
-                        auto ei    = std::fabs(error[i]);
-                        rv_data[i] = uq_type{elem - ei, elem + ei};
-                    } else if constexpr(types::is_uncertain_v<uq_type>) {
-                        rv_data[i] = uq_type{elem, error[i]};
-                    } else {
-                        auto type0 = demangler_type::demangle<uq_type>();
-                        throw std::runtime_error(m_error_base +
-                                                 "Invalid UQ type " + type0 +
-                                                 " for non-mean reduction");
-                    }
+                    const auto ei   = std::fabs(error[i]);
+                    rv_data[i]      = construct_uq_type<uq_type>(elem, ei);
                 }
             } else {
                 float_type max_error = utils::compute_mean(m_mean, error);
-                uq_type max_uq;
-                if constexpr(types::is_interval_v<uq_type>) {
-                    max_uq = uq_type(-max_error, max_error);
-                } else if constexpr(types::is_uncertain_v<uq_type>) {
-                    max_uq = uq_type(0.0, max_error);
-                } else {
-                    auto type0 = demangler_type::demangle<uq_type>();
-                    throw std::runtime_error(m_error_base + "Invalid UQ type " +
-                                             type0 + " for mean reduction");
-                }
+                auto max_uq = construct_uq_type<uq_type>(0.0, max_error);
+
                 for(std::size_t i = 0; i < t.size(); ++i) {
                     const auto elem = t[i];
                     rv_data[i]      = uq_type(elem) + max_uq;
@@ -154,6 +138,12 @@ MODULE_RUN(UQDriver) {
         t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
     } else if(uq_type == "interval") {
         Kernel<tensorwrapper::types::interval_type> k(shape, mean);
+        t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
+    } else if(uq_type == "affine") {
+        Kernel<tensorwrapper::types::affine_type> k(shape, mean);
+        t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
+    } else if(uq_type == "thresholded affine") {
+        Kernel<tensorwrapper::types::thresholded_affine_type> k(shape, mean);
         t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
     } else {
         throw std::runtime_error(
