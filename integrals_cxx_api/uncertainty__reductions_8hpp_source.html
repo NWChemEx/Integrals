@@ -118,8 +118,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span> ContainerType&gt;</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="keyword">auto</span> geometric_mean(<span class="keyword">const</span> ContainerType&amp; values) {</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keyword">using </span>float_type           = std::decay_t&lt;<span class="keyword">decltype</span>(values[0])&gt;;</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    float_type log_sum         = 0.0;</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keyword">using </span>float_type = std::decay_t&lt;<span class="keyword">decltype</span>(values[0])&gt;;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    float_type log_sum(0.0);</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    std::size_t non_zero_count = 0;</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keywordflow">for</span>(<span class="keyword">const</span> <span class="keyword">auto</span>&amp; val : values) {</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        <span class="keywordflow">if</span>(val == float_type{0}) <span class="keywordflow">continue</span>;</div>
