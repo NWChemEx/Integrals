@@ -146,7 +146,7 @@ TEMPLATE_LIST_TEST_CASE("UQ Atom Symm Blocked Driver", "", uq_types) {
                                   float_type>) {
                 return "thresholded affine";
             } else {
-                throw std::runtime_error("Unsupported UQ type");
+                return ""; // Won't be used because of static assert below.
             }
         }();
 
