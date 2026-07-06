@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 NWChemEx-Project
+ * Copyright 2023 NWChemEx-Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-#include <integrals/property_types.hpp>
-#include <pluginplay/property_type/property_type.hpp>
+#include "export_integrals.hpp"
+#include "export_property_types.hpp"
+#include <integrals/integrals_mm.hpp>
+#include <pluginplay/plugin/plugin.hpp>
 
 namespace integrals {
 
-inline void export_property_types(auto& m) {
-    using namespace integrals::property_types;
-
-    EXPORT_PROPERTY_TYPE(DecontractBasisSet, m);
-}
+EXPORT_PLUGIN(integrals, m) { export_property_types(m); }
 
 } // namespace integrals
