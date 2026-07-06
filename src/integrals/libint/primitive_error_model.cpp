@@ -19,8 +19,10 @@
 #include "libint.hpp"
 #include <cmath>
 #include <integrals/integrals.hpp>
+#include <span>
 #include <stdexcept>
 #include <string>
+#include <tensorwrapper/buffer/contiguous.hpp>
 
 namespace integrals::libint {
 namespace {
@@ -35,9 +37,21 @@ same coarse / fine gates as libint `ScreeningMethod::Original` (coarse
 `coarse_k_ij`, fine `fine_k_ij` with `gamma_ij`).
 
 For each decontracted quartet that would be skipped by the contractor, this
-module accumulates one of three per-quartet estimates into the corresponding
-contracted AO element: fixed `Tolerance`, coarse pair product
-`K_ij * K_kl`, or fine metric `|Q_ij Q_kl| / sqrt(gamma_ij + gamma_kl)`.
+module accumulates one of seven per-quartet estimates into the corresponding
+contracted AO element: fixed `Tolerance`, coarse pair product `K_ij * K_kl`,
+fine metric `|Q_ij Q_kl| / sqrt(gamma_ij + gamma_kl)`, `FineBoys` which
+multiplies the fine metric by an upper bound on F_0(T) (Boys-function
+diagnostic, NOT a rigorous upper bound for higher angular momenta), `Schwarz`
+which uses sqrt(||(ij|ij)||_F) * sqrt(||(kl|kl)||_F) from the CauchySchwarz
+submodule — a rigorous upper bound that correctly captures all angular-momentum
+effects, `SchwarzBoys` which multiplies the Schwarz product by the same F_0(T)
+upper bound — tighter than plain Schwarz for well-separated charge distributions
+(rigorous for s-only quartets; empirically validated for higher angular
+momenta), or `SchwarzGF` which additionally multiplies by the exponent-mismatch
+factor G(p,q) = (4 p q / (p+q)^2)^(1/4) with p = gamma_ij, q = gamma_kl. For an
+s-only quartet Schwarz * G(p,q) * F_0(T) is the EXACT integral (zero
+overestimation); for higher angular momenta it is a non-rigorous tightened
+estimate.
 )";
 
 /** @return True iff `PrimitiveContractor` would `continue` (skip) this quartet.
@@ -54,25 +68,61 @@ inline bool primitive_quartet_skipped(double K_ij, double K_kl, double Q_ij,
     return false;
 }
 
-enum class ErrorEstimateKind { Tolerance, Coarse, Fine };
+enum class ErrorEstimateKind {
+    Tolerance,
+    Coarse,
+    Fine,
+    FineBoys,
+    Schwarz,
+    SchwarzBoys,
+    SchwarzGF
+};
 
 inline ErrorEstimateKind parse_error_estimate(const std::string& s) {
     if(s == "Tolerance") return ErrorEstimateKind::Tolerance;
     if(s == "Coarse") return ErrorEstimateKind::Coarse;
     if(s == "Fine") return ErrorEstimateKind::Fine;
+    if(s == "FineBoys") return ErrorEstimateKind::FineBoys;
+    if(s == "Schwarz") return ErrorEstimateKind::Schwarz;
+    if(s == "SchwarzBoys") return ErrorEstimateKind::SchwarzBoys;
+    if(s == "SchwarzGF") return ErrorEstimateKind::SchwarzGF;
     throw std::invalid_argument(
       "Primitive Error Model: \"Error estimate\" must be \"Tolerance\", "
-      "\"Coarse\", or \"Fine\"");
+      "\"Coarse\", \"Fine\", \"FineBoys\", \"Schwarz\", \"SchwarzBoys\", or "
+      "\"SchwarzGF\"");
+}
+
+/** @brief Exponent-mismatch factor
+ *         @f$G(p,q) = \left(4pq / (p+q)^2\right)^{1/4} =
+ *                      \sqrt{2\sqrt{pq}/(p+q)}
+ *         @f$.
+ *
+ *  For an s-type primitive quartet the exact ratio of the true ERI to the
+ *  Cauchy-Schwarz product is @f$G(p,q)\,F_0(T)@f$, where @f$p=\gamma_{ij}@f$
+ *  and @f$q=\gamma_{kl}@f$. By AM-GM @f$G \le 1@f$, with equality iff
+ *  @f$p=q@f$; it measures the tight-vs-diffuse mismatch between the bra and ket
+ *  pairs that the plain Schwarz bound ignores.
+ */
+inline double gf_exponent_factor(double gamma_ij, double gamma_kl) {
+    const double s = gamma_ij + gamma_kl;
+    return std::pow(4.0 * gamma_ij * gamma_kl / (s * s), 0.25);
 }
 
 inline double skip_increment(ErrorEstimateKind kind, double thresh, double K_ij,
                              double K_kl, double Q_ij, double Q_kl,
-                             double gamma_ij, double gamma_kl) {
+                             double gamma_ij, double gamma_kl, double T = 0.0) {
     switch(kind) {
         case ErrorEstimateKind::Tolerance: return thresh;
         case ErrorEstimateKind::Coarse: return K_ij * K_kl;
         case ErrorEstimateKind::Fine:
             return std::abs(Q_ij * Q_kl / std::sqrt(gamma_ij + gamma_kl));
+        case ErrorEstimateKind::FineBoys:
+            return std::abs(Q_ij * Q_kl / std::sqrt(gamma_ij + gamma_kl)) *
+                   detail_::boys_f0_upper_bound(T);
+        case ErrorEstimateKind::Schwarz:
+        case ErrorEstimateKind::SchwarzBoys:
+        case ErrorEstimateKind::SchwarzGF:
+            return 0.0; // handled separately in the quartet loop
     }
     return 0.0;
 }
@@ -80,6 +130,7 @@ inline double skip_increment(ErrorEstimateKind kind, double thresh, double K_ij,
 } // namespace
 
 using eri4_pt = simde::ERI4;
+using ppt     = integrals::property_types::PrimitivePairEstimator;
 using pt      = integrals::property_types::Uncertainty<eri4_pt>;
 
 MODULE_CTOR(PrimitiveErrorModel) {
@@ -91,7 +142,20 @@ MODULE_CTOR(PrimitiveErrorModel) {
       .set_description(
         "Per skipped primitive quartet: \"Tolerance\" adds the screening "
         "threshold; \"Coarse\" adds K_ij*K_kl; \"Fine\" adds the fine-screen "
-        "metric |Q_ij Q_kl|/sqrt(gamma_ij+gamma_kl).");
+        "metric |Q_ij Q_kl|/sqrt(gamma_ij+gamma_kl); \"FineBoys\" multiplies "
+        "the Fine metric by an upper bound on F_0(T) (diagnostic only); "
+        "\"Schwarz\" uses the Cauchy-Schwarz bound sqrt(||(ij|ij)||_F) * "
+        "sqrt(||(kl|kl)||_F) — rigorous for all angular momenta; "
+        "\"SchwarzBoys\" multiplies the Schwarz product by an upper bound on "
+        "F_0(T) — tighter for well-separated charge distributions (rigorous "
+        "for s-only quartets, empirically validated for higher angular "
+        "momenta); \"SchwarzGF\" additionally multiplies by the "
+        "exponent-mismatch factor G(p,q)=(4pq/(p+q)^2)^(1/4) — exact for "
+        "s-only "
+        "quartets, non-rigorous tightened estimate for higher angular "
+        "momenta.");
+
+    add_submodule<ppt>("CauchySchwarz Estimator");
 }
 
 MODULE_RUN(PrimitiveErrorModel) {
@@ -113,6 +177,35 @@ MODULE_RUN(PrimitiveErrorModel) {
     const auto gamma_ket = detail_::gamma_ij(bs2, bs3);
     const auto Q_bra     = detail_::fine_k_ij(bs0, bs1);
     const auto Q_ket     = detail_::fine_k_ij(bs2, bs3);
+
+    const bool need_boys    = (kind == ErrorEstimateKind::FineBoys ||
+                            kind == ErrorEstimateKind::SchwarzBoys ||
+                            kind == ErrorEstimateKind::SchwarzGF);
+    const bool need_schwarz = (kind == ErrorEstimateKind::Schwarz ||
+                               kind == ErrorEstimateKind::SchwarzBoys ||
+                               kind == ErrorEstimateKind::SchwarzGF);
+
+    const auto P_bra = need_boys ?
+                         detail_::product_centers_ij(bs0, bs1) :
+                         decltype(detail_::product_centers_ij(bs0, bs1)){};
+    const auto P_ket = need_boys ?
+                         detail_::product_centers_ij(bs2, bs3) :
+                         decltype(detail_::product_centers_ij(bs2, bs3)){};
+
+    // Schwarz tensors must outlive the spans derived from them.
+    simde::type::tensor S_bra_tensor, S_ket_tensor;
+    std::span<const double> schwarz_bra_data, schwarz_ket_data;
+    const std::size_t n1_prims = bs1.n_primitives();
+    const std::size_t n3_prims = bs3.n_primitives();
+    if(need_schwarz) {
+        auto& cs_mod = submods.at("CauchySchwarz Estimator");
+        S_bra_tensor = cs_mod.run_as<ppt>(bs0, bs1);
+        S_ket_tensor = cs_mod.run_as<ppt>(bs2, bs3);
+        schwarz_bra_data =
+          tensorwrapper::buffer::get_raw_data<double>(S_bra_tensor.buffer());
+        schwarz_ket_data =
+          tensorwrapper::buffer::get_raw_data<double>(S_ket_tensor.buffer());
+    }
 
     auto map0 = utils::build_prim_ao_to_cgto_map(bs0);
     auto map1 = utils::build_prim_ao_to_cgto_map(bs1);
@@ -169,8 +262,34 @@ MODULE_RUN(PrimitiveErrorModel) {
                         continue;
                     }
 
-                    const double inc = skip_increment(
-                      kind, tol, K_ij, K_kl, Q_ij, Q_kl, gamma_ij, gamma_kl);
+                    double T = 0.0;
+                    if(need_boys) {
+                        const auto& Pij = P_bra[pi][pj];
+                        const auto& Pkl = P_ket[pk][pl];
+                        const double dx = Pij[0] - Pkl[0];
+                        const double dy = Pij[1] - Pkl[1];
+                        const double dz = Pij[2] - Pkl[2];
+                        T = gamma_ij * gamma_kl / (gamma_ij + gamma_kl) *
+                            (dx * dx + dy * dy + dz * dz);
+                    }
+
+                    double inc = 0.0;
+                    if(kind == ErrorEstimateKind::SchwarzBoys) {
+                        inc = schwarz_bra_data[pi * n1_prims + pj] *
+                              schwarz_ket_data[pk * n3_prims + pl] *
+                              detail_::boys_f0_upper_bound(T);
+                    } else if(kind == ErrorEstimateKind::SchwarzGF) {
+                        inc = schwarz_bra_data[pi * n1_prims + pj] *
+                              schwarz_ket_data[pk * n3_prims + pl] *
+                              gf_exponent_factor(gamma_ij, gamma_kl) *
+                              detail_::boys_f0_upper_bound(T);
+                    } else if(need_schwarz) {
+                        inc = schwarz_bra_data[pi * n1_prims + pj] *
+                              schwarz_ket_data[pk * n3_prims + pl];
+                    } else {
+                        inc = skip_increment(kind, tol, K_ij, K_kl, Q_ij, Q_kl,
+                                             gamma_ij, gamma_kl, T);
+                    }
                     raw_buffer[ao_offset(mu, nu, lam, sig)] += inc;
                 }
             }

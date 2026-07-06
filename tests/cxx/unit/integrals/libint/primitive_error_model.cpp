@@ -29,9 +29,11 @@ using namespace integrals::testing;
 
 namespace {
 
+using integrals::libint::detail_::boys_f0_upper_bound;
 using integrals::libint::detail_::coarse_k_ij;
 using integrals::libint::detail_::fine_k_ij;
 using integrals::libint::detail_::gamma_ij;
+using integrals::libint::detail_::product_centers_ij;
 
 bool quartet_skipped(double K_ij, double K_kl, double Q_ij, double Q_kl,
                      double gamma_ij, double gamma_kl, double thresh) {
@@ -144,6 +146,61 @@ TEST_CASE("PrimitiveErrorModel") {
                 Catch::Approx(ref.sum_coarse).margin(1e-10));
         REQUIRE(buffer_sum(t_fine) ==
                 Catch::Approx(ref.sum_fine).margin(1e-10));
+    }
+
+    SECTION("SchwarzBoys ≤ Schwarz element-wise (H2 STO-3G)") {
+        auto aobs = h2_sto3g_basis_set();
+        simde::type::aos_squared bra(aobs, aobs);
+        simde::type::aos_squared ket(aobs, aobs);
+        chemist::braket::BraKet mnls(bra, v_ee, ket);
+
+        const double tol   = 1e-12;
+        auto t_schwarz     = run_mode(mnls, tol, "Schwarz");
+        auto t_schwarzboys = run_mode(mnls, tol, "SchwarzBoys");
+
+        using tensorwrapper::buffer::get_raw_data;
+        const auto buf_s  = get_raw_data<double>(t_schwarz.buffer());
+        const auto buf_sb = get_raw_data<double>(t_schwarzboys.buffer());
+
+        REQUIRE(buf_s.size() == buf_sb.size());
+        bool any_strictly_smaller = false;
+        for(std::size_t e = 0; e < buf_s.size(); ++e) {
+            REQUIRE(buf_sb[e] <= buf_s[e] + 1e-14);
+            if(buf_sb[e] < buf_s[e] - 1e-14) any_strictly_smaller = true;
+        }
+        // For H2 there are separated primitive pairs, so F0 < 1 for some.
+        REQUIRE(any_strictly_smaller);
+        REQUIRE(buffer_sum(t_schwarzboys) < buffer_sum(t_schwarz));
+    }
+
+    SECTION("SchwarzGF ≤ SchwarzBoys ≤ Schwarz element-wise (H2 STO-3G)") {
+        auto aobs = h2_sto3g_basis_set();
+        simde::type::aos_squared bra(aobs, aobs);
+        simde::type::aos_squared ket(aobs, aobs);
+        chemist::braket::BraKet mnls(bra, v_ee, ket);
+
+        const double tol   = 1e-12;
+        auto t_schwarz     = run_mode(mnls, tol, "Schwarz");
+        auto t_schwarzboys = run_mode(mnls, tol, "SchwarzBoys");
+        auto t_schwarzgf   = run_mode(mnls, tol, "SchwarzGF");
+
+        using tensorwrapper::buffer::get_raw_data;
+        const auto buf_s  = get_raw_data<double>(t_schwarz.buffer());
+        const auto buf_sb = get_raw_data<double>(t_schwarzboys.buffer());
+        const auto buf_gf = get_raw_data<double>(t_schwarzgf.buffer());
+
+        REQUIRE(buf_s.size() == buf_gf.size());
+        bool any_strictly_smaller = false;
+        for(std::size_t e = 0; e < buf_s.size(); ++e) {
+            // G(p,q) ≤ 1 so SchwarzGF ≤ SchwarzBoys ≤ Schwarz.
+            REQUIRE(buf_gf[e] <= buf_sb[e] + 1e-14);
+            REQUIRE(buf_gf[e] <= buf_s[e] + 1e-14);
+            if(buf_gf[e] < buf_sb[e] - 1e-14) any_strictly_smaller = true;
+        }
+        // H2/STO-3G mixes exponents within a contraction, so some pairs have
+        // p != q and G(p,q) < 1.
+        REQUIRE(any_strictly_smaller);
+        REQUIRE(buffer_sum(t_schwarzgf) < buffer_sum(t_schwarzboys));
     }
 
     SECTION("invalid Error estimate throws") {

@@ -89,11 +89,17 @@ EXTERN_LIBINT(aos_squared, v_ee_type, aos_squared);
 #undef EXTERN_LIBINT
 
 void set_defaults(pluginplay::ModuleManager& mm) {
-    mm.change_submod("CauchySchwarz Estimator", "Decontract Basis Set",
-                     "Decontract Basis Set");
     mm.copy_module("ERI4", "Benchmark ERI4");
     mm.change_input("Benchmark ERI4", "Threshold", 1.0E-16);
-    mm.change_submod("CauchySchwarz Estimator", "ERI4", "Benchmark ERI4");
+    // Separate Raw Primitive ERI4 copy for Schwarz self-pair computation.
+    // Threshold=0 ensures no self-pair ERI is rounded to zero, which would
+    // cause a false Q_CS=0 and violate the bound for tiny-but-nonzero ERIs.
+    mm.copy_module("Raw Primitive ERI4", "Schwarz Raw Primitive ERI4");
+    mm.change_input("Schwarz Raw Primitive ERI4", "Threshold", 0.0);
+    mm.change_submod("Schwarz Raw Primitive ERI4", "Decontract Basis Set",
+                     "Decontract Basis Set");
+    mm.change_submod("CauchySchwarz Estimator", "Raw Primitive ERI4",
+                     "Schwarz Raw Primitive ERI4");
     mm.change_submod("Analytic Error", "ERI4s", "Benchmark ERI4");
     mm.change_submod("Raw Primitive ERI4", "Decontract Basis Set",
                      "Decontract Basis Set");
@@ -101,6 +107,8 @@ void set_defaults(pluginplay::ModuleManager& mm) {
                      "Raw Primitive ERI4");
     mm.change_submod("Primitive Contractor ERI4", "Primitive Normalization",
                      "Primitive Normalization");
+    mm.change_submod("Primitive Error Model", "CauchySchwarz Estimator",
+                     "CauchySchwarz Estimator");
 }
 
 #define LOAD_LIBINT(bra, op, ket, key) mm.add_module<LIBINT(bra, op, ket)>(key)

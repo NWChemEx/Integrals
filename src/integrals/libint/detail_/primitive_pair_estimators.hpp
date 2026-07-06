@@ -166,4 +166,53 @@ inline auto fine_k_ij(const simde::type::ao_basis_set& basis0,
     }
     return K;
 }
+/** @brief Gaussian product centers
+ *         @f$\mathbf{P}_{ij} = (\alpha_i \mathbf{A} + \alpha_j \mathbf{B}) /
+ *         \gamma_{ij}@f$ for each primitive pair.
+ *
+ *  @param[in] basis0 First basis (rows).
+ *  @param[in] basis1 Second basis (columns).
+ *  @return Matrix of shape `n_prims0` x `n_prims1`, each entry an
+ *          `std::array<double,3>` holding (x, y, z) of the product center.
+ */
+inline auto product_centers_ij(const simde::type::ao_basis_set& basis0,
+                               const simde::type::ao_basis_set& basis1) {
+    auto nprims0   = basis0.n_primitives();
+    auto nprims1   = basis1.n_primitives();
+    auto gamma     = gamma_ij(basis0, basis1);
+    using center_t = std::array<double, 3>;
+    using vector_t = std::vector<center_t>;
+    using matrix_t = std::vector<vector_t>;
+    matrix_t P(nprims0, vector_t(nprims1, {0.0, 0.0, 0.0}));
+    for(std::size_t i = 0; i < nprims0; ++i) {
+        auto alpha0 = basis0.primitive(i).exponent();
+        auto r0     = basis0.primitive(i).center();
+        for(std::size_t j = 0; j < nprims1; ++j) {
+            auto alpha1 = basis1.primitive(j).exponent();
+            auto r1     = basis1.primitive(j).center();
+            auto gij    = gamma[i][j];
+            P[i][j]     = {(alpha0 * r0.x() + alpha1 * r1.x()) / gij,
+                           (alpha0 * r0.y() + alpha1 * r1.y()) / gij,
+                           (alpha0 * r0.z() + alpha1 * r1.z()) / gij};
+        }
+    }
+    return P;
+}
+
+/** @brief Upper bound on the @f$F_0(T)@f$ Boys function.
+ *
+ *  Uses @f$F_0(T) \leq \min\!\left(1,\,
+ * \tfrac{\sqrt{\pi}}{2\sqrt{T}}\right)@f$, which is exact in the large-@f$T@f$
+ * limit and the trivial bound 1 for
+ *  @f$T \leq \pi/4@f$.
+ *
+ *  @param[in] T Non-negative argument @f$T = \frac{\gamma_{ij}\gamma_{kl}}
+ *              {\gamma_{ij}+\gamma_{kl}} R_{PQ}^2@f$.
+ *  @return     Upper bound on @f$F_0(T)@f$ in [0, 1].
+ */
+inline double boys_f0_upper_bound(double T) {
+    if(T <= 0.0) return 1.0;
+    return std::min(1.0, 0.5 * std::sqrt(M_PI / T));
+}
+
 } // namespace integrals::libint::detail_
