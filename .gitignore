@@ -45,3 +45,6 @@ Release/
 
 # Users commonly store their specific CMake settings in a toolchain file
 toolchain.cmake
+
+# MacOS files
+.DS_Store
