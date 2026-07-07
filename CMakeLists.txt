@@ -24,11 +24,7 @@ nwx_set_version(integrals_version "${CMAKE_CURRENT_LIST_DIR}")
 project(integrals VERSION "${integrals_version}" LANGUAGES CXX)
 
 include(disable_in_source_builds)
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
-
-option(BUILD_TESTING           "Whether to build the unit tests"    OFF)
-option(BUILD_PYBIND11_BINDINGS "Build Python bindings via pybind11" ON)
+include(set_default_nwx_options)
 option(INTEGRALS_ENABLE_OPENMP "Enable OpenMP for threading?"       OFF)
 
 # Documentation target (no-op unless BUILD_DOCS is on)
