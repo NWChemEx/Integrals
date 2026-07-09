@@ -42,7 +42,7 @@ contracted AO element: fixed `Tolerance`, coarse pair product `K_ij * K_kl`,
 fine metric `|Q_ij Q_kl| / sqrt(gamma_ij + gamma_kl)`, `FineBoys` which
 multiplies the fine metric by an upper bound on F_0(T) (Boys-function
 diagnostic, NOT a rigorous upper bound for higher angular momenta), `Schwarz`
-which uses sqrt(||(ij|ij)||_F) * sqrt(||(kl|kl)||_F) from the CauchySchwarz
+which uses sqrt(||(ij|ij)||) * sqrt(||(kl|kl)||) from the CauchySchwarz
 submodule — a rigorous upper bound that correctly captures all angular-momentum
 effects, `SchwarzBoys` which multiplies the Schwarz product by the same F_0(T)
 upper bound — tighter than plain Schwarz for well-separated charge distributions
@@ -139,21 +139,7 @@ MODULE_CTOR(PrimitiveErrorModel) {
 
     add_input<std::string>("Error estimate")
       .set_default("Tolerance")
-      .set_description(
-        "Per skipped primitive quartet: \"Tolerance\" adds the screening "
-        "threshold; \"Coarse\" adds K_ij*K_kl; \"Fine\" adds the fine-screen "
-        "metric |Q_ij Q_kl|/sqrt(gamma_ij+gamma_kl); \"FineBoys\" multiplies "
-        "the Fine metric by an upper bound on F_0(T) (diagnostic only); "
-        "\"Schwarz\" uses the Cauchy-Schwarz bound sqrt(||(ij|ij)||_F) * "
-        "sqrt(||(kl|kl)||_F) — rigorous for all angular momenta; "
-        "\"SchwarzBoys\" multiplies the Schwarz product by an upper bound on "
-        "F_0(T) — tighter for well-separated charge distributions (rigorous "
-        "for s-only quartets, empirically validated for higher angular "
-        "momenta); \"SchwarzGF\" additionally multiplies by the "
-        "exponent-mismatch factor G(p,q)=(4pq/(p+q)^2)^(1/4) — exact for "
-        "s-only "
-        "quartets, non-rigorous tightened estimate for higher angular "
-        "momenta.");
+      .set_description(desc);
 
     add_submodule<ppt>("CauchySchwarz Estimator");
 }
@@ -263,15 +249,6 @@ MODULE_RUN(PrimitiveErrorModel) {
                     }
 
                     double T = 0.0;
-                    if(need_boys) {
-                        const auto& Pij = P_bra[pi][pj];
-                        const auto& Pkl = P_ket[pk][pl];
-                        const double dx = Pij[0] - Pkl[0];
-                        const double dy = Pij[1] - Pkl[1];
-                        const double dz = Pij[2] - Pkl[2];
-                        T = gamma_ij * gamma_kl / (gamma_ij + gamma_kl) *
-                            (dx * dx + dy * dy + dz * dz);
-                    }
 
                     double inc = 0.0;
                     if(kind == ErrorEstimateKind::SchwarzBoys) {
