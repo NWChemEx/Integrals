@@ -249,6 +249,15 @@ MODULE_RUN(PrimitiveErrorModel) {
                     }
 
                     double T = 0.0;
+                    if(need_boys) {
+                        const auto& Pij = P_bra[pi][pj];
+                        const auto& Pkl = P_ket[pk][pl];
+                        const double dx = Pij[0] - Pkl[0];
+                        const double dy = Pij[1] - Pkl[1];
+                        const double dz = Pij[2] - Pkl[2];
+                        T = gamma_ij * gamma_kl / (gamma_ij + gamma_kl) *
+                            (dx * dx + dy * dy + dz * dz);
+                    }
 
                     double inc = 0.0;
                     if(kind == ErrorEstimateKind::SchwarzBoys) {
