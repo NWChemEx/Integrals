@@ -16,12 +16,11 @@
 
 import unittest
 
+import integrals
 import parallelzone as pz
 import pluginplay as pp
 from chemist import PointD, ShellType
 from chemist.basis_set import AOBasisSetD, AtomicBasisSetD, ContractedGaussianD
-
-import integrals
 
 
 class TestDecontractBasisSet(unittest.TestCase):
