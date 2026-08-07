@@ -1,4 +1,4 @@
-# Copyright 2022 NWChemEx-Project
+# Copyright 2026 NWChemEx-Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,105 +14,63 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-# Downloads common CMake modules used throughout NWChemEx
+# Downloads common CMake modules used throughout NWChemEx. Included before
+# project() so nwx_set_version() is available to compute the version.
 include(cmake/get_nwx_cmake.cmake)
 
-
-#Sets the version to whatever git thinks it is
-include(get_version_from_git)
-get_version_from_git(integrals_version "${CMAKE_CURRENT_LIST_DIR}")
+# Version from scikit-build-core (wheels/sdists) or the latest git tag.
+include(nwx_set_version)
+nwx_set_version(integrals_version "${CMAKE_CURRENT_LIST_DIR}")
 project(integrals VERSION "${integrals_version}" LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 20)
 
-include(get_cmaize)
+include(disable_in_source_builds)
+include(set_default_nwx_options)
+option(INTEGRALS_ENABLE_OPENMP "Enable OpenMP for threading?"       OFF)
+
+# Documentation target (no-op unless BUILD_DOCS is on)
 include(nwx_cxx_api_docs)
+nwx_cxx_api_docs("cxx/include" "cxx/src")
 
-### Paths ###
-set(INTEGRALS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
-set(INTEGRALS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
-set(INTEGRALS_TESTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tests")
+### Dependencies ###
+include(get_dependencies)
+get_dependencies(simde libint2)
 
-nwx_cxx_api_docs("${INTEGRALS_SOURCE_DIR}" "${INTEGRALS_INCLUDE_DIR}")
-
-### Options ###
-cmaize_option_list(
-    BUILD_TESTING OFF "Should we build the tests?"
-    BUILD_PYBIND11_PYBINDINGS ON "Build pybind11 python3 bindings?"
-    ENABLE_SIGMA OFF "Should we enable Sigma for uncertainty tracking?"
-    INTEGRALS_ENABLE_OPENMP OFF "Should we enable OpenMP for threading?"
-)
-
-
-cmaize_find_or_build_dependency(
-    simde
-    URL github.com/NWChemEx/SimDE
-    BUILD_TARGET simde
-    FIND_TARGET nwx::simde
-    CMAKE_ARGS BUILD_TESTING=OFF
-               BUILD_PYBIND11_PYBINDINGS=${BUILD_PYBIND11_PYBINDINGS}
-               ENABLE_SIGMA=${ENABLE_SIGMA}
-)
-
-cmaize_find_or_build_dependency(
-    Libint2
-    URL https://github.com/evaleev/libint/releases/download/v2.11.0/libint-2.11.0.tgz
-    BUILD_TARGET libint2
-    FIND_TARGET Libint2::int2
-    CMAKE_ARGS ENABLE_FORTRAN=OFF
-               ENABLE_MPFR=OFF
-               LIBINT2_PYTHON=OFF
-)
-
-set(project_depends Libint2 simde)
-
-if("${INTEGRALS_ENABLE_OPENMP}")
-find_package(OpenMP REQUIRED)
-list(APPEND project_depends OpenMP::OpenMP_CXX)
+set(integrals_private_depends libint2)
+if(INTEGRALS_ENABLE_OPENMP)
+    find_package(OpenMP REQUIRED COMPONENTS CXX)
+    list(APPEND integrals_private_depends OpenMP::OpenMP_CXX)
 endif()
 
-cmaize_add_library(
-    ${PROJECT_NAME}
-    SOURCE_DIR "${INTEGRALS_SOURCE_DIR}/${PROJECT_NAME}"
-    INCLUDE_DIRS "${INTEGRALS_INCLUDE_DIR}/${PROJECT_NAME}"
-    DEPENDS "${project_depends}"
-)
+### Library ###
+# simde is a PUBLIC dep (appears in integrals' public headers); libint2 and
+# OpenMP are implementation details (PRIVATE).
+include(nwx_library)
+nwx_library(${PROJECT_NAME} "cxx/include" "cxx/src"
+    simde PRIVATE ${integrals_private_depends})
 
-cmaize_add_executable(
-    primitive_error_models
-    SOURCE_DIR "examples/primitive_error_models"
-    DEPENDS "${PROJECT_NAME}"
-)
+### Python bindings (no-op unless BUILD_PYBIND11_BINDINGS is on) ###
+include(nwx_python_module)
+nwx_python_module(${PROJECT_NAME} "cxx/src")
 
-include(nwx_pybind11)
-nwx_add_pybind11_module(
-    ${PROJECT_NAME}
-    SOURCE_DIR "${INTEGRALS_SOURCE_DIR}/python"
-    DEPENDS "${PROJECT_NAME}"
-)
-
-if("${BUILD_TESTING}")
-    set(CXX_TEST_DIR ${INTEGRALS_TESTS_DIR}/cxx/)
-    set(PYTHON_TEST_DIR ${INTEGRALS_TESTS_DIR}/python)
-
-    cmaize_find_or_build_dependency(
-        Catch2
-        URL github.com/catchorg/Catch2
-        BUILD_TARGET Catch2
-        FIND_TARGET Catch2::Catch2
-        VERSION v3.6.0
+### Tests ###
+if(BUILD_TESTING)
+    include(catch2_tests_from_dir)
+    catch2_tests_from_dir(
+        "test_unit_${PROJECT_NAME}"
+        "tests/cxx/unit/${PROJECT_NAME}"
+        ${PROJECT_NAME} ${NWX_DEP_TARGET_libint2}
+        PRIVATE_INCLUDES "cxx/src"
     )
 
-    cmaize_add_tests(
-        test_unit_integrals
-        SOURCE_DIR "${CXX_TEST_DIR}/unit/${PROJECT_NAME}"
-        INCLUDE_DIRS "${INTEGRALS_SOURCE_DIR}/${PROJECT_NAME}"
-        DEPENDS Catch2 ${PROJECT_NAME}
+    # Demonstration executable exercised alongside the tests.
+    add_executable(primitive_error_models
+        examples/primitive_error_models/main.cpp
     )
+    target_link_libraries(primitive_error_models PRIVATE ${PROJECT_NAME})
 
-    nwx_pybind11_tests(
-        py_integrals "${PYTHON_TEST_DIR}/unit_tests/test_integrals.py"
-        SUBMODULES pluginplay chemist tensorwrapper parallelzone simde
+    include(nwx_python_test)
+    nwx_python_test(
+        py_unit_test_${PROJECT_NAME}
+        "${CMAKE_CURRENT_LIST_DIR}/tests/python/unit_tests/test_integrals.py"
     )
 endif()
-
-cmaize_add_package(${PROJECT_NAME} NAMESPACE nwx::)
