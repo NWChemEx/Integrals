@@ -145,6 +145,9 @@ MODULE_RUN(UQDriver) {
     } else if(uq_type == "thresholded affine") {
         Kernel<tensorwrapper::types::thresholded_affine_type> k(shape, mean);
         t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
+    } else if(uq_type == "taylor model") {
+        Kernel<tensorwrapper::types::taylor_model_type> k(shape, mean);
+        t_w_error = visit_contiguous_buffer(k, t_buffer, error_buffer);
     } else {
         throw std::runtime_error(
           "integrals::ao_integrals::UQDriver: Invalid UQ type name " + uq_type);

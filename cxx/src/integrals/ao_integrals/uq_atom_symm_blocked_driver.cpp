@@ -339,6 +339,9 @@ MODULE_RUN(UQAtomSymmBlockedDriver) {
         Kernel<tensorwrapper::types::thresholded_affine_type> k(shape, aos,
                                                                 mean);
         t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
+    } else if(uq_type == "taylor model") {
+        Kernel<tensorwrapper::types::taylor_model_type> k(shape, aos, mean);
+        t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
     } else {
         throw std::runtime_error(
           "integrals::ao_integrals::UQAtomSymmBlockedDriver: Invalid UQ type "
