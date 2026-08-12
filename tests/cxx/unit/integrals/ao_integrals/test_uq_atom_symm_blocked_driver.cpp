@@ -105,7 +105,8 @@ auto corr_answer_no_mean(const simde::type::tensor& T,
 using uq_types =
   std::tuple<tensorwrapper::types::interval_type<double>,
              tensorwrapper::types::affine_type<double>,
-             tensorwrapper::types::thresholded_affine_type<double>>;
+             tensorwrapper::types::thresholded_affine_type<double>,
+             tensorwrapper::types::taylor_model_type<double>>;
 TEMPLATE_LIST_TEST_CASE("UQ Atom Symm Blocked Driver", "", uq_types) {
     using float_type = TestType;
     using test_pt    = simde::ERI4;
@@ -145,6 +146,9 @@ TEMPLATE_LIST_TEST_CASE("UQ Atom Symm Blocked Driver", "", uq_types) {
             } else if constexpr(tensorwrapper::types::is_thresholded_affine_v<
                                   float_type>) {
                 return "thresholded affine";
+            } else if constexpr(tensorwrapper::types::is_taylor_model_v<
+                                  float_type>) {
+                return "taylor model";
             } else {
                 return ""; // Won't be used because of static assert below.
             }

@@ -65,6 +65,11 @@ TEMPLATED_MODULE_RUN(Libint, BraKetType) {
           tensorwrapper::types::thresholded_affine_type<float_type>;
         t = detail_::fill_tensor<N, thresholded_affine_type>(basis_sets, op, rv,
                                                              thresh);
+    } else if(uq_type == "taylor model") {
+        using taylor_model_type =
+          tensorwrapper::types::taylor_model_type<float_type>;
+        t = detail_::fill_tensor<N, taylor_model_type>(basis_sets, op, rv,
+                                                       thresh);
     } else {
         throw std::runtime_error(
           "integrals::libint::Libint: Invalid UQ type name " + uq_type);
