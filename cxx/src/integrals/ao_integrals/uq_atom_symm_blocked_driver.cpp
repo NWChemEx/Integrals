@@ -27,8 +27,9 @@ namespace integrals::ao_integrals {
 namespace {
 
 template<typename UQType, typename T, typename Tensor>
-auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
-                   utils::mean_type mean) {
+auto average_error(
+  T&& strides, T&& nbf, T&& ao_i, Tensor&& error, utils::mean_type mean,
+  const integrals::property_types::TaylorModelFactory& taylor_factory = {}) {
     std::string error_base =
       "integrals::ao_integrals::UQAtomSymmBlockedDriver: ";
 
@@ -38,6 +39,21 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
     auto n_elements = nbf[0] * nbf[1] * nbf[2] * nbf[3];
 
     using tensorwrapper::types::construct_uq_type;
+    using tensorwrapper::types::is_taylor_model_v;
+
+    // For Taylor-model UQ, the truncation order can only be set at
+    // construction time (there is no in-place mutator), so we bypass
+    // construct_uq_type's compiled-in default and use the caller-configured
+    // factory instead. Other UQ families have no "order" concept and keep
+    // using construct_uq_type unchanged.
+    auto make_elem = [&](float_type ei) -> UQType {
+        if constexpr(is_taylor_model_v<UQType>) {
+            return taylor_factory(float_type(0.0), ei);
+        } else {
+            return construct_uq_type<UQType>(0.0, ei);
+        }
+    };
+
     if(mean == utils::mean_type::none) {
         std::vector<UQType> result;
         result.reserve(n_elements);
@@ -50,8 +66,7 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
                     for(std::size_t l = 0; l < nbf[3]; ++l) {
                         auto loffset = koffset + (ao_i[3] + l) * strides[3];
                         auto ei      = std::fabs(error[loffset]);
-                        auto elem    = construct_uq_type<UQType>(0.0, ei);
-                        result.push_back(elem);
+                        result.push_back(make_elem(ei));
                     }
                 }
             }
@@ -75,7 +90,7 @@ auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
         }
     }
     auto mean_value = utils::compute_mean(mean, buffer);
-    auto value      = construct_uq_type<UQType>(0.0, mean_value);
+    auto value      = make_elem(mean_value);
     return std::vector<UQType>(n_elements, value);
 #else
     throw std::runtime_error(error_base + "Sigma support not enabled!");
@@ -155,8 +170,12 @@ struct Kernel {
     using demangler_type = ::utilities::printing::Demangler;
 
     Kernel(shape_type shape, std::array<simde::type::ao_basis_set, 4> aos,
-           utils::mean_type mean) :
-      m_shape(std::move(shape)), m_aos(aos), m_mean(mean) {}
+           utils::mean_type mean,
+           integrals::property_types::TaylorModelFactory taylor_factory = {}) :
+      m_shape(std::move(shape)),
+      m_aos(aos),
+      m_mean(mean),
+      m_taylor_factory(taylor_factory) {}
 
     template<typename FloatType0, typename FloatType1>
     Tensor operator()(const std::span<FloatType0> t,
@@ -237,7 +256,8 @@ struct Kernel {
                             if(pair_gt && all_same) break;
 
                             auto block_errors = average_error<uq_type>(
-                              strides, nbf, ao_offsets, error, m_mean);
+                              strides, nbf, ao_offsets, error, m_mean,
+                              m_taylor_factory);
 
                             // Compute (ab|cd)
                             auto block = compute_block(strides, nbf, ao_offsets,
@@ -273,6 +293,7 @@ struct Kernel {
     shape_type m_shape;
     std::array<simde::type::ao_basis_set, 4> m_aos;
     utils::mean_type m_mean;
+    integrals::property_types::TaylorModelFactory m_taylor_factory;
     std::string m_error_base =
       "integrals::ao_integrals::UQAtomSymmBlockedDriver: ";
 };
@@ -293,6 +314,7 @@ MODULE_CTOR(UQAtomSymmBlockedDriver) {
     description(desc);
     add_submodule<eri_pt>("ERIs");
     add_submodule<error_pt>("ERI Error");
+    add_submodule<integrals::property_types::UQInitializer>("UQ Initializer");
     add_input<std::string>("UQ Type").set_default("uncertain");
     add_input<std::string>("Mean Type").set_default("none");
 }
@@ -302,6 +324,12 @@ MODULE_RUN(UQAtomSymmBlockedDriver) {
     auto mean_str        = inputs.at("Mean Type").value<std::string>();
     auto mean            = utils::mean_from_string(mean_str);
     auto uq_type         = inputs.at("UQ Type").value<std::string>();
+
+    integrals::property_types::TaylorModelFactory taylor_factory;
+    if(uq_type == "taylor model") {
+        taylor_factory = submods.at("UQ Initializer")
+                           .run_as<integrals::property_types::UQInitializer>();
+    }
 
     auto& eri_mod = submods.at("ERIs").value();
     auto tol      = eri_mod.inputs().at("Threshold").value<double>();
@@ -340,7 +368,8 @@ MODULE_RUN(UQAtomSymmBlockedDriver) {
                                                                 mean);
         t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
     } else if(uq_type == "taylor model") {
-        Kernel<tensorwrapper::types::taylor_model_type> k(shape, aos, mean);
+        Kernel<tensorwrapper::types::taylor_model_type> k(shape, aos, mean,
+                                                          taylor_factory);
         t_w_error = visit_contiguous_buffer(k, t_buffer, e_buffer);
     } else {
         throw std::runtime_error(

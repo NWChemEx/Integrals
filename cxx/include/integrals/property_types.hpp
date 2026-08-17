@@ -21,6 +21,7 @@
  * types are added in the future.
  */
 #pragma once
+#include <integrals/taylor_model_factory.hpp>
 #include <simde/types.hpp>
 #include <simde/utils/convert.hpp>
 
@@ -108,6 +109,22 @@ TEMPLATED_PROPERTY_TYPE_RESULTS(Normalize, T) {
       "Normalization Factors");
     rv["Normalization Factors"].set_description(
       "A vector of normalization factors, one per primitive");
+    return rv;
+}
+
+// PT used to produce a TaylorModelFactory (declared in
+// taylor_model_factory.hpp) configured by the
+// module's own "Order" input. Has no property-type-level inputs: the only
+// configuration is the module-specific "Order" input (see uq_initializer.cpp).
+DECLARE_PROPERTY_TYPE(UQInitializer);
+PROPERTY_TYPE_INPUTS(UQInitializer) { return pluginplay::declare_input(); }
+
+PROPERTY_TYPE_RESULTS(UQInitializer) {
+    auto rv =
+      pluginplay::declare_result().add_field<TaylorModelFactory>("UQ Factory");
+    rv["UQ Factory"].set_description(
+      "A callable, comparable factory that constructs Taylor-model UQ "
+      "values at the module-configured truncation order.");
     return rv;
 }
 
