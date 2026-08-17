@@ -1,4 +1,4 @@
-.. Copyright 2022 NWChemEx-Project
+.. Copyright 2025 NWChemEx-Project
 ..
 .. Licensed under the Apache License, Version 2.0 (the "License");
 .. you may not use this file except in compliance with the License.
@@ -12,13 +12,13 @@
 .. See the License for the specific language governing permissions and
 .. limitations under the License.
 
-Welcome to Integral's documentation!
-======================================
+############################
+Electron Repulsion Integrals
+############################
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Contents
 
-   background/index
-   module_api/index
-   C++ API <https://nwchemex.github.io/Integrals/integrals_cxx_api/index.html>
+   eris
+   density_fitting

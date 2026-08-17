@@ -1,4 +1,4 @@
-.. Copyright 2022 NWChemEx-Project
+.. Copyright 2025 NWChemEx-Project
 ..
 .. Licensed under the Apache License, Version 2.0 (the "License");
 .. you may not use this file except in compliance with the License.
@@ -12,13 +12,18 @@
 .. See the License for the specific language governing permissions and
 .. limitations under the License.
 
-Welcome to Integral's documentation!
-======================================
+#####################################
+Electron-Nuclear Attraction Integrals
+#####################################
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+Over a set of :math:`N_b` atomic orbitals (AOs),
+:math:`\lbrace\phi_\mu\left(\vec{r}\right)\rbrace`, and a set of nuclei with
+charges :math:`Z_A` located at :math:`\vec{R}_A`, the electron-nuclear
+attraction integrals are:
 
-   background/index
-   module_api/index
-   C++ API <https://nwchemex.github.io/Integrals/integrals_cxx_api/index.html>
+.. math::
+
+   V^{en}_{\mu\nu} = -\sum_A Z_A \int
+     \phi_\mu\left(\vec{r}\right)
+     \frac{1}{\left|\vec{r}-\vec{R}_A\right|}
+     \phi_\nu\left(\vec{r}\right) d\vec{r}.
