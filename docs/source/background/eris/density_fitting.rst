@@ -217,3 +217,5 @@ References
 
 .. bibliography::
    :style: unsrt
+   :filter: docname in docnames
+   :labelprefix: DF

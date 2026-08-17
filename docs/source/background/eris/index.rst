@@ -22,3 +22,5 @@ Electron Repulsion Integrals
 
    eris
    density_fitting
+   screening
+   error_bounds
