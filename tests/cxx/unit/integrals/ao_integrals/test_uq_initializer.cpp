@@ -19,44 +19,65 @@
 using namespace integrals::testing;
 
 using pt = integrals::property_types::UQInitializer;
-using integrals::property_types::TaylorModelFactory;
+using integrals::property_types::uq_kind_from_string;
+using integrals::property_types::UQFactory;
+using integrals::property_types::UQKind;
 
 TEST_CASE("UQInitializer") {
     auto mm   = initialize_integrals();
     auto& mod = mm.at("UQ Initializer");
 
-    SECTION("Default order matches compiled-in default (2)") {
+    SECTION("Default UQ Type/order matches compiled-in defaults") {
         auto factory = mod.run_as<pt>();
-        REQUIRE(factory.order() == 2);
-
-        auto elem = factory(0.774606, 0.0000010000000000);
-        REQUIRE(elem.max_order() == 2);
+        REQUIRE(factory.kind() == UQKind::uncertain);
     }
 
-    SECTION("Custom order is honored") {
+    SECTION("Each UQ Type string produces a factory of the matching kind") {
+        std::vector<std::pair<std::string, UQKind>> cases{
+          {"uncertain", UQKind::uncertain},
+          {"interval", UQKind::interval},
+          {"affine", UQKind::affine},
+          {"thresholded affine", UQKind::thresholded_affine},
+          {"taylor model", UQKind::taylor_model}};
+
+        for(const auto& [uq_type, kind] : cases) {
+            auto copy = mod.unlocked_copy();
+            copy.change_input("UQ Type", uq_type);
+            auto factory = copy.run_as<pt>();
+            REQUIRE(factory.kind() == kind);
+
+            // factory(center, radius) should not throw and should reflect
+            // the requested center/radius via the underlying UQ type's
+            // bounds.
+            auto elem = factory(0.774606, 0.0000010000000000);
+            wtf::fp::visit_float<tensorwrapper::types::floating_point_types>(
+              [](auto value) {
+                  auto lo = tensorwrapper::types::uq_lower(value);
+                  auto hi = tensorwrapper::types::uq_upper(value);
+                  REQUIRE(lo <= 0.774606);
+                  REQUIRE(hi >= 0.774606);
+              },
+              elem);
+        }
+    }
+
+    SECTION("Custom order is honored for taylor model") {
         auto mod4 = mod.unlocked_copy();
+        mod4.change_input("UQ Type", std::string("taylor model"));
         mod4.change_input("Order", std::size_t(4));
         auto factory = mod4.run_as<pt>();
-        REQUIRE(factory.order() == 4);
+        REQUIRE(factory.kind() == UQKind::taylor_model);
 
         auto elem = factory(0.774606, 0.0000010000000000);
-        REQUIRE(elem.max_order() == 4);
-    }
-}
-
-TEST_CASE("UQInitializer::TaylorModelFactory") {
-    SECTION("operator== / operator< satisfy AnyField comparability") {
-        TaylorModelFactory f2(2), f2b(2), f4(4);
-        REQUIRE(f2 == f2b);
-        REQUIRE_FALSE(f2 == f4);
-        REQUIRE(f2 < f4);
-        REQUIRE_FALSE(f4 < f2);
+        auto tm =
+          wtf::fp::float_cast<tensorwrapper::types::taylor_model_type<double>>(
+            elem);
+        REQUIRE(tm.max_order() == 4);
     }
 
-    SECTION("order() reports the configured order") {
-        TaylorModelFactory f; // default order (2)
-        TaylorModelFactory f3(3);
-        REQUIRE(f.order() == 2);
-        REQUIRE(f3.order() == 3);
+    SECTION("Invalid UQ Type throws") {
+        auto copy = mod.unlocked_copy();
+        copy.change_input("UQ Type", std::string("not a real uq type"));
+        REQUIRE_THROWS_AS(copy.run_as<pt>(), std::runtime_error);
     }
 }

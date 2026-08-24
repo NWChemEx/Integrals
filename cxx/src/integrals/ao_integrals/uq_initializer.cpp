@@ -24,10 +24,9 @@ const auto desc = R"(
 UQ Initializer
 --------------
 
-Produces a TaylorModelFactory configured by this module's "Order" input.
-Intended to be run once per UQAtomSymmBlockedDriver::run() call (not once per
-ERI tensor element) so the resulting factory can be used directly in that
-module's per-element hot loop, avoiding per-element module-dispatch overhead.
+Produces a UQFactory configured by this module's "UQ Type" input (and, for
+"taylor model", the "Order" input). The resulting factory can be used directly
+in a module's hot loops, avoiding module-dispatch overhead.
 )";
 
 } // namespace
@@ -37,12 +36,15 @@ using pt = integrals::property_types::UQInitializer;
 MODULE_CTOR(UQInitializer) {
     satisfies_property_type<pt>();
     description(desc);
+    add_input<std::string>("UQ Type").set_default("uncertain");
     add_input<std::size_t>("Order").set_default(std::size_t(2));
 }
 
 MODULE_RUN(UQInitializer) {
-    auto order = inputs.at("Order").value<std::size_t>();
-    integrals::property_types::TaylorModelFactory factory(order);
+    auto uq_type = inputs.at("UQ Type").value<std::string>();
+    auto order   = inputs.at("Order").value<std::size_t>();
+    auto kind    = integrals::property_types::uq_kind_from_string(uq_type);
+    integrals::property_types::UQFactory factory(kind, order);
     auto rv = results();
     return pt::wrap_results(rv, factory);
 }

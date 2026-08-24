@@ -155,10 +155,15 @@ TEMPLATE_LIST_TEST_CASE("UQ Atom Symm Blocked Driver", "", uq_types) {
         }();
 
         if constexpr(tensorwrapper::types::is_uq_type_v<float_type>) {
+            // "UQ Type" now lives solely on the "UQ Initializer" submodule
+            // (UQAtomSymmBlockedDriver no longer has its own, redundant
+            // copy of this input), so it's set via the ModuleManager on
+            // that submodule rather than on `mod` directly.
+            mm.change_input("UQ Initializer", "UQ Type", uq_type);
+
             // The errors for the integrals are on the order of 1e-5.
             // Subtracting results in differences between 1e-5 and 1e-4.
             SECTION("No Mean") {
-                mod.change_input("UQ Type", uq_type);
                 auto T     = mod.run_as<test_pt>(braket);
                 auto tol   = 1.0e-6;
                 auto T_eri = mm.at("ERI4").run_as<test_pt>(braket);
@@ -167,7 +172,6 @@ TEMPLATE_LIST_TEST_CASE("UQ Atom Symm Blocked Driver", "", uq_types) {
                 REQUIRE(corr_answer_no_mean<float_type>(T, T_eri, T_err));
             }
             SECTION("Max Error") {
-                mod.change_input("UQ Type", uq_type);
                 mod.change_input("Mean Type", "max");
                 auto T = mod.run_as<test_pt>(braket);
 
@@ -175,7 +179,6 @@ TEMPLATE_LIST_TEST_CASE("UQ Atom Symm Blocked Driver", "", uq_types) {
                 REQUIRE(approximately_equal(T_corr, T, 1E-4));
             }
             SECTION("Geometric Mean") {
-                mod.change_input("UQ Type", uq_type);
                 mod.change_input("Mean Type", "geometric");
                 auto T = mod.run_as<test_pt>(braket);
 
@@ -191,10 +194,12 @@ TEMPLATE_LIST_TEST_CASE("UQ Atom Symm Blocked Driver", "", uq_types) {
                     // so a memoized run would (incorrectly, for this test)
                     // return the first call's cached result for the second.
                     mod.turn_off_memoization();
-                    mod.change_input("UQ Type", uq_type);
                     auto T_order2 = mod.run_as<test_pt>(braket); // default
                                                                  // Order=2
 
+                    // Copying "UQ Initializer" after the "UQ Type" input was
+                    // set on it above carries that setting into the copy, so
+                    // only "Order" needs to be overridden here.
                     mm.copy_module("UQ Initializer", "UQ Initializer Order4");
                     mm.change_input("UQ Initializer Order4", "Order",
                                     std::size_t(4));
@@ -203,7 +208,6 @@ TEMPLATE_LIST_TEST_CASE("UQ Atom Symm Blocked Driver", "", uq_types) {
 
                     auto mod4 = mm.at("UQ Atom Symm Blocked Driver");
                     mod4.turn_off_memoization();
-                    mod4.change_input("UQ Type", uq_type);
                     auto T_order4 = mod4.run_as<test_pt>(braket);
 
                     auto t2 = eigen_tensor<4, float_type>(T_order2.buffer());
