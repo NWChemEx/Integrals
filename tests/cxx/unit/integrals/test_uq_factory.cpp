@@ -107,6 +107,10 @@ TEST_CASE("UQFactory") {
         REQUIRE(copy == interval);
     }
 
+// Sigma provides the UQ representations; without it TensorWrapper's UQ types
+// are plain doubles that carry neither bounds nor a TaylorModel order, leaving
+// nothing here to check.
+#ifdef ENABLE_SIGMA
     SECTION("operator()") {
         using tensorwrapper::types::uq_center;
         using tensorwrapper::types::uq_lower;
@@ -164,6 +168,7 @@ TEST_CASE("UQFactory") {
             REQUIRE(value4.max_order() == 4);
         }
     }
+#endif
 
     SECTION("kind") {
         REQUIRE(defaulted.kind() == UQKind::uncertain);

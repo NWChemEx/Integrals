@@ -46,10 +46,11 @@ TEST_CASE("UQInitializer") {
             auto factory = copy.run_as<pt>();
             REQUIRE(factory.kind() == kind);
 
-            // factory(center, radius) should not throw and should reflect
-            // the requested center/radius via the underlying UQ type's
-            // bounds.
-            auto elem = factory(0.774606, 0.0000010000000000);
+            // factory(center, radius) should not throw and (when Sigma
+            // supplies real UQ types) should reflect the requested
+            // center/radius via the underlying UQ type's bounds.
+            [[maybe_unused]] auto elem = factory(0.774606, 0.0000010000000000);
+#ifdef ENABLE_SIGMA
             wtf::fp::visit_float<tensorwrapper::types::floating_point_types>(
               [](auto value) {
                   auto lo = tensorwrapper::types::uq_lower(value);
@@ -58,6 +59,7 @@ TEST_CASE("UQInitializer") {
                   REQUIRE(hi >= 0.774606);
               },
               elem);
+#endif
         }
     }
 
@@ -68,11 +70,15 @@ TEST_CASE("UQInitializer") {
         auto factory = mod4.run_as<pt>();
         REQUIRE(factory.kind() == UQKind::taylor_model);
 
-        auto elem = factory(0.774606, 0.0000010000000000);
+        [[maybe_unused]] auto elem = factory(0.774606, 0.0000010000000000);
+        // Without Sigma the "taylor model" type is a plain double, which has
+        // no order to honor.
+#ifdef ENABLE_SIGMA
         auto tm =
           wtf::fp::float_cast<tensorwrapper::types::taylor_model_type<double>>(
             elem);
         REQUIRE(tm.max_order() == 4);
+#endif
     }
 
     SECTION("Invalid UQ Type throws") {

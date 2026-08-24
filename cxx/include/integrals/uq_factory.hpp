@@ -146,6 +146,24 @@ using ThresholdedAffineFactoryImpl =
   SimpleFactoryImpl<UQKind::thresholded_affine,
                     tensorwrapper::types::thresholded_affine_type>;
 
+/** @brief Constructs a TaylorModel scalar spanning [center - radius,
+ *         center + radius] with a maximum order of @p order.
+ *
+ *  When Sigma is disabled tensorwrapper::types::taylor_model_type<T> is just
+ *  @p T, which has no order to set, so we defer to TensorWrapper's generic
+ *  construction (which simply returns a scalar carrying no uncertainty). The
+ *  dispatch lives in a function template because a discarded `if constexpr`
+ *  branch is only left uninstantiated inside a template.
+ */
+template<typename T>
+T make_taylor_model(double center, double radius, std::size_t order) {
+    if constexpr(tensorwrapper::types::is_taylor_model_v<T>) {
+        return T(center - radius, center + radius, typename T::Order(order));
+    } else {
+        return tensorwrapper::types::construct_uq_type<T>(center, radius);
+    }
+}
+
 /** @brief Specializes UQFactoryBase to construct TaylorModel UQ scalars.
  *
  *  TaylorModel objects need an order parameter. This class stores that
@@ -159,8 +177,8 @@ public:
     /// Calls ctor for tensorwrapper::types::taylor_model_type<double>
     wtf::fp::Float operator()(double center, double radius) const override {
         using uq_t = tensorwrapper::types::taylor_model_type<double>;
-        return wtf::fp::Float(uq_t(center - radius, center + radius,
-                                   typename uq_t::Order(m_order_)));
+        return wtf::fp::Float(
+          make_taylor_model<uq_t>(center, radius, m_order_));
     }
 
     /// Returns UQKind::taylor_model.
