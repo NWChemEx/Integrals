@@ -1,0 +1,7 @@
+<map id="integrals::property_types::UQFactoryBase" name="integrals::property_types::UQFactoryBase">
+<area shape="rect" id="Node000001" title="Polymorphic base class for constructing a UQ scalar from a center and a radius." alt="" coords="5,53,177,93"/>
+<area shape="rect" id="Node000002" href="$classintegrals_1_1property__types_1_1detail_1_1SimpleFactoryImpl.html" title="Implements UQFactory for all UQ kinds except TaylorModel." alt="" coords="225,5,436,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,53,225,48,226,53,191,59"/>
+<area shape="rect" id="Node000003" href="$classintegrals_1_1property__types_1_1detail_1_1TaylorModelFactoryImpl.html" title="Specializes UQFactoryBase to construct TaylorModel UQ scalars." alt="" coords="232,84,429,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,86,232,93,231,98,190,91"/>
+</map>

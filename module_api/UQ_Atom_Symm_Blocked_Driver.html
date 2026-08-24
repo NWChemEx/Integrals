@@ -81,8 +81,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#braket">BraKet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#mean-type">Mean Type</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#uq-type">UQ Type</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mean-type">Mean Type</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#module-results">Module Results</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
 </ul>
@@ -90,6 +89,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="UQ_Driver.html">UQ Driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="UQ_Initializer.html">UQ Initializer</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference external" href="https://nwchemex.github.io/Integrals/integrals_cxx_api/index.html">C++ API</a></li>
@@ -166,10 +166,6 @@ module. The columns are:</p>
 <td><p>none</p></td>
 <td><p>N/A</p></td>
 </tr>
-<tr class="row-even"><td><p>UQ Type</p></td>
-<td><p>uncertain</p></td>
-<td><p>N/A</p></td>
-</tr>
 </tbody>
 </table>
 </section>
@@ -207,20 +203,6 @@ subsection we list:</p>
 <ul class="simple">
 <li><p>Description : N/A</p></li>
 <li><p>Default Value : none</p></li>
-<li><p>Optional? : False</p></li>
-<li><p>Opaque? : True</p></li>
-<li><p>Domain Restrictions :</p>
-<ul>
-<li><p>Type == std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt;&gt;</p></li>
-</ul>
-</li>
-</ul>
-</section>
-<section id="uq-type">
-<h2>UQ Type<a class="headerlink" href="#uq-type" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>Description : N/A</p></li>
-<li><p>Default Value : uncertain</p></li>
 <li><p>Optional? : False</p></li>
 <li><p>Opaque? : True</p></li>
 <li><p>Domain Restrictions :</p>
@@ -282,6 +264,10 @@ submodule we have listed:</p>
 </tr>
 <tr class="row-odd"><td><p>ERIs</p></td>
 <td><p>simde::EvaluateBraKet&lt;chemist::braket::BraKet&lt;std::pair&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;, chemist::qm_operator::Coulomb&lt;chemist::Electron, chemist::Electron&gt;, std::pair&lt;chemist::wavefunction::AOs, chemist::wavefunction::AOs&gt;&gt;&gt;</p></td>
+<td><p>N/A</p></td>
+</tr>
+<tr class="row-even"><td><p>UQ Initializer</p></td>
+<td><p>integrals::property_types::UQInitializer</p></td>
 <td><p>N/A</p></td>
 </tr>
 </tbody>

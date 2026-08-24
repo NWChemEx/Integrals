@@ -1,7 +1,19 @@
 <map id="cxx/include/integrals/property_types.hpp" name="cxx/include/integrals/property_types.hpp">
-<area shape="rect" id="Node000001" title=" " alt="" coords="80,5,237,45"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,93,136,119"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,48,96,86,92,82,136,44"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="161,93,335,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="182,44,226,82,223,86,179,48"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="346,5,503,45"/>
+<area shape="rect" id="Node000002" href="$uq__factory_8hpp.html" title=" " alt="" coords="157,93,335,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="383,48,286,90,284,85,381,43"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="359,93,490,119"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="427,46,427,79,422,79,422,46"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="515,93,689,119"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="468,43,565,85,562,90,466,48"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,167,76,192"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="214,121,88,165,86,160,212,116"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="101,167,178,192"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="230,121,170,161,167,157,227,116"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="203,167,289,192"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="249,119,249,153,243,153,243,119"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="314,167,373,192"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="263,117,318,156,315,160,260,121"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="397,167,639,192"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="290,116,462,161,460,166,289,121"/>
 </map>

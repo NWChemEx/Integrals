@@ -74,7 +74,9 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">integrals::property_types Namespace Reference</div></div>
 </div><!--header-->
@@ -83,11 +85,34 @@ $(function() {
 <p>The namespace for property types defined by the Integrals library.  
 <a href="namespaceintegrals_1_1property__types.html#details">More...</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classintegrals_1_1property__types_1_1UQFactory.html">UQFactory</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A copyable, comparable factory for constructing UQ values of a caller-configured kind.  <a href="classintegrals_1_1property__types_1_1UQFactory.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classintegrals_1_1property__types_1_1UQFactoryBase.html">UQFactoryBase</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Polymorphic base class for constructing a UQ scalar from a center and a radius.  <a href="classintegrals_1_1property__types_1_1UQFactoryBase.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:ac58bab71fbe9d68b78905ad32ce3bcd4" id="r_ac58bab71fbe9d68b78905ad32ce3bcd4"><td class="memItemLeft" align="right" valign="top"><a id="ac58bab71fbe9d68b78905ad32ce3bcd4" name="ac58bab71fbe9d68b78905ad32ce3bcd4"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>DecontractBasisSet</b> = simde::Convert&lt; simde::type::ao_basis_set, simde::type::ao_basis_set &gt;</td></tr>
 <tr class="separator:ac58bab71fbe9d68b78905ad32ce3bcd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a2ee84858abdcb0671c12d3d14f239504" id="r_a2ee84858abdcb0671c12d3d14f239504"><td class="memItemLeft" align="right" valign="top"><a id="a2ee84858abdcb0671c12d3d14f239504" name="a2ee84858abdcb0671c12d3d14f239504"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1property__types.html#a2ee84858abdcb0671c12d3d14f239504">UQKind</a> { <br />
+&#160;&#160;<b>uncertain</b>
+, <b>interval</b>
+, <b>affine</b>
+, <b>thresholded_affine</b>
+, <br />
+&#160;&#160;<b>taylor_model</b>
+<br />
+ }</td></tr>
+<tr class="memdesc:a2ee84858abdcb0671c12d3d14f239504"><td class="mdescLeft">&#160;</td><td class="mdescRight">The UQ representations UQInitializer knows how to build a factory for. <br /></td></tr>
+<tr class="separator:a2ee84858abdcb0671c12d3d14f239504"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -133,10 +158,62 @@ template&lt;typename T &gt; </td></tr>
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a3b388295f144150757161a3a6c5af7d2"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><b>TEMPLATED_PROPERTY_TYPE_RESULTS</b> (Normalize, T)</td></tr>
 <tr class="separator:a3b388295f144150757161a3a6c5af7d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a4141e1d2d63f58b17fe32c5a4b9f19" id="r_a4a4141e1d2d63f58b17fe32c5a4b9f19"><td class="memItemLeft" align="right" valign="top"><a id="a4a4141e1d2d63f58b17fe32c5a4b9f19" name="a4a4141e1d2d63f58b17fe32c5a4b9f19"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>DECLARE_PROPERTY_TYPE</b> (UQInitializer)</td></tr>
+<tr class="separator:a4a4141e1d2d63f58b17fe32c5a4b9f19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18cd24f9b768ada9ed03ca1b593efd10" id="r_a18cd24f9b768ada9ed03ca1b593efd10"><td class="memItemLeft" align="right" valign="top"><a id="a18cd24f9b768ada9ed03ca1b593efd10" name="a18cd24f9b768ada9ed03ca1b593efd10"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PROPERTY_TYPE_INPUTS</b> (UQInitializer)</td></tr>
+<tr class="separator:a18cd24f9b768ada9ed03ca1b593efd10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acbf0d14ca35cf7db87310e01289335c4" id="r_acbf0d14ca35cf7db87310e01289335c4"><td class="memItemLeft" align="right" valign="top"><a id="acbf0d14ca35cf7db87310e01289335c4" name="acbf0d14ca35cf7db87310e01289335c4"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PROPERTY_TYPE_RESULTS</b> (UQInitializer)</td></tr>
+<tr class="separator:acbf0d14ca35cf7db87310e01289335c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5b0060f125d56cb4fbc41a76e3d8d94" id="r_af5b0060f125d56cb4fbc41a76e3d8d94"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceintegrals_1_1property__types.html#a2ee84858abdcb0671c12d3d14f239504">UQKind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1property__types.html#af5b0060f125d56cb4fbc41a76e3d8d94">uq_kind_from_string</a> (const std::string &amp;uq_type)</td></tr>
+<tr class="memdesc:af5b0060f125d56cb4fbc41a76e3d8d94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses a "UQ Type" module-input string into a UQKind.  <br /></td></tr>
+<tr class="separator:af5b0060f125d56cb4fbc41a76e3d8d94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ac5d44072d74202176386d11e4ce728" id="r_a5ac5d44072d74202176386d11e4ce728"><td class="memItemLeft" align="right" valign="top"><a id="a5ac5d44072d74202176386d11e4ce728" name="a5ac5d44072d74202176386d11e4ce728"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>to_string</b> (<a class="el" href="namespaceintegrals_1_1property__types.html#a2ee84858abdcb0671c12d3d14f239504">UQKind</a> kind)</td></tr>
+<tr class="memdesc:a5ac5d44072d74202176386d11e4ce728"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inverse of uq_kind_from_string, kept alongside it for symmetry/debugging. <br /></td></tr>
+<tr class="separator:a5ac5d44072d74202176386d11e4ce728"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The namespace for property types defined by the Integrals library. </p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="af5b0060f125d56cb4fbc41a76e3d8d94" name="af5b0060f125d56cb4fbc41a76e3d8d94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af5b0060f125d56cb4fbc41a76e3d8d94">&#9670;&#160;</a></span>uq_kind_from_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespaceintegrals_1_1property__types.html#a2ee84858abdcb0671c12d3d14f239504">UQKind</a> integrals::property_types::uq_kind_from_string </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>uq_type</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Parses a "UQ Type" module-input string into a UQKind. </p>
+<p>This is the single place the accepted "UQ Type" string literals are spelled out; UQInitializer and UQAtomSymmBlockedDriver's tests both rely on this mapping staying in sync with <a class="el" href="classintegrals_1_1property__types_1_1UQFactory.html" title="A copyable, comparable factory for constructing UQ values of a caller-configured kind.">UQFactory</a>'s construction logic.</p>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>if <code>uq_type</code> does not match a known UQ kind. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8

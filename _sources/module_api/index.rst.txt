@@ -32,3 +32,4 @@ Modules API
    Screen_Primitive_Pairs
    UQ_Atom_Symm_Blocked_Driver
    UQ_Driver
+   UQ_Initializer
