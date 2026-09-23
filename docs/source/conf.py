@@ -74,7 +74,12 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx_rtd_theme",
     "sphinx.ext.intersphinx",
+    "sphinxcontrib.bibtex",
 ]
+
+# -- Options for sphinxcontrib-bibtex -----------------------------------------
+
+bibtex_bibfiles = ["references.bib"]
 
 # Add any paths that contain templates here, relative to this directory.
 # templates_path = ['_templates']
