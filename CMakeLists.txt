@@ -63,10 +63,11 @@ if(BUILD_TESTING)
     )
 
     # Demonstration executable exercised alongside the tests.
-    add_executable(primitive_error_models
+    include(nwx_executable)
+    nwx_executable(primitive_error_models
         examples/primitive_error_models/main.cpp
+        DEPENDS ${PROJECT_NAME}
     )
-    target_link_libraries(primitive_error_models PRIVATE ${PROJECT_NAME})
 
     include(nwx_python_test)
     nwx_python_test(
