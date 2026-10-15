@@ -125,30 +125,30 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">using </span>simde::type::v_ee_type;</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keyword">using </span>simde::type::v_en_type;</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespaceintegrals_1_1libint.html#a238f56292748e119e6c8562d21b896b4">load_modules</a>(pluginplay::ModuleManager&amp; mm);</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespaceintegrals_1_1libint.html#a9b649583cc96dab4fc95b9a4d1557536">set_defaults</a>(pluginplay::ModuleManager&amp; mm);</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespaceintegrals_1_1libint.html#a88c256db83bc0793dcd154081b409569">load_modules</a>(pluginplay::ModuleMap&amp; modules);</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespaceintegrals_1_1libint.html#a63219d486c51fece149455a15cd9949d">set_defaults</a>(pluginplay::ModuleMap&amp; modules);</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="comment">// Forward External Template Declarations</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="preprocessor">#define EXTERN_LIBINT extern template struct Libint</span></div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="comment">// Forward External Template Declarations</span></div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="preprocessor">#define EXTERN_LIBINT extern template struct Libint</span></div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>EXTERN_LIBINT&lt;braket&lt;aos, op_base_type, aos&gt;&gt;;</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>EXTERN_LIBINT&lt;braket&lt;aos, op_base_type, aos_squared&gt;&gt;;</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>EXTERN_LIBINT&lt;braket&lt;aos_squared, op_base_type, aos_squared&gt;&gt;;</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>EXTERN_LIBINT&lt;braket&lt;aos, s_e_type, aos&gt;&gt;;</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>EXTERN_LIBINT&lt;braket&lt;aos, t_e_type, aos&gt;&gt;;</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>EXTERN_LIBINT&lt;braket&lt;aos, v_en_type, aos&gt;&gt;;</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>EXTERN_LIBINT&lt;braket&lt;aos, v_ee_type, aos&gt;&gt;;</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>EXTERN_LIBINT&lt;braket&lt;aos, v_ee_type, aos_squared&gt;&gt;;</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>EXTERN_LIBINT&lt;braket&lt;aos_squared, v_ee_type, aos_squared&gt;&gt;;</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="preprocessor">#undef EXTERN_LIBINT</span></div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>} <span class="comment">// namespace integrals::libint</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>EXTERN_LIBINT&lt;braket&lt;aos, op_base_type, aos&gt;&gt;;</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>EXTERN_LIBINT&lt;braket&lt;aos, op_base_type, aos_squared&gt;&gt;;</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>EXTERN_LIBINT&lt;braket&lt;aos_squared, op_base_type, aos_squared&gt;&gt;;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>EXTERN_LIBINT&lt;braket&lt;aos, s_e_type, aos&gt;&gt;;</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>EXTERN_LIBINT&lt;braket&lt;aos, t_e_type, aos&gt;&gt;;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>EXTERN_LIBINT&lt;braket&lt;aos, v_en_type, aos&gt;&gt;;</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>EXTERN_LIBINT&lt;braket&lt;aos, v_ee_type, aos&gt;&gt;;</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>EXTERN_LIBINT&lt;braket&lt;aos, v_ee_type, aos_squared&gt;&gt;;</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>EXTERN_LIBINT&lt;braket&lt;aos_squared, v_ee_type, aos_squared&gt;&gt;;</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="preprocessor">#undef EXTERN_LIBINT</span></div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>} <span class="comment">// namespace integrals::libint</span></div>
 <div class="ttc" id="anamespaceintegrals_1_1libint_html"><div class="ttname"><a href="namespaceintegrals_1_1libint.html">integrals::libint</a></div><div class="ttdoc">The namespace for the modules that produce AO Integrals.</div><div class="ttdef"><b>Definition</b> analytic_error.cpp:20</div></div>
-<div class="ttc" id="anamespaceintegrals_1_1libint_html_a238f56292748e119e6c8562d21b896b4"><div class="ttname"><a href="namespaceintegrals_1_1libint.html#a238f56292748e119e6c8562d21b896b4">integrals::libint::load_modules</a></div><div class="ttdeci">void load_modules(pluginplay::ModuleManager &amp;mm)</div><div class="ttdoc">Load the libint modules into a Module Manager.</div><div class="ttdef"><b>Definition</b> libint.cpp:113</div></div>
 <div class="ttc" id="anamespaceintegrals_1_1libint_html_a43ca041750a660d2c45848f933c87264"><div class="ttname"><a href="namespaceintegrals_1_1libint.html#a43ca041750a660d2c45848f933c87264">integrals::libint::DECLARE_MODULE</a></div><div class="ttdeci">DECLARE_MODULE(Libint)</div><div class="ttdoc">The Module for computing AO Integrals.</div></div>
-<div class="ttc" id="anamespaceintegrals_1_1libint_html_a9b649583cc96dab4fc95b9a4d1557536"><div class="ttname"><a href="namespaceintegrals_1_1libint.html#a9b649583cc96dab4fc95b9a4d1557536">integrals::libint::set_defaults</a></div><div class="ttdeci">void set_defaults(pluginplay::ModuleManager &amp;mm)</div><div class="ttdoc">Set default module relationships.</div><div class="ttdef"><b>Definition</b> libint.cpp:96</div></div>
+<div class="ttc" id="anamespaceintegrals_1_1libint_html_a63219d486c51fece149455a15cd9949d"><div class="ttname"><a href="namespaceintegrals_1_1libint.html#a63219d486c51fece149455a15cd9949d">integrals::libint::set_defaults</a></div><div class="ttdeci">void set_defaults(pluginplay::ModuleMap &amp;modules)</div><div class="ttdoc">Set default module relationships.</div><div class="ttdef"><b>Definition</b> libint.cpp:96</div></div>
+<div class="ttc" id="anamespaceintegrals_1_1libint_html_a88c256db83bc0793dcd154081b409569"><div class="ttname"><a href="namespaceintegrals_1_1libint.html#a88c256db83bc0793dcd154081b409569">integrals::libint::load_modules</a></div><div class="ttdeci">void load_modules(pluginplay::ModuleMap &amp;modules)</div><div class="ttdoc">Adds the libint modules to the Integrals plugin's modules.</div><div class="ttdef"><b>Definition</b> libint.cpp:114</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

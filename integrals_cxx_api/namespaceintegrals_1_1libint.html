@@ -170,12 +170,12 @@ template&lt;typename BraKetType &gt; </td></tr>
 <tr class="memitem:ad00d5e9507e58cc54c6c863c3ec7a5b3" id="r_ad00d5e9507e58cc54c6c863c3ec7a5b3"><td class="memItemLeft" align="right" valign="top"><a id="ad00d5e9507e58cc54c6c863c3ec7a5b3" name="ad00d5e9507e58cc54c6c863c3ec7a5b3"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>EXTERN_LIBINT</b> (aos_squared, v_ee_type, aos_squared)</td></tr>
 <tr class="separator:ad00d5e9507e58cc54c6c863c3ec7a5b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b649583cc96dab4fc95b9a4d1557536" id="r_a9b649583cc96dab4fc95b9a4d1557536"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1libint.html#a9b649583cc96dab4fc95b9a4d1557536">set_defaults</a> (pluginplay::ModuleManager &amp;mm)</td></tr>
-<tr class="memdesc:a9b649583cc96dab4fc95b9a4d1557536"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set default module relationships.  <br /></td></tr>
-<tr class="separator:a9b649583cc96dab4fc95b9a4d1557536"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a238f56292748e119e6c8562d21b896b4" id="r_a238f56292748e119e6c8562d21b896b4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1libint.html#a238f56292748e119e6c8562d21b896b4">load_modules</a> (pluginplay::ModuleManager &amp;mm)</td></tr>
-<tr class="memdesc:a238f56292748e119e6c8562d21b896b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load the libint modules into a Module Manager.  <br /></td></tr>
-<tr class="separator:a238f56292748e119e6c8562d21b896b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63219d486c51fece149455a15cd9949d" id="r_a63219d486c51fece149455a15cd9949d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1libint.html#a63219d486c51fece149455a15cd9949d">set_defaults</a> (pluginplay::ModuleMap &amp;modules)</td></tr>
+<tr class="memdesc:a63219d486c51fece149455a15cd9949d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set default module relationships.  <br /></td></tr>
+<tr class="separator:a63219d486c51fece149455a15cd9949d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88c256db83bc0793dcd154081b409569" id="r_a88c256db83bc0793dcd154081b409569"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1libint.html#a88c256db83bc0793dcd154081b409569">load_modules</a> (pluginplay::ModuleMap &amp;modules)</td></tr>
+<tr class="memdesc:a88c256db83bc0793dcd154081b409569"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds the libint modules to the Integrals plugin's modules.  <br /></td></tr>
+<tr class="separator:a88c256db83bc0793dcd154081b409569"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a43ca041750a660d2c45848f933c87264" id="r_a43ca041750a660d2c45848f933c87264"><td class="memTemplParams" colspan="2">template&lt;typename BraKetType &gt; </td></tr>
 <tr class="memitem:a43ca041750a660d2c45848f933c87264"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceintegrals_1_1libint.html#a43ca041750a660d2c45848f933c87264">DECLARE_MODULE</a> (Libint)</td></tr>
 <tr class="memdesc:a43ca041750a660d2c45848f933c87264"><td class="mdescLeft">&#160;</td><td class="mdescRight">The Module for computing AO Integrals.  <br /></td></tr>
@@ -287,8 +287,8 @@ template&lt;typename BraKetType &gt; </div>
 
 </div>
 </div>
-<a id="a238f56292748e119e6c8562d21b896b4" name="a238f56292748e119e6c8562d21b896b4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a238f56292748e119e6c8562d21b896b4">&#9670;&#160;</a></span>load_modules()</h2>
+<a id="a88c256db83bc0793dcd154081b409569" name="a88c256db83bc0793dcd154081b409569"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a88c256db83bc0793dcd154081b409569">&#9670;&#160;</a></span>load_modules()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -296,31 +296,25 @@ template&lt;typename BraKetType &gt; </div>
         <tr>
           <td class="memname">void integrals::libint::load_modules </td>
           <td>(</td>
-          <td class="paramtype">pluginplay::ModuleManager &amp;&#160;</td>
-          <td class="paramname"><em>mm</em></td><td>)</td>
+          <td class="paramtype">pluginplay::ModuleMap &amp;&#160;</td>
+          <td class="paramname"><em>modules</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Load the libint modules into a Module Manager. </p>
+<p>Adds the libint modules to the Integrals plugin's modules. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">mm</td><td>The Module Manager to load the modules into</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="exception"><dt>Exceptions</dt><dd>
-  <table class="exception">
-    <tr><td class="paramname">none</td><td>No throw guarantee </td></tr>
+    <tr><td class="paramname">modules</td><td>The plugin's modules to add the libint modules to </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a id="a9b649583cc96dab4fc95b9a4d1557536" name="a9b649583cc96dab4fc95b9a4d1557536"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9b649583cc96dab4fc95b9a4d1557536">&#9670;&#160;</a></span>set_defaults()</h2>
+<a id="a63219d486c51fece149455a15cd9949d" name="a63219d486c51fece149455a15cd9949d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a63219d486c51fece149455a15cd9949d">&#9670;&#160;</a></span>set_defaults()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -328,8 +322,8 @@ template&lt;typename BraKetType &gt; </div>
         <tr>
           <td class="memname">void integrals::libint::set_defaults </td>
           <td>(</td>
-          <td class="paramtype">pluginplay::ModuleManager &amp;&#160;</td>
-          <td class="paramname"><em>mm</em></td><td>)</td>
+          <td class="paramtype">pluginplay::ModuleMap &amp;&#160;</td>
+          <td class="paramname"><em>modules</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -338,13 +332,7 @@ template&lt;typename BraKetType &gt; </div>
 <p>Set default module relationships. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">mm</td><td>The Module Manager with modules whose defaults will be set</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="exception"><dt>Exceptions</dt><dd>
-  <table class="exception">
-    <tr><td class="paramname">none</td><td>No throw guarantee </td></tr>
+    <tr><td class="paramname">modules</td><td>The plugin's modules, whose defaults will be set. Must already contain all of the plugin's modules. </td></tr>
   </table>
   </dd>
 </dl>

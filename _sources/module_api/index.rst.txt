@@ -1,35 +1,21 @@
-***********
-Modules API
-***********
+.. Copyright 2022 NWChemEx-Project
+..
+.. Licensed under the Apache License, Version 2.0 (the "License");
+.. you may not use this file except in compliance with the License.
+.. You may obtain a copy of the License at
+..
+.. http://www.apache.org/licenses/LICENSE-2.0
+..
+.. Unless required by applicable law or agreed to in writing, software
+.. distributed under the License is distributed on an "AS IS" BASIS,
+.. WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+.. See the License for the specific language governing permissions and
+.. limitations under the License.
+
+**********
+Module API
+**********
 
 .. toctree::
    :maxdepth: 1
-
-   Analytic_Error
-   AO_integral_driver
-   Black_Box_Primitive_Pair_Estimator
-   CauchySchwarz_Estimator
-   Coulomb_Metric
-   Decontract_Basis_Set
-   Density_Fitted_J_builder
-   Density_Fitted_K_builder
-   Density_Fitting_Integral
-   ERI2
-   ERI3
-   ERI4
-   Evaluate_2-Index_BraKet
-   Evaluate_3-Index_BraKet
-   Evaluate_4-Index_BraKet
-   Four_center_J_builder
-   Four_center_K_builder
-   Kinetic
-   Nuclear
-   Overlap
-   Primitive_Contractor_ERI4
-   Primitive_Error_Model
-   Primitive_Normalization
-   Raw_Primitive_ERI4
-   Screen_Primitive_Pairs
-   UQ_Atom_Symm_Blocked_Driver
-   UQ_Driver
-   UQ_Initializer
+   :caption: Packages
