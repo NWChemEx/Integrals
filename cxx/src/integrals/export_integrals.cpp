@@ -21,9 +21,6 @@
 
 namespace integrals {
 
-EXPORT_PLUGIN(integrals, m) {
-    export_property_types(m);
-    m.def("set_defaults", &set_defaults);
-}
+EXPORT_PLUGIN(integrals, Integrals, m) { export_property_types(m); }
 
 } // namespace integrals

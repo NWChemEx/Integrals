@@ -42,8 +42,7 @@ using tensorwrapper::buffer::make_contiguous;
 
 TEST_CASE("Rank2 Shell Norm") {
     pluginplay::ModuleManager mm;
-    integrals::load_modules(mm);
-    integrals::set_defaults(mm);
+    mm.load_plugin<integrals::Integrals>();
 
     auto eri_mod = mm.at("ERI4");
 

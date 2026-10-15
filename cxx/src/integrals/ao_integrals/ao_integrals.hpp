@@ -30,37 +30,37 @@ DECLARE_MODULE(UQDriver);
 DECLARE_MODULE(UQAtomSymmBlockedDriver);
 DECLARE_MODULE(UQInitializer);
 
-inline void set_defaults(pluginplay::ModuleManager& mm) {
-    mm.change_submod("AO integral driver", "Coulomb matrix",
-                     "Four center J builder");
-    mm.change_submod("AO integral driver", "Exchange matrix",
-                     "Four center K builder");
-    mm.change_submod("Density Fitted J builder", "DF ERI",
-                     "Density Fitting Integral");
-    mm.change_submod("Density Fitted K builder", "DF ERI",
-                     "Density Fitting Integral");
-    mm.change_submod("Density Fitting Integral", "Coulomb Metric",
-                     "Coulomb Metric");
-    mm.change_submod("UQ Driver", "ERIs", "ERI4");
-    mm.change_submod("UQ Driver", "ERI Error", "Primitive Error Model");
-    mm.change_submod("UQ Atom Symm Blocked Driver", "ERIs", "ERI4");
-    mm.change_submod("UQ Atom Symm Blocked Driver", "ERI Error",
-                     "Primitive Error Model");
-    mm.change_submod("UQ Atom Symm Blocked Driver", "UQ Initializer",
-                     "UQ Initializer");
+inline void set_defaults(pluginplay::ModuleMap& modules) {
+    modules.change_submod("AO integral driver", "Coulomb matrix",
+                          "Four center J builder");
+    modules.change_submod("AO integral driver", "Exchange matrix",
+                          "Four center K builder");
+    modules.change_submod("Density Fitted J builder", "DF ERI",
+                          "Density Fitting Integral");
+    modules.change_submod("Density Fitted K builder", "DF ERI",
+                          "Density Fitting Integral");
+    modules.change_submod("Density Fitting Integral", "Coulomb Metric",
+                          "Coulomb Metric");
+    modules.change_submod("UQ Driver", "ERIs", "ERI4");
+    modules.change_submod("UQ Driver", "ERI Error", "Primitive Error Model");
+    modules.change_submod("UQ Atom Symm Blocked Driver", "ERIs", "ERI4");
+    modules.change_submod("UQ Atom Symm Blocked Driver", "ERI Error",
+                          "Primitive Error Model");
+    modules.change_submod("UQ Atom Symm Blocked Driver", "UQ Initializer",
+                          "UQ Initializer");
 }
 
-inline void load_modules(pluginplay::ModuleManager& mm) {
-    mm.add_module<AOIntegralsDriver>("AO integral driver");
-    mm.add_module<JFourCenter>("Four center J builder");
-    mm.add_module<KFourCenter>("Four center K builder");
-    mm.add_module<JDensityFitted>("Density Fitted J builder");
-    mm.add_module<KDensityFitted>("Density Fitted K builder");
-    mm.add_module<DFIntegral>("Density Fitting Integral");
-    mm.add_module<CoulombMetric>("Coulomb Metric");
-    mm.add_module<UQDriver>("UQ Driver");
-    mm.add_module<UQAtomSymmBlockedDriver>("UQ Atom Symm Blocked Driver");
-    mm.add_module<UQInitializer>("UQ Initializer");
+inline void load_modules(pluginplay::ModuleMap& modules) {
+    modules.add_module<AOIntegralsDriver>("AO integral driver");
+    modules.add_module<JFourCenter>("Four center J builder");
+    modules.add_module<KFourCenter>("Four center K builder");
+    modules.add_module<JDensityFitted>("Density Fitted J builder");
+    modules.add_module<KDensityFitted>("Density Fitted K builder");
+    modules.add_module<DFIntegral>("Density Fitting Integral");
+    modules.add_module<CoulombMetric>("Coulomb Metric");
+    modules.add_module<UQDriver>("UQ Driver");
+    modules.add_module<UQAtomSymmBlockedDriver>("UQ Atom Symm Blocked Driver");
+    modules.add_module<UQInitializer>("UQ Initializer");
 }
 
 } // namespace integrals::ao_integrals

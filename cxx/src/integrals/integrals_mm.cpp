@@ -21,29 +21,25 @@
 
 namespace integrals {
 
-/** @brief Set default module relationships
- *
- *  @param mm The Module Manager with modules whose defaults will be set
- *
- *  @throw none No throw guarantee
- */
-void set_defaults(pluginplay::ModuleManager& mm) {
-    libint::set_defaults(mm);
-    ao_integrals::set_defaults(mm);
-    utils::set_defaults(mm);
-    mm.change_submod("AO integral driver", "Kinetic", "Kinetic");
-    mm.change_submod("AO integral driver", "Electron-Nuclear attraction",
-                     "Nuclear");
-    mm.change_submod("Four center J builder", "Four-center ERI", "ERI4");
-    mm.change_submod("Four center K builder", "Four-center ERI", "ERI4");
-    mm.change_submod("Density Fitting Integral", "Three-center ERI", "ERI3");
-    mm.change_submod("Coulomb Metric", "Two-center ERI", "ERI2");
-}
+PLUGIN_CTOR(Integrals) {
+    set_name("integrals");
 
-void load_modules(pluginplay::ModuleManager& mm) {
-    ao_integrals::load_modules(mm);
-    libint::load_modules(mm);
-    utils::load_modules(mm);
+    // The defaults refer to modules from more than one subdirectory, so all
+    // modules are added before any defaults are set
+    ao_integrals::load_modules(modules());
+    libint::load_modules(modules());
+    utils::load_modules(modules());
+
+    libint::set_defaults(modules());
+    ao_integrals::set_defaults(modules());
+    utils::set_defaults(modules());
+    change_submod("AO integral driver", "Kinetic", "Kinetic");
+    change_submod("AO integral driver", "Electron-Nuclear attraction",
+                  "Nuclear");
+    change_submod("Four center J builder", "Four-center ERI", "ERI4");
+    change_submod("Four center K builder", "Four-center ERI", "ERI4");
+    change_submod("Density Fitting Integral", "Three-center ERI", "ERI3");
+    change_submod("Coulomb Metric", "Two-center ERI", "ERI2");
 }
 
 } // namespace integrals

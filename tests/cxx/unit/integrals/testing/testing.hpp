@@ -43,8 +43,7 @@ namespace integrals::testing {
 
 inline auto initialize_integrals() {
     auto mm = pluginplay::ModuleManager();
-    integrals::load_modules(mm);
-    integrals::set_defaults(mm);
+    mm.load_plugin<integrals::Integrals>();
     return mm;
 }
 

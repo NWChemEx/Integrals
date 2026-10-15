@@ -53,4 +53,4 @@ class TestDecontractBasisSet(unittest.TestCase):
 
     def setUp(self):
         self.mm = pp.ModuleManager(pz.runtime.RuntimeView())
-        integrals.load_modules(self.mm)
+        self.mm.load_plugin(integrals.Integrals())
