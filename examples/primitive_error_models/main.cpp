@@ -66,8 +66,7 @@ int main(int argc, char* argv[]) {
 
     // Initializes a ModuleManager object with the integrals plugin
     pluginplay::ModuleManager mm(std::move(rt), nullptr);
-    integrals::load_modules(mm);
-    integrals::set_defaults(mm);
+    mm.load_plugin<integrals::Integrals>();
 
     // Modules for computing analytic error and estimating error
     auto& analytic_error_mod = mm.at("Analytic Error");

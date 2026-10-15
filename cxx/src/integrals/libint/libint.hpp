@@ -50,21 +50,18 @@ using simde::type::t_e_type;
 using simde::type::v_ee_type;
 using simde::type::v_en_type;
 
-/** @brief Load the libint modules into a Module Manager
+/** @brief Adds the libint modules to the Integrals plugin's modules
  *
- *  @param mm The Module Manager to load the modules into
- *
- *  @throw none No throw guarantee
+ *  @param modules The plugin's modules to add the libint modules to
  */
-void load_modules(pluginplay::ModuleManager& mm);
+void load_modules(pluginplay::ModuleMap& modules);
 
 /** @brief Set default module relationships
  *
- *  @param mm The Module Manager with modules whose defaults will be set
- *
- *  @throw none No throw guarantee
+ *  @param modules The plugin's modules, whose defaults will be set. Must
+ *                 already contain all of the plugin's modules.
  */
-void set_defaults(pluginplay::ModuleManager& mm);
+void set_defaults(pluginplay::ModuleMap& modules);
 
 // Forward External Template Declarations
 #define EXTERN_LIBINT extern template struct Libint

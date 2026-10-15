@@ -170,8 +170,7 @@ TEMPLATE_LIST_TEST_CASE("UQ Driver", "", uq_types) {
 
     auto rt = std::make_unique<parallelzone::runtime::RuntimeView>();
     pluginplay::ModuleManager mm(std::move(rt), nullptr);
-    integrals::load_modules(mm);
-    integrals::set_defaults(mm);
+    mm.load_plugin<integrals::Integrals>();
     REQUIRE(mm.count("UQ Driver"));
     mm.change_input("ERI4", "Threshold", 1.0e-6);
 

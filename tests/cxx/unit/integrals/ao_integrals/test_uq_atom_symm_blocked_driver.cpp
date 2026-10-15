@@ -115,8 +115,7 @@ TEMPLATE_LIST_TEST_CASE("UQ Atom Symm Blocked Driver", "", uq_types) {
 
     auto rt = std::make_unique<parallelzone::runtime::RuntimeView>();
     pluginplay::ModuleManager mm(std::move(rt));
-    integrals::load_modules(mm);
-    integrals::set_defaults(mm);
+    mm.load_plugin<integrals::Integrals>();
     REQUIRE(mm.count("UQ Atom Symm Blocked Driver"));
     mm.change_input("ERI4", "Threshold", 1.0e-6);
     auto mod = mm.at("UQ Atom Symm Blocked Driver");

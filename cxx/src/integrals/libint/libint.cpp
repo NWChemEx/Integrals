@@ -93,24 +93,25 @@ EXTERN_LIBINT(aos_squared, v_ee_type, aos_squared);
 
 #undef EXTERN_LIBINT
 
-void set_defaults(pluginplay::ModuleManager& mm) {
-    mm.change_submod("CauchySchwarz Estimator", "Decontract Basis Set",
-                     "Decontract Basis Set");
-    mm.copy_module("ERI4", "Benchmark ERI4");
-    mm.change_input("Benchmark ERI4", "Threshold", 1.0E-16);
-    mm.change_submod("CauchySchwarz Estimator", "ERI4", "Benchmark ERI4");
-    mm.change_submod("Analytic Error", "ERI4s", "Benchmark ERI4");
-    mm.change_submod("Raw Primitive ERI4", "Decontract Basis Set",
-                     "Decontract Basis Set");
-    mm.change_submod("Primitive Contractor ERI4", "Raw Primitive ERI4",
-                     "Raw Primitive ERI4");
-    mm.change_submod("Primitive Contractor ERI4", "Primitive Normalization",
-                     "Primitive Normalization");
+void set_defaults(pluginplay::ModuleMap& modules) {
+    modules.change_submod("CauchySchwarz Estimator", "Decontract Basis Set",
+                          "Decontract Basis Set");
+    modules.copy_module("ERI4", "Benchmark ERI4");
+    modules.change_input("Benchmark ERI4", "Threshold", 1.0E-16);
+    modules.change_submod("CauchySchwarz Estimator", "ERI4", "Benchmark ERI4");
+    modules.change_submod("Analytic Error", "ERI4s", "Benchmark ERI4");
+    modules.change_submod("Raw Primitive ERI4", "Decontract Basis Set",
+                          "Decontract Basis Set");
+    modules.change_submod("Primitive Contractor ERI4", "Raw Primitive ERI4",
+                          "Raw Primitive ERI4");
+    modules.change_submod("Primitive Contractor ERI4",
+                          "Primitive Normalization", "Primitive Normalization");
 }
 
-#define LOAD_LIBINT(bra, op, ket, key) mm.add_module<LIBINT(bra, op, ket)>(key)
+#define LOAD_LIBINT(bra, op, ket, key) \
+    modules.add_module<LIBINT(bra, op, ket)>(key)
 
-void load_modules(pluginplay::ModuleManager& mm) {
+void load_modules(pluginplay::ModuleMap& modules) {
     LOAD_LIBINT(aos, op_base_type, aos, "Evaluate 2-Index BraKet");
     LOAD_LIBINT(aos, op_base_type, aos_squared, "Evaluate 3-Index BraKet");
     LOAD_LIBINT(aos_squared, op_base_type, aos_squared,
@@ -121,14 +122,15 @@ void load_modules(pluginplay::ModuleManager& mm) {
     LOAD_LIBINT(aos, v_ee_type, aos, "ERI2");
     LOAD_LIBINT(aos, v_ee_type, aos_squared, "ERI3");
     LOAD_LIBINT(aos_squared, v_ee_type, aos_squared, "ERI4");
-    mm.add_module<BlackBoxPrimitiveEstimator>(
+    modules.add_module<BlackBoxPrimitiveEstimator>(
       "Black Box Primitive Pair Estimator");
-    mm.add_module<CauchySchwarzPrimitiveEstimator>("CauchySchwarz Estimator");
-    mm.add_module<PrimitiveErrorModel>("Primitive Error Model");
-    mm.add_module<AnalyticError>("Analytic Error");
-    mm.add_module<RawPrimitiveERIs>("Raw Primitive ERI4");
-    mm.add_module<PrimitiveNormalization>("Primitive Normalization");
-    mm.add_module<PrimitiveContractor>("Primitive Contractor ERI4");
+    modules.add_module<CauchySchwarzPrimitiveEstimator>(
+      "CauchySchwarz Estimator");
+    modules.add_module<PrimitiveErrorModel>("Primitive Error Model");
+    modules.add_module<AnalyticError>("Analytic Error");
+    modules.add_module<RawPrimitiveERIs>("Raw Primitive ERI4");
+    modules.add_module<PrimitiveNormalization>("Primitive Normalization");
+    modules.add_module<PrimitiveContractor>("Primitive Contractor ERI4");
 }
 
 #undef LOAD_LIBINT

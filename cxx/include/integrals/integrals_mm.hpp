@@ -19,14 +19,13 @@
 
 namespace integrals {
 
-/** @brief Load this plugin's modules into a Module Manager
+/** @brief The Integrals plugin.
  *
- *  @param mm The Module Manager to load the modules into
- *
- *  @throw none No throw guarantee
+ *  Load it into a ModuleManager with `mm.load_plugin<integrals::Integrals>()`
+ *  (`mm.load_plugin(integrals.Integrals())` from Python). The plugin's name is
+ *  "integrals". All of the plugin's default submodules are provided by the
+ *  plugin itself, so it does not need other plugins to be loaded.
  */
-DECLARE_PLUGIN(integrals);
-
-void set_defaults(pluginplay::ModuleManager&);
+DECLARE_PLUGIN(Integrals);
 
 } // end namespace integrals
