@@ -41,15 +41,22 @@ Setting up
    instructions do. If you built Integrals with `NWX_ECOSYSTEM_FROM_SOURCE=ON`,
    or in an environment without the wheels, build ChemCache from source the
    same way instead of installing its wheel.
-3. If you built Integrals with CMake and did not install it into the
-   environment, add the build directory to `PYTHONPATH` so Python can find the
-   `integrals` module:
+3. Only if you built Integrals with CMake **instead of** pip: add the build
+   directory to `PYTHONPATH` so Python can find the `integrals` module:
 
    ```.sh
    export PYTHONPATH=/path/to/Integrals/build:$PYTHONPATH
    ```
 
-   This step is not needed after a pip install.
+   Skip this step if `pip list` shows `nwchemex-integrals` in the
+   environment. Putting a build directory on `PYTHONPATH` then loads a second,
+   independently built copy of Integrals alongside the installed libraries. If
+   the two were built differently (e.g. one with GCC and one with Clang, or
+   against different versions of the dependencies), importing `integrals`
+   fails with an error like `ImportError: dlopen(...integrals...so): Symbol
+   not found: ...`. The CMake build must also have been configured with this
+   environment's Python and wheels (see the top-level README), not an older or
+   unrelated build directory.
 
 Running
 -------
