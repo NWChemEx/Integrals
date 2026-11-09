@@ -104,7 +104,7 @@ UQ Integrals Driver
 } // namespace
 
 using eri_pt   = simde::ERI4;
-using error_pt = integrals::property_types::Uncertainty<eri_pt>;
+using error_pt = simde::Uncertainty<eri_pt>;
 
 MODULE_CTOR(UQDriver) {
     satisfies_property_type<eri_pt>();

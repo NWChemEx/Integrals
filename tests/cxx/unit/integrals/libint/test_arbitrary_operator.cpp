@@ -85,7 +85,8 @@ TEST_CASE("OperatorBase") {
 
         SECTION("With UQ") {
             if constexpr(has_sigma) {
-                mod.change_input("UQ Type", "uncertain");
+                mm.change_input("UQ Initializer", "UQ Type",
+                                std::string("uncertain"));
                 auto T = mod.run_as<test_pt>(braket);
 
                 // Check output
@@ -118,7 +119,8 @@ TEST_CASE("OperatorBase") {
 
         SECTION("With UQ") {
             if constexpr(has_sigma) {
-                mod.change_input("UQ Type", "uncertain");
+                mm.change_input("UQ Initializer", "UQ Type",
+                                std::string("uncertain"));
                 // Call module
                 auto T = mod.run_as<test_pt>(braket);
 
@@ -157,7 +159,8 @@ TEST_CASE("OperatorBase") {
         SECTION("With UQ") {
             if constexpr(has_sigma) {
                 // Call module
-                mod.change_input("UQ Type", "uncertain");
+                mm.change_input("UQ Initializer", "UQ Type",
+                                std::string("uncertain"));
                 auto T = mod.run_as<test_pt>(braket);
 
                 // Check output

@@ -25,7 +25,9 @@ TEMPLATED_MODULE_CTOR(Libint, BraKetType) {
     satisfies_property_type<my_pt>();
     description("Driver for computing integrals with Libint");
 
-    add_input<std::string>("UQ Type").set_default("none");
+    add_submodule<simde::UQInitializer>("UQ Initializer")
+      .set_description(
+        "Makes the factory whose kind is the type of the integrals");
     add_input<double>("Threshold")
       .set_default(1.0E-16)
       .set_description(
@@ -38,7 +40,6 @@ TEMPLATED_MODULE_RUN(Libint, BraKetType) {
 
     const auto& [braket] = my_pt::unwrap_inputs(inputs);
     auto thresh          = inputs.at("Threshold").value<double>();
-    auto uq_type         = inputs.at("UQ Type").value<std::string>();
     auto bra             = braket.bra();
     auto ket             = braket.ket();
     auto& op             = braket.op();
@@ -47,33 +48,12 @@ TEMPLATED_MODULE_RUN(Libint, BraKetType) {
     // Gather information from Bra, Ket, and Op
     auto basis_sets = detail_::get_basis_sets(bra, ket);
     constexpr int N = detail_::get_n(bra, ket);
-    simde::type::tensor t;
-    using float_type = double;
-    if(uq_type == "none") {
-        t = detail_::fill_tensor<N, float_type>(basis_sets, op, rv, thresh);
-    } else if(uq_type == "uncertain") {
-        using uncertain_type = tensorwrapper::types::udouble;
-        t = detail_::fill_tensor<N, uncertain_type>(basis_sets, op, rv, thresh);
-    } else if(uq_type == "interval") {
-        using interval_type = tensorwrapper::types::interval_type<float_type>;
-        t = detail_::fill_tensor<N, interval_type>(basis_sets, op, rv, thresh);
-    } else if(uq_type == "affine") {
-        using affine_type = tensorwrapper::types::affine_type<float_type>;
-        t = detail_::fill_tensor<N, affine_type>(basis_sets, op, rv, thresh);
-    } else if(uq_type == "thresholded affine") {
-        using thresholded_affine_type =
-          tensorwrapper::types::thresholded_affine_type<float_type>;
-        t = detail_::fill_tensor<N, thresholded_affine_type>(basis_sets, op, rv,
-                                                             thresh);
-    } else if(uq_type == "taylor model") {
-        using taylor_model_type =
-          tensorwrapper::types::taylor_model_type<float_type>;
-        t = detail_::fill_tensor<N, taylor_model_type>(basis_sets, op, rv,
-                                                       thresh);
-    } else {
-        throw std::runtime_error(
-          "integrals::libint::Libint: Invalid UQ type name " + uq_type);
-    }
+    const auto& factory =
+      submods.at("UQ Initializer").run_as<simde::UQInitializer>();
+    auto t      = simde::visit_uq_kind(factory.kind(), [&](auto type) {
+        using float_type = typename decltype(type)::type;
+        return detail_::fill_tensor<N, float_type>(basis_sets, op, rv, thresh);
+    });
     auto result = results();
     return my_pt::wrap_results(result, t);
 }
@@ -94,10 +74,25 @@ EXTERN_LIBINT(aos_squared, v_ee_type, aos_squared);
 #undef EXTERN_LIBINT
 
 void set_defaults(pluginplay::ModuleMap& modules) {
+    // The integrals of the one-electron operators, and of arbitrary operators,
+    // are uncertain if "UQ Initializer" is configured to make them so. The
+    // ERIs are exact; their uncertainty is added by an ERI error model.
+    for(const auto* key :
+        {"Evaluate 2-Index BraKet", "Evaluate 3-Index BraKet",
+         "Evaluate 4-Index BraKet", "Overlap", "Kinetic", "Nuclear"})
+        modules.change_submod(key, "UQ Initializer", "UQ Initializer");
+    for(const auto* key : {"ERI2", "ERI3", "ERI4"})
+        modules.change_submod(key, "UQ Initializer", "No UQ Initializer");
+
     modules.change_submod("CauchySchwarz Estimator", "Decontract Basis Set",
                           "Decontract Basis Set");
     modules.copy_module("ERI4", "Benchmark ERI4");
     modules.change_input("Benchmark ERI4", "Threshold", 1.0E-16);
+
+    // The analytic error model subtracts a benchmark ERI from the screened
+    // ERI, so its benchmark should be as tight as possible
+    modules.copy_module("ERI4", "Analytic Benchmark ERI4");
+    modules.change_input("Analytic Benchmark ERI4", "Threshold", 1.0E-25);
     modules.change_submod("CauchySchwarz Estimator", "ERI4", "Benchmark ERI4");
     modules.change_submod("Analytic Error", "ERI4s", "Benchmark ERI4");
     modules.change_submod("Raw Primitive ERI4", "Decontract Basis Set",

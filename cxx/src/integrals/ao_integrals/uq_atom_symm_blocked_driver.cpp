@@ -31,7 +31,7 @@ using wtf::buffer::FloatBuffer;
 template<typename UQType, typename T, typename Tensor>
 auto average_error(T&& strides, T&& nbf, T&& ao_i, Tensor&& error,
                    utils::mean_type mean,
-                   const integrals::property_types::UQFactory& factory = {}) {
+                   const simde::UQFactory& factory = {}) {
     std::string error_base =
       "integrals::ao_integrals::UQAtomSymmBlockedDriver: ";
 
@@ -167,8 +167,7 @@ struct Kernel {
     using demangler_type = ::utilities::printing::Demangler;
 
     Kernel(shape_type shape, std::array<simde::type::ao_basis_set, 4> aos,
-           utils::mean_type mean,
-           integrals::property_types::UQFactory factory = {}) :
+           utils::mean_type mean, simde::UQFactory factory = {}) :
       m_shape(std::move(shape)),
       m_aos(aos),
       m_mean(mean),
@@ -298,8 +297,12 @@ struct Kernel {
                 rv = tensorwrapper::Tensor(m_shape, std::move(t_w_contig));
             };
 
-            using integrals::property_types::UQKind;
+            using simde::UQKind;
             switch(m_factory.kind()) {
+                case UQKind::none:
+                    throw std::runtime_error(
+                      m_error_base + "\"UQ Initializer\" makes values without "
+                                     "uncertainty. Set its \"UQ Type\" input.");
                 case UQKind::uncertain:
                     run_for_kind.template
                     operator()<tensorwrapper::types::uncertain_type>();
@@ -316,10 +319,6 @@ struct Kernel {
                     run_for_kind.template
                     operator()<tensorwrapper::types::thresholded_affine_type>();
                     break;
-                case UQKind::taylor_model:
-                    run_for_kind.template
-                    operator()<tensorwrapper::types::taylor_model_type>();
-                    break;
             }
 #else
             throw std::runtime_error(m_error_base +
@@ -332,7 +331,7 @@ struct Kernel {
     shape_type m_shape;
     std::array<simde::type::ao_basis_set, 4> m_aos;
     utils::mean_type m_mean;
-    integrals::property_types::UQFactory m_factory;
+    simde::UQFactory m_factory;
     std::string m_error_base =
       "integrals::ao_integrals::UQAtomSymmBlockedDriver: ";
 };
@@ -346,14 +345,14 @@ UQ Integrals Driver
 } // namespace
 
 using eri_pt   = simde::ERI4;
-using error_pt = integrals::property_types::Uncertainty<eri_pt>;
+using error_pt = simde::Uncertainty<eri_pt>;
 
 MODULE_CTOR(UQAtomSymmBlockedDriver) {
     satisfies_property_type<eri_pt>();
     description(desc);
     add_submodule<eri_pt>("ERIs");
     add_submodule<error_pt>("ERI Error");
-    add_submodule<integrals::property_types::UQInitializer>("UQ Initializer");
+    add_submodule<simde::UQInitializer>("UQ Initializer");
     add_input<std::string>("Mean Type").set_default("none");
 }
 
@@ -362,8 +361,7 @@ MODULE_RUN(UQAtomSymmBlockedDriver) {
     auto mean_str        = inputs.at("Mean Type").value<std::string>();
     auto mean            = utils::mean_from_string(mean_str);
 
-    auto factory = submods.at("UQ Initializer")
-                     .run_as<integrals::property_types::UQInitializer>();
+    auto factory = submods.at("UQ Initializer").run_as<simde::UQInitializer>();
 
     auto& eri_mod = submods.at("ERIs").value();
     auto tol      = eri_mod.inputs().at("Threshold").value<double>();

@@ -24,7 +24,7 @@ const auto desc = "Uses the error in the ERI4 as the uncertainty.";
 }
 
 using eri4_pt = simde::ERI4;
-using pt      = integrals::property_types::Uncertainty<eri4_pt>;
+using pt      = simde::Uncertainty<eri4_pt>;
 
 MODULE_CTOR(AnalyticError) {
     satisfies_property_type<pt>();
