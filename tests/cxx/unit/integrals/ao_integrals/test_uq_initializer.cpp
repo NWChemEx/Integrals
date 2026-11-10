@@ -18,10 +18,9 @@
 
 using namespace integrals::testing;
 
-using pt = integrals::property_types::UQInitializer;
-using integrals::property_types::uq_kind_from_string;
-using integrals::property_types::UQFactory;
-using integrals::property_types::UQKind;
+using pt = simde::UQInitializer;
+using simde::UQFactory;
+using simde::UQKind;
 
 TEST_CASE("UQInitializer") {
     auto mm   = initialize_integrals();
@@ -29,7 +28,12 @@ TEST_CASE("UQInitializer") {
 
     SECTION("Default UQ Type/order matches compiled-in defaults") {
         auto factory = mod.run_as<pt>();
-        REQUIRE(factory.kind() == UQKind::uncertain);
+        REQUIRE(factory.kind() == UQKind::none);
+    }
+
+    SECTION("No UQ Initializer") {
+        auto& no_uq = mm.at("No UQ Initializer");
+        REQUIRE(no_uq.run_as<pt>().kind() == UQKind::none);
     }
 
     SECTION("Each UQ Type string produces a factory of the matching kind") {
@@ -37,8 +41,7 @@ TEST_CASE("UQInitializer") {
           {"uncertain", UQKind::uncertain},
           {"interval", UQKind::interval},
           {"affine", UQKind::affine},
-          {"thresholded affine", UQKind::thresholded_affine},
-          {"taylor model", UQKind::taylor_model}};
+          {"thresholded affine", UQKind::thresholded_affine}};
 
         for(const auto& [uq_type, kind] : cases) {
             auto copy = mod.unlocked_copy();
@@ -61,24 +64,6 @@ TEST_CASE("UQInitializer") {
               elem);
 #endif
         }
-    }
-
-    SECTION("Custom order is honored for taylor model") {
-        auto mod4 = mod.unlocked_copy();
-        mod4.change_input("UQ Type", std::string("taylor model"));
-        mod4.change_input("Order", std::size_t(4));
-        auto factory = mod4.run_as<pt>();
-        REQUIRE(factory.kind() == UQKind::taylor_model);
-
-        [[maybe_unused]] auto elem = factory(0.774606, 0.0000010000000000);
-        // Without Sigma the "taylor model" type is a plain double, which has
-        // no order to honor.
-#ifdef ENABLE_SIGMA
-        auto tm =
-          wtf::fp::float_cast<tensorwrapper::types::taylor_model_type<double>>(
-            elem);
-        REQUIRE(tm.max_order() == 4);
-#endif
     }
 
     SECTION("Invalid UQ Type throws") {

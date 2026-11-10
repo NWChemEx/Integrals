@@ -48,6 +48,30 @@ TEST_CASE("Integrals plugin") {
         REQUIRE(submod.value() == *modules.at("Benchmark ERI4"));
     }
 
+    SECTION("Analytic Benchmark ERI4 is a tighter copy of ERI4") {
+        const auto& inputs = modules.at("Analytic Benchmark ERI4")->inputs();
+        const auto& eri4   = modules.at("ERI4")->inputs();
+        const auto thresh  = inputs.at("Threshold").value<double>();
+        REQUIRE(thresh < eri4.at("Threshold").value<double>());
+    }
+
+    SECTION("Integrals share the UQ Initializers") {
+        // Returns the module bound to the "UQ Initializer" submodule of key
+        auto uq_initializer = [&](const std::string& key) {
+            return &modules.at(key)->submods().at("UQ Initializer").value();
+        };
+        const auto* uq    = modules.at("UQ Initializer").get();
+        const auto* no_uq = modules.at("No UQ Initializer").get();
+        for(const auto* key :
+            {"Evaluate 2-Index BraKet", "Evaluate 3-Index BraKet",
+             "Evaluate 4-Index BraKet", "Overlap", "Kinetic", "Nuclear"})
+            REQUIRE(uq_initializer(key) == uq);
+        for(const auto* key : {"ERI2", "ERI3", "ERI4", "Benchmark ERI4",
+                               "Analytic Benchmark ERI4"})
+            REQUIRE(uq_initializer(key) == no_uq);
+        REQUIRE(uq_initializer("UQ Atom Symm Blocked Driver") == uq);
+    }
+
     SECTION("Can be loaded into a ModuleManager") {
         pluginplay::ModuleManager mm;
         mm.load_plugin<integrals::Integrals>();

@@ -80,7 +80,7 @@ inline double skip_increment(ErrorEstimateKind kind, double thresh, double K_ij,
 } // namespace
 
 using eri4_pt = simde::ERI4;
-using pt      = integrals::property_types::Uncertainty<eri4_pt>;
+using pt      = simde::Uncertainty<eri4_pt>;
 
 MODULE_CTOR(PrimitiveErrorModel) {
     satisfies_property_type<pt>();

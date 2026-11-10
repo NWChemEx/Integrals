@@ -58,7 +58,7 @@ inline simde::type::ao_basis_set h2_sto3g_basis_set() {
 
 // Property types for the ERI4 and the error in the ERI4
 using eri4_pt       = simde::ERI4;
-using eri4_error_pt = integrals::property_types::Uncertainty<eri4_pt>;
+using eri4_error_pt = simde::Uncertainty<eri4_pt>;
 
 int main(int argc, char* argv[]) {
     // Makes sure the environment doesn't go out of scope before the end.

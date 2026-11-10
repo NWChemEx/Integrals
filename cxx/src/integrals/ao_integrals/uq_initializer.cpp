@@ -24,27 +24,31 @@ const auto desc = R"(
 UQ Initializer
 --------------
 
-Produces a UQFactory configured by this module's "UQ Type" input (and, for
-"taylor model", the "Order" input). The resulting factory can be used directly
-in a module's hot loops, avoiding module-dispatch overhead.
+Produces a UQFactory configured by this module's "UQ Type" input. The
+resulting factory can be used directly in a module's hot loops, avoiding
+module-dispatch overhead.
+
+The modules which create uncertain values from double values, e.g., the
+one-electron integrals, share this module, so that the kind of uncertainty is
+set in one place. The default, "none", makes double values.
 )";
 
 } // namespace
 
-using pt = integrals::property_types::UQInitializer;
+using pt = simde::UQInitializer;
 
 MODULE_CTOR(UQInitializer) {
     satisfies_property_type<pt>();
     description(desc);
-    add_input<std::string>("UQ Type").set_default("uncertain");
-    add_input<std::size_t>("Order").set_default(std::size_t(2));
+    add_input<std::string>("UQ Type").set_default("none").set_description(
+      "The kind of uncertainty: none, uncertain, interval, "
+      "affine, or thresholded affine");
 }
 
 MODULE_RUN(UQInitializer) {
     auto uq_type = inputs.at("UQ Type").value<std::string>();
-    auto order   = inputs.at("Order").value<std::size_t>();
-    auto kind    = integrals::property_types::uq_kind_from_string(uq_type);
-    integrals::property_types::UQFactory factory(kind, order);
+    auto kind    = simde::uq_kind_from_string(uq_type);
+    simde::UQFactory factory(kind);
     auto rv = results();
     return pt::wrap_results(rv, factory);
 }

@@ -19,7 +19,8 @@ Integrals
 
 [![Nightly Workflow](https://github.com/NWChemEx/Integrals/actions/workflows/nightly.yaml/badge.svg)](https://github.com/NWChemEx/Integrals/actions/workflows/nightly.yaml)
 
-Repository for the generic integral API and implementations for specific integral libraries.
+Repository for the generic integral API and implementations for specific
+integral libraries.
 
 Building Integrals
 ------------------
