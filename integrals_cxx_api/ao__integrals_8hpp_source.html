@@ -144,9 +144,15 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    modules.add_module&lt;UQDriver&gt;(<span class="stringliteral">&quot;UQ Driver&quot;</span>);</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    modules.add_module&lt;UQAtomSymmBlockedDriver&gt;(<span class="stringliteral">&quot;UQ Atom Symm Blocked Driver&quot;</span>);</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    modules.add_module&lt;UQInitializer&gt;(<span class="stringliteral">&quot;UQ Initializer&quot;</span>);</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>}</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>} <span class="comment">// namespace integrals::ao_integrals</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="comment">// For modules which must make values without uncertainty, even when</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="comment">// &quot;UQ Initializer&quot; is configured to make uncertain values, e.g., the ERIs</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="comment">// an error model is applied to</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    modules.copy_module(<span class="stringliteral">&quot;UQ Initializer&quot;</span>, <span class="stringliteral">&quot;No UQ Initializer&quot;</span>);</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    modules.change_input(<span class="stringliteral">&quot;No UQ Initializer&quot;</span>, <span class="stringliteral">&quot;UQ Type&quot;</span>, std::string(<span class="stringliteral">&quot;none&quot;</span>));</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>}</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>} <span class="comment">// namespace integrals::ao_integrals</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

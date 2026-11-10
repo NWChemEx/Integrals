@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['primitive_5fpair_5festimators_2ehpp_0',['primitive_pair_estimators.hpp',['../primitive__pair__estimators_8hpp.html',1,'']]],
-  ['property_5ftypes_2ehpp_1',['property_types.hpp',['../property__types_8hpp.html',1,'']]]
+  ['set_5fdefaults_0',['set_defaults',['../namespaceintegrals_1_1libint.html#a63219d486c51fece149455a15cd9949d',1,'integrals::libint']]],
+  ['shells2ord_1',['shells2ord',['../namespaceintegrals_1_1libint_1_1detail__.html#aa17d8e3237d0d105fffa57df823c7ea5',1,'integrals::libint::detail_']]]
 ];
