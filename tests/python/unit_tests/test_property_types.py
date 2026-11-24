@@ -35,3 +35,25 @@ class TestDecontractBasisSet(unittest.TestCase):
             self.assertEqual(len(self.pt.results()), len(self.result_labels))
             for label in self.result_labels:
                 self.assertIn(label, self.pt.results())
+
+
+class TestPrimitiveQuartetScreening(unittest.TestCase):
+    def setUp(self):
+        self.pt = integrals.PrimitiveQuartetScreening()
+        self.input_labels = ["BraKet", "Tolerance"]
+        self.result_labels = [
+            "Primitive Quartet Contributions",
+            "Screening Reasons",
+            "Coarse Estimates",
+            "Fine Estimates",
+        ]
+
+    def test_inputs(self):
+        self.assertEqual(len(self.pt.inputs()), len(self.input_labels))
+        for label in self.input_labels:
+            self.assertIn(label, self.pt.inputs())
+
+    def test_results(self):
+        self.assertEqual(len(self.pt.results()), len(self.result_labels))
+        for label in self.result_labels:
+            self.assertIn(label, self.pt.results())

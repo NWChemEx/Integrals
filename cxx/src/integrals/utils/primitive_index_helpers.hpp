@@ -75,4 +75,28 @@ inline std::vector<std::size_t> build_prim_ao_to_cgto_map(
     return map;
 }
 
+/** @brief The maps from primitive AO indices of one basis set.
+ *
+ *  Bundles the two maps the primitive-level ERI4 modules need for each basis
+ *  set.
+ */
+struct PrimitiveAOMaps {
+    /** @brief Builds both maps for @p bs.
+     *
+     *  @param[in] bs The basis set to build the maps for.
+     */
+    explicit PrimitiveAOMaps(const simde::type::ao_basis_set& bs) :
+      to_cgto(build_prim_ao_to_cgto_map(bs)),
+      to_prim_shell(build_prim_ao_to_prim_shell_map(bs)) {}
+
+    /// The number of primitive AO indices in the basis set
+    std::size_t size() const noexcept { return to_cgto.size(); }
+
+    /// The result of build_prim_ao_to_cgto_map
+    std::vector<std::size_t> to_cgto;
+
+    /// The result of build_prim_ao_to_prim_shell_map
+    std::vector<std::size_t> to_prim_shell;
+};
+
 } // namespace integrals::utils
