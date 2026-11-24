@@ -15,9 +15,9 @@
  */
 
 #include "../utils/primitive_index_helpers.hpp"
-#include "detail_/primitive_pair_estimators.hpp"
+#include "detail_/primitive_quartet_screener.hpp"
 #include "libint.hpp"
-#include <cmath>
+#include <array>
 #include <integrals/integrals.hpp>
 #include <stdexcept>
 #include <string>
@@ -40,20 +40,6 @@ contracted AO element: fixed `Tolerance`, coarse pair product
 `K_ij * K_kl`, or fine metric `|Q_ij Q_kl| / sqrt(gamma_ij + gamma_kl)`.
 )";
 
-/** @return True iff `PrimitiveContractor` would `continue` (skip) this quartet.
- */
-inline bool primitive_quartet_skipped(double K_ij, double K_kl, double Q_ij,
-                                      double Q_kl, double gamma_ij,
-                                      double gamma_kl, double thresh) {
-    if(K_ij < thresh) return true;
-    if(K_kl < thresh) return true;
-    if(K_ij * K_kl <= thresh) return true;
-    const double gamma_ijkl = gamma_ij + gamma_kl;
-    const double pfac       = std::abs(Q_ij * Q_kl / std::sqrt(gamma_ijkl));
-    if(pfac < thresh) return true;
-    return false;
-}
-
 enum class ErrorEstimateKind { Tolerance, Coarse, Fine };
 
 inline ErrorEstimateKind parse_error_estimate(const std::string& s) {
@@ -65,14 +51,16 @@ inline ErrorEstimateKind parse_error_estimate(const std::string& s) {
       "\"Coarse\", or \"Fine\"");
 }
 
-inline double skip_increment(ErrorEstimateKind kind, double thresh, double K_ij,
-                             double K_kl, double Q_ij, double Q_kl,
-                             double gamma_ij, double gamma_kl) {
+inline double skip_increment(ErrorEstimateKind kind, double thresh,
+                             const detail_::PrimitiveQuartetScreener& screener,
+                             std::size_t pi, std::size_t pj, std::size_t pk,
+                             std::size_t pl) {
     switch(kind) {
         case ErrorEstimateKind::Tolerance: return thresh;
-        case ErrorEstimateKind::Coarse: return K_ij * K_kl;
+        case ErrorEstimateKind::Coarse:
+            return screener.coarse_estimate(pi, pj, pk, pl);
         case ErrorEstimateKind::Fine:
-            return std::abs(Q_ij * Q_kl / std::sqrt(gamma_ij + gamma_kl));
+            return screener.fine_estimate(pi, pj, pk, pl);
     }
     return 0.0;
 }
@@ -107,27 +95,16 @@ MODULE_RUN(PrimitiveErrorModel) {
     const auto& bs2 = ket.first.ao_basis_set();
     const auto& bs3 = ket.second.ao_basis_set();
 
-    const auto K_bra     = detail_::coarse_k_ij(bs0, bs1);
-    const auto K_ket     = detail_::coarse_k_ij(bs2, bs3);
-    const auto gamma_bra = detail_::gamma_ij(bs0, bs1);
-    const auto gamma_ket = detail_::gamma_ij(bs2, bs3);
-    const auto Q_bra     = detail_::fine_k_ij(bs0, bs1);
-    const auto Q_ket     = detail_::fine_k_ij(bs2, bs3);
-
-    auto map0 = utils::build_prim_ao_to_cgto_map(bs0);
-    auto map1 = utils::build_prim_ao_to_cgto_map(bs1);
-    auto map2 = utils::build_prim_ao_to_cgto_map(bs2);
-    auto map3 = utils::build_prim_ao_to_cgto_map(bs3);
-
-    auto pmap0 = utils::build_prim_ao_to_prim_shell_map(bs0);
-    auto pmap1 = utils::build_prim_ao_to_prim_shell_map(bs1);
-    auto pmap2 = utils::build_prim_ao_to_prim_shell_map(bs2);
-    auto pmap3 = utils::build_prim_ao_to_prim_shell_map(bs3);
+    const detail_::PrimitiveQuartetScreener screener(bs0, bs1, bs2, bs3, tol);
+    const utils::PrimitiveAOMaps maps0(bs0);
+    const utils::PrimitiveAOMaps maps1(bs1);
+    const utils::PrimitiveAOMaps maps2(bs2);
+    const utils::PrimitiveAOMaps maps3(bs3);
 
     std::array<std::size_t, 4> naos{bs0.n_aos(), bs1.n_aos(), bs2.n_aos(),
                                     bs3.n_aos()};
-    std::array<std::size_t, 4> nprims{map0.size(), map1.size(), map2.size(),
-                                      map3.size()};
+    std::array<std::size_t, 4> nprims{maps0.size(), maps1.size(), maps2.size(),
+                                      maps3.size()};
 
     using float_type = double;
     tensorwrapper::shape::Smooth shape({naos[0], naos[1], naos[2], naos[3]});
@@ -139,39 +116,29 @@ MODULE_RUN(PrimitiveErrorModel) {
                k * naos[3] + l;
     };
 
+    using detail_::ScreeningReason;
     for(std::size_t pshell_i = 0; pshell_i < nprims[0]; ++pshell_i) {
-        const auto mu = map0[pshell_i];
-        const auto pi = pmap0[pshell_i];
+        const auto mu = maps0.to_cgto[pshell_i];
+        const auto pi = maps0.to_prim_shell[pshell_i];
 
         for(std::size_t pshell_j = 0; pshell_j < nprims[1]; ++pshell_j) {
-            const auto nu = map1[pshell_j];
-            const auto pj = pmap1[pshell_j];
-
-            const double K_ij     = K_bra[pi][pj];
-            const double gamma_ij = gamma_bra[pi][pj];
-            const double Q_ij     = Q_bra[pi][pj];
+            const auto nu = maps1.to_cgto[pshell_j];
+            const auto pj = maps1.to_prim_shell[pshell_j];
 
             for(std::size_t pshell_k = 0; pshell_k < nprims[2]; ++pshell_k) {
-                const auto lam = map2[pshell_k];
-                const auto pk  = pmap2[pshell_k];
+                const auto lam = maps2.to_cgto[pshell_k];
+                const auto pk  = maps2.to_prim_shell[pshell_k];
 
                 for(std::size_t pshell_l = 0; pshell_l < nprims[3];
                     ++pshell_l) {
-                    const auto sig = map3[pshell_l];
-                    const auto pl  = pmap3[pshell_l];
+                    const auto sig = maps3.to_cgto[pshell_l];
+                    const auto pl  = maps3.to_prim_shell[pshell_l];
 
-                    const double K_kl     = K_ket[pk][pl];
-                    const double Q_kl     = Q_ket[pk][pl];
-                    const double gamma_kl = gamma_ket[pk][pl];
-
-                    if(!primitive_quartet_skipped(K_ij, K_kl, Q_ij, Q_kl,
-                                                  gamma_ij, gamma_kl, tol)) {
+                    if(screener.screen(pi, pj, pk, pl) == ScreeningReason::kept)
                         continue;
-                    }
 
-                    const double inc = skip_increment(
-                      kind, tol, K_ij, K_kl, Q_ij, Q_kl, gamma_ij, gamma_kl);
-                    raw_buffer[ao_offset(mu, nu, lam, sig)] += inc;
+                    raw_buffer[ao_offset(mu, nu, lam, sig)] +=
+                      skip_increment(kind, tol, screener, pi, pj, pk, pl);
                 }
             }
         }

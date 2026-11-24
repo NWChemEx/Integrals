@@ -25,6 +25,7 @@ inline void export_property_types(python_module_reference m) {
     using namespace integrals::property_types;
 
     EXPORT_PROPERTY_TYPE(DecontractBasisSet, m);
+    EXPORT_PROPERTY_TYPE(PrimitiveQuartetScreening, m);
 }
 
 } // namespace integrals

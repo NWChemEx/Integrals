@@ -38,6 +38,7 @@ DECLARE_MODULE(AnalyticError);
 DECLARE_MODULE(PrimitiveNormalization);
 DECLARE_MODULE(RawPrimitiveERIs);
 DECLARE_MODULE(PrimitiveContractor);
+DECLARE_MODULE(PrimitiveQuartetScreening);
 
 using simde::type::braket;
 

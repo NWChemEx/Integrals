@@ -101,6 +101,10 @@ void set_defaults(pluginplay::ModuleMap& modules) {
                           "Raw Primitive ERI4");
     modules.change_submod("Primitive Contractor ERI4",
                           "Primitive Normalization", "Primitive Normalization");
+    modules.change_submod("Primitive Quartet Screening ERI4",
+                          "Raw Primitive ERI4", "Raw Primitive ERI4");
+    modules.change_submod("Primitive Quartet Screening ERI4",
+                          "Primitive Normalization", "Primitive Normalization");
 }
 
 #define LOAD_LIBINT(bra, op, ket, key) \
@@ -126,6 +130,8 @@ void load_modules(pluginplay::ModuleMap& modules) {
     modules.add_module<RawPrimitiveERIs>("Raw Primitive ERI4");
     modules.add_module<PrimitiveNormalization>("Primitive Normalization");
     modules.add_module<PrimitiveContractor>("Primitive Contractor ERI4");
+    modules.add_module<PrimitiveQuartetScreening>(
+      "Primitive Quartet Screening ERI4");
 }
 
 #undef LOAD_LIBINT

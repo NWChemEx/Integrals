@@ -31,6 +31,15 @@ for symmetry-unique quartets. Every quartet is computed once at
 screening tolerance. The error is the difference between the screened and the
 reference ERIs.
 
+Screening drops primitive quartets, not whole shell quartets. For each shell
+quartet and tolerance, the "Primitive Quartet Screening ERI4" module reports
+which primitive quartets libint drops and what each of them contributes to the
+ERIs. The "n_drop" column counts the dropped primitive quartets, and the
+"max|pred|" column is the error predicted by adding up their contributions. It
+should match "max|err|". Below each line, the dropped primitive quartets whose
+largest contribution is at least ``REPORT_FRACTION`` times the tolerance are
+printed one per line.
+
 Exploring a different region of parameter space is done by changing the
 hard-coded parameters below and re-running the module.
 """
@@ -70,11 +79,21 @@ TOLERANCES = [1.0e-6, 1.0e-8]
 #: Screening tolerance used to compute the reference ("exact") ERIs.
 REFERENCE_TOLERANCE = 1.0e-25
 
+#: A dropped primitive quartet is printed if its largest contribution to the
+#: ERIs is at least this fraction of the tolerance. The default prints the
+#: quartets that screening should not have dropped. Set it to 0 to print every
+#: dropped primitive quartet (tens of thousands of lines with the defaults).
+REPORT_FRACTION = 1.0
+
 # -----------------------------------------------------------------------------
 # Implementation
 # -----------------------------------------------------------------------------
 
 _L_LABELS = "spdfghik"
+
+#: Names of the codes in the "Screening Reasons" result of the "Primitive
+#: Quartet Screening ERI4" module, i.e., why a primitive quartet was dropped.
+_REASONS = ("kept", "bra pair", "ket pair", "coarse", "fine")
 
 #: Number of centers, i.e., vertices of a tetrahedron.
 _N_CENTERS = 4
@@ -207,6 +226,22 @@ def make_eri4_modules(mm):
     return ref_key, tol_keys
 
 
+def make_braket(aos):
+    """Makes the ERI4 BraKet for one shell quartet.
+
+    :param aos: The single-shell AO spaces of the quartet.
+    :type aos: tuple(chemist.wavefunction.AOs)
+
+    :return: The BraKet (aos[0] aos[1] | aos[2] aos[3]).
+    :rtype: chemist.braket._BraKet_ERI4
+    """
+    v_ee = Coulomb(Electron(), Electron())
+    braket = BraKet((aos[0], aos[1]), v_ee, (aos[2], aos[3]))
+    # N.B. C++ modules currently fail to convert the erased BraKet to the
+    # type ERI4 wants, so we hand them the concrete type.
+    return _BraKet_ERI4(braket)
+
+
 def compute_eri4(mm, key, aos):
     """Computes the ERIs for one shell quartet.
 
@@ -220,12 +255,96 @@ def compute_eri4(mm, key, aos):
     :return: The (n_i, n_j, n_k, n_l) block of ERIs.
     :rtype: numpy.ndarray
     """
-    v_ee = Coulomb(Electron(), Electron())
-    braket = BraKet((aos[0], aos[1]), v_ee, (aos[2], aos[3]))
-    # N.B. C++ modules currently fail to convert the erased BraKet to the
-    # type ERI4 wants, so we hand them the concrete type.
-    t = mm.run_as(simde.ERI4(), key, _BraKet_ERI4(braket))
-    return np.array(t)
+    return np.array(mm.run_as(simde.ERI4(), key, make_braket(aos)))
+
+
+def compute_primitive_quartets(mm, aos, tol):
+    """Runs the primitive quartet screening for one shell quartet.
+
+    :param mm: A ModuleManager with Integrals loaded.
+    :type mm: pluginplay.ModuleManager
+    :param aos: The single-shell AO spaces of the quartet.
+    :type aos: tuple(chemist.wavefunction.AOs)
+    :param tol: The screening tolerance.
+    :type tol: float
+
+    :return: The contribution of each primitive AO quartet, and for each
+        primitive quartet the screening reason code, the coarse estimate, and
+        the fine estimate.
+    :rtype: tuple(numpy.ndarray)
+    """
+    rvs = mm.run_as(
+        integrals.PrimitiveQuartetScreening(),
+        "Primitive Quartet Screening ERI4",
+        make_braket(aos),
+        tol,
+    )
+    return tuple(np.array(t) for t in rvs)
+
+
+def dropped_primitive_quartets(shells, contributions, reasons, coarse, fine):
+    """Yields the primitive quartets that screening dropped.
+
+    :param shells: The parameters of the four shells in the quartet.
+    :type shells: list(SampledShell)
+    :param contributions: The contribution of each primitive AO quartet, as
+        returned by ``compute_primitive_quartets``.
+    :type contributions: numpy.ndarray
+    :param reasons: The screening reason code of each primitive quartet.
+    :type reasons: numpy.ndarray
+    :param coarse: The coarse estimate of each primitive quartet.
+    :type coarse: numpy.ndarray
+    :param fine: The fine estimate of each primitive quartet.
+    :type fine: numpy.ndarray
+
+    :return: For each dropped primitive quartet: its primitive indices, the
+        reason it was dropped, its (n_i, n_j, n_k, n_l) block of contributions
+        to the ERIs, its coarse estimate, and its fine estimate.
+    :rtype: generator(tuple)
+    """
+    # Primitive AO indices run over the primitives of the shell, and for each
+    # primitive over the shell's AO components.
+    split = []
+    for shell, dim in zip(shells, contributions.shape):
+        n_prims = len(shell.exps)
+        split += [n_prims, dim // n_prims]
+    blocks = contributions.reshape(split)
+
+    for prims in zip(*np.nonzero(reasons)):
+        p, q, r, s = (int(x) for x in prims)
+        yield (
+            (p, q, r, s),
+            _REASONS[int(reasons[prims])],
+            blocks[p, :, q, :, r, :, s, :],
+            coarse[prims],
+            fine[prims],
+        )
+
+
+def print_dropped(shells, dropped, tol):
+    """Prints one line per large dropped primitive quartet.
+
+    Only quartets whose largest contribution is at least ``REPORT_FRACTION``
+    times ``tol`` are printed.
+
+    :param shells: The parameters of the four shells in the quartet.
+    :type shells: list(SampledShell)
+    :param dropped: The output of ``dropped_primitive_quartets``.
+    :type dropped: list(tuple)
+    :param tol: The screening tolerance.
+    :type tol: float
+    """
+    for prims, reason, block, coarse, fine in dropped:
+        if np.abs(block).max() < REPORT_FRACTION * tol:
+            continue
+        exps = ", ".join(
+            f"{shell.exps[p]:.4e}" for shell, p in zip(shells, prims)
+        )
+        print(
+            f"    {'':>8} prims {prims} exps ({exps}) {reason:>8}"
+            f"  max|contrib| {np.abs(block).max():.4e}"
+            f"  coarse {coarse:.4e}  fine {fine:.4e}"
+        )
 
 
 def print_shells(shells):
@@ -281,28 +400,33 @@ def main():
     mm.load_plugin(integrals.Integrals())
 
     ref_key, tol_keys = make_eri4_modules(mm)
+
+    # The values of the dropped primitive quartets should not be screened
+    mm.change_input("Raw Primitive ERI4", "Threshold", REFERENCE_TOLERANCE)
     shells = [get_sto3g_shell(mm, Z, i) for Z, i in SHELL_SAMPLES]
     print_shells(shells)
 
-    row = "{:>8} {:>8} {:>3} {:>12} {:>12} {:>12}  {}"
+    row = "{:>8} {:>8} {:>3} {:>12} {:>6} {:>12} {:>12} {:>12}  {}"
     header = (
         "R",
         "tol",
         "nc",
         "max|ERI|",
+        "n_drop",
         "max|err|",
+        "max|pred|",
         "max|err|/tol",
         "quartet",
     )
     for r in np.linspace(R_MIN, R_MAX, N_SEPARATIONS):
         centers = tetrahedron_centers(r)
 
-        # Each element is (AOs, label, center index)
+        # Each element is (AOs, label, center index, shell parameters)
         basis = []
         for c, center in enumerate(centers):
             for shell in shells:
                 aos, label = shell.at(center, f"C{c}")
-                basis.append((aos, label, c))
+                basis.append((aos, label, c, shell))
 
         print(f"R = {r:.4f} bohr ({len(basis)} shells)")
         print(row.format(*header))
@@ -313,23 +437,33 @@ def main():
             labels = [basis[s][1] for s in quartet]
             label = f"({labels[0]} {labels[1]}|{labels[2]} {labels[3]})"
             n_centers = len({basis[s][2] for s in quartet})
+            quartet_shells = [basis[s][3] for s in quartet]
 
             ref = compute_eri4(mm, ref_key, aos)
             max_eri = np.abs(ref).max()
             for tol, key in tol_keys.items():
                 error = np.abs(compute_eri4(mm, key, aos) - ref)
                 records[tol].append((label, n_centers, error))
+
+                prim_results = compute_primitive_quartets(mm, aos, tol)
+                dropped = list(
+                    dropped_primitive_quartets(quartet_shells, *prim_results)
+                )
+                predicted = sum((d[2] for d in dropped), np.zeros_like(error))
                 print(
                     row.format(
                         f"{r:.4f}",
                         f"{tol:.1e}",
                         n_centers,
                         f"{max_eri:.4e}",
+                        len(dropped),
                         f"{error.max():.4e}",
+                        f"{np.abs(predicted).max():.4e}",
                         f"{error.max() / tol:.4e}",
                         label,
                     )
                 )
+                print_dropped(quartet_shells, dropped, tol)
         print()
 
         for tol in TOLERANCES:

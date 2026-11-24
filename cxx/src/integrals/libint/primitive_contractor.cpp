@@ -16,13 +16,11 @@
 
 #include "../utils/primitive_index_helpers.hpp"
 #include "detail_/make_libint_basis_set.hpp"
-#include "detail_/primitive_pair_estimators.hpp"
+#include "detail_/primitive_quartet_screener.hpp"
 #include "libint.hpp"
-#include <cmath>
+#include <array>
 #include <integrals/property_types.hpp>
-#include <libint2/shell.h>
-#include <limits>
-#include <unsupported/Eigen/CXX11/Tensor>
+#include <vector>
 
 namespace integrals::libint {
 namespace {
@@ -107,33 +105,23 @@ MODULE_RUN(PrimitiveContractor) {
     const auto& c2 = norm_mod.run_as<norm_pt>(bs2);
     const auto& c3 = norm_mod.run_as<norm_pt>(bs3);
 
-    // Step 3: coarse screening matrices from PrimitivePairEstimator.
-    const auto K_bra = detail_::coarse_k_ij(bs0, bs1);
-    const auto k_ket = detail_::coarse_k_ij(bs2, bs3);
-
-    auto map0 = utils::build_prim_ao_to_cgto_map(bs0);
-    auto map1 = utils::build_prim_ao_to_cgto_map(bs1);
-    auto map2 = utils::build_prim_ao_to_cgto_map(bs2);
-    auto map3 = utils::build_prim_ao_to_cgto_map(bs3);
-
-    auto pmap0 = utils::build_prim_ao_to_prim_shell_map(bs0);
-    auto pmap1 = utils::build_prim_ao_to_prim_shell_map(bs1);
-    auto pmap2 = utils::build_prim_ao_to_prim_shell_map(bs2);
-    auto pmap3 = utils::build_prim_ao_to_prim_shell_map(bs3);
+    // Step 3: the screening decisions and the primitive AO index maps.
+    const detail_::PrimitiveQuartetScreener screener(bs0, bs1, bs2, bs3,
+                                                     thresh);
+    const utils::PrimitiveAOMaps maps0(bs0);
+    const utils::PrimitiveAOMaps maps1(bs1);
+    const utils::PrimitiveAOMaps maps2(bs2);
+    const utils::PrimitiveAOMaps maps3(bs3);
 
     // Number of AOs per basis set
     std::array naos{bs0.n_aos(), bs1.n_aos(), bs2.n_aos(), bs3.n_aos()};
 
-    // Number of primitive shells per basis set
+    // Number of primitive AOs per basis set
     std::array nprims{c0.size(), c1.size(), c2.size(), c3.size()};
 
     using namespace tensorwrapper;
     const auto prim_data = buffer::get_raw_data<double>(prim_T.buffer());
 
-    auto gamma_bra = detail_::gamma_ij(bs0, bs1);
-    auto gamma_ket = detail_::gamma_ij(bs2, bs3);
-    auto Q_bra     = detail_::fine_k_ij(bs0, bs1);
-    auto Q_ket     = detail_::fine_k_ij(bs2, bs3);
     std::vector<double> ao_data(naos[0] * naos[1] * naos[2] * naos[3], 0.0);
 
     auto ao_offset = [&](std::size_t i, std::size_t j, std::size_t k,
@@ -147,46 +135,33 @@ MODULE_RUN(PrimitiveContractor) {
                j * nprims[2] * nprims[3] + k * nprims[3] + l;
     };
 
+    using detail_::ScreeningReason;
     for(std::size_t pshell_i = 0; pshell_i < nprims[0]; ++pshell_i) {
         const auto ci = c0[pshell_i];
-        const auto mu = map0[pshell_i];
-        const auto pi = pmap0[pshell_i];
+        const auto mu = maps0.to_cgto[pshell_i];
+        const auto pi = maps0.to_prim_shell[pshell_i];
 
         for(std::size_t pshell_j = 0; pshell_j < nprims[1]; ++pshell_j) {
-            const auto nu = map1[pshell_j];
-            const auto pj = pmap1[pshell_j];
+            const auto nu  = maps1.to_cgto[pshell_j];
+            const auto pj  = maps1.to_prim_shell[pshell_j];
+            const auto cij = ci * c1[pshell_j];
 
-            const auto cij      = ci * c1[pshell_j];
-            const auto K_ij     = K_bra[pi][pj];
-            const auto gamma_ij = gamma_bra[pi][pj];
-            const auto Q_ij     = Q_bra[pi][pj];
-
-            if(K_ij < thresh) continue;
+            if(screener.bra_pair_screened(pi, pj)) continue;
             for(std::size_t pshell_k = 0; pshell_k < nprims[2]; ++pshell_k) {
-                const auto lam    = map2[pshell_k];
-                const auto pk     = pmap2[pshell_k];
+                const auto lam    = maps2.to_cgto[pshell_k];
+                const auto pk     = maps2.to_prim_shell[pshell_k];
                 const double cijk = cij * c2[pshell_k];
 
                 for(std::size_t pshell_l = 0; pshell_l < nprims[3];
                     ++pshell_l) {
-                    const auto cl  = c3[pshell_l];
-                    const auto sig = map3[pshell_l];
-                    const auto pl  = pmap3[pshell_l];
+                    const auto sig = maps3.to_cgto[pshell_l];
+                    const auto pl  = maps3.to_prim_shell[pshell_l];
 
-                    const double K_kl     = k_ket[pk][pl];
-                    const double Q_kl     = Q_ket[pk][pl];
-                    const double gamma_kl = gamma_ket[pk][pl];
-
-                    if(K_kl < thresh) continue;
-                    if(K_ij * K_kl <= thresh) continue;
-
-                    auto Q_ijkl     = Q_ij * Q_kl;
-                    auto gamma_ijkl = gamma_ij + gamma_kl;
-                    auto pfac       = std::abs(Q_ijkl / std::sqrt(gamma_ijkl));
-                    if(pfac < thresh) continue;
+                    if(screener.screen(pi, pj, pk, pl) != ScreeningReason::kept)
+                        continue;
 
                     ao_data[ao_offset(mu, nu, lam, sig)] +=
-                      cijk * cl *
+                      cijk * c3[pshell_l] *
                       prim_data[prim_offset(pshell_i, pshell_j, pshell_k,
                                             pshell_l)];
                 }

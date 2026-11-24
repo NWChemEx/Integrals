@@ -21,6 +21,7 @@
  * types are added in the future.
  */
 #pragma once
+#include <simde/evaluate_braket/evaluate_braket.hpp>
 #include <simde/types.hpp>
 #include <simde/utils/convert.hpp>
 
@@ -69,6 +70,38 @@ PROPERTY_TYPE_RESULTS(PairScreener) {
     using pair_vector  = std::vector<index_vector>;
     auto rv            = pluginplay::declare_result().add_field<pair_vector>(
       "Primitive Pairs Passing Screening");
+    return rv;
+}
+
+// PT used to report how screening treats each primitive quartet of an ERI4
+DECLARE_PROPERTY_TYPE(PrimitiveQuartetScreening);
+PROPERTY_TYPE_INPUTS(PrimitiveQuartetScreening) {
+    auto rv  = simde::ERI4::inputs();
+    auto rv0 = rv.add_field<double>("Tolerance");
+    rv0["Tolerance"].set_description("The screening threshold");
+    return rv0;
+}
+
+PROPERTY_TYPE_RESULTS(PrimitiveQuartetScreening) {
+    using tensor = simde::type::tensor;
+    auto rv      = pluginplay::declare_result()
+                .add_field<tensor>("Primitive Quartet Contributions")
+                .add_field<tensor>("Screening Reasons")
+                .add_field<tensor>("Coarse Estimates")
+                .add_field<tensor>("Fine Estimates");
+    rv["Primitive Quartet Contributions"].set_description(
+      "For each primitive AO quartet, what it contributes to the contracted "
+      "ERI, whether or not it is screened out. Indexed by primitive AO.");
+    rv["Screening Reasons"].set_description(
+      "For each primitive quartet, 0 if it is kept, otherwise the first "
+      "screening gate it fails: 1 bra pair, 2 ket pair, 3 coarse product, 4 "
+      "fine estimate. Indexed by primitive.");
+    rv["Coarse Estimates"].set_description(
+      "For each primitive quartet, the coarse estimate K_ij * K_kl. Indexed "
+      "by primitive.");
+    rv["Fine Estimates"].set_description(
+      "For each primitive quartet, the fine estimate "
+      "|Q_ij Q_kl| / sqrt(gamma_ij + gamma_kl). Indexed by primitive.");
     return rv;
 }
 

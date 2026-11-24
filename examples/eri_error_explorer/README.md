@@ -71,6 +71,17 @@ With the default settings this takes a few seconds. The script prints the
 sampled shells, one line per shell quartet and tolerance, and a summary per
 separation and tolerance.
 
+Screening drops primitive quartets, not whole shell quartets. On each line,
+`n_drop` is the number of primitive quartets libint dropped from that shell
+quartet. `max|pred|` is the error predicted by adding up what those primitive
+quartets contribute, and it should match `max|err|`. Below the line, each
+dropped primitive quartet that contributes at least `REPORT_FRACTION` times the
+tolerance gets its own line. That line gives the quartet's primitive indices
+and exponents, the screening gate that dropped it (`bra pair`, `ket pair`,
+`coarse` or `fine`), its largest contribution, and libint's coarse and fine
+estimates for it. These values come from the "Primitive Quartet Screening
+ERI4" module, which uses the same screening decisions as libint.
+
 Changing what is explored
 -------------------------
 
@@ -84,6 +95,7 @@ the script again:
 | `N_SEPARATIONS`         | `3`                | Number of evenly spaced separations in that range.                                |
 | `TOLERANCES`            | `[1e-6, 1e-8]`     | Screening tolerances to study.                                                    |
 | `REFERENCE_TOLERANCE`   | `1e-25`            | Tolerance used to compute the reference ("exact") ERIs.                           |
+| `REPORT_FRACTION`       | `1.0`              | Print a dropped primitive quartet if it contributes at least this times the tolerance; `0` prints them all. |
 
 Each sampled shell is placed on all four corners of a regular tetrahedron
 whose edge length is the separation, so the number of shells, and therefore of
