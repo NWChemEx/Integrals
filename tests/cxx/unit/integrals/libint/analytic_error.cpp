@@ -18,7 +18,7 @@
 #include <integrals/integrals.hpp>
 
 using eri4_pt = simde::ERI4;
-using pt      = integrals::property_types::Uncertainty<eri4_pt>;
+using pt      = simde::Uncertainty<eri4_pt>;
 
 using namespace integrals::testing;
 using tensorwrapper::operations::approximately_equal;

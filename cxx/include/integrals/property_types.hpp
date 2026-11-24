@@ -21,7 +21,6 @@
  * types are added in the future.
  */
 #pragma once
-#include <integrals/uq_factory.hpp>
 #include <simde/types.hpp>
 #include <simde/utils/convert.hpp>
 
@@ -73,22 +72,6 @@ PROPERTY_TYPE_RESULTS(PairScreener) {
     return rv;
 }
 
-template<typename BasePT>
-DECLARE_TEMPLATED_PROPERTY_TYPE(Uncertainty, BasePT);
-
-template<typename BasePT>
-TEMPLATED_PROPERTY_TYPE_INPUTS(Uncertainty, BasePT) {
-    auto rv  = BasePT::inputs();
-    auto rv0 = rv.template add_field<double>("Tolerance");
-    rv0["Tolerance"].set_description("The screening threshold");
-    return rv0;
-}
-
-template<typename BasePT>
-TEMPLATED_PROPERTY_TYPE_RESULTS(Uncertainty, BasePT) {
-    return BasePT::results();
-}
-
 using DecontractBasisSet =
   simde::Convert<simde::type::ao_basis_set, simde::type::ao_basis_set>;
 
@@ -109,20 +92,6 @@ TEMPLATED_PROPERTY_TYPE_RESULTS(Normalize, T) {
       "Normalization Factors");
     rv["Normalization Factors"].set_description(
       "A vector of normalization factors, one per primitive");
-    return rv;
-}
-
-// PT used to produce a UQFactory (declared in uq_factory.hpp) configured by
-// the module's own "UQ Type" and "Order" inputs. Has no property-type-level
-// inputs: the only configuration is module-specific (see uq_initializer.cpp).
-DECLARE_PROPERTY_TYPE(UQInitializer);
-PROPERTY_TYPE_INPUTS(UQInitializer) { return pluginplay::declare_input(); }
-
-PROPERTY_TYPE_RESULTS(UQInitializer) {
-    auto rv = pluginplay::declare_result().add_field<UQFactory>("UQ Factory");
-    rv["UQ Factory"].set_description(
-      "A callable, comparable factory that constructs UQ values of the "
-      "module-configured kind .");
     return rv;
 }
 

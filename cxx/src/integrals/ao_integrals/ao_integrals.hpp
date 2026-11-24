@@ -61,6 +61,12 @@ inline void load_modules(pluginplay::ModuleMap& modules) {
     modules.add_module<UQDriver>("UQ Driver");
     modules.add_module<UQAtomSymmBlockedDriver>("UQ Atom Symm Blocked Driver");
     modules.add_module<UQInitializer>("UQ Initializer");
+
+    // For modules which must make values without uncertainty, even when
+    // "UQ Initializer" is configured to make uncertain values, e.g., the ERIs
+    // an error model is applied to
+    modules.copy_module("UQ Initializer", "No UQ Initializer");
+    modules.change_input("No UQ Initializer", "UQ Type", std::string("none"));
 }
 
 } // namespace integrals::ao_integrals
